@@ -35,3 +35,14 @@ variable "ssh_use_agent" {
   type        = bool
   default     = false
 }
+
+##
+# Apps variables
+##
+variable "chart_versions" {
+  description = "Specify the chart versions"
+  type = object({
+    argocd = string
+  })
+  default = null
+}
