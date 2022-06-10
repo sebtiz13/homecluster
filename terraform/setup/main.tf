@@ -38,3 +38,11 @@ module "k3s_install" {
 locals {
   kubeconfig = module.k3s_install.kubeconfig
 }
+
+module "ssh" {
+  source = "../common-modules/ssh"
+
+  depends_on_ = [module.apt]
+  ssh         = local.ssh_connection
+  users       = var.users
+}

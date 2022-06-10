@@ -37,6 +37,18 @@ variable "ssh_use_agent" {
 }
 
 ##
+# System variables
+##
+variable "users" {
+  description = "Specify the users want create"
+  type = map(object({
+    authorized_key = string
+    sudoer         = bool
+  }))
+  default = []
+}
+
+##
 # Apps variables
 ##
 variable "chart_versions" {
