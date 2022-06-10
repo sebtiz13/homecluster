@@ -11,5 +11,15 @@ locals {
 
 module "apt" {
   source = "../common-modules/apt"
-  ssh = local.ssh_connection
+  ssh    = local.ssh_connection
+}
+
+module "k3s_install" {
+  source = "../common-modules/k3s_install"
+
+  depends_on_ = [module.apt]
+  ssh         = local.ssh_connection
+  k3s_flags = [
+    "--disable traefik"
+  ]
 }
