@@ -46,3 +46,11 @@ module "ssh" {
   ssh         = local.ssh_connection
   users       = var.users
 }
+
+module "ssh" {
+  source = "../common-modules/zfs"
+
+  depends_on_ = [module.apt]
+  ssh         = local.ssh_connection
+  disks       = var.zpool_disks
+}

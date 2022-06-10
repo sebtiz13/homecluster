@@ -48,6 +48,11 @@ variable "users" {
   default = []
 }
 
+variable "zpool_disks" {
+  description = "Specify the zpool disks"
+  type        = list(string)
+}
+
 ##
 # Apps variables
 ##
