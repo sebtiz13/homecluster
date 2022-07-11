@@ -45,7 +45,7 @@ variable "users" {
     authorized_key = string
     sudoer         = bool
   }))
-  default = []
+  default = {}
 }
 
 variable "zpool_disks" {
