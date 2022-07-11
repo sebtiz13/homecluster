@@ -16,7 +16,7 @@ server:
   ingress:
     enabled: true
     annotations:
-      %{if var.has_ssl}
+      %{if has_ssl}
       traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       %{else}
@@ -27,15 +27,15 @@ server:
     ## Hostnames must be provided if Ingress is enabled.
     ## Secrets must be manually created in the namespace
     hosts:
-      - argocd.${var.base_domain}
+      - argocd.${base_domain}
     paths:
       - /
     pathType: Prefix
-    %{if var.has_ssl}
+    %{if has_ssl}
     tls:
-      - secretName: ${var.tls_secret_name}
+      - secretName: ${tls_secret_name}
         hosts:
-          - argocd.${var.base_domain}
+          - argocd.${base_domain}
     %{endif}
 
   ## dedicated ingress for gRPC as documented at
@@ -43,7 +43,7 @@ server:
   ingressGrpc:
     enabled: true
     annotations:
-      %{if var.has_ssl}
+      %{if has_ssl}
       traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       %{else}
@@ -54,15 +54,15 @@ server:
     ## Hostnames must be provided if Ingress is enabled.
     ## Secrets must be manually created in the namespace
     hosts:
-      - argocd.${var.base_domain}
+      - argocd.${base_domain}
     paths:
       - /
     pathType: Prefix
-    %{if var.has_ssl}
+    %{if has_ssl}
     tls:
-      - secretName: ${var.tls_secret_name}
+      - secretName: ${tls_secret_name}
         hosts:
-          - argocd.${var.base_domain}
+          - argocd.${base_domain}
     %{endif}
 
   ## ArgoCD config
@@ -70,10 +70,10 @@ server:
   configEnabled: true
   config:
     # Disable admin account when Argo CD are deployed
-    admin.enabled: "${var.admin_account}"
+    admin.enabled: "${admin_account}"
 
     # Argo CD's externally facing base URL (optional). Required when configuring SSO
-    url: http%{if var.has_ssl}s%{endif}://argocd.${var.base_domain}
+    url: http%{if has_ssl}s%{endif}://argocd.${base_domain}
 
     # Ignore Velero Backup to prevent auto prune
     resource.exclusions: |
@@ -95,7 +95,7 @@ server:
         - "*"
       destinations:
         - namespace: "*"
-          server: ${var.clusters.salamandre}
+          server: ${clusters.salamandre}
       clusterResourceWhitelist:
         - group: "*"
           kind: "*"
@@ -108,7 +108,7 @@ server:
         - "*"
       destinations:
         - namespace: "*"
-          server: ${var.clusters.salamandre}
+          server: ${clusters.salamandre}
       clusterResourceWhitelist:
         - group: "*"
           kind: "*"
@@ -121,7 +121,7 @@ server:
         - "*"
       destinations:
         - namespace: "*"
-          server: ${var.clusters.baku}
+          server: ${clusters.baku}
       clusterResourceWhitelist:
         - group: "*"
           kind: "*"

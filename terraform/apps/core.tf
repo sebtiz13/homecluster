@@ -17,7 +17,7 @@ module "argocd" {
     }
   }
 
-  values = templatefile("${path.module}/values/argo-cd.yaml.tpl", {
+  values = templatefile("${path.module}/values/argo-cd.yaml.tftpl", {
     base_domain     = local.base_domain
     has_ssl         = var.environment == "production"
     tls_secret_name = local.tls_secret_name
