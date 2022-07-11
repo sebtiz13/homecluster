@@ -47,7 +47,7 @@ module "ssh" {
   users       = var.users
 }
 
-module "ssh" {
+module "zfs" {
   source = "../common-modules/zfs"
 
   depends_on_ = [module.apt]
