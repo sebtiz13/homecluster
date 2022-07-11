@@ -56,6 +56,12 @@ variable "zpool_disks" {
 ##
 # Apps variables
 ##
+variable "pg_version" {
+  description = "Specify the chart versions"
+  type = string
+  default = null
+}
+
 variable "chart_versions" {
   description = "Specify the chart versions"
   type = object({

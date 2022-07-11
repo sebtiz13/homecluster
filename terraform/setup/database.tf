@@ -2,14 +2,14 @@
 resource "null_resource" "postgresql_install" {
   depends_on = [module.apt]
   triggers = {
-    ssh_host        = var.ssh.host
-    ssh_port        = var.ssh.port
-    ssh_user        = var.ssh.user
-    ssh_private_key = var.ssh.private_key
-    ssh_agent       = var.ssh.agent
+    ssh_host        = local.ssh_connection.host
+    ssh_port        = local.ssh_connection.port
+    ssh_user        = local.ssh_connection.user
+    ssh_private_key = local.ssh_connection.private_key
+    ssh_agent       = local.ssh_connection.agent
 
     pg_version = var.pg_version
-    server_ip  = var.server_ip
+    server_ip  = local.ssh_connection.host
   }
 
   lifecycle {
