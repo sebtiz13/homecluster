@@ -34,6 +34,8 @@ module "k3s_install" {
   k3s_flags = [
     "--disable traefik"
   ]
+
+  kube_host = var.ssh_host
 }
 locals {
   kubeconfig = module.k3s_install.kubeconfig
@@ -52,5 +54,5 @@ module "zfs" {
 
   depends_on_ = [module.apt]
   ssh         = local.ssh_connection
-  disks       = var.zpool_disks
+  pool_disks  = var.zpool_disks
 }
