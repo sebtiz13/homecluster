@@ -2,3 +2,4 @@
 	path = terraform/common-modules
 	url = git@git.sebtiz13.fr:cluster/tf-common.git
 	branch = develop
+	ignore = dirty
