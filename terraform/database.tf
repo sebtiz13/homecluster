@@ -2,11 +2,12 @@
 resource "null_resource" "postgresql_install" {
   depends_on = [module.apt]
   triggers = {
-    ssh_host        = local.ssh_connection.host
-    ssh_port        = local.ssh_connection.port
-    ssh_user        = local.ssh_connection.user
-    ssh_private_key = local.ssh_connection.private_key
-    ssh_agent       = local.ssh_connection.agent
+    ssh_host            = local.ssh_connection.host
+    ssh_port            = local.ssh_connection.port
+    ssh_user            = local.ssh_connection.user
+    ssh_use_private_key = local.ssh_connection.use_private_key
+    ssh_private_key     = local.ssh_connection.private_key
+    ssh_agent           = local.ssh_connection.agent
 
     pg_version = var.pg_version
     server_ip  = local.ssh_connection.host
@@ -22,7 +23,7 @@ resource "null_resource" "postgresql_install" {
     host        = self.triggers.ssh_host
     port        = self.triggers.ssh_port
     user        = self.triggers.ssh_user
-    private_key = can(self.triggers.ssh_private_key) ? file(self.triggers.ssh_private_key) : null
+    private_key = self.triggers.use_private_key ? file(self.triggers.ssh_private_key) : null
     agent       = self.triggers.ssh_agent
   }
 

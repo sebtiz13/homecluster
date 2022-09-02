@@ -13,11 +13,12 @@ locals {
   }
 
   ssh_connection = {
-    host        = var.ssh_host
-    port        = var.ssh_port
-    user        = var.ssh_user
-    private_key = var.ssh_key
-    agent       = var.ssh_use_agent
+    host            = var.ssh_host
+    port            = var.ssh_port
+    user            = var.ssh_user
+    use_private_key = try(length(var.ssh_key) > 0, fileexists(var.ssh_key), false)
+    private_key     = var.ssh_key
+    agent           = var.ssh_use_agent
   }
 }
 
