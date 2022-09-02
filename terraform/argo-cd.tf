@@ -35,7 +35,7 @@ resource "helm_release" "argocd_deploy" {
 
 module "argocd_sync" {
   source     = "./common-modules/argocd_app"
-  depends_on = [helm_release.argocd_deploy]
+  depends_on_ = [helm_release.argocd_deploy]
 
   kubeconfig    = local.kubeconfig
   name          = local.name
