@@ -5,17 +5,16 @@ locals {
   repository = "https://argoproj.github.io/argo-helm"
   version    = var.chart_versions.argocd
 
-  values = templatefile("${path.module}/../apps/values/argo-cd.yaml.tftpl", {
+  values = templatefile("./values/argo-cd.yaml.tftpl", {
     base_domain     = local.base_domain
     has_ssl         = var.environment == "production"
     tls_secret_name = local.tls_secret_name
-    clusters        = local.clusters
-    admin_account   = var.environment == "vm"
+    core_apps       = local.core_apps
   })
 }
 
 module "argocd_deploy" {
-  source = "../common-modules/helm_release"
+  source = "./common-modules/helm_release"
 
   kubeconfig    = local.kubeconfig
   name          = local.name
@@ -27,7 +26,7 @@ module "argocd_deploy" {
 }
 
 module "argocd_sync" {
-  source      = "../common-modules/argocd_app"
+  source      = "./common-modules/argocd_app"
   depends_on_ = [module.argocd_deploy]
 
   kubeconfig    = local.kubeconfig

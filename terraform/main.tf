@@ -22,12 +22,12 @@ locals {
 }
 
 module "apt" {
-  source = "../common-modules/apt"
+  source = "./common-modules/apt"
   ssh    = local.ssh_connection
 }
 
 module "k3s_install" {
-  source = "../common-modules/k3s_install"
+  source = "./common-modules/k3s_install"
 
   depends_on_ = [module.apt]
   ssh         = local.ssh_connection
@@ -42,7 +42,7 @@ locals {
 }
 
 module "ssh" {
-  source = "../common-modules/ssh"
+  source = "./common-modules/ssh"
 
   depends_on_ = [module.apt]
   ssh         = local.ssh_connection
@@ -50,7 +50,7 @@ module "ssh" {
 }
 
 module "zfs" {
-  source = "../common-modules/zfs"
+  source = "./common-modules/zfs"
 
   depends_on_ = [module.apt]
   ssh         = local.ssh_connection
