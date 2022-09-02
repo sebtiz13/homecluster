@@ -34,6 +34,7 @@ module "k3s_install" {
   k3s_flags = [
     "--disable traefik"
   ]
+  k3s_node_name = "salamandre"
 
   kube_host = var.ssh_host
 }

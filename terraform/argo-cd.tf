@@ -13,21 +13,29 @@ locals {
   })
 }
 
-module "argocd_deploy" {
-  source = "./common-modules/helm_release"
+provider "helm" {
+  kubernetes {
+    host = local.kubeconfig.host
 
-  kubeconfig    = local.kubeconfig
-  name          = local.name
-  namespace     = local.namespace
-  chart         = local.chart
-  repository    = local.repository
-  chart_version = local.version
-  values        = local.values
+    cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
+    client_certificate     = base64decode(local.kubeconfig.client_certificate)
+    client_key             = base64decode(local.kubeconfig.client_key)
+  }
+}
+
+resource "helm_release" "argocd_deploy" {
+  name       = local.name
+  namespace  = local.namespace
+  chart      = local.chart
+  repository = local.repository
+  version    = local.version
+
+  values = [local.values]
 }
 
 module "argocd_sync" {
-  source      = "./common-modules/argocd_app"
-  depends_on_ = [module.argocd_deploy]
+  source     = "./common-modules/argocd_app"
+  depends_on = [helm_release.argocd_deploy]
 
   kubeconfig    = local.kubeconfig
   name          = local.name

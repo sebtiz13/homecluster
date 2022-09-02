@@ -22,7 +22,7 @@ resource "null_resource" "postgresql_install" {
     host        = self.triggers.ssh_host
     port        = self.triggers.ssh_port
     user        = self.triggers.ssh_user
-    private_key = self.triggers.ssh_private_key ? file(self.triggers.ssh_private_key) : null
+    private_key = can(self.triggers.ssh_private_key) ? file(self.triggers.ssh_private_key) : null
     agent       = self.triggers.ssh_agent
   }
 
