@@ -23,7 +23,7 @@ resource "null_resource" "postgresql_install" {
     host        = self.triggers.ssh_host
     port        = self.triggers.ssh_port
     user        = self.triggers.ssh_user
-    private_key = self.triggers.use_private_key ? file(self.triggers.ssh_private_key) : null
+    private_key = self.triggers.ssh_use_private_key ? file(self.triggers.ssh_private_key) : null
     agent       = self.triggers.ssh_agent
   }
 
@@ -33,7 +33,7 @@ resource "null_resource" "postgresql_install" {
       // Retrieve server ip
       "export PG_SERVER_IP=$(printf \"%-23s\" \"$(ip route get 1 | awk '{print $(NF-2);exit}')/32\")",
       // Install packages
-      "sudo apt install postgresql-${self.triggers.pg_version} postgresql-client-${self.triggers.pg_version} -y > /dev/null",
+      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy postgresql-${self.triggers.pg_version} postgresql-client-${self.triggers.pg_version} > /dev/null",
       // Add host for kubernetes cluster access
       "sudo sed -i \"\\|^# IPv6 local connections:.*|i host    all             all             $PG_SERVER_IP md5\" /etc/postgresql/${self.triggers.pg_version}/main/pg_hba.conf",
       // Start postgresql
@@ -53,7 +53,7 @@ resource "null_resource" "postgresql_install" {
       // Remove host
       "sudo sed -i '\\|127\\.0\\.0\\.1 postgresql\\.loc|d' /etc/hosts",
       // Remove packages
-      "sudo apt remove postgresql-${self.triggers.pg_version} postgresql-client-${self.triggers.pg_version} -y > /dev/null"
+      "sudo apt-get remove -qy postgresql-${self.triggers.pg_version} postgresql-client-${self.triggers.pg_version} > /dev/null"
     ]
   }
 }
