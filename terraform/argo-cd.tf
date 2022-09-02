@@ -24,6 +24,8 @@ provider "helm" {
 }
 
 resource "helm_release" "argocd_deploy" {
+  create_namespace = true
+
   name       = local.name
   namespace  = local.namespace
   chart      = local.chart
@@ -34,7 +36,7 @@ resource "helm_release" "argocd_deploy" {
 }
 
 module "argocd_sync" {
-  source     = "./common-modules/argocd_app"
+  source      = "./common-modules/argocd_app"
   depends_on_ = [helm_release.argocd_deploy]
 
   kubeconfig    = local.kubeconfig
