@@ -7,11 +7,11 @@ This repository contains the infrastructure as code with Terraform for `salamand
 ### For Vagrant
 
 ```sh
-cd terraform && terraform apply -var-file="common.tfvars" -var-file="terraform.vm.tfvars"
+cd terraform && terraform apply -var-file="terraform.vm.tfvars"
 ```
 
 ### For production
 
 ```sh
-cd terraform && terraform apply -var-file="common.tfvars" -var-file="terraform.tfvars"
+cd terraform && terraform apply -var-file="terraform.tfvars"
 ```
