@@ -65,7 +65,8 @@ variable "pg_version" {
 variable "chart_versions" {
   description = "Specify the chart versions"
   type = object({
-    argocd = string
+    argocd  = string
+    openebs = string
   })
   default = null
 }
