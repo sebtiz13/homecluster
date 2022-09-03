@@ -1,0 +1,31 @@
+resource "kubernetes_config_map" "custom-config" {
+  metadata {
+    name      = "coredns-custom"
+    namespace = "kube-system"
+  }
+
+  data = {
+    "salamandre.server" = "${templatefile("${path.module}/values/salamandre.server.tftpl", {
+      server_ip = local.ssh_connection.host
+    })}"
+  }
+}
+
+resource "null_resource" "coredns-reload" {
+  depends_on = [kubernetes_config_map.custom-config]
+
+  // Etablish SSH connection
+  connection {
+    type        = "ssh"
+    host        = local.ssh_connection.host
+    port        = local.ssh_connection.port
+    user        = local.ssh_connection.user
+    private_key = local.ssh_connection.use_private_key ? file(local.ssh_connection.private_key) : null
+    agent       = local.ssh_connection.agent
+  }
+
+  // Restart coredns if is already started
+  provisioner "remote-exec" {
+    script = "${path.module}/utils/reboot-coredns.sh"
+  }
+}

@@ -10,6 +10,7 @@ provider "remote" {
   }
 }
 
+
 # Provider for kubernetes apps
 provider "helm" {
   kubernetes {
@@ -22,6 +23,15 @@ provider "helm" {
 }
 
 provider "kubectl" {
+  host = local.kubeconfig.host
+
+  cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
+  client_certificate     = base64decode(local.kubeconfig.client_certificate)
+  client_key             = base64decode(local.kubeconfig.client_key)
+}
+
+
+provider "kubernetes" {
   host = local.kubeconfig.host
 
   cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
