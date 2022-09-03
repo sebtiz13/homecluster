@@ -1,4 +1,4 @@
-.PHONY: help init install init-upgrade
+.PHONY: help init validate cleanup cluster vagrant
 .SILENT:
 .DEFAULT_GOAL= help
 
@@ -25,23 +25,32 @@ cleanup: ## Cleanup init an testing environment
 	rm -rf terraform/.terraform
 	make vm-destroy --no-print-directory
 
+
 cluster: ## All-in-one command for cluster deployment
 	make init --no-print-directory
+	make apply --no-print-directory
+apply: ## [terraform] Create or update infrastructure
 	echo "Provisining cluster..."
 	cd terraform; terraform apply -auto-approve && terraform refresh
 
 test-cluster: ## All-in-one command for cluster deployment inside VM
 	make init --no-print-directory
 	make vm-create --no-print-directory
+	sleep 10
+	make test-apply --no-print-directory
+test-apply: ## [terraform] Create or update infrastructure  inside VM
 	echo "Provisining cluster..."
 	cd terraform; terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh
 
-vagrant: ## (Re)create vagrant VM
-	make vm-create --no-print-directory
-	make vm-destroy --no-print-directory
+
 vm-create: ## Create vagrant VM
 	echo "Creating new VM(s)..."
 	cd $(VAGRANT_DIR); vagrant up $(VM_NAME)
 vm-destroy: ## Destroying vagrant VM
 	echo "Destroying old VM(s)..."
 	cd $(VAGRANT_DIR); vagrant destroy -f $(VM_NAME) || true
+vm-ssh: ## Accessing to VM
+	cd $(VAGRANT_DIR); vagrant ssh $(VM_NAME)
+vagrant: ## (Re)create vagrant VM
+	make vm-destroy --no-print-directory
+	make vm-create --no-print-directory
