@@ -46,7 +46,7 @@ locals {
 module "ssh" {
   source = "./common-modules/ssh"
 
-  depends_on_ = [module.apt]
+  depends_on = [module.apt]
   ssh         = local.ssh_connection
   users       = var.users
 }
@@ -54,7 +54,7 @@ module "ssh" {
 module "zfs" {
   source = "./common-modules/zfs"
 
-  depends_on_ = [module.apt]
+  depends_on = [module.apt]
   ssh         = local.ssh_connection
   pool_disks  = var.zpool_disks
 }

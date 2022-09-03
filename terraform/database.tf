@@ -1,6 +1,6 @@
 
 resource "null_resource" "postgresql_install" {
-  depends_on = [module.apt]
+  depends_on = [module.zfs]
   triggers = {
     ssh_host            = local.ssh_connection.host
     ssh_port            = local.ssh_connection.port
