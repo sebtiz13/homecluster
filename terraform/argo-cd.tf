@@ -13,15 +13,6 @@ locals {
   })
 }
 
-provider "helm" {
-  kubernetes {
-    host = local.kubeconfig.host
-
-    cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
-    client_certificate     = base64decode(local.kubeconfig.client_certificate)
-    client_key             = base64decode(local.kubeconfig.client_key)
-  }
-}
 
 resource "helm_release" "argocd_deploy" {
   create_namespace = true
@@ -37,9 +28,8 @@ resource "helm_release" "argocd_deploy" {
 
 module "argocd_sync" {
   source      = "./common-modules/argocd_app"
-  depends_on_ = [helm_release.argocd_deploy]
+  depends_on = [helm_release.argocd_deploy]
 
-  kubeconfig    = local.kubeconfig
   name          = local.name
   namespace     = local.namespace
   chart         = local.chart

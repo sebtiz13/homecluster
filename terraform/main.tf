@@ -30,7 +30,7 @@ module "apt" {
 module "k3s_install" {
   source = "./common-modules/k3s_install"
 
-  depends_on_ = [module.apt]
+  depends_on = [module.apt]
   ssh         = local.ssh_connection
   k3s_flags = [
     "--disable traefik"
