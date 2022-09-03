@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     null = {
-      source = "hashicorp/null"
+      source  = "hashicorp/null"
       version = "~> 3.1"
     }
     remote = {
@@ -9,12 +9,12 @@ terraform {
       version = "~> 0.0.25"
     }
     kubernetes = {
-      source = "hashicorp/kubernetes"
+      source  = "hashicorp/kubernetes"
       version = "~> 2.11"
     }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = "~> 1.14"
+    argocd = {
+      source  = "oboukili/argocd"
+      version = "~> 3.2.1"
     }
   }
 }

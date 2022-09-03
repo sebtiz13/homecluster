@@ -1,10 +1,10 @@
 variable "environment" {
   description = "Specify the environment of running terraform"
-  type = string
-  default = "production"
+  type        = string
+  default     = "production"
 
   validation {
-    condition = var.environment == "vm" || var.environment == "production"
+    condition     = var.environment == "vm" || var.environment == "production"
     error_message = "Field environment must be equal to `vm` or `production`."
   }
 }
@@ -58,8 +58,8 @@ variable "zpool_disks" {
 ##
 variable "pg_version" {
   description = "Specify the chart versions"
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "chart_versions" {
@@ -68,4 +68,11 @@ variable "chart_versions" {
     argocd = string
   })
   default = null
+}
+
+variable "argocd_admin_password" {
+  description = "The admin password of argocd"
+  type        = string
+  sensitive   = true
+  default     = "admin"
 }

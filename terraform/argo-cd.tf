@@ -1,48 +1,82 @@
 locals {
-  name       = "argo-cd"
-  namespace  = "argo-cd"
-  chart      = "argo-cd"
-  repository = "https://argoproj.github.io/argo-helm"
-  version    = var.chart_versions.argocd
+  argocd_app = {
+    name       = "argo-cd"
+    namespace  = "argo-cd"
+    chart      = "argo-cd"
+    repository = "https://argoproj.github.io/argo-helm"
+    version    = var.chart_versions.argocd
 
-  values = templatefile("./values/argo-cd.yaml.tftpl", {
-    base_domain     = local.base_domain
-    has_ssl         = var.environment == "production"
-    tls_secret_name = local.tls_secret_name
-    core_apps       = local.core_apps
-  })
+    values = templatefile("./values/argo-cd.yaml.tftpl", {
+      password = var.argocd_admin_password
+    })
+  }
 }
 
 
 resource "helm_release" "argocd_deploy" {
   create_namespace = true
 
-  name       = local.name
-  namespace  = local.namespace
-  chart      = local.chart
-  repository = local.repository
-  version    = local.version
+  name       = local.argocd_app.name
+  namespace  = local.argocd_app.namespace
+  chart      = local.argocd_app.chart
+  repository = local.argocd_app.repository
+  version    = local.argocd_app.version
 
-  values = [local.values]
+  values = [local.argocd_app.values]
+}
+locals {
+  argocd_namespace = helm_release.argocd_deploy.namespace
 }
 
-module "argocd_sync" {
-  source      = "./common-modules/argocd_app"
-  depends_on = [helm_release.argocd_deploy]
+resource "argocd_project" "core_apps" {
+  metadata {
+    name      = local.core_apps.project
+    namespace = local.argocd_namespace
+  }
 
-  name          = local.name
-  namespace     = local.namespace
-  chart         = local.chart
-  repository    = local.repository
-  chart_version = local.version
-  values        = local.values
+  spec {
+    description  = "core apps of cluster"
+    source_repos = ["*"]
 
-  server  = local.core_apps.cluster
-  project = local.core_apps.project
-  sync_policy = {
-    automated = {
-      prune    = true
-      selfHeal = true
+    destination {
+      server    = local.core_apps.cluster
+      namespace = "*"
+    }
+    cluster_resource_whitelist {
+      group = "*"
+      kind  = "*"
+    }
+  }
+}
+
+resource "argocd_application" "argo-cd" {
+  metadata {
+    name      = local.argocd_app.name
+    namespace = local.argocd_namespace
+  }
+
+  spec {
+    project = local.core_apps.project
+    destination {
+      server    = local.core_apps.cluster
+      namespace = local.argocd_app.namespace
+    }
+
+    source {
+      repo_url        = local.argocd_app.repository
+      chart           = local.argocd_app.chart
+      target_revision = local.argocd_app.version
+
+      helm {
+        values = local.argocd_app.values
+      }
+    }
+
+    sync_policy {
+      automated = {
+        prune     = true
+        self_heal = true
+      }
     }
   }
 }

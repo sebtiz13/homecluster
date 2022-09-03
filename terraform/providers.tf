@@ -22,7 +22,7 @@ provider "helm" {
   }
 }
 
-provider "kubectl" {
+provider "kubernetes" {
   host = local.kubeconfig.host
 
   cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
@@ -31,10 +31,19 @@ provider "kubectl" {
 }
 
 
-provider "kubernetes" {
-  host = local.kubeconfig.host
+provider "argocd" {
+  server_addr                 = "localhost:8443"
+  insecure                    = true
+  port_forward                = true
+  port_forward_with_namespace = local.argocd_namespace
+  username                    = "admin"
+  password                    = var.argocd_admin_password
 
-  cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
-  client_certificate     = base64decode(local.kubeconfig.client_certificate)
-  client_key             = base64decode(local.kubeconfig.client_key)
+  kubernetes {
+    host = local.kubeconfig.host
+
+    cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
+    client_certificate     = base64decode(local.kubeconfig.client_certificate)
+    client_key             = base64decode(local.kubeconfig.client_key)
+  }
 }
