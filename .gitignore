@@ -1,3 +1,5 @@
 .terraform/
 *.tfstate*
-terraform.prod.tfvars
+terraform.tfvars
+
+.vagrant/
