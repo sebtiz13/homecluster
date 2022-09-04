@@ -62,18 +62,14 @@ variable "pg_version" {
   default     = null
 }
 
-variable "chart_versions" {
+variable "argocd_version" {
   description = "Specify the chart versions"
-  type = object({
-    argocd  = string
-    openebs = string
-  })
+  type = string
   default = null
 }
 
 variable "argocd_admin_password" {
-  description = "The admin password of argocd"
+  description = "The admin password of argocd ([!] YOU NEED TO bcrypt IT !)"
   type        = string
   sensitive   = true
-  default     = "admin"
 }

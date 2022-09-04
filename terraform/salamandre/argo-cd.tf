@@ -5,7 +5,7 @@ resource "helm_release" "argocd_deploy" {
   namespace  = "argo-cd"
   chart      = "argo-cd"
   repository = "https://argoproj.github.io/argo-helm"
-  version    = var.chart_versions.argocd
+  version    = var.argocd_version
 
   values = [templatefile("./values/argo-cd.yaml.tftpl", {
     password  = var.argocd_admin_password

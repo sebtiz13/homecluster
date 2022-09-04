@@ -1,6 +1,4 @@
 pg_version = "13"
 
-chart_versions = {
-  argocd = "4.8.3"
-  openebs = "2.1.0"
-}
+argocd_version = "4.8.3"
+argocd_admin_password = "$2a$10$/Xxuz7cIBUTELaZ11OsmzeAQn3MazPYGqsZOPDPWSdjGqPy0KQGrK" # value = admin (only used in setup step)

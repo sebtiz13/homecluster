@@ -9,7 +9,7 @@ notifications:
   enabled: false
 
 # Default admin password
-configs.secret.argocdServerAdminPassword: ${bcrypt(password)}
+configs.secret.argocdServerAdminPassword: ${password}
 
 server:
   # Additional command line arguments to pass to argocd-server
