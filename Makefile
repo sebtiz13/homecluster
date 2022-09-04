@@ -11,6 +11,7 @@ help: ## Display this help screen
 init: ## Init environment of Terraform
 	echo "Initializing terraform environment..."
 	terraform version
+	mkdir -p ./out/kubeconfig
 ifeq ($(VM_NAME), salamandre.vm)
 	cd terraform/salamandre; terraform init
 endif
@@ -20,6 +21,7 @@ endif
 
 init-upgrade: ## Init/upgrade environment of Terraform
 	echo "Initializing terraform environment..."
+	mkdir -p ./out/kubeconfig
 	terraform version
 ifeq ($(VM_NAME), salamandre.vm)
 	cd terraform/salamandre; terraform init --upgrade

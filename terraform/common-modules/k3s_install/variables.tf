@@ -47,3 +47,8 @@ variable "kube_host" {
   description = "Specify the custom kubernetes host for out kubeconfig."
   type        = string
 }
+
+variable "kubeconfig_path" {
+  description = "Specify the path for exporting kubeconfig."
+  type        = string
+}

@@ -1,8 +1,9 @@
 # Apps variables
 locals {
-  base_domain     = "sebtiz13.fr"
-  tls_secret_name = replace(local.base_domain, ".", "-")
+  base_domain      = "sebtiz13.fr"
+  tls_secret_name  = replace(local.base_domain, ".", "-")
   manifests_folder = "../../manifests"
+  out_dir          = "../../out"
 
   clusters = {
     salamandre = "https://kubernetes.default.svc"
@@ -32,13 +33,14 @@ module "k3s_install" {
   source = "../common-modules/k3s_install"
 
   depends_on = [module.apt]
-  ssh         = local.ssh_connection
+  ssh        = local.ssh_connection
   k3s_flags = [
     "--disable traefik"
   ]
   k3s_node_name = "salamandre"
 
-  kube_host = var.ssh_host
+  kube_host       = var.ssh_host
+  kubeconfig_path = "${local.out_dir}/kubeconfig/salamandre.${var.environment}.yaml"
 }
 locals {
   kubeconfig = module.k3s_install.kubeconfig
@@ -48,14 +50,14 @@ module "ssh" {
   source = "../common-modules/ssh"
 
   depends_on = [module.apt]
-  ssh         = local.ssh_connection
-  users       = var.users
+  ssh        = local.ssh_connection
+  users      = var.users
 }
 
 module "zfs" {
   source = "../common-modules/zfs"
 
   depends_on = [module.apt]
-  ssh         = local.ssh_connection
-  pool_disks  = var.zpool_disks
+  ssh        = local.ssh_connection
+  pool_disks = var.zpool_disks
 }
