@@ -42,7 +42,7 @@ cluster: ## All-in-one command for cluster deployment
 apply: ## [terraform] Create or update infrastructure
 	echo "Provisining cluster..."
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform apply -var-file="terraform.tfvars" -auto-approve && terraform refresh
+	cd terraform/salamandre; terraform apply -var-file="terraform.tfvars" -auto-approve && terraform refresh -var-file="terraform.tfvars"
 endif
 ifeq ($(VM_NAME), baku.vm)
 	echo "TODO: is currently not implemented"
@@ -56,7 +56,7 @@ test-cluster: ## All-in-one command for cluster deployment inside VM
 test-apply: ## [terraform] Create or update infrastructure  inside VM
 	echo "Provisining cluster..."
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh
+	cd terraform/salamandre; terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh -var-file="vm.tfvars"
 endif
 ifeq ($(VM_NAME), baku.vm)
 	echo "TODO: is currently not implemented"
