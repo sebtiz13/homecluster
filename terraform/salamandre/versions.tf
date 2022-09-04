@@ -1,5 +1,6 @@
 terraform {
   required_providers {
+    # Setup step
     null = {
       source  = "hashicorp/null"
       version = "~> 3.1"
@@ -8,13 +9,14 @@ terraform {
       source  = "tenstad/remote"
       version = "~> 0.0.25"
     }
+    # Deploy step
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.11"
     }
-    argocd = {
-      source  = "oboukili/argocd"
-      version = "~> 3.2.1"
+    kubectl = {
+      source = "gavinbunney/kubectl"
+      version = "1.14.0"
     }
   }
 }

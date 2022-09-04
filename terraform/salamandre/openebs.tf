@@ -1,39 +1,15 @@
-resource "argocd_application" "openebs" {
-  metadata {
-    name      = "openebs"
-    namespace = local.argocd_namespace
-  }
-
-  spec {
-    project = local.core_apps.project
-    destination {
-      server    = local.core_apps.cluster
-      namespace = "openebs"
-    }
-
-    source {
-      repo_url        = "https://openebs.github.io/zfs-localpv"
-      chart           = "zfs-localpv"
-      target_revision = var.chart_versions.openebs
-
-      helm {
-        values = yamlencode({
-          fullnameOverride = "openebs"
-        })
-      }
-    }
-
-    sync_policy {
-      automated = {
-        prune     = true
-        self_heal = true
-      }
-    }
-  }
+data "kubectl_file_documents" "openebs" {
+  content = file("${local.manifests_folder}/salamandre/openebs.yaml")
+}
+resource "kubectl_manifest" "openebs" {
+  depends_on         = [module.zfs, helm_release.argocd_deploy]
+  count              = length(data.kubectl_file_documents.openebs.documents)
+  yaml_body          = element(data.kubectl_file_documents.openebs.documents, count.index)
+  override_namespace = local.argocd_namespace
 }
 
 resource "kubernetes_storage_class" "openebs_storageclass" {
-  depends_on = [argocd_application.openebs]
+  depends_on = [kubectl_manifest.openebs]
 
   metadata {
     name = "openebs-zfspv"

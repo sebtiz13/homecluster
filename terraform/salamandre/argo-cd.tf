@@ -1,82 +1,54 @@
-locals {
-  argocd_app = {
-    name       = "argo-cd"
-    namespace  = "argo-cd"
-    chart      = "argo-cd"
-    repository = "https://argoproj.github.io/argo-helm"
-    version    = var.chart_versions.argocd
-
-    values = templatefile("./values/argo-cd.yaml.tftpl", {
-      password = var.argocd_admin_password
-    })
-  }
-}
-
-
 resource "helm_release" "argocd_deploy" {
   create_namespace = true
 
-  name       = local.argocd_app.name
-  namespace  = local.argocd_app.namespace
-  chart      = local.argocd_app.chart
-  repository = local.argocd_app.repository
-  version    = local.argocd_app.version
+  name       = "argo-cd"
+  namespace  = "argo-cd"
+  chart      = "argo-cd"
+  repository = "https://argoproj.github.io/argo-helm"
+  version    = var.chart_versions.argocd
 
-  values = [local.argocd_app.values]
+  values = [templatefile("./values/argo-cd.yaml.tftpl", {
+    password  = var.argocd_admin_password
+    core_apps = local.core_apps
+  })]
 }
 locals {
   argocd_namespace = helm_release.argocd_deploy.namespace
 }
 
-resource "argocd_project" "core_apps" {
-  metadata {
-    name      = local.core_apps.project
-    namespace = local.argocd_namespace
-  }
+resource "kubectl_manifest" "argocd_project" {
+  depends_on = [helm_release.argocd_deploy]
 
-  spec {
-    description  = "core apps of cluster"
-    source_repos = ["*"]
+  yaml_body = yamlencode({
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "AppProject"
 
-    destination {
-      server    = local.core_apps.cluster
-      namespace = "*"
+    metadata = {
+      name      = "cluster-core-apps"
+      namespace = local.argocd_namespace
     }
-    cluster_resource_whitelist {
-      group = "*"
-      kind  = "*"
+
+    spec = {
+      description = "core apps of cluster"
+      sourceRepos = ["*"]
+      destinations = [{
+        namespace = "*"
+        server = local.clusters.salamandre
+      }]
+      clusterResourceWhitelist = [{
+        group = "*"
+        kind = "*"
+      }]
     }
-  }
+  })
 }
 
-resource "argocd_application" "argo-cd" {
-  metadata {
-    name      = local.argocd_app.name
-    namespace = local.argocd_namespace
-  }
-
-  spec {
-    project = local.core_apps.project
-    destination {
-      server    = local.core_apps.cluster
-      namespace = local.argocd_app.namespace
-    }
-
-    source {
-      repo_url        = local.argocd_app.repository
-      chart           = local.argocd_app.chart
-      target_revision = local.argocd_app.version
-
-      helm {
-        values = local.argocd_app.values
-      }
-    }
-
-    sync_policy {
-      automated = {
-        prune     = true
-        self_heal = true
-      }
-    }
-  }
+data "kubectl_file_documents" "argocd" {
+  content = file("${local.manifests_folder}/salamandre/argo-cd.yaml")
+}
+resource "kubectl_manifest" "argocd_sync" {
+  depends_on         = [kubectl_manifest.argocd_project]
+  count              = length(data.kubectl_file_documents.argocd.documents)
+  yaml_body          = element(data.kubectl_file_documents.argocd.documents, count.index)
+  override_namespace = local.argocd_namespace
 }

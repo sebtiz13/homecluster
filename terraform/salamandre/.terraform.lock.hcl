@@ -1,9 +1,25 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
+provider "registry.terraform.io/gavinbunney/kubectl" {
+  version     = "1.14.0"
+  constraints = "1.14.0"
+  hashes = [
+    "h1:gLFn+RvP37sVzp9qnFCwngRjjFV649r6apjxvJ1E/SE=",
+    "zh:0350f3122ff711984bbc36f6093c1fe19043173fad5a904bce27f86afe3cc858",
+    "zh:07ca36c7aa7533e8325b38232c77c04d6ef1081cb0bac9d56e8ccd51f12f2030",
+    "zh:0c351afd91d9e994a71fe64bbd1662d0024006b3493bb61d46c23ea3e42a7cf5",
+    "zh:39f1a0aa1d589a7e815b62b5aa11041040903b061672c4cfc7de38622866cbc4",
+    "zh:428d3a321043b78e23c91a8d641f2d08d6b97f74c195c654f04d2c455e017de5",
+    "zh:4baf5b1de2dfe9968cc0f57fd4be5a741deb5b34ee0989519267697af5f3eee5",
+    "zh:6131a927f9dffa014ab5ca5364ac965fe9b19830d2bbf916a5b2865b956fdfcf",
+    "zh:c62e0c9fd052cbf68c5c2612af4f6408c61c7e37b615dc347918d2442dd05e93",
+    "zh:f0beffd7ce78f49ead612e4b1aefb7cb6a461d040428f514f4f9cc4e5698ac65",
+  ]
+}
+
 provider "registry.terraform.io/hashicorp/helm" {
-  version     = "2.6.0"
-  constraints = "~> 2.5"
+  version = "2.6.0"
   hashes = [
     "h1:rGVucCeYAqklKupwoLVG5VPQTIkUhO7WGcw3WuHYrm8=",
     "zh:0ac248c28acc1a4fd11bd26a85e48ab78dd6abf0f7ac842bf1cd7edd05ac6cf8",
@@ -78,23 +94,6 @@ provider "registry.terraform.io/hashicorp/null" {
     "zh:e356c245b3cd9d4789bab010893566acace682d7db877e52d40fc4ca34a50924",
     "zh:ea98802ba92fcfa8cf12cbce2e9e7ebe999afbf8ed47fa45fc847a098d89468b",
     "zh:eff8872458806499889f6927b5d954560f3d74bf20b6043409edf94d26cd906f",
-  ]
-}
-
-provider "registry.terraform.io/oboukili/argocd" {
-  version     = "3.2.1"
-  constraints = "~> 3.2.1"
-  hashes = [
-    "h1:3Mna2O7fIE5iFyFLlfjb7OcmKP2KHeFQBy+L43q6FSA=",
-    "zh:01ca7839c37c43a6e4e39db8ddc5a281bd6e2040349cb3f6b0acb26185b42bd9",
-    "zh:16883586f9882f062d3b94fdfa977ab929cb1a15f61ebb722dfd37295be083eb",
-    "zh:4afc56c0188cc265eb90ca757363956a400dae7774829eb42f2959656678ab22",
-    "zh:77568f2a4884daabd350b9c1dee312f0c4de3b5407ba85138c2bfa6ca16f5816",
-    "zh:7dbd10a6a328044c4de87c27c87c338189de8f2f534958c39d7ee51b8b0c75c4",
-    "zh:89f56c7d4037516b9c28c7900648c7b1371e38cb77618dbdd8a7a94bd8f7a192",
-    "zh:b219712d1954110548ab7a044e8051312adb1e020845805daba16bacca0a5218",
-    "zh:b88ee92b5fa807019d0f443f87c79427cab8b72dcb4540313bb6bdd247ad5828",
-    "zh:c23b61784611db2a0163bd7ab1e04b3ba34bb2e7bc2d7e5c95ae0c1beb13980a",
   ]
 }
 

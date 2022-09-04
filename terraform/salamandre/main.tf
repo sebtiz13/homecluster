@@ -2,6 +2,7 @@
 locals {
   base_domain     = "sebtiz13.fr"
   tls_secret_name = replace(local.base_domain, ".", "-")
+  manifests_folder = "../../manifests"
 
   clusters = {
     salamandre = "https://kubernetes.default.svc"

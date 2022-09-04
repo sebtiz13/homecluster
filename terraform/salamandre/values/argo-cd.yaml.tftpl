@@ -21,6 +21,22 @@ server:
     - name: TZ
       value: Europe/Paris
 
+  # Default project
+  additionalProjects:
+    - name: ${core_apps.project}
+      namespace: argo-cd
+      additionalLabels: {}
+      additionalAnnotations: {}
+      description: core apps of cluster
+      sourceRepos:
+        - "*"
+      destinations:
+        - namespace: "*"
+          server: ${core_apps.cluster}
+      clusterResourceWhitelist:
+        - group: "*"
+          kind: "*"
+
 repoServer:
   # Environment variables to pass to argocd-repo-server
   env:

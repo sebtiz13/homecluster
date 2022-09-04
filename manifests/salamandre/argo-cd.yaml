@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-cd
+  namespace: argo-cd
+spec:
+  project: default
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-cd
+    targetRevision: 4.8.3
+    helm:
+      values: |
+        fullnameOverride: "argocd"
+
+        # Disable not used services
+        dex:
+          enabled: false
+        applicationSet:
+          enabled: false
+        notifications:
+          enabled: false
+
+        server:
+          # Additional command line arguments to pass to argocd-server
+          extraArgs:
+            - --insecure
+
+          # Environment variables to pass to argocd-server
+          env:
+            - name: TZ
+              value: Europe/Paris
+
+        repoServer:
+          # Environment variables to pass to argocd-repo-server
+          env:
+            - name: TZ
+              value: Europe/Paris
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-cd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
