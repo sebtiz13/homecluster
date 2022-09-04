@@ -11,18 +11,28 @@ help: ## Display this help screen
 init: ## Init environment of Terraform
 	echo "Initializing terraform environment..."
 	terraform version
-	cd terraform; terraform init
+ifeq ($(VM_NAME), salamandre.vm)
+	cd terraform/salamandre; terraform init
+endif
+ifeq ($(VM_NAME), baku.vm)
+	echo "TODO: is currently not implemented"
+endif
 
 init-upgrade: ## Init/upgrade environment of Terraform
 	echo "Initializing terraform environment..."
 	terraform version
-	cd terraform; terraform init --upgrade
+ifeq ($(VM_NAME), salamandre.vm)
+	cd terraform/salamandre; terraform init --upgrade
+endif
+ifeq ($(VM_NAME), baku.vm)
+	echo "TODO: is currently not implemented"
+endif
 
 validate: ## Terraform files
-	cd terraform; terraform validate
+	cd terraform/salamandre; terraform validate
 
 cleanup: ## Cleanup init an testing environment
-	rm -rf terraform/.terraform
+	rm -rf terraform/salamandre/.terraform
 	make vm-destroy --no-print-directory
 
 
@@ -31,7 +41,12 @@ cluster: ## All-in-one command for cluster deployment
 	make apply --no-print-directory
 apply: ## [terraform] Create or update infrastructure
 	echo "Provisining cluster..."
-	cd terraform; terraform apply -auto-approve && terraform refresh
+ifeq ($(VM_NAME), salamandre.vm)
+	cd terraform/salamandre; terraform apply -var-file="terraform.tfvars" -auto-approve && terraform refresh
+endif
+ifeq ($(VM_NAME), baku.vm)
+	echo "TODO: is currently not implemented"
+endif
 
 test-cluster: ## All-in-one command for cluster deployment inside VM
 	make init --no-print-directory
@@ -40,7 +55,12 @@ test-cluster: ## All-in-one command for cluster deployment inside VM
 	make test-apply --no-print-directory
 test-apply: ## [terraform] Create or update infrastructure  inside VM
 	echo "Provisining cluster..."
-	cd terraform; terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh
+ifeq ($(VM_NAME), salamandre.vm)
+	cd terraform/salamandre; terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh
+endif
+ifeq ($(VM_NAME), baku.vm)
+	echo "TODO: is currently not implemented"
+endif
 
 
 vm-create: ## Create vagrant VM
