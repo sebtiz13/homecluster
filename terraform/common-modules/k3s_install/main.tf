@@ -3,6 +3,7 @@ locals {
   server_flags = join(" ", compact(concat(
     [
       "--node-name='${var.k3s_node_name}'",
+      "--tls-san ${var.kube_host}",
       "--write-kubeconfig-mode=644"
     ],
     try(var.k3s_flags, [])
