@@ -67,9 +67,3 @@ variable "argocd_version" {
   type = string
   default = null
 }
-
-variable "argocd_admin_password" {
-  description = "The admin password of argocd ([!] YOU NEED TO bcrypt IT !)"
-  type        = string
-  sensitive   = true
-}

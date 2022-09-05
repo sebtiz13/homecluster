@@ -8,7 +8,6 @@ resource "helm_release" "argocd_deploy" {
   version    = var.argocd_version
 
   values = [templatefile("./values/argocd.yaml.tftpl", {
-    password  = var.argocd_admin_password
     core_apps = local.core_apps
   })]
 }
@@ -33,11 +32,11 @@ resource "kubectl_manifest" "argocd_project" {
       sourceRepos = ["*"]
       destinations = [{
         namespace = "*"
-        server = local.clusters.salamandre
+        server    = local.clusters.salamandre
       }]
       clusterResourceWhitelist = [{
         group = "*"
-        kind = "*"
+        kind  = "*"
       }]
     }
   })
@@ -53,4 +52,13 @@ resource "kubectl_manifest" "argocd_sync" {
     oidc_url    = "sso.${local.base_domain}"
     oidc_secret = local.oidc_secrets.argocd
   })
+}
+
+data "kubernetes_secret" "argocd_admin_password" {
+  depends_on = [helm_release.argocd_deploy]
+
+  metadata {
+    name      = "argocd-initial-admin-secret"
+    namespace = local.argocd_namespace
+  }
 }
