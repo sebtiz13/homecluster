@@ -67,8 +67,11 @@ resource "null_resource" "vault_keycloack_secret" {
 }
 
 # Deploy keycloack
-data "kubectl_file_documents" "keycloack" {
-  content = templatefile("${local.manifests_folder}/salamandre/keycloack.yaml", {
+resource "kubectl_manifest" "keycloack" {
+  depends_on         = [null_resource.vault_keycloack_secret]
+  override_namespace = local.argocd_namespace
+
+  yaml_body = templatefile("${local.manifests_folder}/salamandre/keycloack.yaml", {
     url = "sso.${local.base_domain}"
 
     argocd_url    = "argocd.${local.base_domain}"
@@ -77,12 +80,6 @@ data "kubectl_file_documents" "keycloack" {
     vault_url    = "vault.${local.base_domain}"
     vault_secret = local.oidc_secrets.vault
   })
-}
-resource "kubectl_manifest" "keycloack" {
-  depends_on         = [null_resource.vault_keycloack_secret]
-  count              = length(data.kubectl_file_documents.keycloack.documents)
-  yaml_body          = element(data.kubectl_file_documents.keycloack.documents, count.index)
-  override_namespace = local.argocd_namespace
 }
 
 # Configure oidc in vault

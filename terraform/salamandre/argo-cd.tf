@@ -43,17 +43,14 @@ resource "kubectl_manifest" "argocd_project" {
   })
 }
 
-data "kubectl_file_documents" "argocd" {
-  content = templatefile("${local.manifests_folder}/salamandre/argo-cd.yaml", {
+resource "kubectl_manifest" "argocd_sync" {
+  depends_on         = [kubectl_manifest.argocd_project]
+  override_namespace = local.argocd_namespace
+
+  yaml_body = templatefile("${local.manifests_folder}/salamandre/argo-cd.yaml", {
     url = "argocd.${local.base_domain}"
 
     oidc_url    = "sso.${local.base_domain}"
     oidc_secret = local.oidc_secrets.argocd
   })
-}
-resource "kubectl_manifest" "argocd_sync" {
-  depends_on         = [kubectl_manifest.argocd_project]
-  count              = length(data.kubectl_file_documents.argocd.documents)
-  yaml_body          = element(data.kubectl_file_documents.argocd.documents, count.index)
-  override_namespace = local.argocd_namespace
 }

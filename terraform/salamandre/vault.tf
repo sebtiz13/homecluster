@@ -6,16 +6,13 @@ locals {
   vault_filename = "~/v-${random_string.vault_filename.result}"
 }
 
-data "kubectl_file_documents" "vault" {
-  content = templatefile("${local.manifests_folder}/salamandre/vault.yaml", {
-    url = "vault-secrets.${local.base_domain}"
-  })
-}
 resource "kubectl_manifest" "vault" {
   depends_on         = [module.zfs, helm_release.argocd_deploy]
-  count              = length(data.kubectl_file_documents.vault.documents)
-  yaml_body          = element(data.kubectl_file_documents.vault.documents, count.index)
   override_namespace = local.argocd_namespace
+
+  yaml_body = templatefile("${local.manifests_folder}/salamandre/vault.yaml", {
+    url = "vault-secrets.${local.base_domain}"
+  })
 }
 
 resource "null_resource" "vault_init" {
