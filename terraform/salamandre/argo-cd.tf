@@ -46,6 +46,9 @@ resource "kubectl_manifest" "argocd_project" {
 data "kubectl_file_documents" "argocd" {
   content = templatefile("${local.manifests_folder}/salamandre/argo-cd.yaml", {
     url = "argocd.${local.base_domain}"
+
+    oidc_url    = "sso.${local.base_domain}"
+    oidc_secret = local.oidc_secrets.argocd
   })
 }
 resource "kubectl_manifest" "argocd_sync" {

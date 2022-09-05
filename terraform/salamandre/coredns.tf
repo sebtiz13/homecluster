@@ -30,6 +30,6 @@ resource "null_resource" "coredns-reload" {
 
   // Restart coredns if is already started
   provisioner "remote-exec" {
-    script = "${path.module}/utils/reboot-coredns.sh"
+    script = "${path.module}/scripts/reboot-coredns.sh"
   }
 }

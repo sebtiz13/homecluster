@@ -33,7 +33,7 @@ resource "null_resource" "vault_init" {
 
   // Upload files
   provisioner "file" {
-    content = templatefile("./utils/init-vault.sh", {
+    content = templatefile("./scripts/vault/init.sh", {
       argocd_policy = file("./values/vault/argocd-policy.hcl")
       reader_policy = file("./values/vault/reader-policy.hcl")
     })
@@ -60,6 +60,9 @@ resource "local_sensitive_file" "vault_keys" {
   content  = data.remote_file.vault_keys.content
   filename = "${local.out_dir}/vault-keys.${var.environment}.json"
 }
+locals {
+  vault_root_token = sensitive(jsondecode(data.remote_file.vault_keys.content).root_token)
+}
 
 resource "kubectl_manifest" "vault_keys" {
   depends_on = [data.remote_file.vault_keys]
@@ -73,12 +76,11 @@ resource "kubectl_manifest" "vault_keys" {
     }
     type = "Opaque"
     data = {
-      key1 = base64encode(jsondecode(data.remote_file.vault_keys.content).unseal_keys_b64.0)
+      key1 = sensitive(base64encode(jsondecode(data.remote_file.vault_keys.content).unseal_keys_b64.0))
     }
   })
   force_new = true
 }
-
 resource "null_resource" "vault_restart" {
   depends_on = [kubectl_manifest.vault_keys]
 

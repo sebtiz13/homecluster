@@ -52,6 +52,22 @@ spec:
                   command: [sh, -c]
                   args: ['echo "$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml && helm template $ARGOCD_APP_NAME --namespace $ARGOCD_APP_NAMESPACE $ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . | argocd-vault-plugin generate -']
 
+            oidc.config: |
+              name: Keycloak
+              issuer: http://${oidc_url}/realms/developer
+              cliClientID: argocd-cli
+              clientID: argocd
+              clientSecret: $oidc.keycloak.clientSecret
+              logoutURL: http://${oidc_url}/realms/developer/protocol/openid-connect/logout?redirect_uri={{logoutRedirectURL}}
+              requestedIDTokenClaims:
+                groups:
+                  essential: true
+              requestedScopes:
+                - openid
+                - profile
+                - email
+                - groups
+
         repoServer:
           # Environment variables to pass to argocd-repo-server
           env:
@@ -101,6 +117,11 @@ spec:
             - name: custom-tools
               mountPath: /usr/local/bin/argocd-vault-plugin
               subPath: argocd-vault-plugin
+
+        configs:
+          secret:
+            extra:
+                oidc.keycloak.clientSecret: ${oidc_secret}
   destination:
     server: https://kubernetes.default.svc
     namespace: argo-cd
