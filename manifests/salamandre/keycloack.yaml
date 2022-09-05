@@ -19,6 +19,7 @@ spec:
 
             ingress:
               enabled: true
+              ingressClassName: traefik
               hostname: ${url}
 
             auth:

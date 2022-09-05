@@ -33,6 +33,7 @@ spec:
 
           ingress:
             enabled: true
+            ingressClassName: traefik
             hosts:
               - ${url}
 

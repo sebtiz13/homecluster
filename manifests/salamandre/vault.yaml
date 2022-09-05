@@ -21,6 +21,7 @@ spec:
 
           ingress:
             enabled: true
+            ingressClassName: traefik
             hosts:
               - host: ${url}
 
