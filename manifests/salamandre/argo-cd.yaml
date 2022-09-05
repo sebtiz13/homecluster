@@ -31,7 +31,14 @@ spec:
             - name: TZ
               value: Europe/Paris
 
+          ingress:
+            enabled: true
+            hosts:
+              - ${url}
+
           config:
+            url: http://${url}
+
             configManagementPlugins: |-
               - name: argocd-vault-plugin
                 generate:
@@ -43,7 +50,7 @@ spec:
                   args: ["helm dependency update"]
                 generate:
                   command: [sh, -c]
-                  args: ['echo "$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml && helm template $ARGOCD_APP_NAME --namespace $ARGOCD_APP_NAMESPACE ${ARGOCD_ENV_HELM_ARGS} -f extra.values.yaml . | argocd-vault-plugin generate -']
+                  args: ['echo "$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml && helm template $ARGOCD_APP_NAME --namespace $ARGOCD_APP_NAMESPACE $ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . | argocd-vault-plugin generate -']
 
         repoServer:
           # Environment variables to pass to argocd-repo-server
@@ -78,9 +85,9 @@ spec:
                 - |
                   mkdir -p /custom-tools/helm-plugins
                   echo "Install Vault plugin"
-                  wget -qO /custom-tools/argocd-vault-plugin https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v${AVP_VERSION}/argocd-vault-plugin_${AVP_VERSION}_linux_amd64
+                  wget -qO /custom-tools/argocd-vault-plugin https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v$${AVP_VERSION}/argocd-vault-plugin_$${AVP_VERSION}_linux_amd64
                   echo "Install Vault cli"
-                  wget -qO ./vault.zip https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip && unzip ./vault.zip -d /custom-tools
+                  wget -qO ./vault.zip https://releases.hashicorp.com/vault/$${VAULT_VERSION}/vault_$${VAULT_VERSION}_linux_amd64.zip && unzip ./vault.zip -d /custom-tools
                   # Correct permissions
                   chmod +x /custom-tools/*
 

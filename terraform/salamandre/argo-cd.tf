@@ -44,7 +44,9 @@ resource "kubectl_manifest" "argocd_project" {
 }
 
 data "kubectl_file_documents" "argocd" {
-  content = file("${local.manifests_folder}/salamandre/argo-cd.yaml")
+  content = templatefile("${local.manifests_folder}/salamandre/argo-cd.yaml", {
+    url = "argocd.${local.base_domain}"
+  })
 }
 resource "kubectl_manifest" "argocd_sync" {
   depends_on         = [kubectl_manifest.argocd_project]

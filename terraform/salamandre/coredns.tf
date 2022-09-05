@@ -5,7 +5,11 @@ resource "kubernetes_config_map" "custom-config" {
   }
 
   data = {
-    "salamandre.server" = "${templatefile("${path.module}/values/salamandre.server.tftpl", {
+    "salamandre.server" = "${templatefile("${path.module}/values/coredns/salamandre.server.tftpl", {
+      server_ip = local.ssh_connection.host
+    })}"
+    "sebtiz13.server" = "${templatefile("${path.module}/values/coredns/sebtiz13.server.tftpl", {
+      domain    = local.base_domain
       server_ip = local.ssh_connection.host
     })}"
   }

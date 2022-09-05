@@ -7,7 +7,9 @@ locals {
 }
 
 data "kubectl_file_documents" "vault" {
-  content = file("${local.manifests_folder}/salamandre/vault.yaml")
+  content = templatefile("${local.manifests_folder}/salamandre/vault.yaml", {
+    url = "vault-secrets.${local.base_domain}"
+  })
 }
 resource "kubectl_manifest" "vault" {
   depends_on         = [module.zfs, helm_release.argocd_deploy]
@@ -32,7 +34,7 @@ resource "null_resource" "vault_init" {
   // Upload files
   provisioner "file" {
     content = templatefile("./utils/init-vault.sh", {
-      argocd_policy   = file("./values/vault/argocd-policy.hcl")
+      argocd_policy = file("./values/vault/argocd-policy.hcl")
       reader_policy = file("./values/vault/reader-policy.hcl")
     })
     destination = "/tmp/init-vault.sh"

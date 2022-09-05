@@ -19,6 +19,11 @@ spec:
         server:
           priorityClassName: system-cluster-critical
 
+          ingress:
+            enabled: true
+            hosts:
+              - host: ${url}
+
           # Configure readiness probe to report "ready" even if Vault is uninitialized and sealed.
           # Useful when bootstrapping Vault for the first time.
           readinessProbe:
