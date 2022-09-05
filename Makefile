@@ -55,7 +55,7 @@ test-cluster: ## All-in-one command for cluster deployment inside VM
 	make vm-create --no-print-directory
 	sleep 10
 	make test-apply --no-print-directory
-test-apply: ## [terraform] Create or update infrastructure  inside VM
+test-apply: ## [terraform] Create or update infrastructure inside VM
 	echo "Provisining cluster..."
 ifeq ($(VM_NAME), salamandre.vm)
 	cd terraform/salamandre; terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh -var-file="vm.tfvars"
@@ -64,6 +64,21 @@ ifeq ($(VM_NAME), baku.vm)
 	echo "TODO: is currently not implemented"
 endif
 
+
+plan: ## [terraform] Plan of infrastructure
+ifeq ($(VM_NAME), salamandre.vm)
+	cd terraform/salamandre; terraform plan -var-file="terraform.tfvars"
+endif
+ifeq ($(VM_NAME), baku.vm)
+	echo "TODO: is currently not implemented"
+endif
+test-plan: ## [terraform] Plan of infrastructure inside VM
+ifeq ($(VM_NAME), salamandre.vm)
+	cd terraform/salamandre; terraform plan -var-file="vm.tfvars"
+endif
+ifeq ($(VM_NAME), baku.vm)
+	echo "TODO: is currently not implemented"
+endif
 
 vm-create: ## Create vagrant VM
 	echo "Creating new VM(s)..."
