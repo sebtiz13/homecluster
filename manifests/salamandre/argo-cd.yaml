@@ -4,7 +4,7 @@ metadata:
   name: argo-cd
   namespace: argo-cd
 spec:
-  project: default
+  project: cluster-core-apps
   source:
     repoURL: https://argoproj.github.io/argo-helm
     chart: argo-cd

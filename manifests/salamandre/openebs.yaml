@@ -4,7 +4,7 @@ metadata:
   name: openebs
   namespace: argo-cd
 spec:
-  project: default
+  project: cluster-core-apps
   source:
     repoURL: https://openebs.github.io/zfs-localpv
     chart: zfs-localpv

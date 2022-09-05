@@ -4,7 +4,7 @@ metadata:
   name: vault
   namespace: argo-cd
 spec:
-  project: default
+  project: cluster-core-apps
   source:
     repoURL: https://helm.releases.hashicorp.com
     chart: vault
