@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argo-cd
+spec:
+  project: default
+  source:
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.21.0
+    helm:
+      values: |
+        fullnameOverride: "vault"
+
+        injector:
+          enabled: false
+
+        server:
+          priorityClassName: system-cluster-critical
+
+          # Configure readiness probe to report "ready" even if Vault is uninitialized and sealed.
+          # Useful when bootstrapping Vault for the first time.
+          readinessProbe:
+            path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+
+          postStart:
+            - /bin/sh
+            - -c
+            - "sleep 5 && if [ -f \"/vault/keys/key1\" ]; then vault operator unseal $(cat /vault/keys/key1); fi"
+
+          volumes:
+            - name: vault-keys
+              secret:
+                secretName: vault-keys
+                defaultMode: 0400
+                optional: true
+          volumeMounts:
+            - mountPath: /vault/keys
+              name: vault-keys
+              readOnly: true
+
+        ui:
+          enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
