@@ -69,6 +69,11 @@ spec:
                 - email
                 - groups
 
+          rbacConfig:
+            policy.csv: |
+              g, Admin, role:admin
+            policy.default: role:readonly
+
         repoServer:
           # Environment variables to pass to argocd-repo-server
           env:
@@ -84,6 +89,17 @@ spec:
               value: argocd
             - name: HELM_PLUGINS
               value: /custom-tools/helm-plugins/
+
+          rbac:
+            - apiGroups:
+              - ""
+              resources:
+              - secrets
+              - configmaps
+              verbs:
+              - get
+              - list
+              - watch
 
           volumes:
             - name: custom-tools
