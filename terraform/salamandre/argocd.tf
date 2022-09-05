@@ -2,12 +2,12 @@ resource "helm_release" "argocd_deploy" {
   create_namespace = true
 
   name       = "argo-cd"
-  namespace  = "argo-cd"
+  namespace  = "argocd"
   chart      = "argo-cd"
   repository = "https://argoproj.github.io/argo-helm"
   version    = var.argocd_version
 
-  values = [templatefile("./values/argo-cd.yaml.tftpl", {
+  values = [templatefile("./values/argocd.yaml.tftpl", {
     password  = var.argocd_admin_password
     core_apps = local.core_apps
   })]
@@ -47,7 +47,7 @@ resource "kubectl_manifest" "argocd_sync" {
   depends_on         = [kubectl_manifest.argocd_project]
   override_namespace = local.argocd_namespace
 
-  yaml_body = templatefile("${local.manifests_folder}/salamandre/argo-cd.yaml", {
+  yaml_body = templatefile("${local.manifests_folder}/salamandre/argocd.yaml", {
     url = "argocd.${local.base_domain}"
 
     oidc_url    = "sso.${local.base_domain}"
