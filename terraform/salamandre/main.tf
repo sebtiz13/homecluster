@@ -52,6 +52,7 @@ module "ssh" {
   depends_on = [module.apt]
   ssh        = local.ssh_connection
   users      = var.users
+  port       = var.environment == "vm" ? var.ssh_port : 8474
 }
 
 module "zfs" {
