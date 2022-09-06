@@ -21,7 +21,8 @@ spec:
 
           ingress:
             enabled: true
-            ingressClassName: traefik
+            annotations:
+              traefik.ingress.kubernetes.io/router.entrypoints: web
             hosts:
               - host: ${url}
 
