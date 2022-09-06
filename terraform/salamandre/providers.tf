@@ -32,6 +32,7 @@ provider "kubernetes" {
 
 
 provider "kubectl" {
+  load_config_file       = false
   host = local.kubeconfig.host
 
   cluster_ca_certificate = base64decode(local.kubeconfig.cluster_ca_certificate)
