@@ -7,7 +7,7 @@ locals {
 }
 
 resource "kubectl_manifest" "vault" {
-  depends_on         = [module.zfs, helm_release.argocd_deploy]
+  depends_on         = [module.zfs, kubectl_manifest.argocd_project]
   override_namespace = local.argocd_namespace
 
   yaml_body = templatefile("${local.manifests_folder}/salamandre/vault.yaml", {

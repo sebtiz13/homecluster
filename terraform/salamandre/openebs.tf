@@ -2,7 +2,7 @@ data "kubectl_file_documents" "openebs" {
   content = file("${local.manifests_folder}/salamandre/openebs.yaml")
 }
 resource "kubectl_manifest" "openebs" {
-  depends_on         = [module.zfs, helm_release.argocd_deploy]
+  depends_on         = [module.zfs, kubectl_manifest.argocd_project]
   count              = length(data.kubectl_file_documents.openebs.documents)
   yaml_body          = element(data.kubectl_file_documents.openebs.documents, count.index)
   override_namespace = local.argocd_namespace

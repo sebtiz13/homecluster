@@ -24,7 +24,7 @@ locals {
 
 
 resource "null_resource" "vault_keycloak_secret" {
-  depends_on = [kubectl_manifest.vault]
+  depends_on = [null_resource.vault_restart, null_resource.postgresql_install]
 
   // Etablish SSH connection
   connection {
