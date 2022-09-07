@@ -23,10 +23,7 @@ EOF
 vault auth enable kubernetes >/dev/null
 
 vault write auth/kubernetes/config \
-  disable_iss_validation="true" \
-  token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
-  kubernetes_host=https://$KUBERNETES_PORT_443_TCP_ADDR:443 \
-  kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt >/dev/null
+  kubernetes_host=https://$KUBERNETES_PORT_443_TCP_ADDR:443 >/dev/null
 
 vault write auth/kubernetes/role/argocd \
   bound_service_account_names=argocd-repo-server \
