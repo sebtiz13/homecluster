@@ -45,7 +45,7 @@ resource "null_resource" "postgresql_install" {
       "sudo sed -i \"s/#listen_addresses = 'localhost'/${format("%-31s", "listen_addresses = '*'")}/\" ${self.triggers.pg_config_folder}/postgresql.conf",
       "sudo sed -i \"\\|^# IPv6 local connections:.*|i ${self.triggers.pg_listen_connections}\" ${self.triggers.pg_config_folder}/pg_hba.conf",
       // Start postgresql
-      "sudo pg_ctlcluster ${self.triggers.pg_version} main start",
+      "sudo pg_ctlcluster ${self.triggers.pg_version} main restart",
       // Add database host
       "echo \"127.0.0.1 postgresql.loc\" | sudo tee -a /etc/hosts > /dev/null"
     ]
