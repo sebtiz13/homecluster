@@ -1,16 +1,8 @@
-output "argocd_admin_password" {
-  depends_on = [data.kubernetes_secret.argocd_admin_password]
-
-  description = "The admin password for argocd."
-  sensitive   = true
-  value       = data.kubernetes_secret.argocd_admin_password.data.password
-}
-
-
-output "keycloak_admin_password" {
-  depends_on = [random_password.keycloak_admin_password]
-
-  description = "The admin password for keycloak."
-  sensitive   = true
-  value       = local.keycloak_admin_password
+resource "local_sensitive_file" "credentials" {
+  filename = "${local.out_dir}/credentials.json"
+  content = jsonencode({
+    vault = local.vault_keys
+    argocd_admin_password = data.kubernetes_secret.argocd_admin_password.data.password
+    keycloak_admin_password = local.keycloak_admin_password
+  })
 }

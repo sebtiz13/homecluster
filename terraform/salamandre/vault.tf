@@ -53,12 +53,11 @@ data "remote_file" "vault_keys" {
 
   path = local.vault_filename
 }
-resource "local_sensitive_file" "vault_keys" {
-  content  = data.remote_file.vault_keys.content
-  filename = "${local.out_dir}/vault-keys.${var.environment}.json"
-}
 locals {
-  vault_root_token = sensitive(jsondecode(data.remote_file.vault_keys.content).root_token)
+  vault_keys = {
+    root_token  = sensitive(jsondecode(data.remote_file.vault_keys.content).root_token)
+    unseal_keys = sensitive(jsondecode(data.remote_file.vault_keys.content).unseal_keys_b64)
+  }
 }
 
 resource "kubectl_manifest" "vault_keys" {
@@ -73,7 +72,7 @@ resource "kubectl_manifest" "vault_keys" {
     }
     type = "Opaque"
     data = {
-      key1 = sensitive(base64encode(jsondecode(data.remote_file.vault_keys.content).unseal_keys_b64.0))
+      key1 = base64encode(local.vault_keys.unseal_keys.0)
     }
   })
   force_new = true
