@@ -1,3 +1,11 @@
+locals {
+  pg_local_cidr = coalesce(var.pg_local_cidr, "${cidrhost("${local.ssh_connection.host}/24", 0)}/24")
+  pg_listen_connections = join("\\n", [
+    format("%-7s %-15s %-15s %-23s %s", "host", "all", "all", "10.42.0.0/24", "md5"),
+    format("%-7s %-15s %-15s %-23s %s", "host", "all", "all", local.pg_local_cidr, "md5")
+  ])
+  pg_config_folder = "/etc/postgresql/${var.pg_version}/main"
+}
 
 resource "null_resource" "postgresql_install" {
   depends_on = [module.zfs]
@@ -9,8 +17,9 @@ resource "null_resource" "postgresql_install" {
     ssh_private_key     = local.ssh_connection.private_key
     ssh_agent           = local.ssh_connection.agent
 
-    pg_version = var.pg_version
-    server_ip  = local.ssh_connection.host
+    pg_version            = var.pg_version
+    pg_listen_connections = local.pg_listen_connections
+    pg_config_folder      = local.pg_config_folder
   }
 
   lifecycle {
@@ -30,12 +39,11 @@ resource "null_resource" "postgresql_install" {
   // Install postgresql
   provisioner "remote-exec" {
     inline = [
-      // Retrieve server ip
-      "export PG_SERVER_IP=$(printf \"%-23s\" \"$(ip route get 1 | awk '{print $(NF-2);exit}')/32\")",
       // Install packages
       "sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy postgresql-${self.triggers.pg_version} postgresql-client-${self.triggers.pg_version} > /dev/null",
-      // Add host for kubernetes cluster access
-      "sudo sed -i \"\\|^# IPv6 local connections:.*|i host    all             all             $PG_SERVER_IP md5\" /etc/postgresql/${self.triggers.pg_version}/main/pg_hba.conf",
+      // Allow connection from kubernetes cluster and local network
+      "sudo sed -i \"s/#listen_addresses = 'localhost'/${format("%-31s", "listen_addresses = '*'")}/\" ${self.triggers.pg_config_folder}/postgresql.conf",
+      "sudo sed -i \"\\|^# IPv6 local connections:.*|i ${self.triggers.pg_listen_connections}\" ${self.triggers.pg_config_folder}/pg_hba.conf",
       // Start postgresql
       "sudo pg_ctlcluster ${self.triggers.pg_version} main start",
       // Add database host
@@ -49,7 +57,7 @@ resource "null_resource" "postgresql_install" {
     on_failure = continue
     inline = [
       // Remove config line
-      "sudo sed -i \"\\|host    all             all             $PG_SERVER_IP md5|d\" /etc/postgresql/${self.triggers.pg_version}/main/pg_hba.conf",
+      "sudo sed -i \"\\|${self.triggers.pg_listen_connections}|d\" ${self.triggers.pg_config_folder}/pg_hba.conf",
       // Remove host
       "sudo sed -i '\\|127\\.0\\.0\\.1 postgresql\\.loc|d' /etc/hosts",
       // Remove packages
