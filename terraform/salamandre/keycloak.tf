@@ -5,10 +5,10 @@ resource "random_string" "oidc_vault_secret" {
 }
 resource "random_uuid" "oidc_argocd_secret" {
 }
-resource "random_password" "keycloack_db_password" {
+resource "random_password" "keycloak_db_password" {
   length = 16
 }
-resource "random_password" "keycloack_admin_password" {
+resource "random_password" "keycloak_admin_password" {
   length = 16
 }
 locals {
@@ -16,13 +16,13 @@ locals {
     vault  = sensitive(random_string.oidc_vault_secret.result)
     argocd = sensitive(random_uuid.oidc_argocd_secret.result)
   }
-  keycloack_admin_password = random_password.keycloack_admin_password.result
+  keycloak_admin_password = random_password.keycloak_admin_password.result
 }
 
-# Create keycloack secrets
+# Create keycloak secrets
 
 
-resource "null_resource" "vault_keycloack_secret" {
+resource "null_resource" "vault_keycloak_secret" {
   depends_on = [kubectl_manifest.vault]
 
   // Etablish SSH connection
@@ -37,41 +37,41 @@ resource "null_resource" "vault_keycloack_secret" {
 
   // Upload files
   provisioner "file" {
-    content = templatefile("./scripts/vault/keycloack.sh", {
+    content = templatefile("./scripts/vault/keycloak.sh", {
       root_tooken = local.vault_root_token
 
       database = {
-        name     = "keycloack"
-        user     = "keycloack"
-        password = random_password.keycloack_db_password.result
+        name     = "keycloak"
+        user     = "keycloak"
+        password = random_password.keycloak_db_password.result
       }
       admin = {
         user     = "admin"
-        password = local.keycloack_admin_password
+        password = local.keycloak_admin_password
       }
     })
-    destination = "/tmp/vault-keycloack.sh"
+    destination = "/tmp/vault-keycloak.sh"
   }
 
   // Init vault
   provisioner "remote-exec" {
     inline = [
       // Create database user
-      "sudo -u postgres -H -- psql -c \"CREATE USER keycloack CREATEDB PASSWORD '${random_password.keycloack_db_password.result}'\" > /dev/null",
+      "sudo -u postgres -H -- psql -c \"CREATE USER keycloak CREATEDB PASSWORD '${random_password.keycloak_db_password.result}'\" > /dev/null",
       // Wait vault pod is running
       "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
       // Init and unseal vault
-      "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-keycloack.sh`\" > /dev/null"
+      "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-keycloak.sh`\" > /dev/null"
     ]
   }
 }
 
-# Deploy keycloack
-resource "kubectl_manifest" "keycloack" {
-  depends_on         = [null_resource.vault_keycloack_secret]
+# Deploy keycloak
+resource "kubectl_manifest" "keycloak" {
+  depends_on         = [null_resource.vault_keycloak_secret]
   override_namespace = local.argocd_namespace
 
-  yaml_body = templatefile("${local.manifests_folder}/salamandre/keycloack.yaml", {
+  yaml_body = templatefile("${local.manifests_folder}/salamandre/keycloak.yaml", {
     url = "sso.${local.base_domain}"
 
     argocd_url    = "argocd.${local.base_domain}"
@@ -84,7 +84,7 @@ resource "kubectl_manifest" "keycloack" {
 
 # Configure oidc in vault
 resource "null_resource" "vault_oidc" {
-  depends_on = [kubectl_manifest.keycloack]
+  depends_on = [kubectl_manifest.keycloak]
 
   // Etablish SSH connection
   connection {
@@ -116,9 +116,9 @@ resource "null_resource" "vault_oidc" {
   // Init vault
   provisioner "remote-exec" {
     inline = [
-      // Wait vault and keycloack pod is running
+      // Wait vault and keycloak pod is running
       "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
-      "until [ \"$(kubectl get pod -n keycloack keycloack-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
+      "until [ \"$(kubectl get pod -n keycloak keycloak-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
       // Init and unseal vault
       "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-oidc.sh`\" > /dev/null"
     ]

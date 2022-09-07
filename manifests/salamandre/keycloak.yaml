@@ -14,7 +14,7 @@ spec:
       env:
         - name: HELM_VALUES
           value: |
-            fullnameOverride: "keycloack"
+            fullnameOverride: "keycloak"
             priorityClassName: system-cluster-critical
 
             ingress:
