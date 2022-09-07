@@ -40,7 +40,7 @@ path "sys/auth" {
   capabilities = ["read"]
 }
 
-# Enable and manage the key/value secrets engine at `argocd/` path
+# Enable and manage the key/value secrets engine at 'argocd/' path
 
 # List, create, update, and delete key/value secrets
 path "argocd/*" {

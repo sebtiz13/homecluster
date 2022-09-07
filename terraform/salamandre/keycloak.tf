@@ -105,7 +105,7 @@ resource "null_resource" "vault_oidc" {
       address     = "https://vault-secrets.${local.base_domain}"
       root_tooken = local.vault_root_token
 
-      oidc_url           = "http://oidc.${local.base_domain}"
+      oidc_url           = "http://sso.${local.base_domain}/realms/developer"
       oidc_client_id     = "vault"
       oidc_client_secret = local.oidc_secrets.vault
 

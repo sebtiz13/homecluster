@@ -13,11 +13,14 @@ vault write auth/oidc/config \
   default_role="reader"
 
 vault write auth/oidc/role/reader bound_audiences="vault" \
-  allowed_redirect_uris="${address}/ui/vault/auth/oidc/oidc/callback"
+  allowed_redirect_uris="${address}/ui/vault/auth/oidc/oidc/callback" \
   allowed_redirect_uris="http://localhost:8200/oidc/callback,http://localhost:8200/ui/vault/auth/oidc/oidc/callback" \
   user_claim="preferred_username" \
   groups_claim="groups" \
   policies="default,reader"
+
+# Create policies and groups
+mount_accessor=$(vault auth list | awk '$1=="oidc/" {print $3}')
 
 ## operator group
 cat << EOF | vault policy write operator - >/dev/null
@@ -27,8 +30,8 @@ EOF
 vault write identity/group name='Operator' policies='operator' type='external'
 vault write identity/group-alias \
   name='Operator' \
-  mount_accessor="$(vault auth list -format=json | jq -r '.["oidc/"].accessor')" \
-  canonical_id="$(vault read identity/group/name/Operator -format=json | jq -r ".data.id")"
+  mount_accessor="$mount_accessor" \
+  canonical_id="$(vault read identity/group/name/Operator | awk '$1=="id" {print $2}')"
 
 ## admin group
 cat << EOF | vault policy write admin - >/dev/null
@@ -38,11 +41,5 @@ EOF
 vault write identity/group name='Admin' policies='operator,admin' type='external'
 vault write identity/group-alias \
   name='Admin' \
-  mount_accessor="$(vault auth list -format=json | jq -r '.["oidc/"].accessor')" \
-  canonical_id="$(vault read identity/group/name/Admin -format=json | jq -r ".data.id")"
-
-# Enable static secrets
-vault secrets enable -path=argocd kv-v2 >/dev/null
-
-# out the init text
-cat $OUTPUT
+  mount_accessor="$mount_accessor" \
+  canonical_id="$(vault read identity/group/name/Admin | awk '$1=="id" {print $2}')"
