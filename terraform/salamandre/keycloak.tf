@@ -7,6 +7,7 @@ resource "random_uuid" "oidc_argocd_secret" {
 }
 resource "random_password" "keycloak_db_password" {
   length = 16
+  special = false
 }
 resource "random_password" "keycloak_admin_password" {
   length = 16
@@ -56,8 +57,10 @@ resource "null_resource" "vault_keycloak_secret" {
   // Init vault
   provisioner "remote-exec" {
     inline = [
-      // Create database user
-      "sudo -u postgres -H -- psql -c \"CREATE USER keycloak CREATEDB PASSWORD '${random_password.keycloak_db_password.result}'\" > /dev/null",
+      // Create database access
+      "sudo -u postgres -H -- psql -c \"CREATE USER keycloak WITH PASSWORD '${random_password.keycloak_db_password.result}';\" > /dev/null",
+      "sudo -u postgres -H -- psql -c \"CREATE DATABASE keycloak OWNER keycloak;\" > /dev/null",
+      "sudo -u postgres -H -- psql -c \"GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;\" > /dev/null",
       // Wait vault pod is running
       "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
       // Init and unseal vault
