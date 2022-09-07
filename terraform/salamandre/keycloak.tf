@@ -80,7 +80,7 @@ resource "kubectl_manifest" "keycloak" {
     argocd_url    = "argocd.${local.base_domain}"
     argocd_secret = local.oidc_secrets.argocd
 
-    vault_url    = "vault.${local.base_domain}"
+    vault_url    = "vault-secrets.${local.base_domain}"
     vault_secret = local.oidc_secrets.vault
   })
 }

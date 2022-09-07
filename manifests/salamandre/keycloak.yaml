@@ -175,6 +175,7 @@ spec:
                         - microprofile-jwt
                     - clientId: vault
                       rootUrl: http://${vault_url}
+                      baseUrl: /ui/
                       adminUrl: /ui/vault/auth/oidc/oidc/callback
                       enabled: true
                       publicClient: false
