@@ -3,6 +3,8 @@
 .DEFAULT_GOAL= help
 
 TERRRAFORM_DIR := ./terraform
+TF_SALAMANDRE_DIR := $(TERRRAFORM_DIR)/salamandre
+TF_BAKU_DIR := $(TERRRAFORM_DIR)/baku
 VAGRANT_DIR := ./vagrant
 
 help: ## Display this help screen
@@ -13,10 +15,10 @@ init: ## Init environment of Terraform
 	terraform version
 	mkdir -p ./out/kubeconfig
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform init
+	cd $(TF_SALAMANDRE_DIR); terraform init
 endif
 ifeq ($(VM_NAME), baku.vm)
-	echo "TODO: is currently not implemented"
+	cd $(TF_BAKU_DIR); terraform init
 endif
 
 init-upgrade: ## Init/upgrade environment of Terraform
@@ -24,17 +26,17 @@ init-upgrade: ## Init/upgrade environment of Terraform
 	mkdir -p ./out/kubeconfig
 	terraform version
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform init --upgrade
+	cd $(TF_SALAMANDRE_DIR); terraform init --upgrade
 endif
 ifeq ($(VM_NAME), baku.vm)
-	echo "TODO: is currently not implemented"
+	cd $(TF_BAKU_DIR); terraform init --upgrade
 endif
 
 validate: ## Terraform files
-	cd terraform/salamandre; terraform validate
+	cd $(TF_SALAMANDRE_DIR); terraform validate
 
 cleanup: ## Cleanup init an testing environment
-	rm -rf terraform/salamandre/.terraform
+	rm -rf $(TF_SALAMANDRE_DIR)/.terraform
 	make vm-destroy --no-print-directory
 
 
@@ -44,10 +46,10 @@ cluster: ## All-in-one command for cluster deployment
 apply: ## [terraform] Create or update infrastructure
 	echo "Provisining cluster..."
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform apply -var-file="terraform.tfvars" -auto-approve && terraform refresh -var-file="terraform.tfvars"
+	cd $(TF_SALAMANDRE_DIR); terraform apply -var-file="terraform.tfvars" -auto-approve && terraform refresh -var-file="terraform.tfvars"
 endif
 ifeq ($(VM_NAME), baku.vm)
-	echo "TODO: is currently not implemented"
+	cd $(TF_BAKU_DIR); terraform apply -var-file="terraform.tfvars" -auto-approve && terraform refresh -var-file="terraform.tfvars"
 endif
 
 test-cluster: ## All-in-one command for cluster deployment inside VM
@@ -58,26 +60,26 @@ test-cluster: ## All-in-one command for cluster deployment inside VM
 test-apply: ## [terraform] Create or update infrastructure inside VM
 	echo "Provisining cluster..."
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh -var-file="vm.tfvars"
+	cd $(TF_SALAMANDRE_DIR); terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh -var-file="vm.tfvars"
 endif
 ifeq ($(VM_NAME), baku.vm)
-	echo "TODO: is currently not implemented"
+	cd $(TF_BAKU_DIR); terraform apply -var-file="vm.tfvars" -auto-approve && terraform refresh -var-file="vm.tfvars"
 endif
 
 
 plan: ## [terraform] Plan of infrastructure
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform plan -var-file="terraform.tfvars"
+	cd $(TF_SALAMANDRE_DIR); terraform plan -var-file="terraform.tfvars"
 endif
 ifeq ($(VM_NAME), baku.vm)
-	echo "TODO: is currently not implemented"
+	cd $(TF_BAKU_DIR); terraform plan -var-file="terraform.tfvars"
 endif
 test-plan: ## [terraform] Plan of infrastructure inside VM
 ifeq ($(VM_NAME), salamandre.vm)
-	cd terraform/salamandre; terraform plan -var-file="vm.tfvars"
+	cd $(TF_SALAMANDRE_DIR); terraform plan -var-file="vm.tfvars"
 endif
 ifeq ($(VM_NAME), baku.vm)
-	echo "TODO: is currently not implemented"
+	cd $(TF_BAKU_DIR); terraform plan -var-file="vm.tfvars"
 endif
 
 vm-create: ## Create vagrant VM
