@@ -9,3 +9,10 @@ provider "remote" {
     sudo             = true
   }
 }
+
+# Provider for kubernetes apps
+provider "kubectl" {
+  alias            = "salamandre"
+  load_config_file = false
+  config_path      = "${local.out_dir}/kubeconfig/salamndrere.${var.environment}.yaml"
+}
