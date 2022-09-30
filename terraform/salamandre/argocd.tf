@@ -7,9 +7,7 @@ resource "helm_release" "argocd_deploy" {
   repository = "https://argoproj.github.io/argo-helm"
   version    = var.argocd_version
 
-  values = [templatefile("./values/argocd.yaml.tftpl", {
-    core_apps = local.core_apps
-  })]
+  values = [file("./values/argocd.yaml.tftpl")]
 }
 locals {
   argocd_namespace = helm_release.argocd_deploy.namespace
@@ -33,6 +31,9 @@ resource "kubectl_manifest" "argocd_project" {
       destinations = [{
         namespace = "*"
         server    = local.clusters.salamandre
+        }, {
+        namespace = "*"
+        server    = local.clusters.bbaku
       }]
       clusterResourceWhitelist = [{
         group = "*"

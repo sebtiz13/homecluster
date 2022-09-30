@@ -9,10 +9,6 @@ locals {
     salamandre = "https://kubernetes.default.svc"
     baku       = "https://${var.environment == "vm" ? "baku.vm" : "baku." + local.base_domain}:6443"
   }
-  core_apps = {
-    project = "cluster-core-apps"
-    cluster = local.clusters.salamandre
-  }
 
   ssh_connection = {
     host            = var.ssh_host
