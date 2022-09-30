@@ -10,7 +10,7 @@ resource "kubectl_manifest" "vault" {
   depends_on         = [module.zfs, kubectl_manifest.argocd_project]
   override_namespace = local.argocd_namespace
 
-  yaml_body = templatefile("${local.manifests_folder}/salamandre/vault.yaml", {
+  yaml_body = templatefile("${local.manifests_folder}/vault.yaml", {
     url = "vault-secrets.${local.base_domain}"
   })
 }

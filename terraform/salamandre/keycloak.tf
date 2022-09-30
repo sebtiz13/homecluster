@@ -6,7 +6,7 @@ resource "random_string" "oidc_vault_secret" {
 resource "random_uuid" "oidc_argocd_secret" {
 }
 resource "random_password" "keycloak_db_password" {
-  length = 16
+  length  = 16
   special = false
 }
 resource "random_password" "keycloak_admin_password" {
@@ -74,7 +74,7 @@ resource "kubectl_manifest" "keycloak" {
   depends_on         = [null_resource.vault_keycloak_secret]
   override_namespace = local.argocd_namespace
 
-  yaml_body = templatefile("${local.manifests_folder}/salamandre/keycloak.yaml", {
+  yaml_body = templatefile("${local.manifests_folder}/keycloak.yaml", {
     url = "sso.${local.base_domain}"
 
     argocd_url    = "argocd.${local.base_domain}"

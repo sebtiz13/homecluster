@@ -1,5 +1,5 @@
 data "kubectl_file_documents" "openebs" {
-  content = file("${local.manifests_folder}/salamandre/openebs.yaml")
+  content = file("${local.manifests_folder}/openebs.yaml")
 }
 resource "kubectl_manifest" "openebs" {
   depends_on         = [module.zfs, kubectl_manifest.argocd_project]

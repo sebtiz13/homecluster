@@ -46,7 +46,7 @@ resource "kubectl_manifest" "argocd_sync" {
   depends_on         = [kubectl_manifest.argocd_project]
   override_namespace = local.argocd_namespace
 
-  yaml_body = templatefile("${local.manifests_folder}/salamandre/argocd.yaml", {
+  yaml_body = templatefile("${local.manifests_folder}/argocd.yaml", {
     url = "argocd.${local.base_domain}"
 
     oidc_url    = "sso.${local.base_domain}"
