@@ -24,38 +24,24 @@ resource "null_resource" "config" {
     agent       = self.triggers.ssh_agent
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      // Configure port
-      "sudo sed -i 's/#Port 22/Port ${self.triggers.port}/' /etc/ssh/sshd_config",
-      // Disable root login
-      "sudo sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config",
-      // Allow login with SSH key
-      "sudo sed -i 's/#AuthorizedKeysFile/AuthorizedKeysFile/' /etc/ssh/sshd_config",
-      // Disable tunneled clear text passwords
-      "sudo sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
-      "sudo sed -i 's/#PermitEmptyPasswords/PermitEmptyPasswords/' /etc/ssh/sshd_config",
-    ]
+  provisioner "file" {
+    content = templatefile("./config.conf.tftpl", {
+      port = self.triggers.port
+    })
+    destination = "/etc/ssh/sshd_config.d/10-custom.conf"
   }
+
   provisioner "remote-exec" {
     when       = destroy
     on_failure = continue
     inline = [
-      // Reset port
-      "sudo sed -i 's/Port ${self.triggers.port}/#Port 22/' /etc/ssh/sshd_config",
-      // Enable root login
-      "sudo sed -i 's/PermitRootLogin no/#PermitRootLogin prohibit-password/' /etc/ssh/sshd_config",
-      // Remove login with SSH key
-      "sudo sed -i 's/AuthorizedKeysFile/#AuthorizedKeysFile/' /etc/ssh/sshd_config",
-      // Enable tunneled clear text passwords
-      "sudo sed -i 's/PasswordAuthentication no/#PasswordAuthentication yes/' /etc/ssh/sshd_config",
-      "sudo sed -i 's/PermitEmptyPasswords/#PermitEmptyPasswords/' /etc/ssh/sshd_config",
+      "sudo rm /etc/ssh/sshd_config.d/10-custom.conf"
     ]
   }
 }
 
 resource "null_resource" "create_user" {
-  for_each   = var.users
+  for_each = var.users
 
   triggers = {
     ssh_host            = var.ssh.host
