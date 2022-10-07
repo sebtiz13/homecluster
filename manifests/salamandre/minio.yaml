@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio
+  namespace: argocd
+spec:
+  project: cluster-core-apps
+  source:
+    repoURL: https://charts.min.io/
+    chart: minio
+    targetRevision: 4.0.15
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_VALUES
+          value: |
+            fullnameOverride: "minio"
+            priorityClassName: system-cluster-critical
+
+            rootUser: <path:argocd/data/minio/auth#rootUser>
+            rootPassword: <path:argocd/data/minio/auth#rootPassword>
+            mode: standalone
+
+            environment:
+              MINIO_BROWSER_REDIRECT_URL: http://console.${url}
+            ingress:
+              enabled: true
+              path: /
+              hosts:
+                - ${url}
+            consoleIngress:
+              enabled: true
+              hosts:
+                - console.${url}
+
+            persistence:
+              size: 10Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: minio
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
