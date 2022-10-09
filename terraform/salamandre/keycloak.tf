@@ -10,7 +10,8 @@ resource "random_password" "keycloak_db_password" {
   special = false
 }
 resource "random_password" "keycloak_admin_password" {
-  length = 16
+  length  = 16
+  special = false
 }
 locals {
   oidc_url = "http://sso.${local.base_domain}/realms/developer"
