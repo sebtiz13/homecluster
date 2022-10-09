@@ -68,8 +68,7 @@ resource "null_resource" "vault_keycloak_secret" {
 
 # Deploy keycloak
 resource "kubectl_manifest" "keycloak" {
-  depends_on         = [null_resource.vault_keycloak_secret]
-  override_namespace = local.argocd_namespace
+  depends_on = [null_resource.vault_keycloak_secret]
 
   yaml_body = templatefile("${local.manifests_folder}/keycloak.yaml", {
     url = "sso.${local.base_domain}"

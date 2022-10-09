@@ -52,12 +52,3 @@ variable "zpool_disks" {
   description = "Specify the zpool disks"
   type        = list(string)
 }
-
-##
-# Apps variables
-##
-variable "argocd_namespace" {
-  description = "Specify the argocd namespace"
-  type        = string
-  default     = "argocd"
-}

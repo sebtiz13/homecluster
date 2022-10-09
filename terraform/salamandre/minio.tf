@@ -44,8 +44,7 @@ resource "null_resource" "vault_minio_secret" {
 
 # Deploy minio
 resource "kubectl_manifest" "minio" {
-  depends_on         = [null_resource.vault_minio_secret]
-  override_namespace = local.argocd_namespace
+  depends_on = [null_resource.vault_minio_secret]
 
   yaml_body = templatefile("${local.manifests_folder}/minio.yaml", {
     url = "s3.${local.base_domain}"
