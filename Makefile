@@ -21,6 +21,10 @@ _validate:
 ifeq ("$(wildcard $(TERRAFORM_DIR)/.)",)
 	$(error Please specify valid 'SERVER')
 endif
+_validate-vm:
+ifndef VM_NAME
+	$(error VM_NAME is required for this command)
+endif
 
 init: ## Init environment of Terraform
 	make _validate --no-print-directory
@@ -86,10 +90,19 @@ else
 	cd $(VAGRANT_DIR); vagrant destroy -f $(VM_NAME) || true
 endif
 vm-ssh: ## Accessing to VM
-ifdef VM_NAME
-	$(error VM_NAME is required for this command)
-endif
+	make _validate-vm --no-print-directory
 	cd $(VAGRANT_DIR); vagrant ssh $(VM_NAME)
 vagrant: ## (Re)create vagrant VM
 	make vm-destroy --no-print-directory
 	make vm-create --no-print-directory
+vm-init-state: ## Make an snapshot with only postgresql, zfs and k3s installed
+	make _validate-vm --no-print-directory
+	make vagrant --no-print-directory
+	make test-apply --no-print-directory ARGS="--target=module.k3s_install --target=module.ssh --target=null_resource.postgresql_install"
+	cd $(VAGRANT_DIR); vagrant snapshot save $(VM_NAME) init-state
+	cp $(TERRAFORM_DIR)/terraform.tfstate ./out/$(SERVER).tfstate
+vm-reset-state: ## Restore the initial state of VM (from `vm-init-state`)
+	make _validate-vm --no-print-directory
+	cd $(VAGRANT_DIR); vagrant snapshot restore $(VM_NAME) init-state --no-provision
+	rm $(TERRAFORM_DIR)/terraform.tfstate.backup
+	cp ./out/$(SERVER).tfstate $(TERRAFORM_DIR)/terraform.tfstate

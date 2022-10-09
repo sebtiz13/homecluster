@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
             :size => '20G',
             :device => 'vd' + l,
             :serial => 'virtual_disk_' + l,
-            :bus => 'scsi', :type => 'raw', :discard => 'unmap', :detect_zeroes => 'on'
+            :bus => 'scsi', :type => 'qcow2', :discard => 'unmap', :detect_zeroes => 'on'
         end
       end
 
