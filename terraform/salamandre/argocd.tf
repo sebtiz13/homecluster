@@ -33,7 +33,7 @@ resource "kubectl_manifest" "argocd_project" {
         server    = local.clusters.salamandre
         }, {
         namespace = "*"
-        server    = local.clusters.bbaku
+        server    = local.clusters.baku
       }]
       clusterResourceWhitelist = [{
         group = "*"
