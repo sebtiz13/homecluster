@@ -25,7 +25,7 @@ resource "null_resource" "config" {
   }
 
   provisioner "file" {
-    content = templatefile("./config.conf.tftpl", {
+    content = templatefile("${path.module}/config.conf.tftpl", {
       port = self.triggers.port
     })
     destination = "/etc/ssh/sshd_config.d/10-custom.conf"
