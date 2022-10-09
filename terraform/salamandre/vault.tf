@@ -93,7 +93,9 @@ resource "null_resource" "vault_restart" {
   provisioner "remote-exec" {
     inline = [
       // Restart vault
-      "kubectl delete pod -n vault vault-0 > /dev/null"
+      "kubectl delete pod -n vault vault-0 > /dev/null",
+      // Wait for vault is up
+      "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done"
     ]
   }
 }

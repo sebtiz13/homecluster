@@ -35,8 +35,6 @@ resource "null_resource" "vault_minio_secret" {
 
   provisioner "remote-exec" {
     inline = [
-      // Wait vault pod is running
-      "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
       // Create key in vault
       "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-minio.sh`\" > /dev/null"
     ]

@@ -13,6 +13,7 @@ resource "random_password" "keycloak_admin_password" {
   length = 16
 }
 locals {
+  oidc_url = "http://sso.${local.base_domain}/realms/developer"
   oidc_secrets = {
     vault  = sensitive(random_string.oidc_vault_secret.result)
     argocd = sensitive(random_uuid.oidc_argocd_secret.result)
@@ -21,8 +22,6 @@ locals {
 }
 
 # Create keycloak secrets
-
-
 resource "null_resource" "vault_keycloak_secret" {
   depends_on = [null_resource.vault_restart, null_resource.postgresql_install]
 
@@ -54,16 +53,13 @@ resource "null_resource" "vault_keycloak_secret" {
     destination = "/tmp/vault-keycloak.sh"
   }
 
-  // Init vault
   provisioner "remote-exec" {
     inline = [
       // Create database access
       "sudo -u postgres -H -- psql -c \"CREATE USER keycloak WITH PASSWORD '${random_password.keycloak_db_password.result}';\" > /dev/null",
       "sudo -u postgres -H -- psql -c \"CREATE DATABASE keycloak OWNER keycloak;\" > /dev/null",
       "sudo -u postgres -H -- psql -c \"GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;\" > /dev/null",
-      // Wait vault pod is running
-      "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
-      // Init and unseal vault
+      // Create keys in vault
       "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-keycloak.sh`\" > /dev/null"
     ]
   }
@@ -105,7 +101,7 @@ resource "null_resource" "vault_oidc" {
       address     = "https://vault-secrets.${local.base_domain}"
       root_tooken = local.vault_keys.root_token
 
-      oidc_url           = "http://sso.${local.base_domain}/realms/developer"
+      oidc_url           = local.oidc_url
       oidc_client_id     = "vault"
       oidc_client_secret = local.oidc_secrets.vault
 
@@ -116,13 +112,11 @@ resource "null_resource" "vault_oidc" {
     destination = "/tmp/vault-oidc.sh"
   }
 
-  // Init vault
   provisioner "remote-exec" {
     inline = [
-      // Wait vault and keycloak pod is running
-      "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
-      "until [ \"$(kubectl get pod -n keycloak keycloak-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
-      // Init and unseal vault
+      // Wait keycloack is configurate
+      "until [ \"$(curl -s '${local.oidc_url}' --max-time 2 | grep -o '\"realm\":\"[^\"]*' | grep -o '[^\"]*$' 2>/dev/null)\" = \"developer\" ]; do sleep 1; done",
+      // Enable OIDC on vault
       "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-oidc.sh`\" > /dev/null"
     ]
   }

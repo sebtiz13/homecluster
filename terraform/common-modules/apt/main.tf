@@ -55,3 +55,42 @@ resource "null_resource" "htop" {
     ]
   }
 }
+
+resource "null_resource" "curl" {
+  depends_on = [null_resource.htop]
+  triggers = {
+    ssh_host            = var.ssh.host
+    ssh_port            = var.ssh.port
+    ssh_user            = var.ssh.user
+    ssh_use_private_key = var.ssh.use_private_key
+    ssh_private_key     = var.ssh.private_key
+    ssh_agent           = var.ssh.agent
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  # Etablish SSH connection
+  connection {
+    type        = "ssh"
+    host        = self.triggers.ssh_host
+    port        = self.triggers.ssh_port
+    user        = self.triggers.ssh_user
+    private_key = self.triggers.ssh_use_private_key ? file(self.triggers.ssh_private_key) : null
+    agent       = self.triggers.ssh_agent
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy curl > /dev/null"
+    ]
+  }
+  provisioner "remote-exec" {
+    when       = destroy
+    on_failure = continue
+    inline = [
+      "sudo apt-get remove -qy curl > /dev/null"
+    ]
+  }
+}
