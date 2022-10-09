@@ -1,9 +1,10 @@
-# Generate secrets and passwords
-resource "random_password" "minio_root_password" {
-  length = 16
+# Generate passwords
+resource "random_password" "minio_admin_password" {
+  length  = 16
+  special = false
 }
 locals {
-  minio_root_password = random_password.minio_root_password.result
+  minio_admin_password = random_password.minio_admin_password.result
 }
 
 # Create vault keys
@@ -26,8 +27,8 @@ resource "null_resource" "vault_minio_secret" {
       root_tooken = local.vault_keys.root_token
 
       root = {
-        user     = "root"
-        password = local.minio_root_password
+        user     = "admin"
+        password = local.minio_admin_password
       }
     })
     destination = "/tmp/vault-minio.sh"
