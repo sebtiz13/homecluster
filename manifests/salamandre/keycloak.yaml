@@ -46,6 +46,11 @@ spec:
 
             keycloakConfigCli:
               enabled: true
+              # Load old tool version due to unreleased cli (issue https://github.com/bitnami/charts/issues/12699)
+              command:
+                - java
+                - -jar
+                - /opt/bitnami/keycloak-config-cli/keycloak-config-cli-19.0.1.jar
 
               configuration:
                 realm1.yaml: |
