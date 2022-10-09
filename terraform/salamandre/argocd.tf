@@ -1,11 +1,14 @@
+locals {
+  argocd_app_values = yamldecode("${local.manifests_folder}/argocd.yaml")
+}
 resource "helm_release" "argocd_deploy" {
   create_namespace = true
 
-  name       = "argo-cd"
-  namespace  = "argocd"
-  chart      = "argo-cd"
-  repository = "https://argoproj.github.io/argo-helm"
-  version    = var.argocd_version
+  name       = local.argocd_app_values.metadata.name
+  namespace  = local.argocd_app_values.metadata.namespace
+  chart      = local.argocd_app_values.spec.source.chart
+  repository = local.argocd_app_values.spec.source.repoURL
+  version    = local.argocd_app_values.spec.source.targetRevision
 
   values = [file("./values/argocd.yaml.tftpl")]
 }

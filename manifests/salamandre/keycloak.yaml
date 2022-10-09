@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: keycloak
-    targetRevision: 9.7.3
+    targetRevision: 10.1.4
     plugin:
       name: argocd-vault-plugin-helm
       env:
@@ -44,8 +44,6 @@ spec:
             postgresql:
               enabled: false
 
-            # Try to remove when charts for keycloak 19 has been released
-            extraStartupArgs: "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true"
             keycloakConfigCli:
               enabled: true
 

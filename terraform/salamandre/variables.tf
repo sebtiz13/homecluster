@@ -66,9 +66,3 @@ variable "pg_local_cidr" {
   type        = string
   default     = null
 }
-
-variable "argocd_version" {
-  description = "Specify the chart versions"
-  type        = string
-  default     = null
-}

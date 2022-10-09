@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://helm.traefik.io/traefik
     chart: traefik
-    targetRevision: 10.24.1
+    targetRevision: 12.0.2
     helm:
       values: |
         fullnameOverride: "traefik"
