@@ -25,6 +25,11 @@ make vagrant VM_NAME=salamandre.vm
 
 ## Terraform
 
+### Variables
+
+- `SERVER` (**REQUIRED**, valid values: `salamandre`, `baku`): The server want used for deploy
+- `ARGS`: The args want be pass to terraform (eg. `ARGS="--target='module.ssh'"`)
+
 ### Production
 
 To provide cluster you can use follow command
