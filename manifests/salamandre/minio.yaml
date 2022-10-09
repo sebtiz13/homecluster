@@ -35,6 +35,13 @@ spec:
 
             persistence:
               size: 10Gi
+            resources:
+              requests:
+                 cpu: 10m
+                 memory: 192Mi
+              limits:
+                 cpu: 500m
+                 memory: 512Mi
   destination:
     server: https://kubernetes.default.svc
     namespace: minio
