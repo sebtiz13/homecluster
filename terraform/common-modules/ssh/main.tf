@@ -22,13 +22,20 @@ resource "null_resource" "config" {
     user        = self.triggers.ssh_user
     private_key = self.triggers.ssh_use_private_key ? file(self.triggers.ssh_private_key) : null
     agent       = self.triggers.ssh_agent
+
   }
 
   provisioner "file" {
     content = templatefile("${path.module}/config.conf.tftpl", {
       port = self.triggers.port
     })
-    destination = "/etc/ssh/sshd_config.d/10-custom.conf"
+    destination = "./ssh.conf"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv ./ssh.conf /etc/ssh/sshd_config.d/10-custom.conf"
+    ]
   }
 
   provisioner "remote-exec" {
