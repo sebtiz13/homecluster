@@ -3,7 +3,9 @@ resource "random_string" "vault_filename" {
   special = false
 }
 locals {
-  vault_filename = "~/v-${random_string.vault_filename.result}"
+  vault_filename  = "~/v-${random_string.vault_filename.result}"
+  vault_namespace = yamldecode(file("${local.manifests_folder}/vault.yaml")).spec.destination.namespace
+  vault_pod       = "-n ${local.vault_namespace} vault-0"
 }
 
 resource "kubectl_manifest" "vault" {
@@ -40,9 +42,9 @@ resource "null_resource" "vault_init" {
   provisioner "remote-exec" {
     inline = [
       // Wait vault pod is running
-      "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
+      "until [ \"$(kubectl get pod ${local.vault_pod} -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done",
       // Init and unseal vault
-      "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/init-vault.sh`\" > ${local.vault_filename}"
+      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/init-vault.sh`\" > ${local.vault_filename}"
     ]
   }
 }
@@ -67,7 +69,7 @@ resource "kubectl_manifest" "vault_keys" {
     kind       = "Secret"
     metadata = {
       name      = "vault-keys"
-      namespace = "vault"
+      namespace = local.vault_namespace
     }
     type = "Opaque"
     data = {
@@ -92,9 +94,9 @@ resource "null_resource" "vault_restart" {
   provisioner "remote-exec" {
     inline = [
       // Restart vault
-      "kubectl delete pod -n vault vault-0 > /dev/null",
+      "kubectl delete pod ${local.vault_pod} > /dev/null",
       // Wait for vault is up
-      "until [ \"$(kubectl get pod -n vault vault-0 -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done"
+      "until [ \"$(kubectl get pod ${local.vault_pod} -o=jsonpath='{.status.phase}' 2>/dev/null)\" = \"Running\" ]; do sleep 1; done"
     ]
   }
 }

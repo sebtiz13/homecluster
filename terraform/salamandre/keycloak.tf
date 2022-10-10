@@ -61,7 +61,7 @@ resource "null_resource" "vault_keycloak_secret" {
       "sudo -u postgres -H -- psql -c \"CREATE DATABASE keycloak OWNER keycloak;\" > /dev/null",
       "sudo -u postgres -H -- psql -c \"GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;\" > /dev/null",
       // Create keys in vault
-      "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-keycloak.sh`\" > /dev/null"
+      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-keycloak.sh`\" > /dev/null"
     ]
   }
 }
@@ -117,7 +117,7 @@ resource "null_resource" "vault_oidc" {
       // Wait keycloack is configurate
       "until [ \"$(curl -s '${local.oidc_url}' --max-time 2 | grep -o '\"realm\":\"[^\"]*' | grep -o '[^\"]*$' 2>/dev/null)\" = \"developer\" ]; do sleep 1; done",
       // Enable OIDC on vault
-      "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-oidc.sh`\" > /dev/null"
+      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-oidc.sh`\" > /dev/null"
     ]
   }
 }

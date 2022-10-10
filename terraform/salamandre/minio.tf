@@ -37,7 +37,7 @@ resource "null_resource" "vault_minio_secret" {
   provisioner "remote-exec" {
     inline = [
       // Create key in vault
-      "kubectl exec -n vault vault-0 -- /bin/sh -c \"`cat /tmp/vault-minio.sh`\" > /dev/null"
+      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-minio.sh`\" > /dev/null"
     ]
   }
 }
