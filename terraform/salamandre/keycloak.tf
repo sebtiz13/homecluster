@@ -98,7 +98,7 @@ resource "null_resource" "vault_oidc" {
   // Upload files
   provisioner "file" {
     content = templatefile("./scripts/vault/oidc.sh", {
-      address     = "https://vault-secrets.${local.base_domain}"
+      address     = "http://vault-secrets.${local.base_domain}"
       root_tooken = local.vault_keys.root_token
 
       oidc_url           = local.oidc_url
