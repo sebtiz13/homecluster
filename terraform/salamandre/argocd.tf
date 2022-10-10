@@ -1,16 +1,22 @@
 locals {
-  argocd_app_values = yamldecode(file("${local.manifests_folder}/argocd.yaml"))
+  argocd_raw_manifest = templatefile("${local.manifests_folder}/argocd.yaml", {
+    url = "argocd.${local.base_domain}"
+
+    oidc_url    = "sso.${local.base_domain}"
+    oidc_secret = local.oidc_secrets.argocd
+  })
+  argocd_manifest = yamldecode(local.argocd_raw_manifest)
 }
 resource "helm_release" "argocd_deploy" {
   create_namespace = true
 
-  name       = local.argocd_app_values.metadata.name
-  namespace  = local.argocd_app_values.metadata.namespace
-  chart      = local.argocd_app_values.spec.source.chart
-  repository = local.argocd_app_values.spec.source.repoURL
-  version    = local.argocd_app_values.spec.source.targetRevision
+  name       = local.argocd_manifest.metadata.name
+  namespace  = local.argocd_manifest.metadata.namespace
+  chart      = local.argocd_manifest.spec.source.chart
+  repository = local.argocd_manifest.spec.source.repoURL
+  version    = local.argocd_manifest.spec.source.targetRevision
 
-  values = [file("./values/argocd.yaml.tftpl")]
+  values = [local.argocd_manifest.spec.source.helm.values]
 }
 
 resource "kubectl_manifest" "argocd_project" {
@@ -46,14 +52,10 @@ resource "kubectl_manifest" "argocd_project" {
 resource "kubectl_manifest" "argocd_sync" {
   depends_on = [kubectl_manifest.argocd_project]
 
-  yaml_body = templatefile("${local.manifests_folder}/argocd.yaml", {
-    url = "argocd.${local.base_domain}"
-
-    oidc_url    = "sso.${local.base_domain}"
-    oidc_secret = local.oidc_secrets.argocd
-  })
+  yaml_body = local.argocd_raw_manifest
 }
 
+// Retrieve admin password
 data "kubernetes_secret" "argocd_admin_password" {
   depends_on = [helm_release.argocd_deploy]
 
