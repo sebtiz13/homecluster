@@ -49,37 +49,30 @@ resource "null_resource" "vault_init" {
   }
 }
 
-data "remote_file" "vault_keys" {
+data "remote_file" "vault_credentials" {
   depends_on = [null_resource.vault_init]
 
   path = local.vault_filename
 }
 locals {
-  vault_keys = {
-    root_token  = sensitive(jsondecode(data.remote_file.vault_keys.content).root_token)
-    unseal_keys = sensitive(jsondecode(data.remote_file.vault_keys.content).unseal_keys_b64)
+  vault_root_token  = sensitive(jsondecode(data.remote_file.vault_credentials.content).root_token)
+  vault_unseal_keys = sensitive(jsondecode(data.remote_file.vault_credentials.content).unseal_keys_b64)
+}
+
+resource "kubernetes_secret" "vault_keys" {
+  depends_on = [data.remote_file.vault_credentials]
+
+  metadata {
+    name      = "vault-keys"
+    namespace = local.vault_namespace
+  }
+
+  data = {
+    key1 = local.vault_unseal_keys.0
   }
 }
-
-resource "kubectl_manifest" "vault_keys" {
-  depends_on = [data.remote_file.vault_keys]
-
-  yaml_body = yamlencode({
-    apiVersion = "v1"
-    kind       = "Secret"
-    metadata = {
-      name      = "vault-keys"
-      namespace = local.vault_namespace
-    }
-    type = "Opaque"
-    data = {
-      key1 = base64encode(local.vault_keys.unseal_keys.0)
-    }
-  })
-  force_new = true
-}
 resource "null_resource" "vault_restart" {
-  depends_on = [kubectl_manifest.vault_keys]
+  depends_on = [kubernetes_secret.vault_keys]
 
   // Etablish SSH connection
   connection {

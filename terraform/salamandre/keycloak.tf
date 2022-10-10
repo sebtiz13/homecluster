@@ -39,7 +39,7 @@ resource "null_resource" "vault_keycloak_secret" {
   // Upload files
   provisioner "file" {
     content = templatefile("./scripts/vault/keycloak.sh", {
-      root_tooken = local.vault_keys.root_token
+      root_tooken = local.vault_root_token
 
       database = {
         name     = "keycloak"
@@ -99,7 +99,7 @@ resource "null_resource" "vault_oidc" {
   provisioner "file" {
     content = templatefile("./scripts/vault/oidc.sh", {
       address     = "http://vault-secrets.${local.base_domain}"
-      root_tooken = local.vault_keys.root_token
+      root_tooken = local.vault_root_token
 
       oidc_url           = local.oidc_url
       oidc_client_id     = "vault"

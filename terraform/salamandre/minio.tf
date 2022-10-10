@@ -24,7 +24,7 @@ resource "null_resource" "vault_minio_secret" {
   // Upload files
   provisioner "file" {
     content = templatefile("./scripts/vault/minio.sh", {
-      root_tooken = local.vault_keys.root_token
+      root_tooken = local.vault_root_token
 
       root = {
         user     = "admin"
