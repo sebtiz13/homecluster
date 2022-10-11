@@ -207,6 +207,33 @@ spec:
                         - phone
                         - offline_access
                         - microprofile-jwt
+                    - clientId: gitlab
+                      rootUrl: http://${gitlab_url}
+                      baseUrl: /
+                      enabled: true
+                      publicClient: false
+                      clientAuthenticatorType: client-secret
+                      secret: ${gitlab_secret}
+                      redirectUris:
+                        - /*
+                      webOrigins:
+                        - '*'
+                      standardFlowEnabled: true
+                      directAccessGrantsEnabled: true
+                      protocol: openid-connect
+                      attributes:
+                        backchannel.logout.session.required: "true"
+                      fullScopeAllowed: true
+                      defaultClientScopes:
+                        - web-origins
+                        - profile
+                        - roles
+                        - email
+                      optionalClientScopes:
+                        - address
+                        - phone
+                        - offline_access
+                        - microprofile-jwt
                   clientScopes:
                     - name: groups
                       protocol: openid-connect

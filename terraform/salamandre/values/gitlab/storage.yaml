@@ -1,0 +1,8 @@
+provider: AWS
+aws_signature_version: 4
+path_style: true
+
+endpoint: "{{ .endpoint }}"
+region: "{{ .region }}"
+aws_access_key_id: "{{ .accessKey }}"
+aws_secret_access_key: "{{ .secretKey }}"

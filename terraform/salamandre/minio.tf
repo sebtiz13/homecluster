@@ -4,7 +4,10 @@ resource "random_password" "minio_admin_password" {
   special = false
 }
 locals {
+  minio_url            = "s3.${local.base_domain}"
   minio_admin_password = random_password.minio_admin_password.result
+  minio_endpoint       = "minio.minio.svc.cluster.local:9000"
+  minio_region         = "minio"
 }
 
 # Create vault keys
@@ -44,9 +47,9 @@ resource "null_resource" "vault_minio_secret" {
 
 # Deploy minio
 resource "kubectl_manifest" "minio" {
-  depends_on = [null_resource.vault_minio_secret]
+  depends_on = [null_resource.vault_minio_secret, null_resource.vault_gitlab_secret]
 
   yaml_body = templatefile("${local.manifests_folder}/minio.yaml", {
-    url = "s3.${local.base_domain}"
+    url = local.minio_url
   })
 }

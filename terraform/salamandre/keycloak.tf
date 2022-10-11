@@ -5,8 +5,8 @@ resource "random_string" "oidc_vault_secret" {
 }
 resource "random_uuid" "oidc_argocd_secret" {
 }
-resource "random_password" "keycloak_db_password" {
-  length  = 16
+resource "random_string" "oidc_gitlab_secret" {
+  length  = 32
   special = false
 }
 resource "random_password" "keycloak_admin_password" {
@@ -18,11 +18,21 @@ locals {
   oidc_secrets = {
     vault  = sensitive(random_string.oidc_vault_secret.result)
     argocd = sensitive(random_uuid.oidc_argocd_secret.result)
+    gitlab = sensitive(random_string.oidc_gitlab_secret.result)
   }
   keycloak_admin_password = random_password.keycloak_admin_password.result
 }
 
-# Create keycloak secrets
+module "keycloak_database" {
+  source     = "./modules/database"
+  depends_on = [null_resource.postgresql_install]
+
+  ssh      = local.ssh_connection
+  username = "keycloak"
+  database = "keycloak"
+}
+
+# Create vault keys
 resource "null_resource" "vault_keycloak_secret" {
   depends_on = [null_resource.vault_restart, null_resource.postgresql_install]
 
@@ -44,7 +54,7 @@ resource "null_resource" "vault_keycloak_secret" {
       database = {
         name     = "keycloak"
         user     = "keycloak"
-        password = random_password.keycloak_db_password.result
+        password = module.keycloak_database.password
       }
       admin = {
         user     = "admin"
@@ -54,13 +64,9 @@ resource "null_resource" "vault_keycloak_secret" {
     destination = "/tmp/vault-keycloak.sh"
   }
 
+  // Apply file
   provisioner "remote-exec" {
     inline = [
-      // Create database access
-      "sudo -u postgres -H -- psql -c \"CREATE USER keycloak WITH PASSWORD '${random_password.keycloak_db_password.result}';\" > /dev/null",
-      "sudo -u postgres -H -- psql -c \"CREATE DATABASE keycloak OWNER keycloak;\" > /dev/null",
-      "sudo -u postgres -H -- psql -c \"GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;\" > /dev/null",
-      // Create keys in vault
       "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-keycloak.sh`\" > /dev/null"
     ]
   }
@@ -78,6 +84,9 @@ resource "kubectl_manifest" "keycloak" {
 
     vault_url    = "vault-secrets.${local.base_domain}"
     vault_secret = local.oidc_secrets.vault
+
+    gitlab_url    = "git.${local.base_domain}"
+    gitlab_secret = local.oidc_secrets.gitlab
   })
 }
 

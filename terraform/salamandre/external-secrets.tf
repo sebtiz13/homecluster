@@ -23,15 +23,21 @@ resource "null_resource" "external_secrets_wait" {
   }
 }
 
+locals {
+  secretStoreRef = {
+    name = "vault-argocd"
+    kind = "ClusterSecretStore"
+  }
+}
 resource "kubectl_manifest" "external_secrets_cluster_store" {
   depends_on = [null_resource.external_secrets_wait]
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ClusterSecretStore"
+    kind       = local.secretStoreRef.kind
 
     metadata = {
-      name      = "vault-argocd"
+      name      = local.secretStoreRef.name
       namespace = local.vault_namespace
     }
 

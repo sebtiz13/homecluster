@@ -4,6 +4,7 @@ ${domain}:53 {
     ${server_ip} argocd.${domain}
     ${server_ip} vault-secrets.${domain}
     ${server_ip} s3.${domain}
+    ${server_ip} git.${domain}
     fallthrough
   }
   kubernetes cluster.local 10.0.0.0/24
