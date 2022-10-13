@@ -1,10 +1,9 @@
 ${domain}:53 {
   errors
   hosts {
-    ${server_ip} argocd.${domain}
-    ${server_ip} vault-secrets.${domain}
-    ${server_ip} s3.${domain}
-    ${server_ip} git.${domain}
+    %{ for name in subdomains ~}
+    ${server_ip} ${name}.${domain}
+    %{ endfor ~}
     fallthrough
   }
   kubernetes cluster.local 10.0.0.0/24

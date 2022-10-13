@@ -1,6 +1,7 @@
 # Apps variables
 locals {
   base_domain      = var.environment == "vm" ? "salamandre.vm" : "sebtiz13.fr"
+  subdomains       = ["argocd", "vault-secrets", "s3", "sso", "git"]
   tls_secret_name  = replace(local.base_domain, ".", "-")
   manifests_folder = "../../manifests/salamandre"
   out_dir          = "../../out"
