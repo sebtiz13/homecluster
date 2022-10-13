@@ -44,15 +44,15 @@ resource "kubectl_manifest" "external_secrets_cluster_store" {
     spec = {
       provider = {
         vault = {
-          server = "http://vault-internal.vault.svc:8200"
+          server = "http://vault-internal.${local.vault_namespace}.svc:8200"
           path   = "argocd"
           auth = {
             kubernetes = {
               mountPath = "kubernetes"
-              role      = "argocd"
+              role      = "external-secrets"
               serviceAccountRef = {
-                name      = "argocd-repo-server"
-                namespace = helm_release.argocd_deploy.namespace
+                name      = "external-secrets"
+                namespace = local.vault_namespace
               }
             }
           }

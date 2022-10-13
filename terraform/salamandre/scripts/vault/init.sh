@@ -31,6 +31,12 @@ vault write auth/kubernetes/role/argocd \
   policies=argocd \
   ttl=1h >/dev/null
 
+vault write auth/kubernetes/role/external-secrets \
+  bound_service_account_names=external-secrets \
+  bound_service_account_namespaces=vault \
+  policies=argocd \
+  ttl=1h >/dev/null
+
 # Enable static secrets
 vault secrets enable -path=argocd kv-v2 >/dev/null
 
