@@ -29,13 +29,18 @@ spec:
 
           ingress:
             enabled: true
+            ingressClassName: traefik
             annotations:
-              traefik.ingress.kubernetes.io/router.entrypoints: web
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
             hosts:
               - ${url}
+            tls:
+              - secretName: ${tls_secret_name}
+                hosts:
+                  - ${url}
 
           config:
-            url: http://${url}
+            url: https://${url}
 
             configManagementPlugins: |-
               - name: argocd-vault-plugin
@@ -52,11 +57,11 @@ spec:
 
             oidc.config: |
               name: Keycloak
-              issuer: http://${oidc_url}/realms/developer
+              issuer: https://${oidc_url}/realms/developer
               cliClientID: argocd-cli
               clientID: argocd
               clientSecret: $oidc.keycloak.clientSecret
-              logoutURL: http://${oidc_url}/realms/developer/protocol/openid-connect/logout?post_logout_redirect_uri={{logoutRedirectURL}}
+              logoutURL: https://${oidc_url}/realms/developer/protocol/openid-connect/logout?post_logout_redirect_uri={{logoutRedirectURL}}
               requestedIDTokenClaims:
                 groups:
                   essential: true
@@ -70,6 +75,18 @@ spec:
             policy.csv: |
               g, Admin, role:admin
             policy.default: role:readonly
+
+          # TODO: only in VM
+          volumeMounts:
+            - name: certificate
+              mountPath: /etc/ssl/certs/ca.crt
+              subPath: tls.crt
+          volumes:
+            - name: certificate
+              secret:
+                secretName: vm-ca-tls-secret
+                defaultMode: 420
+                optional: true
 
         repoServer:
           # Environment variables to pass to argocd-repo-server

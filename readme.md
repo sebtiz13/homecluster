@@ -7,6 +7,14 @@ This repository contains :
 
 ## Vagrant
 
+### Requirement
+
+For use environment please install :
+
+- [mkcert](https://github.com/FiloSottile/mkcert)
+
+### Usage
+
 To create or recreate VMs you can use follow command
 
 ```sh
@@ -19,7 +27,7 @@ And if you want create only one VM you can pass `salamandre.vm` ou `baku.vm` in 
 make vagrant VM_NAME=salamandre.vm
 ```
 
-### Vagrant variables
+#### Vagrant variables
 
 - `VM_NAME` (valid values: `salamandre.vm`, `baku.vm`): The vm name for only create on
 

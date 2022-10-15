@@ -11,4 +11,4 @@ args:
   client_options:
     identifier: "{{ .clientId }}"
     secret: "{{ .clientSecret }}"
-    redirect_uri: "http://${url}/users/auth/openid_connect/callback"
+    redirect_uri: "https://${url}/users/auth/openid_connect/callback"

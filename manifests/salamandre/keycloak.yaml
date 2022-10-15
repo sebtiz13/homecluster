@@ -21,6 +21,12 @@ spec:
               enabled: true
               ingressClassName: traefik
               hostname: ${url}
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              extraTls:
+                - secretName: ${tls_secret_name}
+                  hosts:
+                    - ${url}
 
             auth:
               adminUser: <path:argocd/data/keycloak/auth#adminUser>
@@ -119,14 +125,14 @@ spec:
                         - Admin
                   clients:
                     - clientId: argocd
-                      rootUrl: http://${argocd_url}
+                      rootUrl: https://${argocd_url}
                       baseUrl: /
                       enabled: true
                       publicClient: false
                       clientAuthenticatorType: client-secret
                       secret: ${argocd_secret}
                       redirectUris:
-                        - http://${argocd_url}
+                        - https://${argocd_url}
                         - /applications
                         - /auth/callback
                       webOrigins:
@@ -176,7 +182,7 @@ spec:
                         - offline_access
                         - microprofile-jwt
                     - clientId: vault
-                      rootUrl: http://${vault_url}
+                      rootUrl: https://${vault_url}
                       baseUrl: /ui/
                       adminUrl: /ui/vault/auth/oidc/oidc/callback
                       enabled: true
@@ -207,7 +213,7 @@ spec:
                         - offline_access
                         - microprofile-jwt
                     - clientId: gitlab
-                      rootUrl: http://${gitlab_url}
+                      rootUrl: https://${gitlab_url}
                       baseUrl: /
                       enabled: true
                       publicClient: false
@@ -268,7 +274,7 @@ spec:
                             claim.name: policy
                             jsonType.label: String
                   attributes:
-                    frontendUrl: "http://${url}"
+                    frontendUrl: "https://${url}"
   destination:
     server: https://kubernetes.default.svc
     namespace: keycloak

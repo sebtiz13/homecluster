@@ -53,6 +53,18 @@ variable "zpool_disks" {
   type        = list(string)
 }
 
+variable "ca_cert" {
+  description = "Specify the CA certificate"
+  type        = string
+  default     = null
+}
+
+variable "ca_key" {
+  description = "Specify the CA key"
+  type        = string
+  default     = null
+}
+
 ##
 # Apps variables
 ##

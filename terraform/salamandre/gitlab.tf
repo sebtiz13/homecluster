@@ -82,17 +82,6 @@ resource "null_resource" "vault_gitlab_secret" {
 }
 
 # Create secrets
-resource "kubernetes_namespace" "gitlab" {
-  depends_on = [null_resource.vault_gitlab_secret]
-
-  metadata {
-    name = "gitlab"
-  }
-}
-locals {
-  gitlab_namespace = kubernetes_namespace.gitlab.metadata[0].name
-}
-
 resource "kubectl_manifest" "gitlab_credentials" {
   depends_on = [null_resource.vault_gitlab_secret, null_resource.external_secrets_wait]
 
@@ -102,7 +91,7 @@ resource "kubectl_manifest" "gitlab_credentials" {
 
     metadata = {
       name      = "gitlab-credentials"
-      namespace = local.gitlab_namespace
+      namespace = "gitlab"
     }
 
     spec = {
@@ -134,7 +123,7 @@ resource "kubectl_manifest" "gitlab_storage" {
 
     metadata = {
       name      = "gitlab-storage"
-      namespace = local.gitlab_namespace
+      namespace = "gitlab"
     }
 
     spec = {
@@ -168,7 +157,7 @@ resource "kubectl_manifest" "gitlab_backup" {
 
     metadata = {
       name      = "gitlab-backup"
-      namespace = local.gitlab_namespace
+      namespace = "gitlab"
     }
 
     spec = {
@@ -200,7 +189,7 @@ resource "kubectl_manifest" "gitlab_oidc" {
 
     metadata = {
       name      = "gitlab-oidc"
-      namespace = local.gitlab_namespace
+      namespace = "gitlab"
     }
 
     spec = {
@@ -237,7 +226,8 @@ resource "kubectl_manifest" "gitlab" {
   ]
 
   yaml_body = templatefile("${local.manifests_folder}/gitlab.yaml", {
-    domain = local.base_domain
-    url    = "git.${local.base_domain}"
+    domain          = local.base_domain
+    url             = "git.${local.base_domain}"
+    tls_secret_name = local.tls_secret_name
   })
 }

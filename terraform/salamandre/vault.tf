@@ -9,10 +9,11 @@ locals {
 }
 
 resource "kubectl_manifest" "vault" {
-  depends_on = [module.zfs, kubectl_manifest.argocd_project]
+  depends_on = [module.zfs, kubectl_manifest.argocd_project, kubernetes_namespace.labeled_namespace]
 
   yaml_body = templatefile("${local.manifests_folder}/vault.yaml", {
-    url = "vault-secrets.${local.base_domain}"
+    url             = "vault-secrets.${local.base_domain}"
+    tls_secret_name = local.tls_secret_name
   })
 }
 

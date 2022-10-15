@@ -47,9 +47,14 @@ resource "null_resource" "vault_minio_secret" {
 
 # Deploy minio
 resource "kubectl_manifest" "minio" {
-  depends_on = [null_resource.vault_minio_secret, null_resource.vault_gitlab_secret]
+  depends_on = [
+    null_resource.vault_minio_secret,
+    null_resource.vault_gitlab_secret,
+    kubernetes_namespace.labeled_namespace
+  ]
 
   yaml_body = templatefile("${local.manifests_folder}/minio.yaml", {
-    url = local.minio_url
+    url             = local.minio_url
+    tls_secret_name = local.tls_secret_name
   })
 }

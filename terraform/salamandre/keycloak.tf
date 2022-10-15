@@ -14,7 +14,7 @@ resource "random_password" "keycloak_admin_password" {
   special = false
 }
 locals {
-  oidc_url = "http://sso.${local.base_domain}/realms/developer"
+  oidc_url = "https://sso.${local.base_domain}/realms/developer"
   oidc_secrets = {
     vault  = sensitive(random_string.oidc_vault_secret.result)
     argocd = sensitive(random_uuid.oidc_argocd_secret.result)
@@ -77,7 +77,8 @@ resource "kubectl_manifest" "keycloak" {
   depends_on = [null_resource.vault_keycloak_secret]
 
   yaml_body = templatefile("${local.manifests_folder}/keycloak.yaml", {
-    url = "sso.${local.base_domain}"
+    url             = "sso.${local.base_domain}"
+    tls_secret_name = local.tls_secret_name
 
     argocd_url    = "argocd.${local.base_domain}"
     argocd_secret = local.oidc_secrets.argocd
@@ -107,7 +108,7 @@ resource "null_resource" "vault_oidc" {
   // Upload files
   provisioner "file" {
     content = templatefile("./scripts/vault/oidc.sh", {
-      address     = "http://vault-secrets.${local.base_domain}"
+      address     = "https://vault-secrets.${local.base_domain}"
       root_tooken = local.vault_root_token
 
       oidc_url           = local.oidc_url

@@ -6,3 +6,6 @@ ssh_user = "vagrant"
 ssh_key = "../../vagrant/id_rsa"
 
 zpool_disks = ["/dev/sda", "/dev/sdb", "/dev/sdc"]
+
+ca_cert = "../../vagrant/.vagrant/ca/rootCA.pem"
+ca_key  = "../../vagrant/.vagrant/ca/rootCA-key.pem"

@@ -29,7 +29,7 @@ spec:
 
               hosts:
                 domain: ${domain}
-                https: false
+                https: true
                 gitlab:
                   name: ${url}
 
@@ -39,6 +39,11 @@ spec:
                 provider: traefik
                 enabled: true
                 class: traefik
+                annotations:
+                  traefik.ingress.kubernetes.io/router.entrypoints: websecure
+                tls:
+                  enabled: true
+                  secretName: ${tls_secret_name}
 
               smtp:
                 enabled: false
@@ -117,6 +122,10 @@ spec:
               minio:
                 enabled: false
 
+              certificates:
+                customCAs:
+                  - secret: vm-ca-tls-secret
+
             gitlab:
               gitaly:
                 persistence:
@@ -173,6 +182,7 @@ spec:
             gitlab-runner:
               install: true
               replica: 1
+              certsSecretName: vm-ca-tls-secret
               gitlabUrl: "http://gitlab-webservice-default.gitlab.svc:8181"
               runnerRegistrationToken: <path:argocd/data/gitlab/runner#registrationToken>
               unregisterRunners: false
@@ -182,7 +192,7 @@ spec:
                   secretName: gitlab-storage
                 config: |
                   [[runners]]
-                    environment = ["container=docker"]
+                    environment = ["container=docker","GIT_SSL_NO_VERIFY=true"]
                     [runners.kubernetes]
                       namespace = "{{.Release.Namespace}}"
                       image = "ubuntu:18.04"

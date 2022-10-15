@@ -1,6 +1,7 @@
 locals {
   argocd_raw_manifest = templatefile("${local.manifests_folder}/argocd.yaml", {
-    url = "argocd.${local.base_domain}"
+    url             = "argocd.${local.base_domain}"
+    tls_secret_name = local.tls_secret_name
 
     oidc_url    = "sso.${local.base_domain}"
     oidc_secret = local.oidc_secrets.argocd
@@ -8,7 +9,8 @@ locals {
   argocd_manifest = yamldecode(local.argocd_raw_manifest)
 }
 resource "helm_release" "argocd_deploy" {
-  create_namespace = true
+  depends_on = [kubernetes_namespace.labeled_namespace]
+  timeout    = 10 * 60 // 10 min
 
   name       = local.argocd_manifest.metadata.name
   namespace  = local.argocd_manifest.metadata.namespace
