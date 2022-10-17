@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-agent
+  namespace: argocd
+spec:
+  project: cluster-core-apps
+  source:
+    repoURL: https://charts.gitlab.io/
+    chart: gitlab-agent
+    targetRevision: 1.5.0
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_VALUES
+          value: |
+            fullnameOverride: "gitlab-agent"
+
+            config:
+              kasAddress: wss://kas.salamandre.vm
+              token: <path:argocd/data/gitlab/agent#token>
+              caCert: <path:argocd/data/gitlab/agent#caCert>
+
+            resources:
+              limits:
+                cpu: 100m
+                memory: 128Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitlab
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

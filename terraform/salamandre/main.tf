@@ -4,7 +4,7 @@ locals {
   out_dir          = "../../out"
 
   base_domain     = var.environment == "vm" ? "salamandre.vm" : "sebtiz13.fr"
-  subdomains      = ["argocd", "vault-secrets", "sso", "s3", "git"]
+  subdomains      = ["argocd", "vault-secrets", "sso", "s3", "git", "kas"]
   tls_secret_name = "${replace(local.base_domain, ".", "-")}-tls"
 
   clusters = {
