@@ -17,6 +17,7 @@ spec:
             fullnameOverride: "keycloak"
             priorityClassName: system-cluster-critical
 
+            proxy: edge
             ingress:
               enabled: true
               ingressClassName: traefik
@@ -28,6 +29,9 @@ spec:
                   hosts:
                     - ${url}
 
+            cache:
+              enabled: true
+
             auth:
               adminUser: <path:argocd/data/keycloak/auth#adminUser>
               adminPassword: <path:argocd/data/keycloak/auth#adminPassword>
@@ -35,6 +39,10 @@ spec:
             extraEnvVars:
               - name: TZ
                 value: Europe/Paris
+              - name: KEYCLOAK_PRODUCTION
+                value: "true"
+              - name: KEYCLOAK_HOSTNAME
+                value: https://${url}
 
             service:
               type: ClusterIP
