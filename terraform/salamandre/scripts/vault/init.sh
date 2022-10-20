@@ -25,17 +25,17 @@ vault auth enable kubernetes >/dev/null
 vault write auth/kubernetes/config \
   kubernetes_host=https://$KUBERNETES_PORT_443_TCP_ADDR:443 >/dev/null
 
-vault write auth/kubernetes/role/argocd \
-  bound_service_account_names=argocd-repo-server \
-  bound_service_account_namespaces=argocd \
-  policies=argocd \
-  ttl=1h >/dev/null
-
-vault write auth/kubernetes/role/external-secrets \
-  bound_service_account_names=external-secrets \
-  bound_service_account_namespaces=external-secrets \
-  policies=argocd \
-  ttl=1h >/dev/null
+%{ for name, data in kubernetes_roles ~}
+vault write auth/kubernetes/role/${name} \
+  %{ for sa in data.bound_service_accounts }
+  bound_service_account_names=${sa.name} \
+  bound_service_account_namespaces=${sa.namespace} \
+  %{ endfor }
+  %{ for policy in data.policies }
+  policies=${policy} \
+  %{ endfor }
+  ttl=${data.ttl} >/dev/null
+%{ endfor ~}
 
 # Enable static secrets
 vault secrets enable -path=argocd kv-v2 >/dev/null

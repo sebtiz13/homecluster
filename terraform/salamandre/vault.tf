@@ -43,6 +43,25 @@ resource "null_resource" "vault_init" {
       argocd_policy = file("./values/vault/argocd-policy.hcl")
       reader_policy = file("./values/vault/reader-policy.hcl")
 
+      kubernetes_roles = {
+        argocd = {
+          bound_service_accounts = [{
+            name      = "argocd-repo-server"
+            namespace = local.argocd_namespace
+          }]
+          policies = ["argocd"]
+          ttl      = "1h"
+        }
+        "external-secrets" = {
+          bound_service_accounts = [{
+            name      = "external-secrets"
+            namespace = local.es_namespace
+          }]
+          policies = ["argocd"]
+          ttl      = "1h"
+        }
+      }
+
       oidc = {
         client_id     = "vault"
         client_secret = sensitive(random_string.vault_oidc_secret.result)
