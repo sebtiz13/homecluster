@@ -37,70 +37,54 @@ module "gitlab_database" {
 }
 
 # Create vault keys
-resource "null_resource" "vault_gitlab_secret" {
+module "gitlab_vault_secrets" {
   depends_on = [null_resource.vault_restart]
+  source     = "./modules/vault"
 
-  // Etablish SSH connection
-  connection {
-    type        = "ssh"
-    host        = local.ssh_connection.host
-    port        = local.ssh_connection.port
-    user        = local.ssh_connection.user
-    private_key = local.ssh_connection.use_private_key ? file(local.ssh_connection.private_key) : null
-    agent       = local.ssh_connection.agent
+  ssh = local.ssh_connection
+  vault = {
+    pod   = local.vault_pod
+    token = local.vault_root_token
   }
-
-  // Upload files
-  provisioner "file" {
-    content = templatefile("./scripts/vault/gitlab.sh", {
-      root_tooken = local.vault_root_token
-
-      database = {
-        database = "gitlab"
-        user     = "gitlab"
-        password = module.gitlab_database.password
-      }
-      s3 = {
-        endpoint  = "http://${local.minio_endpoint}"
-        region    = local.minio_region
-        accessKey = "gitlab"
-        secretKey = sensitive(random_string.gitlab_s3_secret_key.result)
-        buckets = {
-          artifacts = "gitlab-artifacts"
-          backups   = "gitlab-backups"
-          depsProxy = "gitlab-dependency-proxy"
-          packages  = "gitlab-packages"
-          pages     = "gitlab-pages"
-          registry  = "gitlab-registry"
-          runner    = "gitlab-runner"
-          tfState   = "gitlab-terraform-state"
-          uploads   = "gitlab-uploads"
-          lfs       = "git-lfs"
-        }
-      }
-      oidc = {
-        url          = local.oidc_url
-        clientId     = "gitlab"
-        clientSecret = sensitive(random_string.gitlab_oidc_secret.result)
-      }
-      runner = {
-        registrationToken = sensitive(random_string.gitlab_runner_registration_token.result)
-      }
-    })
-    destination = "/tmp/vault-gitlab.sh"
-  }
-
-  // Apply file
-  provisioner "remote-exec" {
-    inline = [
-      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-gitlab.sh`\" > /dev/null"
-    ]
+  secrets = {
+    "gitlab/database" = {
+      host     = "postgresql.loc"
+      database = "gitlab"
+      user     = "gitlab"
+      password = module.gitlab_database.password
+    }
+    "gitlab/s3" = {
+      endpoint  = "http://${local.minio_endpoint}"
+      region    = local.minio_region
+      accessKey = "gitlab"
+      secretKey = sensitive(random_string.gitlab_s3_secret_key.result)
+      # Buckets
+      bucket_artifacts = "gitlab-artifacts"
+      bucket_backups   = "gitlab-backups"
+      bucket_depsProxy = "gitlab-dependency-proxy"
+      bucket_packages  = "gitlab-packages"
+      bucket_pages     = "gitlab-pages"
+      bucket_registry  = "gitlab-registry"
+      bucket_runner    = "gitlab-runner"
+      bucket_tfState   = "gitlab-terraform-state"
+      bucket_uploads   = "gitlab-uploads"
+      bucket_lfs       = "git-lfs"
+    }
+    "gitlab/oidc" = {
+      issuer       = local.oidc_url
+      clientID     = "gitlab"
+      clientSecret = sensitive(random_string.gitlab_oidc_secret.result)
+    }
+    "gitlab/runner" = {
+      registrationToken = sensitive(random_string.gitlab_runner_registration_token.result)
+    }
   }
 }
 
+
 # Create secrets
 resource "kubectl_manifest" "gitlab_credentials" {
-  depends_on = [null_resource.vault_gitlab_secret, null_resource.external_secrets_wait]
+  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -132,7 +116,7 @@ resource "kubectl_manifest" "gitlab_credentials" {
   })
 }
 resource "kubectl_manifest" "gitlab_storage" {
-  depends_on = [null_resource.vault_gitlab_secret, null_resource.external_secrets_wait]
+  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -166,7 +150,7 @@ resource "kubectl_manifest" "gitlab_storage" {
   })
 }
 resource "kubectl_manifest" "gitlab_backup" {
-  depends_on = [null_resource.vault_gitlab_secret, null_resource.external_secrets_wait]
+  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -198,7 +182,7 @@ resource "kubectl_manifest" "gitlab_backup" {
   })
 }
 resource "kubectl_manifest" "gitlab_oidc" {
-  depends_on = [null_resource.vault_gitlab_secret, null_resource.external_secrets_wait]
+  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"

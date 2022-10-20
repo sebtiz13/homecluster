@@ -41,7 +41,7 @@ vault write auth/kubernetes/role/${name} \
 vault secrets enable -path=argocd kv-v2 >/dev/null
 
 # Create oidc credentials (for keycloak)
-vault kv put -mount=argocd vault/oidc \
+vault kv put argocd/vault/oidc \
   clientID="${oidc.client_id}" \
   clientSecret="${oidc.client_secret}" >/dev/null
 

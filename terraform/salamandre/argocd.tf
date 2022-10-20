@@ -53,45 +53,28 @@ resource "kubectl_manifest" "argocd_projects" {
 }
 
 # Create vault keys
-resource "null_resource" "vault_argocd_secret" {
+module "argocd_vault_secrets" {
   depends_on = [null_resource.vault_restart]
+  source     = "./modules/vault"
 
-  // Etablish SSH connection
-  connection {
-    type        = "ssh"
-    host        = local.ssh_connection.host
-    port        = local.ssh_connection.port
-    user        = local.ssh_connection.user
-    private_key = local.ssh_connection.use_private_key ? file(local.ssh_connection.private_key) : null
-    agent       = local.ssh_connection.agent
+  ssh = local.ssh_connection
+  vault = {
+    pod   = local.vault_pod
+    token = local.vault_root_token
   }
-
-  // Upload files
-  provisioner "file" {
-    content = templatefile("./scripts/vault/argocd.sh", {
-      root_tooken = local.vault_root_token
-
-      oidc = {
-        url           = local.oidc_url
-        cli_client_id = "argocd-cli"
-        client_id     = "argocd"
-        client_secret = sensitive(random_uuid.argocd_oidc_secret.result)
-      }
-    })
-    destination = "/tmp/vault-argocd.sh"
-  }
-
-  // Apply file
-  provisioner "remote-exec" {
-    inline = [
-      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-argocd.sh`\" > /dev/null"
-    ]
+  secrets = {
+    "argocd/oidc" = {
+      issuer       = local.oidc_url
+      cliClientID  = "argocd-cli"
+      clientID     = "argocd"
+      clientSecret = sensitive(random_uuid.argocd_oidc_secret.result)
+    }
   }
 }
 
 # Sync app
 resource "kubectl_manifest" "argocd_sync" {
-  depends_on = [null_resource.vault_argocd_secret]
+  depends_on = [module.argocd_vault_secrets]
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.argocd_manifest)

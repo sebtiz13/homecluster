@@ -26,48 +26,33 @@ module "keycloak_database" {
 }
 
 # Create vault keys
-resource "null_resource" "vault_keycloak_secret" {
-  depends_on = [null_resource.vault_restart, null_resource.postgresql_install]
+module "keycloak_vault_secrets" {
+  depends_on = [null_resource.vault_restart, module.keycloak_database]
+  source     = "./modules/vault"
 
-  // Etablish SSH connection
-  connection {
-    type        = "ssh"
-    host        = local.ssh_connection.host
-    port        = local.ssh_connection.port
-    user        = local.ssh_connection.user
-    private_key = local.ssh_connection.use_private_key ? file(local.ssh_connection.private_key) : null
-    agent       = local.ssh_connection.agent
+  ssh = local.ssh_connection
+  vault = {
+    pod   = local.vault_pod
+    token = local.vault_root_token
   }
-
-  // Upload files
-  provisioner "file" {
-    content = templatefile("./scripts/vault/keycloak.sh", {
-      root_tooken = local.vault_root_token
-
-      database = {
-        name     = "keycloak"
-        user     = "keycloak"
-        password = module.keycloak_database.password
-      }
-      admin = {
-        user     = "admin"
-        password = local.keycloak_admin_password
-      }
-    })
-    destination = "/tmp/vault-keycloak.sh"
-  }
-
-  // Apply file
-  provisioner "remote-exec" {
-    inline = [
-      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-keycloak.sh`\" > /dev/null"
-    ]
+  secrets = {
+    "keycloak/database" = {
+      host     = "postgresql.loc"
+      port     = 5432
+      database = "keycloak"
+      user     = "keycloak"
+      password = module.keycloak_database.password
+    }
+    "keycloak/auth" = {
+      adminUser     = "admin"
+      adminPassword = local.keycloak_admin_password
+    }
   }
 }
 
 # Deploy keycloak
 resource "kubectl_manifest" "keycloak" {
-  depends_on = [null_resource.vault_keycloak_secret, null_resource.vault_argocd_secret]
+  depends_on = [module.keycloak_vault_secrets, module.argocd_vault_secrets]
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.keycloak_manifest)
