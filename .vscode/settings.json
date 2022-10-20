@@ -1,0 +1,16 @@
+{
+  "files.associations": {
+    "*.yaml.tftpl": "yaml",
+    "*.conf.tftpl": "properties",
+    "appValues*.yaml": "helm"
+  },
+  "[yaml]": {
+    "editor.formatOnSave": false
+  },
+  "[helm]": {
+    "editor.formatOnSave": false
+  },
+  "yaml.schemas": {
+    "apps/apps_values_schema.json": "apps/apps/**/values.yaml"
+  }
+}
