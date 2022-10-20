@@ -1,15 +1,14 @@
 #!/bin/sh
 export VAULT_ADDR=http://127.0.0.1:8200
-
-vault login -no-print ${root_tooken} >/dev/null
+vault login -no-print ${token} >/dev/null
 
 # Setup OIDC Auth Method
 vault auth enable oidc
 
 vault write auth/oidc/config \
-  oidc_discovery_url="${oidc_url}" \
-  oidc_client_id="${oidc_client_id}" \
-  oidc_client_secret="${oidc_client_secret}" \
+  oidc_discovery_url="${oidc.url}" \
+  oidc_client_id="${oidc.client_id}" \
+  oidc_client_secret="${oidc.client_secret}" \
   default_role="reader"
 
 vault write auth/oidc/role/reader bound_audiences="vault" \
@@ -24,7 +23,7 @@ mount_accessor=$(vault auth list | awk '$1=="oidc/" {print $3}')
 
 ## operator group
 cat << EOF | vault policy write operator - >/dev/null
-${oidc_operator_policy}
+${policies.operator}
 EOF
 
 vault write identity/group name='Operator' policies='operator' type='external'
@@ -35,7 +34,7 @@ vault write identity/group-alias \
 
 ## admin group
 cat << EOF | vault policy write admin - >/dev/null
-${oidc_admin_policy}
+${policies.admin}
 EOF
 
 vault write identity/group name='Admin' policies='operator,admin' type='external'

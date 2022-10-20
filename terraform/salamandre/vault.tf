@@ -126,3 +126,46 @@ resource "null_resource" "vault_restart" {
     ]
   }
 }
+
+# Configure oidc auth
+resource "null_resource" "vault_oidc" {
+  depends_on = [kubectl_manifest.keycloak]
+
+  // Etablish SSH connection
+  connection {
+    type        = "ssh"
+    host        = local.ssh_connection.host
+    port        = local.ssh_connection.port
+    user        = local.ssh_connection.user
+    private_key = local.ssh_connection.use_private_key ? file(local.ssh_connection.private_key) : null
+    agent       = local.ssh_connection.agent
+  }
+
+  // Upload files
+  provisioner "file" {
+    content = templatefile("./scripts/vault/oidc.sh", {
+      address = local.vault_host
+      token   = local.vault_root_token
+
+      oidc = {
+        url           = local.oidc_url
+        client_id     = "vault"
+        client_secret = sensitive(random_string.vault_oidc_secret.result)
+      }
+      policies = {
+        operator = file("./values/vault/operator-policy.hcl")
+        admin    = file("./values/vault/admin-policy.hcl")
+      }
+    })
+    destination = "/tmp/vault-oidc.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      // Wait keycloack is configurate
+      "until [ \"$(curl -s '${local.oidc_url}' --max-time 2 | grep -o '\"realm\":\"[^\"]*' | grep -o '[^\"]*$' 2>/dev/null)\" = \"developer\" ]; do sleep 1; done",
+      // Enable OIDC on vault
+      "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-oidc.sh`\" > /dev/null"
+    ]
+  }
+}
