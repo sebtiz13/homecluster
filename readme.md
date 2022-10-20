@@ -55,3 +55,13 @@ make test-cluster
 ```
 
 **NOTE**: You can also provide [arguments from `vagrant` command](#vagrant-variables) (eg. `make test-cluster VM_NAME=salamandre.vm`)
+
+## GitLab Agent
+
+Deploy the GitLab Agent for Kubernetes (agentk) with the following command
+
+```sh
+./gitlab-agent.sh <token>
+```
+
+**NOTE**: For deploy on vagrant cluster specify `ENVIRONMENT` to `vm`
