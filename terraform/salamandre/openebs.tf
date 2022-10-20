@@ -1,6 +1,8 @@
 resource "kubectl_manifest" "openebs" {
-  depends_on = [module.zfs, kubectl_manifest.argocd_project]
-  yaml_body  = file("${local.manifests_folder}/openebs.yaml")
+  depends_on = [module.zfs, kubectl_manifest.argocd_projects]
+
+  override_namespace = local.argocd_namespace
+  yaml_body          = file("${var.manifests_folder}/openebs.yaml")
 }
 
 resource "kubernetes_storage_class" "openebs_storageclass" {

@@ -6,7 +6,7 @@ resource "kubernetes_namespace" "labeled_namespace" {
     name = each.key
     labels = {
       name   = each.key
-      domain = local.base_domain
+      domain = var.domain
     }
   }
 }

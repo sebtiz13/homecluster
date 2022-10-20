@@ -1,0 +1,3 @@
+[submodule "apps"]
+	path = apps
+	url = git@git.sebtiz13.fr:cluster/apps.git

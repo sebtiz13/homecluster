@@ -5,6 +5,7 @@
 TF_SALAMANDRE_DIR := ./terraform/salamandre
 TF_BAKU_DIR := ./terraform/baku
 VAGRANT_DIR := ./vagrant
+MANIFESTS_DIR := ./out/manifests
 SERVER := $(subst .vm,,$(VM_NAME))
 
 ifeq ($(SERVER), salamandre)
@@ -69,6 +70,7 @@ test-cluster: ## All-in-one command for cluster deployment inside VM
 	make test-apply --no-print-directory
 test-apply: ## [terraform] Create or update infrastructure inside VM
 	make _validate --no-print-directory
+	make vm-manifests --no-print-directory
 	echo "Provisining cluster..."
 	cd $(TERRAFORM_DIR); terraform apply -var-file="vm.tfvars" -auto-approve $(ARGS) && terraform refresh -var-file="vm.tfvars" $(ARGS)
 
@@ -79,6 +81,7 @@ plan: ## [terraform] Plan of infrastructure
 test-plan: ## [terraform] Plan of infrastructure inside VM
 	make _validate --no-print-directory
 	cd $(TERRAFORM_DIR); terraform plan -var-file="vm.tfvars"
+
 
 vm-create: ## Create vagrant VM
 	echo "Creating new VM(s)..."
@@ -110,3 +113,5 @@ vm-reset-state: ## Restore the initial state of VM (from `vm-init-state`)
 	cd $(VAGRANT_DIR); vagrant snapshot restore $(VM_NAME) init-state --no-provision
 	rm $(TERRAFORM_DIR)/terraform.tfstate.backup
 	cp ./out/$(SERVER).tfstate $(TERRAFORM_DIR)/terraform.tfstate
+vm-manifests: ## Build manifests for VM
+	cd apps; MANIFESTS_PATH=../$(MANIFESTS_DIR) ENVIROMNENT=vm ./scripts/all-apps.sh ./scripts/build.sh

@@ -1,18 +1,28 @@
 # Apps variables
 locals {
-  manifests_folder = "../../manifests/salamandre"
-  out_dir          = "../../out"
+  out_dir = "../../out"
 
-  base_domain     = var.environment == "vm" ? "salamandre.vm" : "sebtiz13.fr"
-  subdomains      = ["argocd", "vault-secrets", "sso", "s3", "git", "kas"]
-  tls_secret_name = "${replace(local.base_domain, ".", "-")}-tls"
+  labeled_namespaces = [
+    local.argocd_namespace,
+    local.vault_namespace,
+    local.keycloak_namespace,
+    local.minio_namespace,
+    local.gitlab_namespace
+  ]
+  domains = [
+    local.argocd_host,
+    local.vault_host,
+    local.keycloak_host,
+    local.minio_host,
+    local.gitlab_host,
+    local.gitlab_kas_host
+  ]
 
+  argocd_projects = ["infrastructure", "system"]
   clusters = {
     salamandre = "https://kubernetes.default.svc"
-    baku       = "https://${var.environment == "vm" ? "baku.vm" : "baku." + local.base_domain}:6443"
+    baku       = "https://baku.${var.domain}:6443"
   }
-
-  labeled_namespaces = ["argocd", "vault", "keycloak", "minio", "gitlab", "cert-manager"]
 
   ssh_connection = {
     host            = var.ssh_host

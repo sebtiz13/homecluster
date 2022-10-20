@@ -1,8 +1,13 @@
+locals {
+  traefik_namespace = "traefik"
+}
+
 # Deploy app
 resource "kubectl_manifest" "traefik" {
-  depends_on = [kubectl_manifest.argocd_project]
+  depends_on = [kubectl_manifest.argocd_projects]
 
-  yaml_body = file("${local.manifests_folder}/traefik.yaml")
+  override_namespace = local.argocd_namespace
+  yaml_body          = file("${var.manifests_folder}/traefik.yaml")
 }
 resource "null_resource" "traefik_wait" {
   depends_on = [kubectl_manifest.traefik]
@@ -35,7 +40,7 @@ resource "kubectl_manifest" "traefik_https_redirect" {
 
     metadata = {
       name      = "redirect-https"
-      namespace = "traefik"
+      namespace = local.traefik_namespace
     }
 
     spec = {
@@ -48,7 +53,31 @@ resource "kubectl_manifest" "traefik_https_redirect" {
 }
 
 # Create certificate
+locals {
+  certificate_name = replace(var.domain, ".", "-")
+}
+
 # TODO: Support production !
+resource "kubectl_manifest" "cert_manager_issuer" {
+  depends_on = [kubernetes_secret.vm_ca, null_resource.cert_manager_wait]
+
+  yaml_body = yamlencode({
+    apiVersion = "cert-manager.io/v1"
+    kind       = "Issuer"
+
+    metadata = {
+      name      = "${local.certificate_name}-issuer"
+      namespace = local.traefik_namespace
+    }
+
+    spec = {
+      ca = {
+        secretName = kubernetes_secret.vm_ca[0].metadata[0].name
+      }
+    }
+  })
+}
+
 resource "kubectl_manifest" "cert_manager_certificate" {
   depends_on = [null_resource.traefik_wait, null_resource.cert_manager_wait]
 
@@ -57,24 +86,24 @@ resource "kubectl_manifest" "cert_manager_certificate" {
     kind       = "Certificate"
 
     metadata = {
-      name      = replace(local.base_domain, ".", "-")
-      namespace = "traefik"
+      name      = local.certificate_name
+      namespace = local.traefik_namespace
     }
 
     spec = {
       issuerRef = {
-        name = "selfsigned"
-        kind = "ClusterIssuer"
+        name = "${local.certificate_name}-issuer"
+        kind = "Issuer"
       }
 
-      dnsNames   = [local.base_domain, "*.${local.base_domain}", "console.s3.${local.base_domain}"]
-      secretName = local.tls_secret_name
+      dnsNames   = [var.domain, "*.${var.domain}", "console.s3.${var.domain}"]
+      secretName = "${local.certificate_name}-tls"
       secretTemplate = {
         annotations = {
-          "kubed.appscode.com/sync" = "domain=${local.base_domain}"
+          "kubed.appscode.com/sync" = "domain=${var.domain}"
         }
         labels = {
-          domain = local.base_domain
+          domain = var.domain
         }
       }
     }

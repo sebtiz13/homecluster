@@ -33,12 +33,17 @@ vault write auth/kubernetes/role/argocd \
 
 vault write auth/kubernetes/role/external-secrets \
   bound_service_account_names=external-secrets \
-  bound_service_account_namespaces=vault \
+  bound_service_account_namespaces=external-secrets \
   policies=argocd \
   ttl=1h >/dev/null
 
 # Enable static secrets
 vault secrets enable -path=argocd kv-v2 >/dev/null
+
+# Create oidc credentials (for keycloak)
+vault kv put -mount=argocd vault/oidc \
+  clientID="${oidc.client_id}" \
+  clientSecret="${oidc.client_secret}" >/dev/null
 
 # out the init text
 cat $OUTPUT

@@ -1,8 +1,8 @@
-${domain}:53 {
+${base_domain}:53 {
   errors
   hosts {
-    %{ for name in subdomains ~}
-    ${server_ip} ${name}.${domain}
+    %{ for domain in domains ~}
+    ${server_ip} ${domain}
     %{ endfor ~}
     fallthrough
   }

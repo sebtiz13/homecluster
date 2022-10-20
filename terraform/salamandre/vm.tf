@@ -1,12 +1,12 @@
 resource "kubernetes_secret" "vm_ca" {
-  depends_on = [module.k3s_install]
+  depends_on = [null_resource.traefik_wait]
   count      = var.environment == "vm" ? 1 : 0
 
   metadata {
     name      = "vm-ca-tls-secret"
-    namespace = "kube-system"
+    namespace = local.traefik_namespace
     annotations = {
-      "kubed.appscode.com/sync" = "domain=${local.base_domain}"
+      "kubed.appscode.com/sync" = "domain=${var.domain}"
     }
   }
 
@@ -34,9 +34,9 @@ resource "null_resource" "argocd_restart" {
   provisioner "remote-exec" {
     inline = [
       // Wait ca secret
-      "until kubectl get secret -n argocd vm-ca-tls-secret &> /dev/null; do sleep 1; done",
+      "until kubectl get secret -n ${local.argocd_namespace} vm-ca-tls-secret &> /dev/null; do sleep 1; done",
       // Restart argocd
-      "kubectl rollout restart deployment -n argocd argocd-server > /dev/null"
+      "kubectl rollout restart deployment -n ${local.argocd_namespace} argocd-server > /dev/null"
     ]
   }
 }

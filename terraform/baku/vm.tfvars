@@ -6,3 +6,5 @@ ssh_user = "vagrant"
 ssh_key = "../../vagrant/id_rsa"
 
 zpool_disks = ["/dev/sda", "/dev/sdb", "/dev/sdc"]
+
+manifests_folder = "../../out/manifests/baku"

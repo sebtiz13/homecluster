@@ -9,3 +9,6 @@ zpool_disks = ["/dev/sda", "/dev/sdb", "/dev/sdc"]
 
 ca_cert = "../../vagrant/.vagrant/ca/rootCA.pem"
 ca_key  = "../../vagrant/.vagrant/ca/rootCA-key.pem"
+
+domain           = "local.vm"
+manifests_folder = "../../out/manifests/salamandre"

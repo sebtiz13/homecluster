@@ -1,6 +1,14 @@
+locals {
+  es_manifest  = yamldecode(file("${var.manifests_folder}/external-secrets.yaml"))
+  es_namespace = local.es_manifest.spec.destination.namespace
+}
+
+# Deploy app
 resource "kubectl_manifest" "external_secrets" {
-  depends_on = [module.zfs, kubectl_manifest.argocd_project]
-  yaml_body  = file("${local.manifests_folder}/external-secrets.yaml")
+  depends_on = [module.zfs, kubectl_manifest.argocd_projects]
+
+  override_namespace = local.argocd_namespace
+  yaml_body          = yamlencode(local.es_manifest)
 }
 resource "null_resource" "external_secrets_wait" {
   depends_on = [kubectl_manifest.external_secrets]
@@ -18,11 +26,12 @@ resource "null_resource" "external_secrets_wait" {
   provisioner "remote-exec" {
     inline = [
       // Wait for external secrets is start
-      "until [ \"$(kubectl get deploy -n ${local.vault_namespace} external-secrets-webhook -o=jsonpath='{.status.readyReplicas}' 2>/dev/null)\" = \"1\" ]; do sleep 1; done"
+      "until [ \"$(kubectl get deploy -n ${local.es_namespace} external-secrets-webhook -o=jsonpath='{.status.readyReplicas}' 2>/dev/null)\" = \"1\" ]; do sleep 1; done"
     ]
   }
 }
 
+# Create store connection with vault
 locals {
   secretStoreRef = {
     name = "vault-argocd"
@@ -38,7 +47,7 @@ resource "kubectl_manifest" "external_secrets_cluster_store" {
 
     metadata = {
       name      = local.secretStoreRef.name
-      namespace = local.vault_namespace
+      namespace = local.es_namespace
     }
 
     spec = {
@@ -52,7 +61,7 @@ resource "kubectl_manifest" "external_secrets_cluster_store" {
               role      = "external-secrets"
               serviceAccountRef = {
                 name      = "external-secrets"
-                namespace = local.vault_namespace
+                namespace = local.es_namespace
               }
             }
           }

@@ -2,21 +2,28 @@ resource "random_string" "vault_filename" {
   length  = 16
   special = false
 }
+resource "random_string" "vault_oidc_secret" {
+  length  = 32
+  special = false
+}
 locals {
-  vault_filename  = "~/v-${random_string.vault_filename.result}"
-  vault_namespace = yamldecode(file("${local.manifests_folder}/vault.yaml")).spec.destination.namespace
+  vault_filename = "~/v-${random_string.vault_filename.result}"
+  vault_manifest = yamldecode(file("${var.manifests_folder}/vault.yaml"))
+
+  vault_namespace = local.vault_manifest.spec.destination.namespace
+  vault_host      = yamldecode(local.vault_manifest.spec.source.helm.values).server.ingress.hosts.0.host
   vault_pod       = "-n ${local.vault_namespace} vault-0"
 }
 
+# Deploy app
 resource "kubectl_manifest" "vault" {
-  depends_on = [module.zfs, kubectl_manifest.argocd_project, kubernetes_namespace.labeled_namespace]
+  depends_on = [module.zfs, kubectl_manifest.argocd_projects, kubernetes_namespace.labeled_namespace]
 
-  yaml_body = templatefile("${local.manifests_folder}/vault.yaml", {
-    url             = "vault-secrets.${local.base_domain}"
-    tls_secret_name = local.tls_secret_name
-  })
+  override_namespace = local.argocd_namespace
+  yaml_body          = yamlencode(local.vault_manifest)
 }
 
+# Initialize
 resource "null_resource" "vault_init" {
   depends_on = [kubectl_manifest.vault]
 
@@ -35,6 +42,11 @@ resource "null_resource" "vault_init" {
     content = templatefile("./scripts/vault/init.sh", {
       argocd_policy = file("./values/vault/argocd-policy.hcl")
       reader_policy = file("./values/vault/reader-policy.hcl")
+
+      oidc = {
+        client_id     = "vault"
+        client_secret = sensitive(random_string.vault_oidc_secret.result)
+      }
     })
     destination = "/tmp/init-vault.sh"
   }
@@ -72,6 +84,7 @@ resource "kubernetes_secret" "vault_keys" {
     key1 = local.vault_unseal_keys.0
   }
 }
+
 resource "null_resource" "vault_restart" {
   depends_on = [kubernetes_secret.vault_keys]
 

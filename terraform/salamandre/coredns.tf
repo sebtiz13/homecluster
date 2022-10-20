@@ -9,9 +9,9 @@ resource "kubernetes_config_map" "custom-config" {
       server_ip = local.ssh_connection.host
     })}"
     "sebtiz13.server" = "${templatefile("${path.module}/values/coredns/sebtiz13.server.tftpl", {
-      domain     = local.base_domain
-      server_ip  = local.ssh_connection.host
-      subdomains = local.subdomains
+      base_domain = var.domain
+      server_ip   = local.ssh_connection.host
+      domains     = local.domains
     })}"
   }
 }

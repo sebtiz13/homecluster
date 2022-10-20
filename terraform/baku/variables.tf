@@ -52,3 +52,12 @@ variable "zpool_disks" {
   description = "Specify the zpool disks"
   type        = list(string)
 }
+
+##
+# Apps variables
+##
+variable "manifests_folder" {
+  description = "Specify the manifests folder"
+  type        = string
+  default     = "../../apps/manifests/salamandre"
+}

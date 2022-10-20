@@ -9,6 +9,6 @@ args:
   discovery: true
   uid_field: preferred_username
   client_options:
-    identifier: "{{ .clientId }}"
+    identifier: "{{ .clientID }}"
     secret: "{{ .clientSecret }}"
     redirect_uri: "https://${url}/users/auth/openid_connect/callback"

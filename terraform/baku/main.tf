@@ -1,7 +1,6 @@
 # Apps variables
 locals {
-  manifests_folder = "../../manifests/baku"
-  out_dir          = "../../out"
+  out_dir = "../../out"
   ssh_connection = {
     host            = var.ssh_host
     port            = var.ssh_port

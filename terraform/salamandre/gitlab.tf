@@ -11,7 +11,22 @@ resource "random_string" "gitlab_runner_registration_token" {
   length  = 64
   special = false
 }
+resource "random_string" "gitlab_oidc_secret" {
+  length  = 32
+  special = false
+}
 
+# Extract values
+locals {
+  gitlab_manifest = yamldecode(file("${var.manifests_folder}/gitlab.yaml"))
+  gitlab_values   = yamldecode(local.gitlab_manifest.spec.source.plugin.env.1.value)
+
+  gitlab_namespace = local.gitlab_manifest.spec.destination.namespace
+  gitlab_host      = local.gitlab_values.global.hosts.gitlab.name
+  gitlab_kas_host  = local.gitlab_values.global.hosts.kas.name
+}
+
+# Create database access
 module "gitlab_database" {
   source     = "./modules/database"
   depends_on = [null_resource.postgresql_install]
@@ -49,12 +64,14 @@ resource "null_resource" "vault_gitlab_secret" {
         endpoint  = "http://${local.minio_endpoint}"
         region    = local.minio_region
         accessKey = "gitlab"
-        secretKey = random_string.gitlab_s3_secret_key.result
+        secretKey = sensitive(random_string.gitlab_s3_secret_key.result)
         buckets = {
           artifacts = "gitlab-artifacts"
           backups   = "gitlab-backups"
           depsProxy = "gitlab-dependency-proxy"
           packages  = "gitlab-packages"
+          pages     = "gitlab-pages"
+          registry  = "gitlab-registry"
           runner    = "gitlab-runner"
           tfState   = "gitlab-terraform-state"
           uploads   = "gitlab-uploads"
@@ -64,10 +81,10 @@ resource "null_resource" "vault_gitlab_secret" {
       oidc = {
         url          = local.oidc_url
         clientId     = "gitlab"
-        clientSecret = local.oidc_secrets.gitlab
+        clientSecret = sensitive(random_string.gitlab_oidc_secret.result)
       }
       runner = {
-        registrationToken = random_string.gitlab_runner_registration_token.result
+        registrationToken = sensitive(random_string.gitlab_runner_registration_token.result)
       }
     })
     destination = "/tmp/vault-gitlab.sh"
@@ -91,7 +108,7 @@ resource "kubectl_manifest" "gitlab_credentials" {
 
     metadata = {
       name      = "gitlab-credentials"
-      namespace = "gitlab"
+      namespace = local.gitlab_namespace
     }
 
     spec = {
@@ -123,7 +140,7 @@ resource "kubectl_manifest" "gitlab_storage" {
 
     metadata = {
       name      = "gitlab-storage"
-      namespace = "gitlab"
+      namespace = local.gitlab_namespace
     }
 
     spec = {
@@ -157,7 +174,7 @@ resource "kubectl_manifest" "gitlab_backup" {
 
     metadata = {
       name      = "gitlab-backup"
-      namespace = "gitlab"
+      namespace = local.gitlab_namespace
     }
 
     spec = {
@@ -189,7 +206,7 @@ resource "kubectl_manifest" "gitlab_oidc" {
 
     metadata = {
       name      = "gitlab-oidc"
-      namespace = "gitlab"
+      namespace = local.gitlab_namespace
     }
 
     spec = {
@@ -201,7 +218,7 @@ resource "kubectl_manifest" "gitlab_oidc" {
           type = "Opaque"
           data = {
             provider = templatefile("./values/gitlab/oidc.yaml", {
-              url = "git.${local.base_domain}"
+              url = local.gitlab_host
             })
           }
         }
@@ -225,9 +242,6 @@ resource "kubectl_manifest" "gitlab" {
     kubectl_manifest.gitlab_oidc
   ]
 
-  yaml_body = templatefile("${local.manifests_folder}/gitlab.yaml", {
-    domain          = local.base_domain
-    url             = "git.${local.base_domain}"
-    tls_secret_name = local.tls_secret_name
-  })
+  override_namespace = local.argocd_namespace
+  yaml_body          = yamlencode(local.gitlab_manifest)
 }

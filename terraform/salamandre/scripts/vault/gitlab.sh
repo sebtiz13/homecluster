@@ -18,6 +18,8 @@ vault kv put -mount=argocd gitlab/s3 \
   bucket_backups="${s3.buckets.backups}" \
   bucket_depsProxy="${s3.buckets.depsProxy}" \
   bucket_packages="${s3.buckets.packages}" \
+  bucket_pages="${s3.buckets.pages}" \
+  bucket_registry="${s3.buckets.registry}" \
   bucket_runner="${s3.buckets.runner}" \
   bucket_tfState="${s3.buckets.tfState}" \
   bucket_uploads="${s3.buckets.uploads}" \
@@ -25,7 +27,7 @@ vault kv put -mount=argocd gitlab/s3 \
 
 vault kv put -mount=argocd gitlab/oidc \
   issuer="${oidc.url}" \
-  clientId="${oidc.clientId}" \
+  clientID="${oidc.clientId}" \
   clientSecret="${oidc.clientSecret}"
 
 vault kv put -mount=argocd gitlab/runner \

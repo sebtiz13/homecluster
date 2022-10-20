@@ -4,9 +4,14 @@ resource "random_password" "minio_admin_password" {
   special = false
 }
 locals {
-  minio_url            = "s3.${local.base_domain}"
+  minio_manifest = yamldecode(file("${var.manifests_folder}/minio.yaml"))
+  minio_values   = yamldecode(local.minio_manifest.spec.source.plugin.env.1.value)
+
+  minio_namespace = local.minio_manifest.spec.destination.namespace
+  minio_host      = local.minio_values.ingress.hosts.0
+
   minio_admin_password = random_password.minio_admin_password.result
-  minio_endpoint       = "minio.minio.svc.cluster.local:9000"
+  minio_endpoint       = "minio.${local.minio_namespace}.svc.cluster.local:9000"
   minio_region         = "minio"
 }
 
@@ -45,7 +50,7 @@ resource "null_resource" "vault_minio_secret" {
   }
 }
 
-# Deploy minio
+# Deploy app
 resource "kubectl_manifest" "minio" {
   depends_on = [
     null_resource.vault_minio_secret,
@@ -53,8 +58,6 @@ resource "kubectl_manifest" "minio" {
     kubernetes_namespace.labeled_namespace
   ]
 
-  yaml_body = templatefile("${local.manifests_folder}/minio.yaml", {
-    url             = local.minio_url
-    tls_secret_name = local.tls_secret_name
-  })
+  override_namespace = local.argocd_namespace
+  yaml_body          = yamlencode(local.minio_manifest)
 }

@@ -78,3 +78,14 @@ variable "pg_local_cidr" {
   type        = string
   default     = null
 }
+
+variable "manifests_folder" {
+  description = "Specify the manifests folder"
+  type        = string
+  default     = "../../apps/manifests/salamandre"
+}
+
+variable "domain" {
+  description = "Specify the domain name"
+  type        = string
+}

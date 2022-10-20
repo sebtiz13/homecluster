@@ -10,7 +10,10 @@ if [ "$1" != "salamandre.vm" ] && [ "$1" != "sebtiz13.fr" ]; then
 fi
 
 ROOT_TOKEN=$(jq .vault.root_token ./out/credentials.json)
-MANIFESTS_PATH=./manifests/salamandre
+MANIFESTS_PATH="./apps/manifests/salamandre"
+if [ "$1" = "salamandre.vm" ]; then
+  MANIFESTS_PATH="./out/manifests/salamandre"
+fi
 
 # Generate KV keys
 KV_KEYS="token=\"$2\""
