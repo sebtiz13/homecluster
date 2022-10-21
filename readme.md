@@ -7,6 +7,8 @@ This repository contains :
 
 ## Vagrant
 
+Default domain : `local.vm`
+
 ### Requirement
 
 For use environment please install :
