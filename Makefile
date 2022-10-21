@@ -77,10 +77,10 @@ test-apply: ## [terraform] Create or update infrastructure inside VM
 
 plan: ## [terraform] Plan of infrastructure
 	make _validate --no-print-directory
-	cd $(TERRAFORM_DIR); terraform plan -var-file="terraform.tfvars"
+	cd $(TERRAFORM_DIR); terraform plan -var-file="terraform.tfvars" $(ARGS)
 test-plan: ## [terraform] Plan of infrastructure inside VM
 	make _validate --no-print-directory
-	cd $(TERRAFORM_DIR); terraform plan -var-file="vm.tfvars"
+	cd $(TERRAFORM_DIR); terraform plan -var-file="vm.tfvars" $(ARGS)
 
 
 vm-create: ## Create vagrant VM
