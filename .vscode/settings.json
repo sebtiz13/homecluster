@@ -11,6 +11,6 @@
     "editor.formatOnSave": false
   },
   "yaml.schemas": {
-    "apps/apps_values_schema.json": "apps/apps/**/values.yaml"
+    "./charts/common-app/values.schema.json": "apps/**/values.yaml"
   }
 }

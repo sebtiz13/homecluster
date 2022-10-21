@@ -1,0 +1,2 @@
+fullnameOverride: "external-secrets"
+priorityClassName: system-cluster-critical

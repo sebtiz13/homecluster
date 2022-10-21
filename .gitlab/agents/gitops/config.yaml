@@ -1,0 +1,6 @@
+gitops:
+  manifest_projects:
+    - id: cluster/apps
+      default_namespace: argocd
+      paths:
+        - glob: "/manifests/*.yaml"

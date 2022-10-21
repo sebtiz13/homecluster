@@ -1,0 +1,24 @@
+plugin: argocd-vault-plugin-helm
+
+source:
+  repoURL: https://charts.gitlab.io/
+  chart: gitlab
+  targetRevision: 6.4.2
+
+destination:
+  server: https://kubernetes.default.svc
+  namespace: gitlab
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+
+# App values
+secrets:
+  credentials:
+    name: gitlab-credentials
+    dbPasswordKey: postgresql-password
+  storage: gitlab-storage
+  oidc: gitlab-oidc
+  backups: gitlab-backup

@@ -1,0 +1,19 @@
+server:
+  volumes:
+    - name: vault-keys
+      secret:
+        secretName: vault-keys
+        defaultMode: 0400
+        optional: true
+    - name: certificate
+      secret:
+        secretName: vm-ca-tls-secret
+        defaultMode: 420
+        optional: true
+  volumeMounts:
+    - mountPath: /vault/keys
+      name: vault-keys
+      readOnly: true
+    - name: certificate
+      mountPath: /etc/ssl/certs/ca.crt
+      subPath: tls.crt

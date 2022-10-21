@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "properties": {
+    "project": {
+      "description": "Project name (default set to parent folder name)",
+      "type": "string"
+    },
+    "destination": {
+      "description": "Destination",
+      "type": "object",
+      "properties": {
+        "server": {
+          "type": "string",
+          "enum": ["https://kubernetes.default.svc", "https://baku.sebtiz13.fr"]
+        },
+        "namespace": {
+          "type": "string"
+        }
+      },
+      "required": ["server", "namespace"]
+    },
+    "source": {
+      "description": "Source of helm application",
+      "type": "object",
+      "properties": {
+        "repoURL": {
+          "type": "string"
+        },
+        "chart": {
+          "type": "string"
+        },
+        "targetRevision": {
+          "type": "string"
+        }
+      },
+      "required": ["repoURL", "chart", "targetRevision"]
+    },
+    "syncPolicy": {
+      "description": "Sync policy",
+      "type": "object",
+      "properties": {
+        "automated": {
+          "description": "Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/auto_sync/",
+          "type": "object",
+          "properties": {
+            "prune": {
+              "type": "boolean"
+            },
+            "allowEmpty": {
+              "type": "boolean"
+            },
+            "selfHeal": {
+              "type": "boolean"
+            }
+          }
+        },
+        "options": {
+          "description": "Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options",
+          "type": "object",
+          "properties": {
+            "applyOutOfSyncOnly": {
+              "type": "boolean"
+            },
+            "prunePropagationPolicy": {
+              "type": "string",
+              "enum": ["foreground", "background", "orphan"]
+            },
+            "pruneLast": {
+              "type": "boolean"
+            },
+            "replace": {
+              "type": "boolean"
+            },
+            "failOnSharedResource": {
+              "type": "boolean"
+            },
+            "respectIgnoreDifferences": {
+              "type": "boolean"
+            },
+            "createNamespace": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "plugin": {
+      "description": "Plugin used for application",
+      "type": "string"
+    },
+    "appValues": {
+      "type": "string"
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "plugin": { "enum": ["helm"] },
+        "valueFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "plugin": { "enum": ["argocd-vault-plugin-helm"] },
+        "helmArgs": {
+          "type": "string"
+        }
+      }
+    }
+  ],
+  "required": ["destination", "source", "plugin"],
+  "title": "Values",
+  "type": "object"
+}

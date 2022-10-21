@@ -1,0 +1,133 @@
+fullnameOverride: "argocd"
+
+{{/* Disable not used services */}}
+dex:
+  enabled: false
+applicationSet:
+  enabled: false
+notifications:
+  enabled: false
+
+global:
+  logging:
+    level: debug
+
+server:
+  {{/* Environment variables to pass to argocd-server */}}
+  env:
+    - name: TZ
+      value: Europe/Paris
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      {{ include "ingress.annotations.httpsRedirect" . | nindent 6 }}
+    hosts:
+      - argocd.{{ .Values.baseDomain }}
+    tls:
+      - secretName: {{ include "ingress.tls.secretName" . }}
+        hosts:
+          - argocd.{{ .Values.baseDomain }}
+
+  config:
+    url: https://argocd.{{ .Values.baseDomain }}
+
+    configManagementPlugins: |-
+      - name: argocd-vault-plugin
+        generate:
+          command: ["argocd-vault-plugin"]
+          args: ["generate", "./"]
+      - name: argocd-vault-plugin-helm
+        init:
+          command: [sh, -c]
+          args: ["helm dependency update"]
+        generate:
+          command: [sh, -c]
+          args: ['echo "$$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml && helm template $${ARGOCD_ENV_HELM_RELEASE_NAME:-$${ARGOCD_APP_NAME}} --namespace $$ARGOCD_APP_NAMESPACE $$ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . | argocd-vault-plugin generate -']
+
+    oidc.config: |
+      name: Keycloak
+      issuer: <path:argocd/data/argocd/oidc#issuer>
+      cliClientID: <path:argocd/data/argocd/oidc#cliClientID>
+      clientID: <path:argocd/data/argocd/oidc#clientID>
+      clientSecret: $$oidc.keycloak.clientSecret
+      logoutURL: {{ print "<path:argocd/data/argocd/oidc#issuer>/protocol/openid-connect/logout?post_logout_redirect_uri={{logoutRedirectURL}}" }}
+      requestedIDTokenClaims:
+        groups:
+          essential: true
+      requestedScopes:
+        - openid
+        - profile
+        - email
+        - groups
+
+  rbacConfig:
+    policy.csv: |
+      g, Admin, role:admin
+    policy.default: role:readonly
+
+repoServer:
+  {{/* Environment variables to pass to argocd-repo-server */}}
+  env:
+    - name: TZ
+      value: Europe/Paris
+    - name: VAULT_ADDR
+      value: {{ .Values.vaultURL | quote }}
+    - name: AVP_TYPE
+      value: vault
+    - name: AVP_AUTH_TYPE
+      value: k8s
+    - name: AVP_K8S_ROLE
+      value: argocd
+
+  rbac:
+    - apiGroups:
+        - ""
+      resources:
+        - secrets
+        - configmaps
+      verbs:
+        - get
+        - list
+        - watch
+
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+
+  initContainers:
+    - name: download-tools
+      image: alpine
+      command: [sh, -c]
+      env:
+        - name: AVP_VERSION
+          value: {{ .Values.toolsVersion.avp | quote }}
+        - name: VAULT_VERSION
+          value: {{ .Values.toolsVersion.vault | quote }}
+      args:
+        - |-
+          echo "Install Vault plugin"
+          wget -qO /custom-tools/argocd-vault-plugin https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v$${AVP_VERSION}/argocd-vault-plugin_$${AVP_VERSION}_linux_amd64
+          echo "Install Vault cli"
+          wget -qO ./vault.zip https://releases.hashicorp.com/vault/$${VAULT_VERSION}/vault_$${VAULT_VERSION}_linux_amd64.zip && unzip ./vault.zip -d /custom-tools
+          # Correct permissions
+          chmod +x /custom-tools/*
+      volumeMounts:
+        - mountPath: /custom-tools
+          name: custom-tools
+
+  volumeMounts:
+    - name: custom-tools
+      mountPath: /custom-tools
+    - name: custom-tools
+      mountPath: /usr/local/bin/argocd-vault-plugin
+      subPath: argocd-vault-plugin
+
+configs:
+  secret:
+    extra:
+      oidc.keycloak.clientSecret: <path:argocd/data/argocd/oidc#clientSecret>
+
+  params:
+    server.insecure: true

@@ -1,0 +1,15 @@
+plugin: helm
+
+source:
+  repoURL: https://charts.appscode.com/stable/
+  chart: kubed
+  targetRevision: 0.13.2
+
+destination:
+  server: https://kubernetes.default.svc
+  namespace: kube-system
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true

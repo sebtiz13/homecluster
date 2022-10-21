@@ -1,0 +1,15 @@
+plugin: helm
+
+source:
+  repoURL: https://helm.releases.hashicorp.com
+  chart: vault
+  targetRevision: 0.22.0
+
+destination:
+  server: https://kubernetes.default.svc
+  namespace: vault
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true

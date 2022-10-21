@@ -1,0 +1,46 @@
+plugin: argocd-vault-plugin-helm
+
+source:
+  repoURL: https://charts.min.io/
+  chart: minio
+  targetRevision: 4.0.15
+
+destination:
+  server: https://kubernetes.default.svc
+  namespace: minio
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+
+# App Values
+buckets:
+  - name: <path:argocd/data/gitlab/s3#bucket_artifacts>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_backups>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_packages>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_pages>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_registry>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_runner>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_tfState>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_uploads>
+    policy: none
+  - name: <path:argocd/data/gitlab/s3#bucket_lfs>
+    policy: none
+
+serviceAccounts:
+  - accessKey: <path:argocd/data/gitlab/s3#accessKey>
+    secretKey: <path:argocd/data/gitlab/s3#secretKey>
+    resources:
+      - gitlab-*/*
+      - git-lfs/*
+      - tmp/*

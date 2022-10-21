@@ -1,0 +1,23 @@
+fullnameOverride: "traefik"
+priorityClassName: system-cluster-critical
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+ports:
+  websecure:
+    tls:
+      enabled: true
+
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+
+env:
+  - name: TZ
+    value: Europe/Paris
+
+rbac:
+  enabled: true

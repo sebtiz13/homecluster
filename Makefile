@@ -114,4 +114,4 @@ vm-reset-state: ## Restore the initial state of VM (from `vm-init-state`)
 	rm $(TERRAFORM_DIR)/terraform.tfstate.backup
 	cp ./out/$(SERVER).tfstate $(TERRAFORM_DIR)/terraform.tfstate
 vm-manifests: ## Build manifests for VM
-	cd apps; MANIFESTS_PATH=../$(MANIFESTS_DIR) ENVIROMNENT=vm ./scripts/all-apps.sh ./scripts/build.sh
+	MANIFESTS_PATH=$(MANIFESTS_DIR) ENVIROMNENT=vm ./scripts/all-apps.sh ./scripts/build.sh

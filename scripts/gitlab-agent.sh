@@ -11,7 +11,7 @@ fi
 
 # Define variables
 ROOT_TOKEN=$(jq .vault.root_token ./out/credentials.json)
-MANIFESTS_PATH="./apps/manifests/salamandre"
+MANIFESTS_PATH="./manifests/salamandre"
 KUBECONFIG="./out/kubeconfig/salamandre.${ENVIRONMENT}.yaml"
 KV_PATH="argocd/gitlab/agent"
 

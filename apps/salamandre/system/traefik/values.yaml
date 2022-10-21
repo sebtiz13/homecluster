@@ -1,0 +1,17 @@
+plugin: helm
+
+source:
+  repoURL: https://helm.traefik.io/traefik
+  chart: traefik
+  targetRevision: 12.0.2
+
+destination:
+  server: https://kubernetes.default.svc
+  namespace: traefik
+
+syncPolicy:
+  options:
+    createNamespace: true
+  automated:
+    prune: true
+    selfHeal: true

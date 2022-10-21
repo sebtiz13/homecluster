@@ -1,9 +1,11 @@
-# Setup repository
+# Homelab
 
 This repository contains :
 
-- vagrant config for local testing
-- terraform file for provisioning clusters
+- [apps](./apps/) The apps values deployed with ArgoCD
+- [charts](./charts/) The extends apps charts + `common-app` for build [apps](./apps/).
+- [terraform](./terraform/) file for provisioning clusters
+- [vagrant](./vagrant/) config for local testing
 
 ## Vagrant
 

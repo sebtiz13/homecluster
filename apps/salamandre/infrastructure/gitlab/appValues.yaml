@@ -1,0 +1,279 @@
+fullnameOverride: "gitlab"
+
+upgradeCheck:
+  enabled: false
+
+global:
+  time_zone: Europe/Paris
+
+  hpa:
+    apiVersion: "autoscaling/v2"
+  pdb:
+    apiVersion: "policy/v1"
+
+  hosts:
+    domain: {{ .Values.baseDomain }}
+    https: true
+    gitlab:
+      name: git.{{ .Values.baseDomain }}
+    kas:
+      name: kas.{{ .Values.baseDomain }}
+    pages:
+      name: pages.{{ .Values.baseDomain }}
+
+  ingress:
+    apiVersion: "networking.k8s.io/v1"
+    configureCertmanager: false
+    provider: traefik
+    enabled: true
+    class: traefik
+    annotations:
+      {{ include "ingress.annotations.httpsRedirect" . | nindent 6 }}
+    tls:
+      enabled: true
+      secretName: {{ include "ingress.tls.secretName" . }}
+
+  smtp:
+    enabled: false
+
+  psql:
+    password:
+      useSecret: true
+      secret: {{ .Values.secrets.credentials.name }}
+      key: {{ .Values.secrets.credentials.dbPasswordKey }}
+    host: <path:argocd/data/gitlab/database#host>
+    port: 5432
+    username: <path:argocd/data/gitlab/database#user>
+    database: <path:argocd/data/gitlab/database#database>
+    applicationName: "gitlab"
+    preparedStatements: false
+
+  registry:
+    bucket: <path:argocd/data/gitlab/s3#bucket_registry>
+
+  appConfig:
+    lfs:
+      enabled: true
+      proxy_download: true
+      bucket: <path:argocd/data/gitlab/s3#bucket_lfs>
+      connection:
+        secret: {{ .Values.secrets.storage }}
+    artifacts:
+      enabled: true
+      proxy_download: true
+      bucket: <path:argocd/data/gitlab/s3#bucket_artifacts>
+      connection:
+        secret: {{ .Values.secrets.storage }}
+    uploads:
+      enabled: true
+      proxy_download: true
+      bucket: <path:argocd/data/gitlab/s3#bucket_uploads>
+      connection:
+        secret: {{ .Values.secrets.storage }}
+    packages:
+      enabled: true
+      proxy_download: true
+      bucket: <path:argocd/data/gitlab/s3#bucket_packages>
+      connection:
+        secret: {{ .Values.secrets.storage }}
+    terraformState:
+      enabled: true
+      bucket: <path:argocd/data/gitlab/s3#bucket_tfState>
+      connection:
+        secret: {{ .Values.secrets.storage }}
+    dependencyProxy:
+      enabled: true
+      proxy_download: true
+      bucket: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+      connection:
+        secret: {{ .Values.secrets.storage }}
+    backups:
+      bucket: <path:argocd/data/gitlab/s3#bucket_backups>
+      tmpBucket: tmp
+
+    omniauth:
+      enabled: true
+      {{/* User from "openid_connect" not need admin approbation */}}
+      blockAutoCreatedUsers: false
+      allowSingleSignOn: ['openid_connect']
+      autoLinkUser: ['openid_connect']
+      allowBypassTwoFactor: ['openid_connect']
+      providers:
+        - secret: {{ .Values.secrets.oidc }}
+
+    initialDefaults:
+      signupEnabled: false
+
+  pages:
+    enabled: true
+    accessControl: true
+    externalHttp: []
+    externalHttps: []
+    artifactsServer: true
+    localStore:
+      enabled: false
+    objectStore:
+      enabled: true
+      bucket: <path:argocd/data/gitlab/s3#bucket_pages>
+      proxy_download: true
+      connection:
+        secret: {{ .Values.secrets.storage }}
+
+
+  {{/* Disable not nessary apps */}}
+  grafana:
+    enabled: false
+  minio:
+    enabled: false
+
+gitlab:
+  gitaly:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 400m
+        memory: 512Mi
+  gitlab-exporter:
+    resources:
+      requests:
+        cpu: 75m
+        memory: 100Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+  gitlab-pages:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 16Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+  gitlab-shell:
+    minReplicas: 1
+    maxReplicas: 2
+    service:
+      type: LoadBalancer
+    resources:
+      requests:
+        cpu: 5m
+        memory: 30Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+  sidekiq:
+    resources:
+      requests:
+        cpu: 300m
+        memory: 1.5Gi
+      limits:
+        cpu: 1500m
+        memory: 3Gi
+  toolbox:
+    enabled: false
+    replicas: 1
+    backups:
+      objectStorage:
+        config:
+          secret: {{ .Values.secrets.backups | quote }}
+  webservice:
+    minReplicas: 1
+    maxReplicas: 2
+    resources:
+      requests:
+        cpu: 300m
+        memory: 1.5Gi
+      limits:
+        cpu: 1000m
+        memory: 3Gi
+    workhorse:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+        limits:
+          cpu: 100m
+          memory: 100Mi
+  kas:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 10
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64M
+      limits:
+        cpu: 500m
+        memory: 256M
+
+gitlab-runner:
+  install: true
+  replica: 1
+  gitlabUrl: {{ printf "http://gitlab-webservice-default.%s.svc:8181" .Values.destination.namespace | quote }}
+  runnerRegistrationToken: <path:argocd/data/gitlab/runner#registrationToken>
+  unregisterRunners: false
+  runners:
+    locked: false
+    cache:
+      secretName: {{ .Values.secrets.storage }}
+    config: |
+      [[runners]]
+        environment = ["container=docker"]
+        [runners.kubernetes]
+          namespace = "{{ .Values.destination.namespace }}"
+          image = "ubuntu:18.04"
+        [runners.cache]
+          Type = "s3"
+          Shared = true
+          [runners.cache.s3]
+            ServerAddress = "<path:argocd/data/gitlab/s3#endpoint>"
+            BucketName = "<path:argocd/data/gitlab/s3#bucket_runner>"
+            BucketLocation = "<path:argocd/data/gitlab/s3#region>"
+            Insecure = true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+registry:
+  enabled: true
+  hpa:
+    minReplicas: 1
+    maxReplicas: 10
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 1Gi
+
+redis:
+  metrics:
+    enabled: false
+  master:
+    resources:
+      requests:
+        cpu: 30m
+        memory: 50Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+{{/* Disable not nessary apps */}}
+prometheus:
+  install: false
+postgresql:
+  install: false
+certmanager:
+  install: false
+nginx-ingress:
+  enabled: false
