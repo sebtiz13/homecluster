@@ -17,6 +17,7 @@ locals {
     local.gitlab_host,
     local.gitlab_kas_host
   ]
+  excluded_apps = split(",", var.excluded_apps)
 
   argocd_projects = ["infrastructure", "system"]
   clusters = {

@@ -38,7 +38,9 @@ make vagrant VM_NAME=salamandre.vm
 ### Variables
 
 - `SERVER` (**REQUIRED**, valid values: `salamandre`, `baku`): The server want used for deploy
-- `ARGS`: The args want be pass to terraform (eg. `ARGS="--target='module.ssh'"`)
+- `ARGS`: The args want be pass to terraform (eg. `ARGS="-target='module.ssh'"`)
+
+You can exclude apps with: `ARGS="-var='excluded_apps=<apps>'"` (replace `<apps>` by the name of apps separated with comma for exclude from deploy).
 
 ### Production
 

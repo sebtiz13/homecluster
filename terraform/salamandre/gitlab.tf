@@ -85,6 +85,7 @@ module "gitlab_vault_secrets" {
 # Create secrets
 resource "kubectl_manifest" "gitlab_credentials" {
   depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
+  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -117,6 +118,7 @@ resource "kubectl_manifest" "gitlab_credentials" {
 }
 resource "kubectl_manifest" "gitlab_storage" {
   depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
+  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -151,6 +153,7 @@ resource "kubectl_manifest" "gitlab_storage" {
 }
 resource "kubectl_manifest" "gitlab_backup" {
   depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
+  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -183,6 +186,7 @@ resource "kubectl_manifest" "gitlab_backup" {
 }
 resource "kubectl_manifest" "gitlab_oidc" {
   depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
+  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
 
   yaml_body = yamlencode({
     apiVersion = "external-secrets.io/v1beta1"
@@ -225,6 +229,7 @@ resource "kubectl_manifest" "gitlab" {
     kubectl_manifest.gitlab_backup,
     kubectl_manifest.gitlab_oidc
   ]
+  count = contains(local.excluded_apps, "gitlab") ? 0 : 1
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.gitlab_manifest)
