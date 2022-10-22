@@ -1,69 +1,17 @@
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
   - template: Security/SAST.gitlab-ci.yml
+  - local: /.gitlab/ci/apps.yaml
+  - local: /.gitlab/ci/charts.yaml
 
 variables:
   DOMAIN_NAME: sebtiz13.fr
+  HELM_CHANNEL: stable
 
 stages:
   - test
   - build
   - deploy
-
-helm:lint:
-  stage: test
-  image:
-    name: alpine/helm
-    entrypoint: [""]
-  script:
-    - ./scripts/diff-apps.sh ./scripts/lint.sh
-  rules:
-    - changes:
-        - apps/**/*.yaml
-        - charts/common-app/**/
-
-helm:build:
-  stage: build
-  image:
-    name: alpine/helm
-    entrypoint: [""]
-  script:
-    - ./scripts/diff-apps.sh ./scripts/build.sh
-  needs: [helm:lint]
-  artifacts:
-    expire_in: 2 minutes
-    paths:
-      - manifests/
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - apps/**/*.yaml
-        - charts/common-app/**/*
-
-git:push:
-  stage: deploy
-  image:
-    name: alpine/git
-    entrypoint: [""]
-  needs: [helm:build]
-  before_script:
-    # set remote URL to https://oauth2:<AccessToken>@server.com/project.git
-    - CI_PUSH_REPO=`echo "$CI_REPOSITORY_URL $GIT_ACCESS_TOKEN" | sed 's|^.*@\(.*\)\s\(.*\)|https://oauth2:\2@\1|g'`
-    - git config http.sslverify false
-    - git remote set-url --push origin "${CI_PUSH_REPO}"
-    # in order to commit we have to have a user set
-    # this would also make it easy to distinct the CI-made commits
-    - git config user.name "CI Pipeline"
-    - git config user.email "cipipeline@example.com"
-  script:
-    - git add manifests/**/*.yaml
-    - 'git commit -m "build: deploy manifests"'
-    - git push origin HEAD:$CI_COMMIT_REF_NAME
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - apps/**/*.yaml
-        - charts/common-app/**/*
 
 secret_detection:
   artifacts:
