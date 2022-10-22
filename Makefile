@@ -28,18 +28,18 @@ ifndef VM_NAME
 endif
 
 init: ## Init environment of Terraform
-	make _validate --no-print-directory
 	echo "Initializing terraform environment..."
 	terraform version
 	mkdir -p ./out/kubeconfig
-	cd $(TERRAFORM_DIR); terraform init
+	cd $(TF_SALAMANDRE_DIR); terraform init
+	cd $(TS_BAKU_DIR); terraform init
 
 init-upgrade: ## Init/upgrade environment of Terraform
-	make _validate --no-print-directory
 	echo "Initializing terraform environment..."
 	mkdir -p ./out/kubeconfig
 	terraform version
-	cd $(TERRAFORM_DIR); terraform init --upgrade
+	cd $(TF_SALAMANDRE_DIR); terraform init --upgrade
+	cd $(TS_BAKU_DIR); terraform init --upgrade
 
 validate: ## Terraform files
 	cd $(TF_SALAMANDRE_DIR); terraform validate

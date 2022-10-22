@@ -10,15 +10,11 @@
 make init
 ```
 
-> ⚠️ This command **REQUIRE** `SERVER` OR `VM_NAME` variable.
-
 ## Init/upgrade environment
 
 ```sh
 make init-upgrade
 ```
-
-> ⚠️ This command **REQUIRE** `SERVER` OR `VM_NAME` variable.
 
 ## Validate terraform files
 
