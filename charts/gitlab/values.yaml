@@ -1,0 +1,39 @@
+externalSecrets:
+  secretStoreRef:
+    name: vault-argocd
+    kind: ClusterSecretStore
+  refreshInterval: 1h
+
+  secrets:
+    # Create an external secret (doc: https://external-secrets.io/v0.6.0/api/externalsecret/#example)
+    # - name: secret-name # The name of resource (prefixed by fullname)
+    #   target: {}
+    #   dataFrom: {}
+
+gitlab:
+  global:
+    hpa:
+      apiVersion: "autoscaling/v2"
+    pdb:
+      apiVersion: "policy/v1"
+
+    ingress:
+      apiVersion: "networking.k8s.io/v1"
+      configureCertmanager: false # This is useless because we provide shared certificate
+      provider: traefik
+      enabled: true
+      class: traefik
+
+    # Disable not necessary apps
+    minio:
+      enabled: false
+
+  # Disable not necessary apps
+  prometheus:
+    install: false
+  postgresql:
+    install: false
+  certmanager:
+    install: false
+  nginx-ingress:
+    enabled: false

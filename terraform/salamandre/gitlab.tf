@@ -22,8 +22,8 @@ locals {
   gitlab_values   = yamldecode(local.gitlab_manifest.spec.source.plugin.env.1.value)
 
   gitlab_namespace = local.gitlab_manifest.spec.destination.namespace
-  gitlab_host      = local.gitlab_values.global.hosts.gitlab.name
-  gitlab_kas_host  = local.gitlab_values.global.hosts.kas.name
+  gitlab_host      = local.gitlab_values.gitlab.global.hosts.gitlab.name
+  gitlab_kas_host  = local.gitlab_values.gitlab.global.hosts.kas.name
 }
 
 # Create database access
@@ -81,155 +81,10 @@ module "gitlab_vault_secrets" {
   }
 }
 
-
-# Create secrets
-resource "kubectl_manifest" "gitlab_credentials" {
-  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
-  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
-
-  yaml_body = yamlencode({
-    apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ExternalSecret"
-
-    metadata = {
-      name      = "gitlab-credentials"
-      namespace = local.gitlab_namespace
-    }
-
-    spec = {
-      secretStoreRef  = local.secretStoreRef
-      refreshInterval = "1h"
-
-      target = {
-        template = {
-          type = "Opaque"
-          data = {
-            "postgresql-password" = "{{ .password }}"
-          }
-        }
-      }
-      dataFrom = [{
-        extract = {
-          key = "gitlab/database"
-        }
-      }]
-    }
-  })
-}
-resource "kubectl_manifest" "gitlab_storage" {
-  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
-  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
-
-  yaml_body = yamlencode({
-    apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ExternalSecret"
-
-    metadata = {
-      name      = "gitlab-storage"
-      namespace = local.gitlab_namespace
-    }
-
-    spec = {
-      secretStoreRef  = local.secretStoreRef
-      refreshInterval = "1h"
-
-      target = {
-        template = {
-          type = "Opaque"
-          data = {
-            accesskey  = "{{ .accesskey }}"
-            secretkey  = "{{ .secretkey }}"
-            connection = file("./values/gitlab/storage.yaml")
-          }
-        }
-      }
-      dataFrom = [{
-        extract = {
-          key = "gitlab/s3"
-        }
-      }]
-    }
-  })
-}
-resource "kubectl_manifest" "gitlab_backup" {
-  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
-  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
-
-  yaml_body = yamlencode({
-    apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ExternalSecret"
-
-    metadata = {
-      name      = "gitlab-backup"
-      namespace = local.gitlab_namespace
-    }
-
-    spec = {
-      secretStoreRef  = local.secretStoreRef
-      refreshInterval = "1h"
-
-      target = {
-        template = {
-          type = "Opaque"
-          data = {
-            config = file("./values/gitlab/backup.conf")
-          }
-        }
-      }
-      dataFrom = [{
-        extract = {
-          key = "gitlab/s3"
-        }
-      }]
-    }
-  })
-}
-resource "kubectl_manifest" "gitlab_oidc" {
-  depends_on = [module.gitlab_vault_secrets, null_resource.external_secrets_wait]
-  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
-
-  yaml_body = yamlencode({
-    apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ExternalSecret"
-
-    metadata = {
-      name      = "gitlab-oidc"
-      namespace = local.gitlab_namespace
-    }
-
-    spec = {
-      secretStoreRef  = local.secretStoreRef
-      refreshInterval = "1h"
-
-      target = {
-        template = {
-          type = "Opaque"
-          data = {
-            provider = templatefile("./values/gitlab/oidc.yaml", {
-              url = local.gitlab_host
-            })
-          }
-        }
-      }
-      dataFrom = [{
-        extract = {
-          key = "gitlab/oidc"
-        }
-      }]
-    }
-  })
-}
-
 # Deploy app
 resource "kubectl_manifest" "gitlab" {
-  depends_on = [
-    kubectl_manifest.minio,
-    kubectl_manifest.gitlab_credentials,
-    kubectl_manifest.gitlab_storage,
-    kubectl_manifest.gitlab_backup,
-    kubectl_manifest.gitlab_oidc
-  ]
-  count = contains(local.excluded_apps, "gitlab") ? 0 : 1
+  depends_on = [kubectl_manifest.minio, module.gitlab_vault_secrets]
+  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.gitlab_manifest)
