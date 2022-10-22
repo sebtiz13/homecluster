@@ -3,11 +3,7 @@ include:
   - template: Security/SAST.gitlab-ci.yml
 
 variables:
-  K8S_NAMESPACE: argocd
   DOMAIN_NAME: sebtiz13.fr
-  # List apps want deploy (split apps with coma)
-  DEPLOY_SALAMANDRE_APPS: "argo-cd"
-  DEPLOY_BAKU_APPS: ""
 
 stages:
   - test
@@ -68,22 +64,6 @@ git:push:
       changes:
         - apps/**/*.yaml
         - charts/common-app/**/*
-
-deploy:
-  stage: deploy
-  image:
-    name: bitnami/kubectl:latest
-    entrypoint: [""]
-  before_script:
-    # Skip TLS, used only for VM
-    - '[ -z "$K8S_PROXY_URL" ] || kubectl config set-cluster gitlab --server="${K8S_PROXY_URL}" --insecure-skip-tls-verify=true'
-    - kubectl config use-context $CI_PROJECT_PATH:gitops
-  script:
-    - ./scripts/deploy.sh
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      changes:
-        - manifests/**/*.yaml
 
 secret_detection:
   artifacts:
