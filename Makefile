@@ -84,11 +84,11 @@ test-plan: ## [terraform] Plan of infrastructure inside VM
 
 
 vm-create: ## Create vagrant VM
-	echo "Creating new VM(s)..."
-	cd $(VAGRANT_DIR); vagrant up $(VM_NAME)
 ifneq ("$(wildcard $(VAGRANT_DIR)/.vagrant/ca/rootCA.pem)",)
 	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -install
 endif
+	echo "Creating new VM(s)..."
+	cd $(VAGRANT_DIR); vagrant up $(VM_NAME)
 vm-destroy: ## Destroying vagrant VM
 	echo "Destroying old VM(s)..."
 ifndef VM_NAME
