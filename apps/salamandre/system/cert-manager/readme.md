@@ -7,7 +7,7 @@
 
 The secrets keys need to exist for deploy the app
 
-### `cert-manager/ovh`
+### `cert-manager/ovh` (**REQUIRED** for production environment)
 
 - `applicationKey`: The OVH application key.
 - `applicationSecret`: The OVH application secret

@@ -1,5 +1,3 @@
-{{ $domainName := .Values.baseDomain | replace "." "-" }}
-
 cert-manager:
   global:
     priorityClassName: "system-cluster-critical"
@@ -14,18 +12,6 @@ cert-manager:
 cert-manager-webhook-ovh:
   groupName: {{ .Values.baseDomain }}
 
-  issuers:
-    - name: {{ $domainName }}-issuer
-      create: {{ include "is-production" . }}
-      namespace: {{ .Release.Namespace }}
-      server: https://acme-v02.api.letsencrypt.org/directory
-      email: "contact@{{ .Values.baseDomain }}"
-      ovhEndpointName: ovh-eu
-      ovhAuthentication:
-        applicationKey: <path:argocd/data/cert-manager/ovh#applicationKey>
-        applicationSecret: <path:argocd/data/cert-manager/ovh#applicationSecret>
-        consumerKey: <path:argocd/data/cert-manager/ovh#consumerKey>
-
   resources:
     requests:
       cpu: 30m
@@ -34,6 +20,7 @@ cert-manager-webhook-ovh:
       cpu: 200m
       memory: 256Mi
 
+{{ $domainName := .Values.baseDomain | replace "." "-" }}
 certificates:
   - name: {{ $domainName }}
     issuerName: {{ $domainName }}-issuer
