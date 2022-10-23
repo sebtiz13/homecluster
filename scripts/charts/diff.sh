@@ -5,8 +5,8 @@ if [ -z "$SCRIPT" ]; then
   exit 1
 fi
 
-for CHART_PATH in $(git diff --dirstat=files,0 HEAD~1 -- charts | sed 's/^[ 0-9.]\+% //g')
+for FOLDER_PATH in $(git diff --dirstat=files,0 HEAD~1 -- charts | sed 's/^[ 0-9.]\+% //g')
 do
   # Run script
-  $SCRIPT "${CHART_PATH%?}"
+  $SCRIPT "charts/$(echo "$FOLDER_PATH" | cut -d'/' -f 2)"
 done
