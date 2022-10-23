@@ -19,7 +19,6 @@ locals {
   ]
   excluded_apps = split(",", var.excluded_apps)
 
-  argocd_projects = ["infrastructure", "system"]
   clusters = {
     salamandre = "https://kubernetes.default.svc"
     baku       = "https://baku.${var.domain}:6443"

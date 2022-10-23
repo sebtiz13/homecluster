@@ -6,14 +6,14 @@ locals {
 
 # Deploy apps
 resource "kubectl_manifest" "cert_manager" {
-  depends_on = [kubectl_manifest.argocd_projects]
+  depends_on = [helm_release.argocd_deploy]
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.cm_manifest)
 }
 
 resource "kubectl_manifest" "kubed" {
-  depends_on = [kubectl_manifest.argocd_projects]
+  depends_on = [helm_release.argocd_deploy]
 
   override_namespace = local.argocd_namespace
   yaml_body          = file("${var.manifests_folder}/kubed.yaml")

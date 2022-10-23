@@ -5,7 +5,7 @@ locals {
 
 # Deploy app
 resource "kubectl_manifest" "external_secrets" {
-  depends_on = [module.zfs, kubectl_manifest.argocd_projects]
+  depends_on = [module.zfs, helm_release.argocd_deploy]
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.es_manifest)

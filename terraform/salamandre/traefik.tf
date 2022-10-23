@@ -4,7 +4,7 @@ locals {
 
 # Deploy app
 resource "kubectl_manifest" "traefik" {
-  depends_on = [kubectl_manifest.argocd_projects]
+  depends_on = [helm_release.argocd_deploy]
 
   override_namespace = local.argocd_namespace
   yaml_body          = file("${var.manifests_folder}/traefik.yaml")

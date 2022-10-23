@@ -21,37 +21,6 @@ resource "helm_release" "argocd_deploy" {
   values = [replace(yamlencode(local.argocd_values), "$$", "$")] # This replace skiped interpretation of '$name'
 }
 
-resource "kubectl_manifest" "argocd_projects" {
-  for_each   = toset(local.argocd_projects)
-  depends_on = [helm_release.argocd_deploy]
-
-  yaml_body = yamlencode({
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "AppProject"
-
-    metadata = {
-      name      = each.key
-      namespace = local.argocd_namespace
-    }
-
-    spec = {
-      description = "${each.key} apps"
-      sourceRepos = ["*"]
-      destinations = [{
-        namespace = "*"
-        server    = local.clusters.salamandre
-        }, {
-        namespace = "*"
-        server    = local.clusters.baku
-      }]
-      clusterResourceWhitelist = [{
-        group = "*"
-        kind  = "*"
-      }]
-    }
-  })
-}
-
 # Create vault keys
 module "argocd_vault_secrets" {
   depends_on = [null_resource.vault_restart]

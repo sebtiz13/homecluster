@@ -17,7 +17,7 @@ locals {
 
 # Deploy app
 resource "kubectl_manifest" "vault" {
-  depends_on = [module.zfs, kubectl_manifest.argocd_projects, kubernetes_namespace.labeled_namespace]
+  depends_on = [module.zfs, helm_release.argocd_deploy, kubernetes_namespace.labeled_namespace]
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.vault_manifest)

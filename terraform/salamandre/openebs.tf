@@ -1,5 +1,5 @@
 resource "kubectl_manifest" "openebs" {
-  depends_on = [module.zfs, kubectl_manifest.argocd_projects]
+  depends_on = [module.zfs, helm_release.argocd_deploy]
 
   override_namespace = local.argocd_namespace
   yaml_body          = file("${var.manifests_folder}/openebs.yaml")

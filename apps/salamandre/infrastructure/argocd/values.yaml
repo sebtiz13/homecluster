@@ -20,3 +20,25 @@ vaultURL: http://vault-internal.vault.svc:8200
 toolsVersion:
   avp: "1.13.0"
   vault: "1.11.4"
+
+projects:
+  - name: system
+    description: System cluster critical apps
+    sourceRepo:
+      - "*"
+    destinations:
+      - namespace: "*"
+        server: "*"
+    clusterResourceWhitelist:
+      - group: "*"
+        kind: "*"
+  - name: infrastructure
+    description: Infrastructure apps
+    sourceRepo:
+      - "*"
+    destinations:
+      - namespace: "*"
+        server: "*"
+    clusterResourceWhitelist:
+      - group: "*"
+        kind: "*"
