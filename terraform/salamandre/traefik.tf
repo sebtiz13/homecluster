@@ -30,28 +30,6 @@ resource "null_resource" "traefik_wait" {
   }
 }
 
-# Create middlewares
-resource "kubectl_manifest" "traefik_https_redirect" {
-  depends_on = [null_resource.traefik_wait]
-
-  yaml_body = yamlencode({
-    apiVersion = "traefik.containo.us/v1alpha1"
-    kind       = "Middleware"
-
-    metadata = {
-      name      = "redirect-https"
-      namespace = local.traefik_namespace
-    }
-
-    spec = {
-      redirectScheme = {
-        scheme    = "https"
-        permanent = true
-      }
-    }
-  })
-}
-
 # Create certificate
 locals {
   certificate_name = replace(var.domain, ".", "-")

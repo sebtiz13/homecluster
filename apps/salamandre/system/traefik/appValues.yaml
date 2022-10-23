@@ -5,11 +5,6 @@ ingressClass:
   enabled: true
   isDefaultClass: true
 
-ports:
-  websecure:
-    tls:
-      enabled: true
-
 providers:
   kubernetesIngress:
     publishedService:
@@ -19,5 +14,12 @@ env:
   - name: TZ
     value: Europe/Paris
 
-rbac:
-  enabled: true
+extraObjects:
+  - apiVersion: traefik.containo.us/v1alpha1
+    kind: Middleware
+    metadata:
+      name: redirect-https
+    spec:
+      redirectScheme:
+        scheme: https
+        permanent: true
