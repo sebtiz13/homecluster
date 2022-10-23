@@ -4,20 +4,11 @@
 
 This project utilizes [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) and
 [GitOps](https://www.weave.works/technologies/gitops/) to automate provisioning, operating, and updating self-hosted
-services in our homelab. It can be used as a highly customizable framework to build your own homelab.
+services in our home cluster.
 
 ## Overview
 
 > Project status: **BETA**
-
-### Repository architecture
-
-- [apps](./apps/): The apps values deployed with **ArgoCD**
-- [charts](./charts/): The extends apps charts + `common-app` for build [apps](./apps/).
-- [manifests](./manifests/): The builded production manifests for deploy it to cluster with **GitOps**
-- [docs](./docs/): The documentation
-- [terraform](./terraform/): Files for provisioning clusters
-- [vagrant](./vagrant/): Virtual machine files
 
 ### Features
 
