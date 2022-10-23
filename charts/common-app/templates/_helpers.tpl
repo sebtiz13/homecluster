@@ -62,9 +62,9 @@ Merge apps values
 */}}
 {{- define "common-app.appsValues" }}
 {{- $values := tpl .Values.appValues . | fromYaml -}}
-{{- if .Values.appValuesVM }}
-{{- $appValuesVM := tpl .Values.appValuesVM . | fromYaml -}}
-{{- $values = deepCopy $values | mustMerge $appValuesVM  -}}
+{{- if .Values.appValuesEnv }}
+{{- $appValuesEnv := tpl .Values.appValuesEnv . | fromYaml -}}
+{{- $values = deepCopy $values | mustMerge $appValuesEnv  -}}
 {{- end }}
 
 {{- toYaml $values }}

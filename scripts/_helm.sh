@@ -19,13 +19,15 @@ run_helm () {
     helm_args=""
   fi
 
-  # Custom arguments for VM
-  if [ "$ENVIROMNENT" = "vm" ] && [ -f "$APP_PATH/appValues.vm.yaml" ]; then
-    helm_args="$helm_args --set-file appValuesVM="$APP_PATH/appValues.vm.yaml""
+  # Overwrite config for environment
+  if [ -f "$APP_PATH/appValues.$ENVIRONMENT.yaml" ]; then
+    helm_args="$helm_args --set-file appValuesEnv="$APP_PATH/appValues.$ENVIRONMENT.yaml""
+  fi
+  if [ -f "$APP_PATH/values.$ENVIRONMENT.yaml" ]; then
+    helm_args="$helm_args --f "$APP_PATH/values.$ENVIRONMENT.yaml""
   fi
 
-  helm "$1" $helm_args charts/common-app \
-    -f "$APP_PATH/values.yaml" \
+  helm "$1" -f "$APP_PATH/values.yaml" $helm_args charts/common-app \
     --set releaseName="$APP_NAME" \
     --set-file appValues="$APP_PATH/appValues.yaml" \
     --set environment="$ENVIRONMENT" \

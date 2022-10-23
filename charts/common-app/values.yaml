@@ -27,6 +27,7 @@ syncPolicy:
 
 plugin: "helm"
 appValues: ""
+appValuesEnv: null
 # Used for plugin "argocd-vault-plugin-helm"
 helmArgs: ""
 # Used for plugin "helm"
