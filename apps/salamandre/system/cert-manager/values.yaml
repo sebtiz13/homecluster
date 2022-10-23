@@ -1,9 +1,9 @@
 plugin: helm
 
 source:
-  repoURL: https://charts.jetstack.io
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
   chart: cert-manager
-  targetRevision: 1.9.1
+  targetRevision: 1.10.0
 
 destination:
   server: https://kubernetes.default.svc

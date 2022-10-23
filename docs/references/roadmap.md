@@ -14,7 +14,7 @@ Good enough for tinkering and personal usage, and reasonably secure.
 - [ ] Automated DNS management (update DNS records)
 - [x] Single Sign-On (keycloak)
 - [ ] Reasonably secure
-  - [ ] Automated certificate management (cert-manager, _Currently: only in development_)
+  - [x] Automated certificate management (cert-manager)
   - [x] Declarative secret management (vault and external-secrets)
   - [x] Replace all default passwords with randomly generated ones
 - [x] Only use open-source technologies

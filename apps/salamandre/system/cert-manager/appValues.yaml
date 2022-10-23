@@ -1,11 +1,58 @@
-fullnameOverride: "cert-manager"
+{{ $domainName := .Values.baseDomain | replace "." "-" }}
 
-global:
-  priorityClassName: "system-cluster-critical"
+cert-manager:
+  global:
+    priorityClassName: "system-cluster-critical"
 
-installCRDs: true
+  installCRDs: true
 
-resources:
-  requests:
-    cpu: 10m
-    memory: 32Mi
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+cert-manager-webhook-ovh:
+  groupName: {{ .Values.baseDomain }}
+
+  issuers:
+    - name: {{ $domainName }}-issuer
+      create: {{ include "is-production" . }}
+      namespace: {{ .Release.Namespace }}
+      server: https://acme-v02.api.letsencrypt.org/directory
+      email: "contact@{{ .Values.baseDomain }}"
+      ovhEndpointName: ovh-eu
+      ovhAuthentication:
+        applicationKey: <path:argocd/data/cert-manager/ovh#applicationKey>
+        applicationSecret: <path:argocd/data/cert-manager/ovh#applicationSecret>
+        consumerKey: <path:argocd/data/cert-manager/ovh#consumerKey>
+
+  resources:
+    requests:
+      cpu: 30m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+certificates:
+  - name: {{ $domainName }}
+    issuerName: {{ $domainName }}-issuer
+    dnsNames:
+      - "{{ .Values.baseDomain }}"
+      - "*.{{ .Values.baseDomain }}"
+      - "console.s3.{{ .Values.baseDomain }}"
+    secretTemplate:
+      annotations:
+        kubed.appscode.com/sync: "domain={{ .Values.baseDomain }}"
+      labels:
+        domain: {{ $domainName }}
+  - name: "pages-{{ $domainName }}"
+    issuerName: {{ $domainName }}-issuer
+    dnsNames:
+      - "pages.{{ .Values.baseDomain }}"
+      - "*.pages.{{ .Values.baseDomain }}"
+    secretTemplate:
+      annotations:
+        kubed.appscode.com/sync: "kubernetes.io/metadata.name=gitlab"
+      labels:
+        domain: "pages-{{ $domainName }}"

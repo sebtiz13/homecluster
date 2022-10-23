@@ -1,7 +1,3 @@
-locals {
-  traefik_namespace = "traefik"
-}
-
 # Deploy app
 resource "kubectl_manifest" "traefik" {
   depends_on = [helm_release.argocd_deploy]
@@ -28,62 +24,4 @@ resource "null_resource" "traefik_wait" {
       "until [ \"$(kubectl get deploy -n traefik traefik -o=jsonpath='{.status.readyReplicas}' 2>/dev/null)\" = \"1\" ]; do sleep 1; done"
     ]
   }
-}
-
-# Create certificate
-locals {
-  certificate_name = replace(var.domain, ".", "-")
-}
-
-# TODO: Support production !
-resource "kubectl_manifest" "cert_manager_issuer" {
-  depends_on = [kubernetes_secret.vm_ca, null_resource.cert_manager_wait]
-
-  yaml_body = yamlencode({
-    apiVersion = "cert-manager.io/v1"
-    kind       = "Issuer"
-
-    metadata = {
-      name      = "${local.certificate_name}-issuer"
-      namespace = local.traefik_namespace
-    }
-
-    spec = {
-      ca = {
-        secretName = kubernetes_secret.vm_ca[0].metadata[0].name
-      }
-    }
-  })
-}
-
-resource "kubectl_manifest" "cert_manager_certificate" {
-  depends_on = [null_resource.traefik_wait, null_resource.cert_manager_wait]
-
-  yaml_body = yamlencode({
-    apiVersion = "cert-manager.io/v1"
-    kind       = "Certificate"
-
-    metadata = {
-      name      = local.certificate_name
-      namespace = local.traefik_namespace
-    }
-
-    spec = {
-      issuerRef = {
-        name = "${local.certificate_name}-issuer"
-        kind = "Issuer"
-      }
-
-      dnsNames   = [var.domain, "*.${var.domain}", "console.s3.${var.domain}"]
-      secretName = "${local.certificate_name}-tls"
-      secretTemplate = {
-        annotations = {
-          "kubed.appscode.com/sync" = "domain=${var.domain}"
-        }
-        labels = {
-          domain = var.domain
-        }
-      }
-    }
-  })
 }

@@ -4,7 +4,7 @@ resource "kubernetes_secret" "vm_ca" {
 
   metadata {
     name      = "vm-ca-tls-secret"
-    namespace = local.traefik_namespace
+    namespace = local.cm_namespace
     annotations = {
       "kubed.appscode.com/sync" = "domain=${var.domain}"
     }

@@ -27,7 +27,7 @@ services in our homelab. It can be used as a highly customizable framework to bu
 - [ ] Automatic rolling upgrade for OS and Kubernetes
 - [ ] Automatically update apps (with approval, _Currently: only manual update_) 🚧
 - [x] Modular architecture, easy to add or remove features/components
-- [ ] Automated certificate management (_Currently: only for development_) 🚧
+- [x] Automated certificate management
 - [ ] Automatically update DNS records for exposed services
 - [x] CI/CD platform
 - [x] Git server

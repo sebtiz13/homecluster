@@ -1,4 +1,15 @@
 {{/*
+Environment is production
+*/}}
+{{- define "is-production" }}
+{{- if ne .Values.environment "production" -}}
+false
+{{- else -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
 Annotation for redirect to https
 */}}
 {{- define "ingress.annotations.httpsRedirect" -}}

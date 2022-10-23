@@ -53,9 +53,6 @@ graph LR
     vault --> k-vault[create keyclaok secrets] --> keycloak[deploy keycloak]
 
     %% Sub task
-    cert-manager --> issuer[create issuer]
-    cert-manager --> certificate[create certificate]
-
     keycloak --> v-oidc[configure vault oidc]
 
     %% Deps
