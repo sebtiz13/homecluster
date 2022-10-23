@@ -1,4 +1,4 @@
-{{- $name := default (include "cert-manager.fullname") (index .Values "cert-manager-webhook-ovh" "fullnameOverride") -}}
+{{- $name := default (include "cert-manager.fullname" .) (index .Values "cert-manager-webhook-ovh" "fullnameOverride") -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
