@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 SCRIPT=$1
 if [ -z "$SCRIPT" ]; then
   echo "Usage: diff-app.sh <script>"
