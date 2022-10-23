@@ -8,6 +8,10 @@ variables:
   DOMAIN_NAME: sebtiz13.fr
   HELM_CHANNEL: stable
 
+image:
+  name: alpine/helm:3.10.1
+  entrypoint: [""]
+
 stages:
   - test
   - build

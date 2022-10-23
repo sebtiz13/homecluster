@@ -2,21 +2,15 @@
 
 apps:lint-web:
   stage: test
-  image:
-    name: alpine/helm:3.10.1
-    entrypoint: [""]
   script:
-    - ./scripts/all-apps.sh ./scripts/lint.sh
+    - ./scripts/apps/all.sh ./scripts/apps/lint.sh
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
 
 apps:lint:
   stage: test
-  image:
-    name: alpine/helm:3.10.1
-    entrypoint: [""]
   script:
-    - ./scripts/diff-apps.sh ./scripts/lint.sh
+    - ./scripts/apps/diff.sh ./scripts/apps/lint.sh
   rules:
     - changes:
         - apps/**/*.yaml
@@ -25,11 +19,8 @@ apps:lint:
 apps:build:
   stage: build
   needs: [apps:lint]
-  image:
-    name: alpine/helm:3.10.1
-    entrypoint: [""]
   script:
-    - ./scripts/diff-apps.sh ./scripts/build.sh
+    - ./scripts/apps/diff.sh ./scripts/apps/build.sh
   artifacts:
     expire_in: 2 minutes
     paths:

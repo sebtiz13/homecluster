@@ -8,5 +8,5 @@ fi
 extract_info "$1"
 
 # Run lint
-echo "Lint: $RELEASE_NAME"
+printf "\033[1;34mLint\033[0m: %s\n" "$RELEASE_NAME"
 run_helm lint "$1"
