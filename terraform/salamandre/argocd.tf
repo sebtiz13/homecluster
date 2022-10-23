@@ -4,15 +4,32 @@ locals {
   argocd_manifest = yamldecode(file("${var.manifests_folder}/argocd.yaml"))
   argocd_values   = yamldecode(local.argocd_manifest.spec.source.plugin.env.1.value)
 
-  argocd_namespace = local.argocd_manifest.spec.destination.namespace
-  argocd_host      = replace(local.argocd_values.server.config.url, "https://", "")
+  argocd_release_name = local.argocd_manifest.spec.source.plugin.env.0.value
+  argocd_namespace    = local.argocd_manifest.spec.destination.namespace
+  argocd_host         = replace(local.argocd_values.server.config.url, "https://", "")
+}
+
+resource "null_resource" "argocd_deploy_crds" {
+  depends_on = [kubernetes_namespace.labeled_namespace]
+
+  provisioner "local-exec" {
+    command = format(
+      "KUBECONFIG=%s ./scripts/argocd-crds.sh %s %s %s %s %s",
+      local.kubeconfig_path,
+      local.argocd_manifest.spec.source.repoURL,
+      local.argocd_manifest.spec.source.chart,
+      local.argocd_manifest.spec.source.targetRevision,
+      local.argocd_namespace,
+      local.argocd_release_name
+    )
+  }
 }
 
 resource "helm_release" "argocd_deploy" {
-  depends_on = [kubernetes_namespace.labeled_namespace]
+  depends_on = [null_resource.argocd_deploy_crds]
   timeout    = 10 * 60 // 10 min
 
-  name       = local.argocd_manifest.spec.source.plugin.env.0.value
+  name       = local.argocd_release_name
   namespace  = local.argocd_namespace
   chart      = local.argocd_manifest.spec.source.chart
   repository = local.argocd_manifest.spec.source.repoURL

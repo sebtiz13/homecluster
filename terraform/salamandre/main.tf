@@ -1,6 +1,7 @@
 # Apps variables
 locals {
-  out_dir = "../../out"
+  out_dir         = "../../out"
+  kubeconfig_path = "${local.out_dir}/kubeconfig/salamandre.${var.environment}.yaml"
 
   labeled_namespaces = [
     local.argocd_namespace,
@@ -50,7 +51,7 @@ module "k3s_install" {
   k3s_node_name = "salamandre"
 
   kube_host       = var.ssh_host
-  kubeconfig_path = "${local.out_dir}/kubeconfig/salamandre.${var.environment}.yaml"
+  kubeconfig_path = local.kubeconfig_path
 }
 locals {
   kubeconfig = module.k3s_install.kubeconfig
