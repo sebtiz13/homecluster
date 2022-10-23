@@ -1,0 +1,95 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+current_dir = File.dirname(File.expand_path(__FILE__))
+
+Vagrant.configure("2") do |config|
+  # SSH pub key file path
+  # Set this value to empty for disable
+  sshKeyFilePath = "#{current_dir}/id_rsa.pub"
+
+  # Base image for nodes
+  config.vm.box = "debian/bullseye64"
+
+  # Nodes list and their parameters
+  NODES = [
+    {
+      :hostname => "salamandre.vm",
+      :ip => "192.168.12.10",
+      :cpus => 6,
+      :memory => 10 * 1024
+    },
+    {
+      :hostname => "baku.vm",
+      :ip => "192.168.12.11",
+      :cpus => 2,
+      :memory => 3 * 1024
+    }
+  ]
+
+  # Create vms
+  NODES.each do |node|
+    config.vm.define node[:hostname] do |cfg|
+      cfg.vm.hostname = node[:hostname]
+      cfg.vm.box_check_update = false
+      cfg.vm.network :private_network, :ip => node[:ip]
+
+      # Configure provider
+      cfg.vm.provider :libvirt do |v|
+        v.driver = "kvm"
+        v.title = node[:hostname]
+        v.cpus = node[:cpus]
+        v.memory = node[:memory]
+
+        # Provide disks
+        ['b', 'c', 'd'].each do |l|
+          v.storage :file,
+            :size => '20G',
+            :device => 'vd' + l,
+            :serial => 'virtual_disk_' + l,
+            :bus => 'scsi', :type => 'qcow2', :discard => 'unmap', :detect_zeroes => 'on'
+        end
+      end
+
+      # Configure custom CA
+      cfg.vm.provision :file, source: "#{current_dir}/.vagrant/ca/rootCA.pem", destination: "/tmp/ca/rootCA.crt"
+      cfg.vm.provision :shell, :inline => "mv /tmp/ca/* /usr/local/share/ca-certificates && update-ca-certificates"
+
+      # Set the timezone
+      cfg.vm.provision :shell, :inline => "timedatectl set-timezone Europe/Paris"
+
+      # Add public ssh key to VM
+      if File.exist?(File.expand_path sshKeyFilePath) then
+        cfg.vm.provision :shell do |s|
+          s.name = "Configure SSH key"
+          ssh_pub_key = File.readlines(File.expand_path sshKeyFilePath).first.strip
+          s.inline = <<-SHELL
+            echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+          SHELL
+        end
+      end
+
+      # Provisioning hosts of other nodes
+      # testConectivityCmds = "ping -c 1 1.1.1.1"
+      NODES.each do |n|
+        if node[:hostname] != n[:hostname]
+          cfg.vm.provision :shell do |s|
+            s.name = "Configure hosts"
+            s.inline = "echo '" + n[:ip] + " " + n[:hostname] + "' >> /etc/hosts"
+          end
+
+          # testConectivityCmds += " && ping -c 1 " + n[:hostname]
+        end
+      end
+
+      # Test conectivity
+      # cfg.trigger.after :up do |trigger|
+      #   trigger.info = "Test connectivity"
+
+      #   trigger.run_remote = {inline: "sh -c '" + testConectivityCmds + "' &> /dev/null"}
+      # end
+    end
+  end
+end

@@ -1,0 +1,199 @@
+plugin: argocd-vault-plugin-helm
+
+source:
+  repoURL: https://charts.bitnami.com/bitnami
+  chart: keycloak
+  targetRevision: 10.1.4
+
+destination:
+  server: https://kubernetes.default.svc
+  namespace: keycloak
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+
+# App Values
+realm:
+  id: developer
+  realm: developer
+  enabled: true
+  registrationAllowed: false
+  registrationEmailAsUsername: false
+  attributes:
+    frontendUrl: https://sso.{{ .Values.baseDomain }}
+
+  roles:
+    realm:
+      - name: editor
+        composite: false
+        clientRole: false
+        containerId: developer
+      - name: admin
+        description: "$${role_admin}"
+        composite: false
+        clientRole: false
+        containerId: developer
+
+  groups:
+    - name: Admin
+      path: /Admin
+      attributes:
+        policy:
+          - consoleAdmin
+      realmRoles:
+        - editor
+        - admin
+    - name: Operator
+      path: /Operator
+      attributes:
+        policy:
+          - readwrite
+      realmRoles:
+        - editor
+    - name: Users
+      path: /Users
+
+  clients:
+    - clientId: <path:argocd/data/argocd/oidc#clientID>
+      rootUrl: https://argocd.{{ .Values.baseDomain }}
+      baseUrl: /
+      enabled: true
+      publicClient: false
+      clientAuthenticatorType: client-secret
+      secret: <path:argocd/data/argocd/oidc#clientSecret>
+      redirectUris:
+        - /
+        - /applications
+        - /auth/callback
+      webOrigins:
+        - /ui/vault/auth
+      standardFlowEnabled: true
+      directAccessGrantsEnabled: true
+      protocol: openid-connect
+      attributes:
+        backchannel.logout.session.required: "true"
+      fullScopeAllowed: true
+      defaultClientScopes:
+        - web-origins
+        - profile
+        - roles
+        - groups
+        - email
+      optionalClientScopes:
+        - address
+        - phone
+        - offline_access
+        - microprofile-jwt
+    - clientId: <path:argocd/data/argocd/oidc#cliClientID>
+      rootUrl: http://localhost:8085
+      adminUrl: http://localhost:8085
+      enabled: true
+      clientAuthenticatorType: client-secret
+      redirectUris:
+        - http://localhost:8085/*
+      webOrigins:
+        - http://localhost:8085
+      standardFlowEnabled: true
+      directAccessGrantsEnabled: true
+      publicClient: true
+      protocol: openid-connect
+      attributes:
+        backchannel.logout.session.required: "true"
+      fullScopeAllowed: true
+      defaultClientScopes:
+        - web-origins
+        - profile
+        - roles
+        - groups
+        - email
+      optionalClientScopes:
+        - address
+        - phone
+        - offline_access
+        - microprofile-jwt
+    - clientId: <path:argocd/data/vault/oidc#clientID>
+      rootUrl: https://vault-secrets.{{ .Values.baseDomain }}
+      baseUrl: /ui/
+      adminUrl: /ui/vault/auth/oidc/oidc/callback
+      enabled: true
+      publicClient: false
+      clientAuthenticatorType: client-secret
+      secret: <path:argocd/data/argocd/oidc#clientSecret>
+      redirectUris:
+        - /oidc/callback
+        - /ui/vault/auth/oidc/oidc/callback/*
+        - http://localhost:8250/oidc/callback
+      webOrigins:
+        - /ui/vault/auth
+      standardFlowEnabled: true
+      directAccessGrantsEnabled: true
+      protocol: openid-connect
+      attributes:
+        backchannel.logout.session.required: "true"
+      fullScopeAllowed: true
+      defaultClientScopes:
+        - web-origins
+        - profile
+        - roles
+        - groups
+        - email
+      optionalClientScopes:
+        - address
+        - phone
+        - offline_access
+        - microprofile-jwt
+
+  clientScopes:
+    - name: groups
+      protocol: openid-connect
+      attributes:
+        include.in.token.scope: "true"
+        display.on.consent.screen: "true"
+      protocolMappers:
+        - name: groups
+          protocol: openid-connect
+          protocolMapper: oidc-group-membership-mapper
+          consentRequired: false
+          config:
+            full.path: "false"
+            id.token.claim: "true"
+            access.token.claim: "true"
+            claim.name: groups
+            userinfo.token.claim: "true"
+    - name: policies
+      protocol: openid-connect
+      attributes:
+        include.in.token.scope: "true"
+        display.on.consent.screen: "true"
+      protocolMappers:
+        - name: policy
+          protocol: openid-connect
+          protocolMapper: oidc-usermodel-attribute-mapper
+          consentRequired: false
+          config:
+            userinfo.token.claim: "true"
+            user.attribute: policy
+            id.token.claim: "true"
+            access.token.claim: "true"
+            claim.name: policy
+            jsonType.label: String
+
+realm_vm:
+  users:
+    - username: test
+      email: test@test.com
+      firstName: test
+      lastName: test
+      enabled: true
+      emailVerified: true
+      credentials:
+        - type: password
+          userLabel: initial
+          value: test
+      realmRoles:
+        - default-roles-developer
+        - admin
+      groups:
+        - Admin

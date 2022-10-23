@@ -1,0 +1,42 @@
+cert-manager-webhook-ovh:
+  fullnameOverride: cert-manager
+
+cert-manager:
+  fullnameOverride: cert-manager
+
+# Refer to https://cert-manager.io/docs/usage/certificate/ for more details to options
+certificates:
+  #* Examples
+  #* Shortcut version
+  #  #! Required: name of certificate secret (secretName are generated like "<name>-tls")
+  #- name: example-com
+  #  #! Required Issuer reference
+  #  # Shorcut to define namespace issuer name
+  #  issuerName: example-issuer
+  #  # To use more specifique issuer like ClusterIssuers (issuerName must not be defined to use this)
+  #  issuerRef:
+  #    name: example-issuer
+  #    kind: ClusterIssuer
+  #    group: cert-manager.io
+  #  # Use secretTemplate to apply annotations and labels on generated tls secret
+  #  secretTemplate:
+  #    annotations:
+  #      kubed.appscode.com/sync: ""
+  #    labels:
+  #      domain: example
+  #  # DNS name to request the certificate
+  #  dnsNames:
+  #    - "example.com"
+  #    - "*.example.com"
+  #* Specific version
+  # - name: example
+  #   spec:
+  #     # Required
+  #     secretName: example-com-tls
+  #     dnsNames:
+  #       - example.com
+  #     issuerRef:
+  #       name: example-issuer
+
+# -- Array of extra K8s manifests to deploy
+extraObjects: []

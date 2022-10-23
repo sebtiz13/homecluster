@@ -1,0 +1,58 @@
+{{- $values := include "common-app.appsValues" . -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ include "common-app.name" . }}
+  labels:
+    {{- include "common-app.labels" . | indent 4 }}
+spec:
+  project: {{ .Values.project }}
+  source:
+    repoURL: {{ .Values.source.repoURL }}
+    chart: {{ .Values.source.chart }}
+    targetRevision: {{ .Values.source.targetRevision }}
+    {{- if eq ( .Values.plugin | toString ) "argocd-vault-plugin-helm" }}
+    plugin:
+      name: argocd-vault-plugin-helm
+      {{- if or .Values.helmArgs $values }}
+      env:
+        {{- if .Values.releaseName }}
+        - name: HELM_RELEASE_NAME
+          value: {{ .Values.releaseName }}
+        {{- end }}
+        {{- if .Values.helmArgs }}
+        - name: HELM_ARGS
+          value: {{ .Values.helmArgs }}
+        {{- end }}
+        {{- if $values }}
+        - name: HELM_VALUES
+          value: |
+            {{- $values | nindent 12 }}
+        {{- end }}
+      {{- end }}
+    {{- else if eq ( .Values.plugin | toString ) "helm" }}
+    helm:
+      {{- if .Values.releaseName }}
+      releaseName: {{ .Values.releaseName }}
+      {{- end }}
+      {{- if .Values.valueFiles }}
+      valueFiles:
+        {{ .Values.valueFiles }}
+      {{- end }}
+      {{- if $values }}
+      values: |
+        {{- $values | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  destination:
+    server: {{ .Values.destination.server }}
+    namespace: {{ .Values.destination.namespace }}
+  {{- if and .Values.syncPolicy ( or .Values.syncPolicy.automated .Values.syncPolicy.options ) }}
+  {{- with .Values.syncPolicy }}
+  syncPolicy:
+    {{- if .automated }}
+    automated: {{ .automated | toYaml | nindent 6 }}
+    {{- end }}
+    {{- include "common-app.syncOptions" . | indent 4 }}
+  {{- end }}
+  {{- end }}

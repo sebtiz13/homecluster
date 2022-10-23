@@ -1,0 +1,34 @@
+nameOverride: null
+
+project: project
+destination:
+  server: "https://kubernetes.default.svc"
+  namespace: default
+source:
+  repoURL: null
+  chart: null
+  targetRevision: null
+syncPolicy:
+  automated:
+    {}
+    # prune: true
+    # selfHeal: true
+  # https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options
+  options:
+    {}
+    # applyOutOfSyncOnly: true
+    # # Need valid value ( foreground, background or orphan )
+    # prunePropagationPolicy: foreground
+    # pruneLast: true
+    # replace: true
+    # failOnSharedResource: true
+    # respectIgnoreDifferences: true
+    # createNamespace: true
+
+plugin: "helm"
+appValues: ""
+appValuesEnv: null
+# Used for plugin "argocd-vault-plugin-helm"
+helmArgs: ""
+# Used for plugin "helm"
+valueFiles: []

@@ -1,0 +1,63 @@
+{{ $host := printf "sso.%s" .Values.baseDomain }}
+{{- define "keycloak.realm" }}
+{{ $realm := tpl (.Values.realm | toYaml) . | fromYaml }}
+{{- if eq .Values.environment "vm" -}}
+{{ $realmVM := tpl (.Values.realm_vm | toYaml) . | fromYaml }}
+{{ $realm = deepCopy $realm | mustMerge $realmVM  }}
+{{- end -}}
+{{ $realm | toYaml }}
+{{- end -}}
+
+fullnameOverride: "keycloak"
+
+proxy: edge
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  hostname: {{ $host }}
+  annotations:
+    {{ include "ingress.annotations.httpsRedirect" . | nindent 4 }}
+  extraTls:
+    - secretName: {{ include "ingress.tls.secretName" . }}
+      hosts:
+        - {{ $host }}
+
+cache:
+  enabled: true
+
+auth:
+  adminUser: <path:argocd/data/keycloak/auth#adminUser>
+  adminPassword: <path:argocd/data/keycloak/auth#adminPassword>
+
+extraEnvVars:
+  - name: TZ
+    value: Europe/Paris
+  - name: KEYCLOAK_PRODUCTION
+    value: "true"
+  - name: KEYCLOAK_HOSTNAME
+    value: {{ $host }}
+
+service:
+  type: ClusterIP
+
+externalDatabase:
+  host: <path:argocd/data/keycloak/database#host>
+  port: <path:argocd/data/keycloak/database#port>
+  user: <path:argocd/data/keycloak/database#user>
+  database: <path:argocd/data/keycloak/database#database>
+  password: <path:argocd/data/keycloak/database#password>
+
+postgresql:
+  enabled: false
+
+keycloakConfigCli:
+  enabled: true
+  {{/* Load old tool version due to unreleased cli (issue https://github.com/bitnami/charts/issues/12699) */}}
+  command:
+    - java
+    - -jar
+    - /opt/bitnami/keycloak-config-cli/keycloak-config-cli-19.0.1.jar
+
+  configuration:
+    realm1.yaml: |
+      {{- include "keycloak.realm" . | nindent 6 }}

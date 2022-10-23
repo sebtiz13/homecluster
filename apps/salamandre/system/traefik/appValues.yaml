@@ -1,0 +1,25 @@
+fullnameOverride: "traefik"
+priorityClassName: system-cluster-critical
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+
+env:
+  - name: TZ
+    value: Europe/Paris
+
+extraObjects:
+  - apiVersion: traefik.containo.us/v1alpha1
+    kind: Middleware
+    metadata:
+      name: redirect-https
+    spec:
+      redirectScheme:
+        scheme: https
+        permanent: true

@@ -1,0 +1,45 @@
+cert-manager:
+  global:
+    priorityClassName: "system-cluster-critical"
+
+  installCRDs: true
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+cert-manager-webhook-ovh:
+  groupName: {{ .Values.baseDomain }}
+
+  resources:
+    requests:
+      cpu: 30m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+{{ $domainName := .Values.baseDomain | replace "." "-" }}
+certificates:
+  - name: {{ $domainName }}
+    issuerName: {{ $domainName }}-issuer
+    dnsNames:
+      - "{{ .Values.baseDomain }}"
+      - "*.{{ .Values.baseDomain }}"
+      - "console.s3.{{ .Values.baseDomain }}"
+    secretTemplate:
+      annotations:
+        kubed.appscode.com/sync: "domain={{ .Values.baseDomain }}"
+      labels:
+        domain: {{ $domainName }}
+  - name: "pages-{{ $domainName }}"
+    issuerName: {{ $domainName }}-issuer
+    dnsNames:
+      - "pages.{{ .Values.baseDomain }}"
+      - "*.pages.{{ .Values.baseDomain }}"
+    secretTemplate:
+      annotations:
+        kubed.appscode.com/sync: "kubernetes.io/metadata.name=gitlab"
+      labels:
+        domain: "pages-{{ $domainName }}"

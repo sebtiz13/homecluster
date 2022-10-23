@@ -1,0 +1,6 @@
+gitops:
+  manifest_projects:
+    - id: sebtiz13-charts/homecluster
+      default_namespace: argocd
+      paths:
+        - glob: "/manifests/**/*.yaml"

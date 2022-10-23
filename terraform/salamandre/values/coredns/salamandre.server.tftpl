@@ -1,0 +1,9 @@
+loc:53 {
+  errors
+  hosts {
+    ${server_ip} postgresql.loc
+    fallthrough
+  }
+  forward . /etc/resolv.conf
+  cache
+}

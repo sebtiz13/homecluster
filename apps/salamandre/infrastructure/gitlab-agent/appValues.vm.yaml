@@ -1,0 +1,2 @@
+config:
+  caCert: <path:argocd/data/gitlab/agent#caCert>

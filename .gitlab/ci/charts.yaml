@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+charts:lint-web:
+  stage: test
+  before_script:
+    - ./scripts/charts/repositories.sh
+  script:
+    - ./scripts/charts/all.sh ./scripts/charts/lint.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+charts:lint:
+  stage: test
+  before_script:
+    - ./scripts/charts/repositories.sh
+  script:
+    - ./scripts/charts/diff.sh ./scripts/charts/lint.sh
+  rules:
+    - changes: # Exclude `charts/common-app`
+        - charts/common-app/**/*
+      when: never
+    - changes:
+        - charts/**/*
+
+charts:publish:
+  stage: deploy
+  needs: [charts:lint]
+  before_script:
+    - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD my-repo ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/${HELM_CHANNEL}
+    - helm plugin install https://github.com/chartmuseum/helm-push
+  script:
+    -  ./scripts/charts/diff.sh ./scripts/charts/deploy.sh
+  rules:
+    - changes: # Exclude `charts/common-app`
+        - charts/common-app/**/*
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - charts/**/*

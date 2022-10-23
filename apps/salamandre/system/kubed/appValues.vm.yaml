@@ -1,0 +1,8 @@
+operator:
+  resources:
+    requests:
+      cpu: 2m
+      memory: 16Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi

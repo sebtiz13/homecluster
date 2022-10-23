@@ -1,0 +1,13 @@
+fullnameOverride: "gitlab-agent"
+
+config:
+  kasAddress: wss://kas.{{ .Values.baseDomain }}
+  token: <path:argocd/data/gitlab/agent#token>
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

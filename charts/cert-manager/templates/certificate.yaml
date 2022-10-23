@@ -1,0 +1,26 @@
+{{- range $.Values.certificates }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .name }}
+spec:
+  {{- if .spec }}
+  {{- toYaml .spec | nindent 2 }}
+  {{- else -}}
+  {{- if .secretTemplate }}
+  secretTemplate:
+    {{- toYaml .secretTemplate | nindent 4 }}
+  {{- end -}}
+  dnsNames:
+    {{- toYaml .dnsNames | nindent 4 }}
+  {{- if .issuerName }}
+  issuerRef:
+    name: {{ .issuerName }}
+  {{- else if .issuerRef }}
+  issuerRef:
+    {{- toYaml .issuerRef | nindent 4 }}
+  {{- end -}}
+  secretName: {{ .name }}-tls
+  {{- end -}}
+{{- end -}}

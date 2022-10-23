@@ -1,0 +1,282 @@
+externalSecrets:
+  secrets:
+    - name: credentials
+      target:
+        template:
+          type: Opaque
+          data:
+            postgresql-password: '{{`{{ .password }}`}}'
+      dataFrom:
+        extract:
+          key: gitlab/database
+    - name: storage
+      target:
+        template:
+          type: Opaque
+          data:
+            accesskey:  '{{`{{ .accesskey }}`}}'
+            secretkey:  '{{`{{ .secretkey }}`}}'
+            connection: |-
+              {{`provider: AWS
+              aws_signature_version: 4
+              path_style: true
+              endpoint: "{{ .endpoint }}"
+              region: "{{ .region }}"
+              aws_access_key_id: "{{ .accessKey }}"
+              aws_secret_access_key: "{{ .secretKey }}"`}}
+      dataFrom:
+        extract:
+          key: gitlab/s3
+    - name: backup
+      target:
+        template:
+          type: Opaque
+          data:
+            config: |-
+              {{`host_base = {{ .endpoint }}
+              host_bucket = {{ .endpoint }}
+              bucket_location = {{ .region }}
+              access_key = {{ .accessKey }}
+              secret_key = {{ .secretKey }}
+              signature_v2 = false`}}
+      dataFrom:
+        extract:
+          key: gitlab/s3
+    - name: oidc
+      target:
+        template:
+          type: Opaque
+          data:
+            provider: |-
+              name: openid_connect
+              label: Keycloak
+              args:
+                name: openid_connect
+                scope: ["openid", "profile", "email"]
+                response_type: code
+                issuer: "{{`{{ .issuer }}`}}"
+                client_auth_method: query
+                discovery: true
+                uid_field: preferred_username
+                client_options:
+                  identifier: "{{`{{ .clientID }}`}}"
+                  secret: "{{`{{ .clientSecret }}`}}"
+                  redirect_uri: "https://git.{{ .Values.baseDomain }}/users/auth/openid_connect/callback"
+      dataFrom:
+        extract:
+          key: gitlab/oidc
+
+gitlab:
+  upgradeCheck:
+    enabled: false
+
+  global:
+    time_zone: Europe/Paris
+
+    hosts:
+      domain: {{ .Values.baseDomain }}
+      https: true
+      gitlab:
+        name: git.{{ .Values.baseDomain }}
+      kas:
+        name: kas.{{ .Values.baseDomain }}
+      pages:
+        name: pages.{{ .Values.baseDomain }}
+
+    ingress:
+      enabled: true
+      annotations:
+        {{ include "ingress.annotations.httpsRedirect" . | nindent 6 }}
+      tls:
+        enabled: true
+        secretName: {{ include "ingress.tls.secretName" . }}
+
+    psql:
+      password:
+        useSecret: true
+        secret: gitlab-credentials
+        key: postgresql-password
+      host: <path:argocd/data/gitlab/database#host>
+      port: 5432
+      username: <path:argocd/data/gitlab/database#user>
+      database: <path:argocd/data/gitlab/database#database>
+      applicationName: "gitlab"
+      preparedStatements: false
+
+    registry:
+      bucket: <path:argocd/data/gitlab/s3#bucket_registry>
+
+    appConfig:
+      lfs:
+        bucket: <path:argocd/data/gitlab/s3#bucket_lfs>
+        connection:
+          secret: gitlab-storage
+      artifacts:
+        bucket: <path:argocd/data/gitlab/s3#bucket_artifacts>
+        connection:
+          secret: gitlab-storage
+      uploads:
+        bucket: <path:argocd/data/gitlab/s3#bucket_uploads>
+        connection:
+          secret: gitlab-storage
+      packages:
+        bucket: <path:argocd/data/gitlab/s3#bucket_packages>
+        connection:
+          secret: gitlab-storage
+      terraformState:
+        enabled: true
+        bucket: <path:argocd/data/gitlab/s3#bucket_tfState>
+        connection:
+          secret: gitlab-storage
+      dependencyProxy:
+        enabled: true
+        bucket: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+        connection:
+          secret: gitlab-storage
+      backups:
+        bucket: <path:argocd/data/gitlab/s3#bucket_backups>
+        tmpBucket: tmp
+
+      omniauth:
+        enabled: true
+        {{/* User from "openid_connect" not need admin approbation */}}
+        blockAutoCreatedUsers: false
+        allowSingleSignOn: ['openid_connect']
+        autoLinkUser: ['openid_connect']
+        allowBypassTwoFactor: ['openid_connect']
+        providers:
+          - secret: gitlab-oidc
+
+      initialDefaults:
+        signupEnabled: false
+
+    pages:
+      enabled: true
+      accessControl: true
+      objectStore:
+        bucket: <path:argocd/data/gitlab/s3#bucket_pages>
+        proxy_download: true
+        connection:
+          secret: gitlab-storage
+
+  gitlab:
+    gitaly:
+      persistence:
+        size: 10Gi
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 400m
+          memory: 512Mi
+    gitlab-exporter:
+      resources:
+        requests:
+          cpu: 75m
+          memory: 100Mi
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+    gitlab-pages:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+    gitlab-shell:
+      minReplicas: 1
+      maxReplicas: 2
+      service:
+        type: LoadBalancer
+      resources:
+        requests:
+          cpu: 5m
+          memory: 30Mi
+    sidekiq:
+      resources:
+        requests:
+          cpu: 300m
+          memory: 1.5Gi
+    toolbox:
+      enabled: false
+      replicas: 1
+      backups:
+        objectStorage:
+          config:
+            secret: gitlab-backup
+    webservice:
+      minReplicas: 1
+      maxReplicas: 2
+      resources:
+        requests:
+          cpu: 300m
+          memory: 1.5Gi
+        limits:
+          cpu: 1000m
+          memory: 3Gi
+    kas:
+      minReplicas: 1
+      maxReplicas: 10
+      resources:
+        requests:
+          cpu: 100m
+          memory: 64M
+        limits:
+          cpu: 500m
+          memory: 256M
+
+  gitlab-runner:
+    replica: 1
+    gitlabUrl: {{ printf "http://gitlab-webservice-default.%s.svc:8181" .Values.destination.namespace | quote }}
+    runnerRegistrationToken: <path:argocd/data/gitlab/runner#registrationToken>
+    unregisterRunners: false
+    runners:
+      locked: false
+      cache:
+        secretName: gitlab-storage
+      config: |
+        [[runners]]
+          environment = ["container=docker"]
+          [runners.kubernetes]
+            namespace = "{{ .Values.destination.namespace }}"
+            image = "ubuntu:18.04"
+          [runners.cache]
+            Type = "s3"
+            Shared = true
+            [runners.cache.s3]
+              ServerAddress = "<path:argocd/data/gitlab/s3#endpoint>"
+              BucketName = "<path:argocd/data/gitlab/s3#bucket_runner>"
+              BucketLocation = "<path:argocd/data/gitlab/s3#region>"
+              Insecure = true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  registry:
+    hpa:
+      minReplicas: 1
+      maxReplicas: 10
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 1Gi
+
+  redis:
+    metrics:
+      enabled: false
+    master:
+      resources:
+        requests:
+          cpu: 30m
+          memory: 50Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi

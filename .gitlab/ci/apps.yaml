@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+apps:lint-web:
+  stage: test
+  script:
+    - ./scripts/apps/all.sh ./scripts/apps/lint.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+apps:lint:
+  stage: test
+  script:
+    - ./scripts/apps/diff.sh ./scripts/apps/lint.sh
+  rules:
+    - changes:
+        - apps/**/*.yaml
+        - charts/common-app/**/*
+
+apps:build:
+  stage: build
+  needs: [apps:lint]
+  script:
+    - ./scripts/apps/diff.sh ./scripts/apps/build.sh
+  artifacts:
+    expire_in: 2 minutes
+    paths:
+      - manifests/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - apps/**/*.yaml
+        - charts/common-app/**/*
+
+apps:deploy:
+  stage: deploy
+  needs: [apps:build]
+  image:
+    name: alpine/git:2.36.3
+    entrypoint: [""]
+  before_script:
+    # set remote URL with using oauth2 and access token
+    - CI_PUSH_REPO=`echo "$CI_REPOSITORY_URL $GIT_ACCESS_TOKEN" | sed 's|^.*@\(.*\)\s\(.*\)|https://oauth2:\2@\1|g'`
+    - git remote set-url --push origin "${CI_PUSH_REPO}"
+    # in order to commit we have to have a user set
+    # this would also make it easy to distinct the CI-made commits
+    - git config user.name "CI Pipeline"
+    - git config user.email "cipipeline@example.com"
+  script:
+    - git add manifests/**/*.yaml
+    - 'git commit -m "build: deploy manifests from $CI_COMMIT_SHORT_SHA\n\n[skip ci]" || echo "No changes, nothing to commit!"'
+    - git push origin HEAD:$CI_COMMIT_REF_NAME
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - apps/**/*.yaml
+        - charts/common-app/**/*

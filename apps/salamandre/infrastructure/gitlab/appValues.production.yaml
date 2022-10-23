@@ -1,0 +1,31 @@
+gitlab:
+  gitlab:
+    gitlab-shell:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 384Mi
+    sidekiq:
+      resources:
+        limits:
+          cpu: 1500m
+          memory: 3Gi
+    webservice:
+      workhorse:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+  registry:
+    resources:
+      limits:
+        memory: 1Gi

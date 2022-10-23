@@ -1,0 +1,14 @@
+fullnameOverride: "kubed"
+enableAnalytics: false
+
+config:
+  clusterName: salamandre
+
+operator:
+  resources:
+    requests:
+      cpu: 4m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi

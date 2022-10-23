@@ -1,0 +1,22 @@
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - local: /.gitlab/ci/apps.yaml
+  - local: /.gitlab/ci/charts.yaml
+
+variables:
+  DOMAIN_NAME: sebtiz13.fr
+  HELM_CHANNEL: stable
+
+image:
+  name: alpine/helm:3.10.1
+  entrypoint: [""]
+
+stages:
+  - test
+  - build
+  - deploy
+
+secret_detection:
+  artifacts:
+    expire_in: 1 week
