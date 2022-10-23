@@ -2,6 +2,8 @@
 
 charts:lint-web:
   stage: test
+  before_script:
+    - ./scripts/charts/repositories.sh
   script:
     - ./scripts/charts/all.sh ./scripts/charts/lint.sh
   rules:
@@ -9,6 +11,8 @@ charts:lint-web:
 
 charts:lint:
   stage: test
+  before_script:
+    - ./scripts/charts/repositories.sh
   script:
     - ./scripts/charts/diff.sh ./scripts/charts/lint.sh
   rules:
