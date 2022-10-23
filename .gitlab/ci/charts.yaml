@@ -1,5 +1,15 @@
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 
+charts:lint-web:
+  stage: test
+  image:
+    name: alpine/helm:3.10.1
+    entrypoint: [""]
+  script:
+    - ./scripts/all-charts.sh ./scripts/lint.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+
 charts:lint:
   stage: test
   image:
