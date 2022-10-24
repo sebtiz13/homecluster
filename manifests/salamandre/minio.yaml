@@ -1,0 +1,93 @@
+---
+# Source: common-app/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: salamandre-minio
+  labels:    
+    helm.sh/chart: common-app-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://charts.min.io/
+    chart: minio
+    targetRevision: 4.0.15
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_RELEASE_NAME
+          value: minio
+        - name: HELM_VALUES
+          value: |
+            buckets:
+            - name: tmp
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_artifacts>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_backups>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_packages>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_pages>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_registry>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_runner>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_tfState>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_uploads>
+              policy: none
+            - name: <path:argocd/data/gitlab/s3#bucket_lfs>
+              policy: none
+            consoleIngress:
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              enabled: true
+              hosts:
+              - console.s3.sebtiz13.fr
+              tls:
+              - hosts:
+                - console.s3.sebtiz13.fr
+                secretName: sebtiz13-fr-tls
+            customCommands:
+            - command: admin user svcacct add --access-key "<path:argocd/data/gitlab/s3#accessKey>"
+                --secret-key "<path:argocd/data/gitlab/s3#secretKey>" --policy "$(echo '{"Statement":[{"Action":["s3:ListBucket","s3:GetObject","s3:DeleteObject","s3:PutObject"],"Effect":"Allow","Resource":["arn:aws:s3:::gitlab-*/*","arn:aws:s3:::git-lfs/*","arn:aws:s3:::tmp/*"]}],"Version":"2012-10-17"}'
+                > policy.json && echo "policy.json")" myminio "<path:argocd/data/minio/auth#rootUser>"
+            environment:
+              MINIO_BROWSER_REDIRECT_URL: https://console.s3.sebtiz13.fr
+            fullnameOverride: minio
+            ingress:
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              enabled: true
+              hosts:
+              - s3.sebtiz13.fr
+              path: /
+              tls:
+              - hosts:
+                - s3.sebtiz13.fr
+                secretName: sebtiz13-fr-tls
+            mode: standalone
+            persistence:
+              size: 10Gi
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 1Gi
+              requests:
+                cpu: 10m
+                memory: 192Mi
+            rootPassword: <path:argocd/data/minio/auth#rootPassword>
+            rootUser: <path:argocd/data/minio/auth#rootUser>
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: minio
+  syncPolicy:
+    automated: 
+      prune: true
+      selfHeal: true

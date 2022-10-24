@@ -1,0 +1,175 @@
+---
+# Source: common-app/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: salamandre-argocd
+  labels:    
+    helm.sh/chart: common-app-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-cd
+    targetRevision: 5.5.16
+    plugin:
+      name: argocd-vault-plugin-helm
+      env:
+        - name: HELM_RELEASE_NAME
+          value: argocd
+        - name: HELM_VALUES
+          value: |
+            applicationSet:
+              enabled: false
+            configs:
+              params:
+                server.insecure: true
+              secret:
+                extra:
+                  oidc.keycloak.clientSecret: <path:argocd/data/argocd/oidc#clientSecret>
+            dex:
+              enabled: false
+            extraObjects:
+            - apiVersion: argoproj.io/v1alpha1
+              kind: AppProject
+              metadata:
+                name: system
+              spec:
+                clusterResourceWhitelist:
+                - group: '*'
+                  kind: '*'
+                description: System cluster critical apps
+                destinations:
+                - namespace: '*'
+                  server: '*'
+                sourceRepos: null
+            - apiVersion: argoproj.io/v1alpha1
+              kind: AppProject
+              metadata:
+                name: infrastructure
+              spec:
+                clusterResourceWhitelist:
+                - group: '*'
+                  kind: '*'
+                description: Infrastructure apps
+                destinations:
+                - namespace: '*'
+                  server: '*'
+                sourceRepos: null
+            fullnameOverride: argocd
+            global:
+              logging:
+                level: debug
+            notifications:
+              enabled: false
+            repoServer:
+              env:
+              - name: TZ
+                value: Europe/Paris
+              - name: VAULT_ADDR
+                value: http://vault-internal.vault.svc:8200
+              - name: AVP_TYPE
+                value: vault
+              - name: AVP_AUTH_TYPE
+                value: k8s
+              - name: AVP_K8S_ROLE
+                value: argocd
+              initContainers:
+              - args:
+                - |-
+                  echo "Install Vault plugin"
+                  wget -qO /custom-tools/argocd-vault-plugin https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v$${AVP_VERSION}/argocd-vault-plugin_$${AVP_VERSION}_linux_amd64
+                  echo "Install Vault cli"
+                  wget -qO ./vault.zip https://releases.hashicorp.com/vault/$${VAULT_VERSION}/vault_$${VAULT_VERSION}_linux_amd64.zip && unzip ./vault.zip -d /custom-tools
+                  # Correct permissions
+                  chmod +x /custom-tools/*
+                command:
+                - sh
+                - -c
+                env:
+                - name: AVP_VERSION
+                  value: 1.13.0
+                - name: VAULT_VERSION
+                  value: 1.11.4
+                image: alpine
+                name: download-tools
+                volumeMounts:
+                - mountPath: /custom-tools
+                  name: custom-tools
+              rbac:
+              - apiGroups:
+                - ""
+                resources:
+                - secrets
+                - configmaps
+                verbs:
+                - get
+                - list
+                - watch
+              volumeMounts:
+              - mountPath: /custom-tools
+                name: custom-tools
+              - mountPath: /usr/local/bin/argocd-vault-plugin
+                name: custom-tools
+                subPath: argocd-vault-plugin
+              volumes:
+              - emptyDir: {}
+                name: custom-tools
+            server:
+              config:
+                configManagementPlugins: |-
+                  - name: argocd-vault-plugin
+                    generate:
+                      command: ["argocd-vault-plugin"]
+                      args: ["generate", "./"]
+                  - name: argocd-vault-plugin-helm
+                    init:
+                      command: [sh, -c]
+                      args: ["helm dependency update"]
+                    generate:
+                      command: [sh, -c]
+                      args: ['echo "$$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml && helm template $${ARGOCD_ENV_HELM_RELEASE_NAME:-$${ARGOCD_APP_NAME}} --namespace $$ARGOCD_APP_NAMESPACE $$ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . | argocd-vault-plugin generate -']
+                oidc.config: |
+                  name: Keycloak
+                  issuer: <path:argocd/data/argocd/oidc#issuer>
+                  cliClientID: <path:argocd/data/argocd/oidc#cliClientID>
+                  clientID: <path:argocd/data/argocd/oidc#clientID>
+                  clientSecret: $$oidc.keycloak.clientSecret
+                  logoutURL: <path:argocd/data/argocd/oidc#issuer>/protocol/openid-connect/logout?post_logout_redirect_uri={{logoutRedirectURL}}
+                  requestedIDTokenClaims:
+                    groups:
+                      essential: true
+                  requestedScopes:
+                    - openid
+                    - profile
+                    - email
+                    - groups
+                url: https://argocd.sebtiz13.fr
+              env:
+              - name: TZ
+                value: Europe/Paris
+              ingress:
+                annotations:
+                  traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+                  traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
+                enabled: true
+                hosts:
+                - argocd.sebtiz13.fr
+                ingressClassName: traefik
+                tls:
+                - hosts:
+                  - argocd.sebtiz13.fr
+                  secretName: sebtiz13-fr-tls
+              rbacConfig:
+                policy.csv: |
+                  g, Admin, role:admin
+                policy.default: role:readonly
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: 
+      prune: true
+      selfHeal: true

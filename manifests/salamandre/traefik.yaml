@@ -1,0 +1,49 @@
+---
+# Source: common-app/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: salamandre-traefik
+  labels:    
+    helm.sh/chart: common-app-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  project: system
+  source:
+    repoURL: https://helm.traefik.io/traefik
+    chart: traefik
+    targetRevision: 17.0.5
+    helm:
+      releaseName: traefik
+      values: |
+        env:
+        - name: TZ
+          value: Europe/Paris
+        extraObjects:
+        - apiVersion: traefik.containo.us/v1alpha1
+          kind: Middleware
+          metadata:
+            name: redirect-https
+          spec:
+            redirectScheme:
+              permanent: true
+              scheme: https
+        fullnameOverride: traefik
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+        priorityClassName: system-cluster-critical
+        providers:
+          kubernetesIngress:
+            publishedService:
+              enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated: 
+      prune: true
+      selfHeal: true    
+    syncOptions:
+      - CreateNamespace=true

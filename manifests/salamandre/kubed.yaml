@@ -1,0 +1,38 @@
+---
+# Source: common-app/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: salamandre-kubed
+  labels:    
+    helm.sh/chart: common-app-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  project: system
+  source:
+    repoURL: https://charts.appscode.com/stable/
+    chart: kubed
+    targetRevision: 0.13.2
+    helm:
+      releaseName: kubed
+      values: |
+        config:
+          clusterName: salamandre
+        enableAnalytics: false
+        fullnameOverride: kubed
+        operator:
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 4m
+              memory: 32Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated: 
+      prune: true
+      selfHeal: true
