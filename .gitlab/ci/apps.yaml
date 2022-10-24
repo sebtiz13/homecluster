@@ -1,17 +1,13 @@
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 
-apps:lint-web:
-  stage: test
-  script:
-    - ./scripts/apps/all.sh ./scripts/apps/lint.sh
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-
 apps:lint:
   stage: test
   script:
-    - ./scripts/apps/diff.sh ./scripts/apps/lint.sh
+    - ./scripts/apps/${SCRIPT:-diff}.sh ./scripts/apps/lint.sh
   rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      variables:
+        SCRIPT: all
     - changes:
         - apps/**/*.yaml
         - charts/common-app/**/*
@@ -20,12 +16,16 @@ apps:build:
   stage: build
   needs: [apps:lint]
   script:
-    - ./scripts/apps/diff.sh ./scripts/apps/build.sh
+    - ./scripts/apps/${SCRIPT:-diff}.sh ./scripts/apps/build.sh
   artifacts:
     expire_in: 2 minutes
     paths:
       - manifests/
   rules:
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"
+      when: manual
+      variables:
+        SCRIPT: all
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - apps/**/*.yaml
@@ -46,6 +46,7 @@ apps:deploy:
     - 'git commit -m "build: deploy manifests from $CI_COMMIT_SHORT_SHA\n\n[skip ci]" || echo "No changes, nothing to commit!"'
     - git push origin HEAD:$CI_COMMIT_REF_NAME # Pushes to the same branch as the trigger
   rules:
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - apps/**/*.yaml
