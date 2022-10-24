@@ -25,12 +25,12 @@ charts:publish:
   stage: deploy
   needs: [charts:lint]
   before_script:
-    - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD my-repo ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/${HELM_CHANNEL}
+    - '[ "$CI_COMMIT_BRANCH" = "develop" ] && HELM_CHANNEL=devel'
     - helm plugin install https://github.com/chartmuseum/helm-push
   script:
     - ./scripts/charts/${SCRIPT:-diff}.sh ./scripts/charts/deploy.sh
   rules:
-    - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "web"
       when: manual
       variables:
         SCRIPT: all
