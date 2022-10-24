@@ -16,11 +16,11 @@ charts:lint:
   script:
     - ./scripts/charts/diff.sh ./scripts/charts/lint.sh
   rules:
-    - changes: # Exclude `charts/common-app`
-        - charts/common-app/**/*
-      when: never
     - changes:
         - charts/**/*
+    - changes: # Exclude `charts/common-app`
+        - charts/common-app/**/*
+      when: manual
 
 charts:publish:
   stage: deploy
@@ -31,9 +31,9 @@ charts:publish:
   script:
     -  ./scripts/charts/diff.sh ./scripts/charts/deploy.sh
   rules:
-    - changes: # Exclude `charts/common-app`
-        - charts/common-app/**/*
-      when: never
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - charts/**/*
+    - changes: # Exclude `charts/common-app`
+        - charts/common-app/**/*
+      when: manual

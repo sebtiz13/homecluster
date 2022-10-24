@@ -6,3 +6,4 @@ terraform.tfvars
 out/
 todo
 charts/*/charts
+manifests/**/*.yaml
