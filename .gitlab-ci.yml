@@ -7,6 +7,8 @@ include:
 variables:
   DOMAIN_NAME: sebtiz13.fr
   HELM_CHANNEL: stable
+  HELM_REPOSITORY_CACHE: out/helm/cache
+  HELM_REPOSITORY_CONFIG: out/helm/repositories.yaml
 
 image:
   name: alpine/helm:3.10.1

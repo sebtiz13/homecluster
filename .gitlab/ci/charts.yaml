@@ -6,6 +6,11 @@ charts:lint:
     - ./scripts/charts/repositories.sh
   script:
     - ./scripts/charts/${SCRIPT:-diff}.sh ./scripts/charts/lint.sh
+  artifacts:
+    expire_in: 2 minutes
+    paths:
+      - charts/**/charts/
+      - out/helm/
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
       variables:
