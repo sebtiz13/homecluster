@@ -37,6 +37,10 @@ charts:publish:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - charts/**/*
+    - if: $CI_COMMIT_BRANCH != "main"
+      when: manual
+      changes:
+        - charts/**/*
     - changes: # Exclude `charts/common-app`
         - charts/common-app/**/*
       when: manual
