@@ -50,7 +50,7 @@ module "k3s_install" {
   ]
   k3s_node_name = "salamandre"
 
-  kube_host       = var.ssh_host
+  kube_host       = var.domain
   kubeconfig_path = local.kubeconfig_path
 }
 locals {
