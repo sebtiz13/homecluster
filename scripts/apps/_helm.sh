@@ -25,7 +25,7 @@ run_helm () {
     helm_args="$helm_args --set-file appValuesEnv="$2/appValues.$ENVIRONMENT.yaml""
   fi
   if [ -f "$2/values.$ENVIRONMENT.yaml" ]; then
-    helm_args="$helm_args --f "$2/values.$ENVIRONMENT.yaml""
+    helm_args="$helm_args -f "$2/values.$ENVIRONMENT.yaml""
   fi
 
   helm "$1" -f "$2/values.yaml" $helm_args charts/common-app \
