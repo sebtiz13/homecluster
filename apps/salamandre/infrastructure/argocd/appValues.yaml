@@ -124,6 +124,16 @@ configs:
   params:
     server.insecure: true
 
+  repositories:
+    sebtiz13-repo:
+      url: {{ printf "https://gitlab.com/api/v4/projects/%s/packages/helm/stable" .Values.gitlabProjectID | quote  }}
+      type: helm
+    {{- if ne .Values.environment "production" }}
+    sebtiz13-devel-repo:
+      url: {{ printf "https://gitlab.com/api/v4/projects/%s/packages/helm/devel" .Values.gitlabProjectID | quote }}
+      type: helm
+    {{- end -}}
+
 {{/* Disable not used services */}}
 dex:
   enabled: false

@@ -15,6 +15,7 @@ syncPolicy:
     selfHeal: true
 
 # App values
+gitlabProjectID: '40446088'
 vaultURL: http://vault-internal.vault.svc:8200
 
 toolsVersion:
