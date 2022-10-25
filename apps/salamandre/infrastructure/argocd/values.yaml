@@ -25,7 +25,7 @@ toolsVersion:
 projects:
   - name: system
     description: System cluster critical apps
-    sourceRepo:
+    sourceRepos:
       - "*"
     destinations:
       - namespace: "*"
@@ -35,7 +35,7 @@ projects:
         kind: "*"
   - name: infrastructure
     description: Infrastructure apps
-    sourceRepo:
+    sourceRepos:
       - "*"
     destinations:
       - namespace: "*"
