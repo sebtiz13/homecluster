@@ -7,8 +7,8 @@ externalSecrets:
           data:
             postgresql-password: '{{`{{ .password }}`}}'
       dataFrom:
-        extract:
-          key: gitlab/database
+        - extract:
+            key: gitlab/database
     - name: storage
       target:
         template:
@@ -25,8 +25,8 @@ externalSecrets:
               aws_access_key_id: "{{ .accessKey }}"
               aws_secret_access_key: "{{ .secretKey }}"`}}
       dataFrom:
-        extract:
-          key: gitlab/s3
+        - extract:
+            key: gitlab/s3
     - name: backup
       target:
         template:
@@ -40,8 +40,8 @@ externalSecrets:
               secret_key = {{ .secretKey }}
               signature_v2 = false`}}
       dataFrom:
-        extract:
-          key: gitlab/s3
+        - extract:
+            key: gitlab/s3
     - name: oidc
       target:
         template:
@@ -63,8 +63,8 @@ externalSecrets:
                   secret: "{{`{{ .clientSecret }}`}}"
                   redirect_uri: "https://git.{{ .Values.baseDomain }}/users/auth/openid_connect/callback"
       dataFrom:
-        extract:
-          key: gitlab/oidc
+        - extract:
+            key: gitlab/oidc
 
 gitlab:
   upgradeCheck:
