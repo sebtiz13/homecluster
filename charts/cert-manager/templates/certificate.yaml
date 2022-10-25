@@ -7,11 +7,11 @@ metadata:
 spec:
   {{- if .spec }}
   {{- toYaml .spec | nindent 2 }}
-  {{- else -}}
+  {{- else }}
   {{- if .secretTemplate }}
   secretTemplate:
     {{- toYaml .secretTemplate | nindent 4 }}
-  {{- end -}}
+  {{- end }}
   dnsNames:
     {{- toYaml .dnsNames | nindent 4 }}
   {{- if .issuerName }}
@@ -20,7 +20,7 @@ spec:
   {{- else if .issuerRef }}
   issuerRef:
     {{- toYaml .issuerRef | nindent 4 }}
-  {{- end -}}
+  {{- end }}
   secretName: {{ .name }}-tls
-  {{- end -}}
+  {{- end }}
 {{- end -}}
