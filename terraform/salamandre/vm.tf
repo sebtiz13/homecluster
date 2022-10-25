@@ -1,5 +1,5 @@
 resource "kubernetes_secret" "vm_ca" {
-  depends_on = [null_resource.traefik_wait]
+  depends_on = [kubernetes_namespace.cert_manager]
   count      = var.environment == "vm" ? 1 : 0
 
   metadata {

@@ -5,8 +5,14 @@ locals {
 }
 
 # Deploy apps
+resource "kubernetes_namespace" "cert_manager" {
+  metadata {
+    name = local.cm_namespace
+  }
+}
+
 resource "kubectl_manifest" "cert_manager" {
-  depends_on = [helm_release.argocd_deploy]
+  depends_on = [helm_release.argocd_deploy, kubernetes_namespace.cert_manager]
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.cm_manifest)
