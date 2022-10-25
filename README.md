@@ -14,7 +14,7 @@ services in our home cluster.
 
 - [x] Automated bare metal provisioning with Terraform
 - [x] Automated Kubernetes installation and management
-- [ ] Installing and managing applications using GitOps
+- [x] Installing and managing applications using GitOps
 - [ ] Automatic rolling upgrade for OS and Kubernetes
 - [ ] Automatically update apps (with approval, _Currently: only manual update_) 🚧
 - [x] Modular architecture, easy to add or remove features/components

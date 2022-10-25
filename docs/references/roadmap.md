@@ -19,7 +19,7 @@ Good enough for tinkering and personal usage, and reasonably secure.
   - [x] Replace all default passwords with randomly generated ones
 - [x] Only use open-source technologies
 - [x] Everything is defined as code
-- [ ] Backup solution (3 copies, 2 separate device, 2 separate offsite)
+- [ ] Backup solution (3 copies, 2 separate devices, 1 offsite)
 - [ ] Observability
   - [ ] Monitoring
   - [ ] Logging
