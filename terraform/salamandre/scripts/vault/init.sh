@@ -27,13 +27,13 @@ vault write auth/kubernetes/config \
 
 %{ for name, data in kubernetes_roles ~}
 vault write auth/kubernetes/role/${name} \
-  %{ for sa in data.bound_service_accounts }
+  %{ for sa in data.bound_service_accounts ~}
   bound_service_account_names=${sa.name} \
   bound_service_account_namespaces=${sa.namespace} \
-  %{ endfor }
-  %{ for policy in data.policies }
+  %{ endfor ~}
+  %{ for policy in data.policies ~}
   policies=${policy} \
-  %{ endfor }
+  %{ endfor ~}
   ttl=${data.ttl} >/dev/null
 %{ endfor ~}
 
