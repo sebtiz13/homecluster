@@ -17,11 +17,11 @@ resource "kubernetes_secret" "vm_ca" {
   }
 }
 
+# Restart argocd for detect 'vm-ca-tls-secret' (for oidc)
 resource "null_resource" "argocd_restart" {
-  depends_on = [kubectl_manifest.cert_manager, null_resource.vault_oidc]
+  depends_on = [kubernetes_secret.vm_ca]
   count      = var.environment == "vm" ? 1 : 0
 
-  // Etablish SSH connection
   connection {
     type        = "ssh"
     host        = local.ssh_connection.host
@@ -33,9 +33,6 @@ resource "null_resource" "argocd_restart" {
 
   provisioner "remote-exec" {
     inline = [
-      // Wait ca secret
-      "until kubectl get secret -n ${local.argocd_namespace} vm-ca-tls-secret &> /dev/null; do sleep 1; done",
-      // Restart argocd
       "kubectl rollout restart deployment -n ${local.argocd_namespace} argocd-server > /dev/null"
     ]
   }
