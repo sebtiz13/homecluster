@@ -16,3 +16,4 @@ dependencies:
   - name: cert-manager-webhook-ovh
     repository: https://aureq.github.io/cert-manager-webhook-ovh/
     version: 0.4.0
+    condition: cert-manager-webhook-ovh.enabled

@@ -1,4 +1,5 @@
 cert-manager-webhook-ovh:
+  enabled: false
   issuers: null
 
 extraObjects:

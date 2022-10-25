@@ -1,6 +1,8 @@
 cert-manager-webhook-ovh:
   fullnameOverride: cert-manager
 
+  enabled: true
+
 cert-manager:
   fullnameOverride: cert-manager
 
