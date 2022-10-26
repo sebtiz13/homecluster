@@ -25,6 +25,26 @@ The local cluster have `local.vm` as base domain.
 - [Terraform](https://www.terraform.io/)
 - [Helm](https://helm.sh/)
 
+### Configuring DNS
+
+#### With `dnsmasq` (**recommended**)
+
+Create an config file with `dnsmasq` (in `/etc/NetworkManager/dnsmasq.d/<name>.conf` or in `/etc/dnsmasq.conf`) with this following values:
+
+```conf
+listen-address=127.0.0.1 # required only if no 'dnsmasq' config is already done
+address=/baku.local.vm/192.168.12.11
+address=/local.vm/192.168.12.10
+```
+
+#### With `/etc/hosts`
+
+Add the following line in `/etc/hosts` file:
+
+```conf
+192.168.12.10 local.vm argocd.local.vm vault-secrets.local.vm sso.local.vm s3.local.vm console.s3.local.vm git.local.vm
+```
+
 ## Commands
 
 ### Variables
