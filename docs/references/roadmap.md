@@ -41,7 +41,6 @@ Can be used in "production" (for family).
   - [ ] Kubernetes version rolling upgrade
   - [ ] Application version upgrade (Renovate)
   - [ ] Encrypted backups
-  - [ ] Secrets rotation
   - [x] Self healing
 - [x] Minimal dependency on external services
 - [ ] Additional applications
@@ -56,3 +55,4 @@ Nice to have
 - [ ] Addition applications
   - [ ] Plex
 - [ ] Serverless ([Knative](https://knative.dev/))
+- [ ] Secrets rotation (_currently impossible due to **ArgoCD**_)
