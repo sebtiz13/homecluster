@@ -91,7 +91,7 @@ variable "domain" {
 }
 
 variable "excluded_apps" {
-  description = "Specify want exclude from deploy (split with comma, available apps: gitlab)"
+  description = "Specify want exclude from deploy (split with comma, available apps: minio,gitlab)"
   type        = string
   default     = ""
 }

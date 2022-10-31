@@ -1,6 +1,6 @@
 # Extract values
 locals {
-  gitlab_disabled = contains(local.excluded_apps, "gitlab")
+  gitlab_disabled = contains(local.excluded_apps, "gitlab") || local.minio_disabled
   gitlab_manifest = yamldecode(file("${var.manifests_folder}/gitlab.yaml"))
   gitlab_values   = yamldecode(local.gitlab_manifest.spec.source.plugin.env.1.value)
 
