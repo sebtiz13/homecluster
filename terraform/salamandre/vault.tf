@@ -130,6 +130,7 @@ resource "null_resource" "vault_restart" {
 # Configure oidc auth
 resource "null_resource" "vault_oidc" {
   depends_on = [kubectl_manifest.keycloak]
+  count      = local.keycloak_disabled ? 0 : 1
 
   // Etablish SSH connection
   connection {
