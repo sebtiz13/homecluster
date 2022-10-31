@@ -1,0 +1,15 @@
+plugin: helm
+
+source:
+  repoURL: https://openebs.github.io/zfs-localpv
+  chart: zfs-localpv
+  targetRevision: 2.1.0
+
+destination:
+  server: https://baku.sebtiz13.fr
+  namespace: kube-system
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true

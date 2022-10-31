@@ -32,7 +32,7 @@ Good enough for tinkering and personal usage, and reasonably secure.
     - [x] Minio
   - **Baku**
     - [ ] Kubed
-    - [ ] OpenEBS
+    - [x] OpenEBS
     - [x] Traefik
     - [ ] Minio
 
