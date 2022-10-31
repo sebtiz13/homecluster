@@ -14,5 +14,13 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = "~> 1.14"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.13"
+    }
+    argocd = {
+      source  = "oboukili/argocd"
+      version = "~> 4.1"
+    }
   }
 }

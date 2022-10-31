@@ -61,3 +61,8 @@ variable "manifests_folder" {
   type        = string
   default     = "../../apps/manifests/salamandre"
 }
+
+variable "domain" {
+  description = "Specify the domain name"
+  type        = string
+}

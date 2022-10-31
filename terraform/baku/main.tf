@@ -26,7 +26,7 @@ module "k3s_install" {
   ]
   k3s_node_name = "baku"
 
-  kube_host       = var.ssh_host
+  kube_host       = "baku.${var.domain}"
   kubeconfig_path = "${local.out_dir}/kubeconfig/baku.${var.environment}.yaml"
 }
 locals {
