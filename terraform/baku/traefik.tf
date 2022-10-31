@@ -1,5 +1,5 @@
 resource "kubectl_manifest" "traefik" {
-  depends_on = [module.k3s_install]
+  depends_on = [argocd_cluster.kubernetes]
   provider   = kubectl.salamandre
 
   override_namespace = local.argocd_namespace
