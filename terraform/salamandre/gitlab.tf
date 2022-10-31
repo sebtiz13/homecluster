@@ -9,12 +9,7 @@ locals {
   gitlab_kas_host  = local.gitlab_values.gitlab.global.hosts.kas.name
 }
 
-# Generate secrets and passwords
-resource "random_password" "gitlab_db_password" {
-  count   = local.gitlab_disabled ? 0 : 1
-  length  = 16
-  special = false
-}
+# Generate secrets
 resource "random_string" "gitlab_s3_secret_key" {
   count   = local.gitlab_disabled ? 0 : 1
   length  = 40
