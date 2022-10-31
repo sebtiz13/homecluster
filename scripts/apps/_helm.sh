@@ -34,6 +34,5 @@ run_helm () {
     --set-file appValues="$2/appValues.yaml" \
     --set environment="$ENVIRONMENT" \
     --set project="$PROJECT_NAME" \
-    --set baseDomain="$DOMAIN_NAME" \
-    --set oidc.realm="${OIDC_REALM:-"https://sso.$DOMAIN_NAME/realms/developer"}"
+    --set baseDomain="$DOMAIN_NAME"
 }
