@@ -12,7 +12,6 @@ provider "remote" {
 
 # Provider for kubernetes apps
 provider "kubectl" {
-  alias            = "salamandre"
-  load_config_file = false
-  config_path      = "${local.out_dir}/kubeconfig/salamndrere.${var.environment}.yaml"
+  alias       = "salamandre"
+  config_path = "${local.out_dir}/kubeconfig/salamandre.${var.environment}.yaml"
 }
