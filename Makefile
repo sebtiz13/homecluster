@@ -12,7 +12,7 @@ ifeq ($(SERVER), salamandre)
 	TERRAFORM_DIR := $(TF_SALAMANDRE_DIR)
 endif
 ifeq ($(SERVER), baku)
-	TERRAFORM_DIR := $(TF_SALAMANDRE_DIR)
+	TERRAFORM_DIR := $(TF_BAKU_DIR)
 endif
 
 
@@ -32,24 +32,24 @@ init: ## Init environment of Terraform
 	terraform version
 	mkdir -p ./out/kubeconfig
 	cd $(TF_SALAMANDRE_DIR); terraform init
-	cd $(TS_BAKU_DIR); terraform init
+	cd $(TF_BAKU_DIR); terraform init
 
 init-upgrade: ## Init/upgrade environment of Terraform
 	echo "Initializing terraform environment..."
 	mkdir -p ./out/kubeconfig
 	terraform version
 	cd $(TF_SALAMANDRE_DIR); terraform init --upgrade
-	cd $(TS_BAKU_DIR); terraform init --upgrade
+	cd $(TF_BAKU_DIR); terraform init --upgrade
 
 validate: ## Terraform files
 	cd $(TF_SALAMANDRE_DIR); terraform validate
-	cd $(TS_BAKU_DIR); terraform validate
+	cd $(TF_BAKU_DIR); terraform validate
 
 cleanup: ## Cleanup init an testing environment
 	make _validate --no-print-directory
 	echo "Remove terraform files..."
 	rm -rf $(TF_SALAMANDRE_DIR)/.terraform
-	rm -rf $(TS_BAKU_DIR)/.terraform
+	rm -rf $(TF_BAKU_DIR)/.terraform
 	echo "Destroying VM(s)..."
 	cd $(VAGRANT_DIR); vagrant destroy || true
 	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -uninstall
@@ -105,7 +105,12 @@ vagrant: ## (Re)create vagrant VM
 vm-init-state: ## Make an snapshot with only postgresql, zfs and k3s installed
 	make _validate-vm --no-print-directory
 	make vagrant --no-print-directory
+ifeq ($(VM_NAME), salamandre.vm)
 	make test-apply --no-print-directory ARGS="--target=module.k3s_install --target=module.ssh --target=null_resource.postgresql_install"
+endif
+ifeq ($(VM_NAME), baku.vm)
+	make test-apply --no-print-directory ARGS="--target=module.k3s_install --target=module.ssh --target=module.zfs"
+endif
 	cd $(VAGRANT_DIR); vagrant snapshot save $(VM_NAME) init-state
 	cp $(TERRAFORM_DIR)/terraform.tfstate ./out/$(SERVER).tfstate
 vm-reset-state: ## Restore the initial state of VM (from `vm-init-state`)
