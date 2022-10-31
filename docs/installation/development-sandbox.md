@@ -32,10 +32,12 @@ The local cluster have `local.vm` as base domain.
 Create an config file with `dnsmasq` (in `/etc/NetworkManager/dnsmasq.d/<name>.conf` or in `/etc/dnsmasq.conf`) with this following values:
 
 ```conf
-listen-address=127.0.0.1 # required only if no 'dnsmasq' config is already done
+local=/vm/
+address=/.local.vm/192.168.12.10
 address=/baku.local.vm/192.168.12.11
-address=/local.vm/192.168.12.10
 ```
+
+> **NOTE**: you can follow this tutorial for setup `dnsmasq` with `NetworkManager` : [Using the NetworkManager’s DNSMasq plugin - fedoramagazine.org](https://fedoramagazine.org/using-the-networkmanagers-dnsmasq-plugin/)
 
 #### With `/etc/hosts`
 
