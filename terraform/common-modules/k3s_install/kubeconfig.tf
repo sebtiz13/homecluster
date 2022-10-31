@@ -5,6 +5,11 @@ data "remote_file" "kubeconfig" {
 }
 
 resource "local_sensitive_file" "kubeconfig" {
-  content  = replace(data.remote_file.kubeconfig.content, "127.0.0.1", try(var.kube_host, var.ssh.host))
+  # Replace url and cluster name
+  content = replace(
+    replace(data.remote_file.kubeconfig.content, "127.0.0.1", try(var.kube_host, var.ssh.host)),
+    "default",
+    var.k3s_node_name
+  )
   filename = var.kubeconfig_path
 }

@@ -111,6 +111,14 @@ For SSO (OpenID) apps the user is :
 - username: `test`
 - password `test`
 
+### Kubectl access
+
+You can export kubeconfig with following command :
+
+```sh
+export KUBECONFIG=./out/kubeconfig/salamandre.vm.yaml;./out/kubeconfig/baku.vm.yaml
+```
+
 ## Clean up
 
 Delete terraform cache and virtual machines :
