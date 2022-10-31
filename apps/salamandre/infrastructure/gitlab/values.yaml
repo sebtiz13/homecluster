@@ -6,7 +6,6 @@ source:
   targetRevision: 0.1.1
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: gitlab
 
 syncPolicy:

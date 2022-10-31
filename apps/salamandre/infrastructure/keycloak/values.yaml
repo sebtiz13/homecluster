@@ -6,7 +6,6 @@ source:
   targetRevision: 10.1.4
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: keycloak
 
 syncPolicy:

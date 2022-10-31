@@ -6,7 +6,6 @@ source:
   targetRevision: 4.0.15
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: minio
 
 syncPolicy:

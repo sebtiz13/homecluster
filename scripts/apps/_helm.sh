@@ -28,7 +28,8 @@ run_helm () {
     helm_args="$helm_args -f "$2/values.$ENVIRONMENT.yaml""
   fi
 
-  helm "$1" -f "$2/values.yaml" $helm_args charts/common-app \
+  helm "$1" --set destination.server="$CLUSTER_NAME" \
+     -f "$2/values.yaml" $helm_args charts/common-app \
     --set releaseName="$APP_NAME" \
     --set-file appValues="$2/appValues.yaml" \
     --set environment="$ENVIRONMENT" \

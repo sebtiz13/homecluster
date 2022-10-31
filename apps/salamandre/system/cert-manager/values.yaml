@@ -6,7 +6,6 @@ source:
   targetRevision: 0.1.3
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: cert-manager
 
 syncPolicy:

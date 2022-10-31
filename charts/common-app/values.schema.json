@@ -11,13 +11,14 @@
       "properties": {
         "server": {
           "type": "string",
-          "enum": ["https://kubernetes.default.svc", "https://baku.sebtiz13.fr"]
+          "description": "The name of cluster where we want deploy",
+          "enum": ["salamandre", "baku"]
         },
         "namespace": {
           "type": "string"
         }
       },
-      "required": ["server", "namespace"]
+      "required": ["namespace"]
     },
     "source": {
       "description": "Source of helm application",

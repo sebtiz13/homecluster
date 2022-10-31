@@ -6,7 +6,6 @@ source:
   targetRevision: 17.0.5
 
 destination:
-  server: https://baku.sebtiz13.fr
   namespace: traefik
 
 syncPolicy:
