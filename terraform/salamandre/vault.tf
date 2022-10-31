@@ -129,7 +129,7 @@ resource "null_resource" "vault_restart" {
 
 # Configure oidc auth
 resource "null_resource" "vault_oidc" {
-  depends_on = [kubectl_manifest.keycloak]
+  depends_on = [null_resource.keycloak_wait]
   count      = local.keycloak_disabled ? 0 : 1
 
   // Etablish SSH connection
@@ -163,9 +163,6 @@ resource "null_resource" "vault_oidc" {
 
   provisioner "remote-exec" {
     inline = [
-      // Wait keycloack is configurate
-      "until [ \"$(curl -s '${local.oidc_url}' --max-time 2 | grep -o '\"realm\":\"[^\"]*' | grep -o '[^\"]*$' 2>/dev/null)\" = \"developer\" ]; do sleep 1; done",
-      // Enable OIDC on vault
       "kubectl exec ${local.vault_pod} -- /bin/sh -c \"`cat /tmp/vault-oidc.sh`\" > /dev/null"
     ]
   }

@@ -19,8 +19,8 @@ resource "kubernetes_secret" "vm_ca" {
 
 # Restart argocd for detect 'vm-ca-tls-secret' (for oidc)
 resource "null_resource" "argocd_restart" {
-  depends_on = [kubernetes_secret.vm_ca]
-  count      = var.environment == "vm" ? 1 : 0
+  depends_on = [null_resource.keycloak_wait]
+  count      = (var.environment == "vm" && !local.keycloak_disabled) ? 1 : 0
 
   connection {
     type        = "ssh"

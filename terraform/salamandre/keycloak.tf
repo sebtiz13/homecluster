@@ -64,3 +64,24 @@ resource "kubectl_manifest" "keycloak" {
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.keycloak_manifest)
 }
+
+resource "null_resource" "keycloak_wait" {
+  depends_on = [kubectl_manifest.keycloak]
+  count      = local.keycloak_disabled ? 0 : 1
+
+  connection {
+    type        = "ssh"
+    host        = local.ssh_connection.host
+    port        = local.ssh_connection.port
+    user        = local.ssh_connection.user
+    private_key = local.ssh_connection.use_private_key ? file(local.ssh_connection.private_key) : null
+    agent       = local.ssh_connection.agent
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      # Wait keycloack "developer" realm is up
+      "until [ \"$(curl -s '${local.oidc_url}' --max-time 2 | grep -o '\"realm\":\"[^\"]*' | grep -o '[^\"]*$' 2>/dev/null)\" = \"developer\" ]; do sleep 1; done"
+    ]
+  }
+}
