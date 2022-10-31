@@ -1,23 +1,6 @@
-# Generate secrets and passwords
-resource "random_password" "gitlab_db_password" {
-  length  = 16
-  special = false
-}
-resource "random_string" "gitlab_s3_secret_key" {
-  length  = 40
-  special = false
-}
-resource "random_string" "gitlab_runner_registration_token" {
-  length  = 64
-  special = false
-}
-resource "random_string" "gitlab_oidc_secret" {
-  length  = 32
-  special = false
-}
-
 # Extract values
 locals {
+  gitlab_disabled = contains(local.excluded_apps, "gitlab")
   gitlab_manifest = yamldecode(file("${var.manifests_folder}/gitlab.yaml"))
   gitlab_values   = yamldecode(local.gitlab_manifest.spec.source.plugin.env.1.value)
 
@@ -26,10 +9,33 @@ locals {
   gitlab_kas_host  = local.gitlab_values.gitlab.global.hosts.kas.name
 }
 
+# Generate secrets and passwords
+resource "random_password" "gitlab_db_password" {
+  count   = local.gitlab_disabled ? 0 : 1
+  length  = 16
+  special = false
+}
+resource "random_string" "gitlab_s3_secret_key" {
+  count   = local.gitlab_disabled ? 0 : 1
+  length  = 40
+  special = false
+}
+resource "random_string" "gitlab_runner_registration_token" {
+  count   = local.gitlab_disabled ? 0 : 1
+  length  = 64
+  special = false
+}
+resource "random_string" "gitlab_oidc_secret" {
+  count   = local.gitlab_disabled ? 0 : 1
+  length  = 32
+  special = false
+}
+
 # Create database access
 module "gitlab_database" {
-  source     = "./modules/database"
   depends_on = [null_resource.postgresql_install]
+  source     = "./modules/database"
+  count      = local.gitlab_disabled ? 0 : 1
 
   ssh      = local.ssh_connection
   username = "gitlab"
@@ -40,6 +46,7 @@ module "gitlab_database" {
 module "gitlab_vault_secrets" {
   depends_on = [null_resource.vault_restart]
   source     = "./modules/vault"
+  count      = local.gitlab_disabled ? 0 : 1
 
   ssh = local.ssh_connection
   vault = {
@@ -51,13 +58,13 @@ module "gitlab_vault_secrets" {
       host     = "postgresql.loc"
       database = "gitlab"
       user     = "gitlab"
-      password = module.gitlab_database.password
+      password = module.gitlab_database[0].password
     }
     "gitlab/s3" = {
       endpoint  = "http://${local.minio_endpoint}"
       region    = local.minio_region
       accessKey = "gitlab"
-      secretKey = sensitive(random_string.gitlab_s3_secret_key.result)
+      secretKey = sensitive(random_string.gitlab_s3_secret_key[0].result)
       # Buckets
       bucket_artifacts = "gitlab-artifacts"
       bucket_backups   = "gitlab-backups"
@@ -73,10 +80,10 @@ module "gitlab_vault_secrets" {
     "gitlab/oidc" = {
       issuer       = local.oidc_url
       clientID     = "gitlab"
-      clientSecret = sensitive(random_string.gitlab_oidc_secret.result)
+      clientSecret = sensitive(random_string.gitlab_oidc_secret[0].result)
     }
     "gitlab/runner" = {
-      registrationToken = sensitive(random_string.gitlab_runner_registration_token.result)
+      registrationToken = sensitive(random_string.gitlab_runner_registration_token[0].result)
     }
   }
 }
@@ -84,7 +91,7 @@ module "gitlab_vault_secrets" {
 # Deploy app
 resource "kubectl_manifest" "gitlab" {
   depends_on = [kubectl_manifest.minio, module.gitlab_vault_secrets]
-  count      = contains(local.excluded_apps, "gitlab") ? 0 : 1
+  count      = local.gitlab_disabled ? 0 : 1
 
   override_namespace = local.argocd_namespace
   yaml_body          = yamlencode(local.gitlab_manifest)
