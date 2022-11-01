@@ -31,6 +31,7 @@ certificates:
     secretTemplate:
       annotations:
         kubed.appscode.com/sync: "domain={{ .Values.baseDomain }}"
+        kubed.appscode.com/sync-contexts: baku
       labels:
         domain: {{ $domainName }}
   - name: "pages-{{ $domainName }}"
