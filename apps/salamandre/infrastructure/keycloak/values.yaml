@@ -55,7 +55,8 @@ realm:
       path: /Users
 
   clients:
-    - clientId: <path:salamandre/data/argocd/oidc#clientID>
+    - name: argoCD
+      clientId: <path:salamandre/data/argocd/oidc#clientID>
       rootUrl: https://argocd.{{ .Values.baseDomain }}
       baseUrl: /
       enabled: true
@@ -85,7 +86,8 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
-    - clientId: <path:salamandre/data/argocd/oidc#cliClientID>
+    - name: argoCD CLI
+      clientId: <path:salamandre/data/argocd/oidc#cliClientID>
       rootUrl: http://localhost:8085
       adminUrl: http://localhost:8085
       enabled: true
@@ -112,7 +114,8 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
-    - clientId: <path:salamandre/data/vault/oidc#clientID>
+    - name: vault
+      clientId: <path:salamandre/data/vault/oidc#clientID>
       rootUrl: https://vault-secrets.{{ .Values.baseDomain }}
       baseUrl: /ui/
       adminUrl: /ui/vault/auth/oidc/oidc/callback
