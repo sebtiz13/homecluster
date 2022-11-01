@@ -99,6 +99,9 @@ endif
 vm-ssh: ## Accessing to VM
 	make _validate-vm --no-print-directory
 	cd $(VAGRANT_DIR); vagrant ssh $(VM_NAME)
+vm-reload: ## Reload vagrant VM
+	echo "Reload VM(s)..."
+	cd $(VAGRANT_DIR); vagrant reload $(VM_NAME)
 vagrant: ## (Re)create vagrant VM
 	make vm-destroy --no-print-directory
 	make vm-create --no-print-directory
