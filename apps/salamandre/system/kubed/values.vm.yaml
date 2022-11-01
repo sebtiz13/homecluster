@@ -1,0 +1,3 @@
+source:
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/devel
+  targetRevision: 0.1.0

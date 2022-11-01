@@ -1,3 +1,7 @@
+locals {
+  credentials = sensitive(jsondecode(file("${local.out_dir}/credentials.json")))
+}
+
 # Provider for k3s_install
 provider "remote" {
   conn {
@@ -28,5 +32,10 @@ provider "kubernetes" {
 provider "argocd" {
   server_addr = "argocd.${var.domain}:443"
   username    = "admin"
-  password    = jsondecode(file("${local.out_dir}/credentials.json")).argocd_admin_password
+  password    = local.credentials.argocd_admin_password
+}
+
+provider "vault" {
+  address = "https://vault-secrets.${var.domain}"
+  token   = local.credentials.vault.root_token
 }

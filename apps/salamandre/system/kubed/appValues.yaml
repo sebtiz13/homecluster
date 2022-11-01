@@ -1,14 +1,27 @@
-fullnameOverride: "kubed"
-enableAnalytics: false
+externalSecrets:
+  secrets:
+    - name: config
+      target:
+        template:
+          type: Opaque
+          data:
+            kubeconfig: '{{`{{ .kubeconfig }}`}}'
+      dataFrom:
+        - extract:
+            key: kubed/config
 
-config:
-  clusterName: salamandre
+kubed:
+  enableAnalytics: false
 
-operator:
-  resources:
-    requests:
-      cpu: 4m
-      memory: 32Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
+  config:
+    clusterName: salamandre
+    existingSecret: kubed-config
+
+  operator:
+    resources:
+      requests:
+        cpu: 4m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi

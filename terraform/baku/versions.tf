@@ -22,5 +22,9 @@ terraform {
       source  = "oboukili/argocd"
       version = "~> 4.1"
     }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 3.10"
+    }
   }
 }
