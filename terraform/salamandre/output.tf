@@ -1,5 +1,5 @@
 resource "local_sensitive_file" "credentials" {
-  filename = "${local.out_dir}/credentials.json"
+  filename = "${local.out_dir}/credentials/salamandre.${var.environment}.json"
   content = jsonencode({
     vault = {
       root_token  = local.vault_root_token

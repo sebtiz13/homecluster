@@ -1,5 +1,5 @@
 locals {
-  credentials = sensitive(jsondecode(file("${local.out_dir}/credentials.json")))
+  salamandre_credentials = sensitive(jsondecode(file("${local.out_dir}/credentials/salamandre.${var.environment}.json")))
 }
 
 # Provider for k3s_install
@@ -32,10 +32,10 @@ provider "kubernetes" {
 provider "argocd" {
   server_addr = "argocd.${var.domain}:443"
   username    = "admin"
-  password    = local.credentials.argocd_admin_password
+  password    = local.salamandre_credentials.argocd_admin_password
 }
 
 provider "vault" {
   address = "https://vault-secrets.${var.domain}"
-  token   = local.credentials.vault.root_token
+  token   = local.salamandre_credentials.vault.root_token
 }
