@@ -3,7 +3,11 @@ helm repo add argo-cd "$1" > /dev/null
 appVersion=$(helm search repo "argo-cd/$2" --version "$3" -o json | jq -r '.[0].app_version')
 
 # Deploy charts
-kubectl apply -n "$4" -k "https://github.com/argoproj/argo-cd/manifests/crds?ref=$appVersion" > /dev/null
+for crd in "application" "applicationset" "appproject"
+do
+  kubectl apply -n "$4" -f \
+    "https://raw.githubusercontent.com/argoproj/argo-cd/$appVersion/manifests/crds/$crd-crd.yaml" > /dev/null
+done
 
 # Patch CRDs (for allow helm to modify it)
 for crd in "applications.argoproj.io" "applicationsets.argoproj.io" "appprojects.argoproj.io"
