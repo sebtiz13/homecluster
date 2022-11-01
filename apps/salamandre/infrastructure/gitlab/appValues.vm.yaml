@@ -60,9 +60,9 @@ gitlab:
             Type = "s3"
             Shared = true
             [runners.cache.s3]
-              ServerAddress = "<path:argocd/data/gitlab/s3#endpoint>"
-              BucketName = "<path:argocd/data/gitlab/s3#bucket_runner>"
-              BucketLocation = "<path:argocd/data/gitlab/s3#region>"
+              ServerAddress = "<path:salamandre/data/gitlab/s3#endpoint>"
+              BucketName = "<path:salamandre/data/gitlab/s3#bucket_runner>"
+              BucketLocation = "<path:salamandre/data/gitlab/s3#region>"
               Insecure = true
 
   resources:

@@ -7,6 +7,6 @@ cert-manager-webhook-ovh:
       email: "contact@{{ .Values.baseDomain }}"
       ovhEndpointName: ovh-eu
       ovhAuthentication:
-        applicationKey: <path:argocd/data/cert-manager/ovh#applicationKey>
-        applicationSecret: <path:argocd/data/cert-manager/ovh#applicationSecret>
-        consumerKey: <path:argocd/data/cert-manager/ovh#consumerKey>
+        applicationKey: <path:salamandre/data/cert-manager/ovh#applicationKey>
+        applicationSecret: <path:salamandre/data/cert-manager/ovh#applicationSecret>
+        consumerKey: <path:salamandre/data/cert-manager/ovh#consumerKey>

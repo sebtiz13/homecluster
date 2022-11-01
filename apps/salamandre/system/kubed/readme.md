@@ -7,6 +7,8 @@
 
 The secrets keys need to exist for deploy the app
 
+> **Mount path:** `salamandre`
+
 ### `kubed/config`
 
 - `kubeconfig`: The clusters kubeconfig

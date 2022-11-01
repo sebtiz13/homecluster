@@ -37,11 +37,12 @@ vault write auth/kubernetes/role/${name} \
   ttl=${data.ttl} >/dev/null
 %{ endfor ~}
 
-# Enable static secrets
-vault secrets enable -path=argocd kv-v2 >/dev/null
+# Enable static secrets engine
+vault secrets enable -path=salamandre kv-v2 >/dev/null
+vault secrets enable -path=baku kv-v2 >/dev/null
 
 # Create oidc credentials (for keycloak)
-vault kv put argocd/vault/oidc \
+vault kv put salamandre/vault/oidc \
   clientID="${oidc.client_id}" \
   clientSecret="${oidc.client_secret}" >/dev/null
 

@@ -7,6 +7,8 @@
 
 The secrets keys need to exist for deploy the app
 
+> **Mount path:** `salamandre`
+
 ### `cert-manager/ovh` (**REQUIRED** for production environment)
 
 - `applicationKey`: The OVH application key.

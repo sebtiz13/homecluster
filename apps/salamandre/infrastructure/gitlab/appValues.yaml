@@ -96,45 +96,45 @@ gitlab:
         useSecret: true
         secret: gitlab-credentials
         key: postgresql-password
-      host: <path:argocd/data/gitlab/database#host>
+      host: <path:salamandre/data/gitlab/database#host>
       port: 5432
-      username: <path:argocd/data/gitlab/database#user>
-      database: <path:argocd/data/gitlab/database#database>
+      username: <path:salamandre/data/gitlab/database#user>
+      database: <path:salamandre/data/gitlab/database#database>
       applicationName: "gitlab"
       preparedStatements: false
 
     registry:
-      bucket: <path:argocd/data/gitlab/s3#bucket_registry>
+      bucket: <path:salamandre/data/gitlab/s3#bucket_registry>
 
     appConfig:
       lfs:
-        bucket: <path:argocd/data/gitlab/s3#bucket_lfs>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_lfs>
         connection:
           secret: gitlab-storage
       artifacts:
-        bucket: <path:argocd/data/gitlab/s3#bucket_artifacts>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_artifacts>
         connection:
           secret: gitlab-storage
       uploads:
-        bucket: <path:argocd/data/gitlab/s3#bucket_uploads>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_uploads>
         connection:
           secret: gitlab-storage
       packages:
-        bucket: <path:argocd/data/gitlab/s3#bucket_packages>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_packages>
         connection:
           secret: gitlab-storage
       terraformState:
         enabled: true
-        bucket: <path:argocd/data/gitlab/s3#bucket_tfState>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_tfState>
         connection:
           secret: gitlab-storage
       dependencyProxy:
         enabled: true
-        bucket: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_depsProxy>
         connection:
           secret: gitlab-storage
       backups:
-        bucket: <path:argocd/data/gitlab/s3#bucket_backups>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_backups>
         tmpBucket: tmp
 
       omniauth:
@@ -154,7 +154,7 @@ gitlab:
       enabled: true
       accessControl: true
       objectStore:
-        bucket: <path:argocd/data/gitlab/s3#bucket_pages>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_pages>
         proxy_download: true
         connection:
           secret: gitlab-storage
@@ -231,7 +231,7 @@ gitlab:
   gitlab-runner:
     replica: 1
     gitlabUrl: {{ printf "http://gitlab-webservice-default.%s.svc:8181" .Values.destination.namespace | quote }}
-    runnerRegistrationToken: <path:argocd/data/gitlab/runner#registrationToken>
+    runnerRegistrationToken: <path:salamandre/data/gitlab/runner#registrationToken>
     unregisterRunners: false
     runners:
       locked: false
@@ -247,9 +247,9 @@ gitlab:
             Type = "s3"
             Shared = true
             [runners.cache.s3]
-              ServerAddress = "<path:argocd/data/gitlab/s3#endpoint>"
-              BucketName = "<path:argocd/data/gitlab/s3#bucket_runner>"
-              BucketLocation = "<path:argocd/data/gitlab/s3#region>"
+              ServerAddress = "<path:salamandre/data/gitlab/s3#endpoint>"
+              BucketName = "<path:salamandre/data/gitlab/s3#bucket_runner>"
+              BucketLocation = "<path:salamandre/data/gitlab/s3#region>"
               Insecure = true
 
   resources:

@@ -40,10 +40,13 @@ path "sys/auth" {
   capabilities = ["read"]
 }
 
-# Enable and manage the key/value secrets engine at 'argocd/' path
+# Enable and manage the key/value secrets engine at 'salamandre/' and 'baku/' path
 
 # List, create, update, and delete key/value secrets
-path "argocd/*" {
+path "salamandre/*" {
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+path "baku/*" {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }
 

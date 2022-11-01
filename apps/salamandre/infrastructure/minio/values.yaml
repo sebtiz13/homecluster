@@ -15,30 +15,30 @@ syncPolicy:
 
 # App Values
 buckets:
-  - name: <path:argocd/data/gitlab/s3#bucket_artifacts>
+  - name: <path:salamandre/data/gitlab/s3#bucket_artifacts>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_backups>
+  - name: <path:salamandre/data/gitlab/s3#bucket_backups>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+  - name: <path:salamandre/data/gitlab/s3#bucket_depsProxy>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_packages>
+  - name: <path:salamandre/data/gitlab/s3#bucket_packages>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_pages>
+  - name: <path:salamandre/data/gitlab/s3#bucket_pages>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_registry>
+  - name: <path:salamandre/data/gitlab/s3#bucket_registry>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_runner>
+  - name: <path:salamandre/data/gitlab/s3#bucket_runner>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_tfState>
+  - name: <path:salamandre/data/gitlab/s3#bucket_tfState>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_uploads>
+  - name: <path:salamandre/data/gitlab/s3#bucket_uploads>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_lfs>
+  - name: <path:salamandre/data/gitlab/s3#bucket_lfs>
     policy: none
 
 serviceAccounts:
-  - accessKey: <path:argocd/data/gitlab/s3#accessKey>
-    secretKey: <path:argocd/data/gitlab/s3#secretKey>
+  - accessKey: <path:salamandre/data/gitlab/s3#accessKey>
+    secretKey: <path:salamandre/data/gitlab/s3#secretKey>
     resources:
       - gitlab-*/*
       - git-lfs/*

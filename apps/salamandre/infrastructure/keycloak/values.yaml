@@ -55,13 +55,13 @@ realm:
       path: /Users
 
   clients:
-    - clientId: <path:argocd/data/argocd/oidc#clientID>
+    - clientId: <path:salamandre/data/argocd/oidc#clientID>
       rootUrl: https://argocd.{{ .Values.baseDomain }}
       baseUrl: /
       enabled: true
       publicClient: false
       clientAuthenticatorType: client-secret
-      secret: <path:argocd/data/argocd/oidc#clientSecret>
+      secret: <path:salamandre/data/argocd/oidc#clientSecret>
       redirectUris:
         - /
         - /applications
@@ -85,7 +85,7 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
-    - clientId: <path:argocd/data/argocd/oidc#cliClientID>
+    - clientId: <path:salamandre/data/argocd/oidc#cliClientID>
       rootUrl: http://localhost:8085
       adminUrl: http://localhost:8085
       enabled: true
@@ -112,14 +112,14 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
-    - clientId: <path:argocd/data/vault/oidc#clientID>
+    - clientId: <path:salamandre/data/vault/oidc#clientID>
       rootUrl: https://vault-secrets.{{ .Values.baseDomain }}
       baseUrl: /ui/
       adminUrl: /ui/vault/auth/oidc/oidc/callback
       enabled: true
       publicClient: false
       clientAuthenticatorType: client-secret
-      secret: <path:argocd/data/argocd/oidc#clientSecret>
+      secret: <path:salamandre/data/argocd/oidc#clientSecret>
       redirectUris:
         - /oidc/callback
         - /ui/vault/auth/oidc/oidc/callback/*

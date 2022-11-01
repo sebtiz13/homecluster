@@ -26,8 +26,8 @@ cache:
   enabled: true
 
 auth:
-  adminUser: <path:argocd/data/keycloak/auth#adminUser>
-  adminPassword: <path:argocd/data/keycloak/auth#adminPassword>
+  adminUser: <path:salamandre/data/keycloak/auth#adminUser>
+  adminPassword: <path:salamandre/data/keycloak/auth#adminPassword>
 
 extraEnvVars:
   - name: TZ
@@ -41,11 +41,11 @@ service:
   type: ClusterIP
 
 externalDatabase:
-  host: <path:argocd/data/keycloak/database#host>
-  port: <path:argocd/data/keycloak/database#port>
-  user: <path:argocd/data/keycloak/database#user>
-  database: <path:argocd/data/keycloak/database#database>
-  password: <path:argocd/data/keycloak/database#password>
+  host: <path:salamandre/data/keycloak/database#host>
+  port: <path:salamandre/data/keycloak/database#port>
+  user: <path:salamandre/data/keycloak/database#user>
+  database: <path:salamandre/data/keycloak/database#database>
+  password: <path:salamandre/data/keycloak/database#password>
 
 postgresql:
   enabled: false

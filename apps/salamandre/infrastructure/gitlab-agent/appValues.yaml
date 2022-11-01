@@ -2,7 +2,7 @@ fullnameOverride: "gitlab-agent"
 
 config:
   kasAddress: wss://kas.{{ .Values.baseDomain }}
-  token: <path:argocd/data/gitlab/agent#token>
+  token: <path:salamandre/data/gitlab/agent#token>
 
 resources:
   limits:

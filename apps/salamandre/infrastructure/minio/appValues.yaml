@@ -13,15 +13,15 @@ Statement:
      {{ end -}}
 {{- end -}}
 {{- define "svcacct.command" }}
-{{ $rootUser := "<path:argocd/data/minio/auth#rootUser>" }}
+{{ $rootUser := "<path:salamandre/data/minio/auth#rootUser>" }}
 {{ $policy := printf "$(echo '%s' > policy.json && echo \"policy.json\")" (include "svcacct.policy" .resources | fromYaml | toJson) }}
 {{- printf "admin user svcacct add --access-key \"%s\" --secret-key \"%s\" --policy \"%s\" myminio \"%s\"" .accessKey .secretKey $policy $rootUser }}
 {{- end -}}
 
 fullnameOverride: "minio"
 
-rootUser: <path:argocd/data/minio/auth#rootUser>
-rootPassword: <path:argocd/data/minio/auth#rootPassword>
+rootUser: <path:salamandre/data/minio/auth#rootUser>
+rootPassword: <path:salamandre/data/minio/auth#rootPassword>
 mode: standalone
 
 buckets:

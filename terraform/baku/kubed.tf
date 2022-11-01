@@ -7,7 +7,7 @@ resource "kubectl_manifest" "kubed" {
 }
 
 resource "vault_kv_secret_v2" "kubed" {
-  mount = "argocd"
+  mount = "salamandre"
   name  = "kubed/config"
   data_json = jsonencode({
     kubeconfig = local.kubeconfig
