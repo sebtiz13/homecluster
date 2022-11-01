@@ -1,7 +1,7 @@
 apiVersion: v2
 description: 'Config Syncer by AppsCode - Kubernetes daemon'
 name: kubed
-version: 0.1.0
+version: 0.1.1
 appVersion: v0.13.2
 
 home: https://github.com/kubeops/config-syncer

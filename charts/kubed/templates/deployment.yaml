@@ -95,6 +95,7 @@ spec:
       {{- if or .Values.kubed.config.existingSecret .Values.kubed.config.kubeconfigContent }}
       - name: config
         secret:
+          optional: true
           {{- if .Values.kubed.config.existingSecret }}
           secretName: {{ .Values.kubed.config.existingSecret | quote }}
           {{- else }}
