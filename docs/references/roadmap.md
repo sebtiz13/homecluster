@@ -31,7 +31,7 @@ Good enough for tinkering and personal usage, and reasonably secure.
     - [x] Traefik
     - [x] Minio
   - **Baku**
-    - [ ] Kubed
+    - [x] Kubed
     - [x] OpenEBS
     - [x] Traefik
     - [ ] Minio
