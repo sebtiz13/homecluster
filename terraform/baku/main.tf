@@ -1,6 +1,12 @@
 # Apps variables
 locals {
   out_dir = "../../out"
+
+  labeled_namespaces = [
+    local.minio_namespace
+  ]
+  excluded_apps = split(",", var.excluded_apps)
+
   ssh_connection = {
     host            = var.ssh_host
     port            = var.ssh_port

@@ -14,6 +14,15 @@ env:
   - name: TZ
     value: Europe/Paris
 
+ports:
+  minio:
+    port: 3882
+    expose: true
+    exposedPort: 3882
+    protocol: TCP
+    tls:
+      enabled: true
+
 extraObjects:
   - apiVersion: traefik.containo.us/v1alpha1
     kind: Middleware

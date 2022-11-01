@@ -66,3 +66,9 @@ variable "domain" {
   description = "Specify the domain name"
   type        = string
 }
+
+variable "excluded_apps" {
+  description = "Specify want exclude from deploy (split with comma, available apps: minio)"
+  type        = string
+  default     = ""
+}
