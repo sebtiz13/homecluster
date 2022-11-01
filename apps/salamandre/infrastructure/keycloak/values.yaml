@@ -119,7 +119,7 @@ realm:
       enabled: true
       publicClient: false
       clientAuthenticatorType: client-secret
-      secret: <path:salamandre/data/argocd/oidc#clientSecret>
+      secret: <path:salamandre/data/vault/oidc#clientSecret>
       redirectUris:
         - /oidc/callback
         - /ui/vault/auth/oidc/oidc/callback/*
