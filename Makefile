@@ -30,13 +30,13 @@ endif
 init: ## Init environment of Terraform
 	echo "Initializing terraform environment..."
 	terraform version
-	mkdir -p ./out/kubeconfig
+	mkdir -p ./out/{credentials,kubeconfig,manifests,vm-tfstate}
 	cd $(TF_SALAMANDRE_DIR); terraform init
 	cd $(TF_BAKU_DIR); terraform init
 
 init-upgrade: ## Init/upgrade environment of Terraform
 	echo "Initializing terraform environment..."
-	mkdir -p ./out/kubeconfig
+	mkdir -p ./out/{credentials,kubeconfig,manifests,vm-tfstate}
 	terraform version
 	cd $(TF_SALAMANDRE_DIR); terraform init --upgrade
 	cd $(TF_BAKU_DIR); terraform init --upgrade
@@ -115,11 +115,11 @@ ifeq ($(VM_NAME), baku.vm)
 	make test-apply --no-print-directory ARGS="--target=module.k3s_install --target=module.ssh --target=module.zfs"
 endif
 	cd $(VAGRANT_DIR); vagrant snapshot save $(VM_NAME) init-state
-	cp $(TERRAFORM_DIR)/terraform.tfstate ./out/$(SERVER).tfstate
+	cp $(TERRAFORM_DIR)/terraform.tfstate ./out/vm-tfstate/$(SERVER).tfstate
 vm-reset-state: ## Restore the initial state of VM (from `vm-init-state`)
 	make _validate-vm --no-print-directory
 	cd $(VAGRANT_DIR); vagrant snapshot restore $(VM_NAME) init-state --no-provision
 	rm $(TERRAFORM_DIR)/terraform.tfstate.backup
-	cp ./out/$(SERVER).tfstate $(TERRAFORM_DIR)/terraform.tfstate
+	cp ./out/vm-tfstate/$(SERVER).tfstate $(TERRAFORM_DIR)/terraform.tfstate
 vm-manifests: ## Build manifests for VM
 	MANIFESTS_PATH=$(MANIFESTS_DIR) ENVIRONMENT=vm ./scripts/apps/all.sh ./scripts/apps/build.sh
