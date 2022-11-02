@@ -6,7 +6,7 @@ TF_SALAMANDRE_DIR := ./terraform/salamandre
 TF_BAKU_DIR := ./terraform/baku
 VAGRANT_DIR := ./vagrant
 MANIFESTS_DIR := ./out/manifests
-SERVER := $(subst .vm,,$(VM_NAME))
+SERVER := $(VM_NAME)
 
 ifeq ($(SERVER), salamandre)
 	TERRAFORM_DIR := $(TF_SALAMANDRE_DIR)
@@ -108,10 +108,10 @@ vagrant: ## (Re)create vagrant VM
 vm-init-state: ## Make an snapshot with only postgresql, zfs and k3s installed
 	make _validate-vm --no-print-directory
 	make vagrant --no-print-directory
-ifeq ($(VM_NAME), salamandre.vm)
+ifeq ($(VM_NAME), salamandre)
 	make test-apply --no-print-directory ARGS="--target=module.k3s_install --target=module.ssh --target=null_resource.postgresql_install"
 endif
-ifeq ($(VM_NAME), baku.vm)
+ifeq ($(VM_NAME), baku)
 	make test-apply --no-print-directory ARGS="--target=module.k3s_install --target=module.ssh --target=module.zfs"
 endif
 	cd $(VAGRANT_DIR); vagrant snapshot save $(VM_NAME) init-state

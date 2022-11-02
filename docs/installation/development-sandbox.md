@@ -51,7 +51,7 @@ Add the following line in `/etc/hosts` file:
 
 ### Variables
 
-- `VM_NAME` (valid values: `salamandre.vm`, `baku.vm`): The vm name for only create on
+- `VM_NAME` (valid values: `salamandre`, `baku`): The vm name for only create on
 
 ### All-in-one (recommended)
 
