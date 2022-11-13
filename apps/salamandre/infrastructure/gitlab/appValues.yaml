@@ -8,7 +8,7 @@ externalSecrets:
             postgresql-password: '{{`{{ .password }}`}}'
       dataFrom:
         - extract:
-            key: gitlab/database
+            key: salamandre/gitlab/database
     - name: storage
       target:
         template:
@@ -26,7 +26,7 @@ externalSecrets:
               aws_secret_access_key: "{{ .secretKey }}"`}}
       dataFrom:
         - extract:
-            key: gitlab/s3
+            key: salamandre/gitlab/s3
     - name: backup
       target:
         template:
@@ -41,7 +41,7 @@ externalSecrets:
               signature_v2 = false`}}
       dataFrom:
         - extract:
-            key: gitlab/s3
+            key: salamandre/gitlab/s3
     - name: oidc
       target:
         template:
@@ -64,7 +64,7 @@ externalSecrets:
                   redirect_uri: "https://git.{{ .Values.baseDomain }}/users/auth/openid_connect/callback"
       dataFrom:
         - extract:
-            key: gitlab/oidc
+            key: salamandre/gitlab/oidc
 
 gitlab:
   upgradeCheck:

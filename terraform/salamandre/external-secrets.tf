@@ -54,7 +54,6 @@ resource "kubectl_manifest" "external_secrets_cluster_store" {
       provider = {
         vault = {
           server = "http://vault-internal.${local.vault_namespace}.svc:8200"
-          path   = "argocd"
           auth = {
             kubernetes = {
               mountPath = "kubernetes"

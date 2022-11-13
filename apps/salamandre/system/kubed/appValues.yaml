@@ -8,7 +8,7 @@ externalSecrets:
             kubeconfig: '{{`{{ .kubeconfig }}`}}'
       dataFrom:
         - extract:
-            key: kubed/config
+            key: salamandre/kubed/config
 
 kubed:
   enableAnalytics: false
