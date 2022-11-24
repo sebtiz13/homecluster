@@ -38,28 +38,28 @@ customCommands:
   {{- end }}
 
 environment:
-  MINIO_BROWSER_REDIRECT_URL: https://baku.{{ .Values.baseDomain }}
+  MINIO_BROWSER_REDIRECT_URL: https://{{ include "ingress.host" . }}
 ingress:
   enabled: true
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: minio
   path: /
   hosts:
-    - baku.{{ .Values.baseDomain }}
+    - {{ include "ingress.host" . }}
   tls:
     - secretName: {{ include "ingress.tls.secretName" . }}
       hosts:
-        - baku.{{ .Values.baseDomain }}
+        - {{ include "ingress.host" . }}
 consoleIngress:
   enabled: true
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
   hosts:
-    - baku.{{ .Values.baseDomain }}
+    - {{ include "ingress.host" . }}
   tls:
     - secretName: {{ include "ingress.tls.secretName" . }}
       hosts:
-        - baku.{{ .Values.baseDomain }}
+        - {{ include "ingress.host" . }}
 
 persistence:
   size: 10Gi

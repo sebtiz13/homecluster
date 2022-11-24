@@ -10,6 +10,13 @@ true
 {{- end -}}
 
 {{/*
+TLS Secret name
+*/}}
+{{- define "ingress.host" -}}
+{{ .Values.ingress.subdomain }}.{{ .Values.baseDomain }}
+{{- end}}
+
+{{/*
 Annotation for redirect to https
 */}}
 {{- define "ingress.annotations.httpsRedirect" -}}

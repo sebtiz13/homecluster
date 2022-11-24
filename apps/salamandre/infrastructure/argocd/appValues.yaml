@@ -16,14 +16,14 @@ server:
     annotations:
       {{ include "ingress.annotations.httpsRedirect" . | nindent 6 }}
     hosts:
-      - argocd.{{ .Values.baseDomain }}
+      - {{ include "ingress.host" . }}
     tls:
       - secretName: {{ include "ingress.tls.secretName" . }}
         hosts:
-          - argocd.{{ .Values.baseDomain }}
+          - {{ include "ingress.host" . }}
 
   config:
-    url: https://argocd.{{ .Values.baseDomain }}
+    url: https://{{ include "ingress.host" . }}
 
     configManagementPlugins: |-
       - name: argocd-vault-plugin

@@ -5,6 +5,10 @@ metadata:
   name: {{ include "common-app.name" . }}
   labels:
     {{- include "common-app.labels" . | indent 4 }}
+  {{- if and .Values.ingress .Values.ingress.subdomain }}
+  annotations:
+    sebtiz13.fr/host: {{ include "ingress.host" . }}
+  {{- end }}
 spec:
   project: {{ .Values.project }}
   source:

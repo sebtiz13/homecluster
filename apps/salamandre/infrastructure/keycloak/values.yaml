@@ -1,5 +1,8 @@
 plugin: argocd-vault-plugin-helm
 
+ingress:
+  subdomain: sso
+
 source:
   repoURL: https://charts.bitnami.com/bitnami
   chart: keycloak
@@ -21,7 +24,7 @@ realm:
   registrationAllowed: false
   registrationEmailAsUsername: false
   attributes:
-    frontendUrl: https://sso.{{ .Values.baseDomain }}
+    frontendUrl: https://{{ include "ingress.host" . }}
 
   roles:
     realm:

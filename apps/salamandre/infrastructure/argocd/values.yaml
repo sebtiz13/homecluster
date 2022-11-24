@@ -1,5 +1,8 @@
 plugin: argocd-vault-plugin-helm
 
+ingress:
+  subdomain: argocd
+
 source:
   repoURL: https://argoproj.github.io/argo-helm
   chart: argo-cd

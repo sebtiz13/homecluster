@@ -1,5 +1,8 @@
 plugin: helm
 
+ingress:
+  subdomain: vault-secrets
+
 source:
   repoURL: https://helm.releases.hashicorp.com
   chart: vault

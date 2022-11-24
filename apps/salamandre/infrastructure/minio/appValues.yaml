@@ -38,28 +38,28 @@ customCommands:
   {{- end }}
 
 environment:
-  MINIO_BROWSER_REDIRECT_URL: https://console.s3.{{ .Values.baseDomain }}
+  MINIO_BROWSER_REDIRECT_URL: https://console.{{ include "ingress.host" . }}
 ingress:
   enabled: true
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
   path: /
   hosts:
-    - s3.{{ .Values.baseDomain }}
+    - {{ include "ingress.host" . }}
   tls:
     - secretName: {{ include "ingress.tls.secretName" . }}
       hosts:
-        - s3.{{ .Values.baseDomain }}
+        - {{ include "ingress.host" . }}
 consoleIngress:
   enabled: true
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
   hosts:
-    - console.s3.{{ .Values.baseDomain }}
+    - console.{{ include "ingress.host" . }}
   tls:
     - secretName: {{ include "ingress.tls.secretName" . }}
       hosts:
-        - console.s3.{{ .Values.baseDomain }}
+        - console.{{ include "ingress.host" . }}
 
 persistence:
   size: 10Gi

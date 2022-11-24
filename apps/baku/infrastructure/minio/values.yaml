@@ -1,5 +1,8 @@
 plugin: argocd-vault-plugin-helm
 
+ingress:
+  subdomain: baku
+
 source:
   repoURL: https://charts.min.io/
   chart: minio

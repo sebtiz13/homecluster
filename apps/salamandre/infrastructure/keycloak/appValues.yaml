@@ -1,4 +1,3 @@
-{{ $host := printf "sso.%s" .Values.baseDomain }}
 {{- define "keycloak.realm" }}
 {{ $realm := tpl (.Values.realm | toYaml) . | fromYaml }}
 {{- if eq .Values.environment "vm" -}}
@@ -14,13 +13,13 @@ proxy: edge
 ingress:
   enabled: true
   ingressClassName: traefik
-  hostname: {{ $host }}
+  hostname: {{ include "ingress.host" . }}
   annotations:
     {{ include "ingress.annotations.httpsRedirect" . | nindent 4 }}
   extraTls:
     - secretName: {{ include "ingress.tls.secretName" . }}
       hosts:
-        - {{ $host }}
+        - {{ include "ingress.host" . }}
 
 cache:
   enabled: true
@@ -35,7 +34,7 @@ extraEnvVars:
   - name: KEYCLOAK_PRODUCTION
     value: "true"
   - name: KEYCLOAK_HOSTNAME
-    value: {{ $host }}
+    value: {{ include "ingress.host" . }}
 
 service:
   type: ClusterIP

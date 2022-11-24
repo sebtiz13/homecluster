@@ -61,7 +61,7 @@ externalSecrets:
                 client_options:
                   identifier: "{{`{{ .clientID }}`}}"
                   secret: "{{`{{ .clientSecret }}`}}"
-                  redirect_uri: "https://git.{{ .Values.baseDomain }}/users/auth/openid_connect/callback"
+                  redirect_uri: "https://{{ include "ingress.host" . }}/users/auth/openid_connect/callback"
       dataFrom:
         - extract:
             key: salamandre/gitlab/oidc
@@ -77,7 +77,7 @@ gitlab:
       domain: {{ .Values.baseDomain }}
       https: true
       gitlab:
-        name: git.{{ .Values.baseDomain }}
+        name: {{ include "ingress.host" . }}
       kas:
         name: kas.{{ .Values.baseDomain }}
       pages:

@@ -89,6 +89,16 @@
       "description": "Plugin used for application",
       "type": "string"
     },
+    "ingress": {
+      "description": "Ingress configuration",
+      "type": "object",
+      "properties": {
+        "subdomain": {
+          "description": "The application subdomain",
+          "type": "string"
+        }
+      }
+    },
     "appValues": {
       "type": "string"
     }
