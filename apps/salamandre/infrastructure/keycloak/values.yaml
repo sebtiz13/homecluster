@@ -34,7 +34,11 @@ realm:
         containerId: developer
       - name: admin
         description: "$${role_admin}"
-        composite: false
+        composite: true
+        composites:
+          client:
+            realm-management:
+              - realm-admin
         clientRole: false
         containerId: developer
 
