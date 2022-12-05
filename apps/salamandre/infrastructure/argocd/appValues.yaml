@@ -39,20 +39,7 @@ server:
           args: ['echo "$$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml && helm template $${ARGOCD_ENV_HELM_RELEASE_NAME:-$${ARGOCD_APP_NAME}} --namespace $$ARGOCD_APP_NAMESPACE $$ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . | argocd-vault-plugin generate -']
 
     oidc.config: |
-      name: Keycloak
-      issuer: <path:salamandre/data/argocd/oidc#issuer>
-      cliClientID: <path:salamandre/data/argocd/oidc#cliClientID>
-      clientID: <path:salamandre/data/argocd/oidc#clientID>
-      clientSecret: $$oidc.keycloak.clientSecret
-      logoutURL: {{ print "<path:salamandre/data/argocd/oidc#issuer>/protocol/openid-connect/logout?post_logout_redirect_uri={{logoutRedirectURL}}" }}
-      requestedIDTokenClaims:
-        groups:
-          essential: true
-      requestedScopes:
-        - openid
-        - profile
-        - email
-        - groups
+      {{ tpl (.Values.baseOidcConfig | toYaml) . | nindent 6  }}
 
   rbacConfig:
     policy.csv: |

@@ -24,6 +24,22 @@ toolsVersion:
   avp: "1.13.0"
   vault: "1.11.4"
 
+baseOidcConfig:
+  name: Keycloak
+  issuer: <path:salamandre/data/argocd/oidc#issuer>
+  cliClientID: <path:salamandre/data/argocd/oidc#cliClientID>
+  clientID: <path:salamandre/data/argocd/oidc#clientID>
+  clientSecret: $$oidc.keycloak.clientSecret
+  logoutURL: '{{ print "<path:salamandre/data/argocd/oidc#issuer>/protocol/openid-connect/logout?post_logout_redirect_uri={{logoutRedirectURL}}" }}'
+  requestedIDTokenClaims:
+    groups:
+      essential: true
+  requestedScopes:
+    - openid
+    - profile
+    - email
+    - groups
+
 projects:
   - name: system
     description: System cluster critical apps
