@@ -16,6 +16,7 @@ kubed:
   config:
     clusterName: salamandre
     existingSecret: kubed-config
+    existingSecretKubeconfigKey: kubeconfig
 
   operator:
     resources:
