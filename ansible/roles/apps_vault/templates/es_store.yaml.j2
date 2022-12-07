@@ -1,0 +1,16 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: "{{ name }}"
+  namespace: "{{ apps_external_secrets.namespace }}"
+spec:
+  provider:
+    vault:
+      server: "{{ vault_url }}"
+      auth:
+        kubernetes:
+          mountPath: kubernetes
+          role: "{{ vault_role_name }}"
+          serviceAccountRef:
+            name: "{{ apps_external_secrets.release_name }}"
+            namespace: "{{ apps_external_secrets.namespace }}"

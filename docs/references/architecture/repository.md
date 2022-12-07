@@ -42,15 +42,9 @@ The builded production manifests for deploy it to cluster with **GitOps**.
 
 This folder contains all documentation.
 
-## [Provisioning](/terraform/)
+## [Provisioning](/ansible/)
 
 Files for provisioning clusters.
-
-> This folder have strict root folders: `baku` (for baku cluster), `salamandre` (for salamandre cluster) and `common-modules`
-
-### Development values
-
-The values for development, is defined in static at `<cluster>/vm.tfvars`.
 
 ## [Virtual machines](/vagrant/)
 

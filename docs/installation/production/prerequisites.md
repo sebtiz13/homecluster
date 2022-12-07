@@ -14,8 +14,8 @@
   - [Vagrant](https://www.vagrantup.com/)
     - [libvirt](https://libvirt.org/)
   - [mkcert](https://github.com/FiloSottile/mkcert)
-  - [Terraform](https://www.terraform.io/)
   - [Helm](https://helm.sh/)
+  - [Ansible](https://www.ansible.com/)
 
 ### Servers
 

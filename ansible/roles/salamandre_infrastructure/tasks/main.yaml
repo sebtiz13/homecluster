@@ -1,0 +1,7 @@
+- name: Deploy Minio
+  tags: minio
+  ansible.builtin.import_tasks: minio.yaml
+
+- name: Deploy Gitlab
+  tags: gitlab
+  ansible.builtin.import_tasks: gitlab.yaml

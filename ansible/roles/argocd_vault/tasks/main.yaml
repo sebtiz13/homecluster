@@ -1,0 +1,63 @@
+- name: Write Vault secrets
+  vars:
+    url: '{{ hostvars.salamandre.ansible_hashi_vault_addr }}'
+    token: '{{ hostvars.salamandre.ansible_hashi_vault_token }}'
+  no_log: true
+  block:
+    - name: Retrieve current stored secret
+      vars:
+        full_path: '{{ secrets_base_path }}/{{ item.path }}'
+        not_found_msg: "The path '{{ full_path }}' doesn't seem to exist."
+      community.hashi_vault.vault_read:
+        url: '{{ url }}'
+        token: '{{ token }}'
+        path: '{{ full_path }}'
+      failed_when:
+        - "'msg' in vault_check and vault_check.msg != not_found_msg"
+      register: vault_check
+      loop: '{{ secrets }}'
+
+    - name: Write new secret
+      when: ('msg' in item) or (item.data.data.data != item.item.data)
+      community.hashi_vault.vault_write:
+        url: '{{ url }}'
+        token: '{{ token }}'
+        path: '{{ secrets_base_path }}/{{ item.item.path }}'
+        data:
+          data: '{{ item.item.data }}'
+      register: vault_secret
+      loop: '{{ vault_check.results }}'
+
+- name: Deploy application manifest
+  kubernetes.core.k8s:
+    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    state: present
+    resource_definition: '{{ manifest }}'
+    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'
+  register: argocd_manifest
+
+- name: Refresh application
+  when:
+    - argocd_manifest is not changed
+    - vault_secret is changed
+  ansible.builtin.uri:
+    url: '{{ hostvars.salamandre.argocd_api_url }}/applications/{{ manifest.metadata.name }}?refresh=hard'
+    headers:
+      Authorization: 'Bearer {{ hostvars.salamandre.argocd_api_token }}'
+    method: GET
+    status_code: 200
+    timeout: 120
+  register: argocd_refresh
+
+- name: Restart application resources for update secrets
+  when:
+    - argocd_manifest is not changed
+    - vault_secret is changed
+  environment:
+    KUBECONFIG: '{{ hostvars.salamandre.kubeconfig.dest }}'
+  ansible.builtin.command: |
+    kubectl rollout restart {{ item.kind }}
+      --namespace '{{ manifest.spec.destination.namespace }}'
+      '{{ item.name }}'
+  changed_when: false
+  loop: '{{ restart_resources }}'

@@ -1,0 +1,20 @@
+domain_name: '{{ root_domain }}'
+
+k3s:
+  flags:
+    - --tls-san='{{ domain_name }}'
+
+domains:
+  - argocd.{{ root_domain }}
+  - vault-secrets.{{ root_domain }} # Vault
+  - sso.{{ root_domain }} # Keycloak
+  - s3.{{ root_domain }} # Minio
+  - git.{{ root_domain }} # GitLab
+
+# TODO: Until ArgoCD release https://github.com/argoproj/argo-cd/issues/7799
+labeled_namespaces:
+  - argocd
+  - vault
+  - keycloak
+  - minio
+  - gitlab

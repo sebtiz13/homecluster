@@ -1,0 +1,45 @@
+- name: Add backport repository into sources list
+  ansible.builtin.apt_repository:
+    repo: deb https://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib
+    state: present
+    update_cache: true
+
+- name: Install linux-header needed to build ZFS module
+  ansible.builtin.apt:
+    name: 'linux-headers-{{ ansible_kernel }}'
+    state: present
+
+- name: Install ZFS module
+  ansible.builtin.apt:
+    pkg:
+      - zfsutils-linux
+      - zfs-zed
+      - zfs-dkms
+    state: present
+
+- name: Create ZFS pool
+  vars:
+    zfs_pool_state: present
+    zfs_pool_name: "{{ zfs_pool.name | default('data') }}"
+    zfs_pool_type: "{{ zfs_pool.type | default('') }}"
+    zfs_pool_disks: "{{ zfs_pool.disks | join(' ') }}"
+  block:
+    - name: Check pool existence
+      vars:
+        msg: "cannot open '{{ zfs_pool_name }}': no such pool"
+      ansible.builtin.command: zpool list -Ho name {{ zfs_pool_name }}
+      register: result_pool_list
+      changed_when: false
+      failed_when: 'result_pool_list.stderr != "" and result_pool_list.stderr != msg'
+
+    - name: Create pool
+      ansible.builtin.command: zpool create {{ zfs_pool_name }} {{ zfs_pool_type }} {{ zfs_pool_disks }}
+      when:
+        - zfs_pool_state | default('present') == 'present'
+        - result_pool_list.rc == 1
+
+    - name: Destroy pool
+      ansible.builtin.command: zpool destroy {{ zfs_pool_name }}
+      when:
+        - zfs_pool_state | default('present') == 'absent'
+        - result_pool_list.rc == 0

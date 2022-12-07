@@ -1,0 +1,12 @@
+argument_specs:
+  main:
+    short_description: The main entry point for the Vault policy.
+    options:
+      policy_name:
+        description: The policy name
+        type: str
+        required: true
+      policy:
+        description: The policy content
+        type: str
+        required: true

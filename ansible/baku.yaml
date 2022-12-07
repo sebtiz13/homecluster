@@ -1,0 +1,64 @@
+- name: Create ArgoCD access
+  hosts: baku
+  connection: local
+  tags: kubernetes
+  roles:
+    - role: argocd_cluster
+      tags: argocd
+      vars:
+        cluster_name: baku
+        cluster_url: 'https://{{ domain_name }}:6443'
+  tasks:
+    - name: Create kubed sync namespace
+      tags: kubed
+      kubernetes.core.k8s:
+        kubeconfig: '{{ kubeconfig.dest }}'
+        state: present
+        resource_definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: 'kubed-sync'
+
+- name: Configure salamandre kubed access to baku cluster
+  hosts: salamandre
+  connection: local
+  tags:
+    - kubernetes
+    - kubed
+  roles:
+    - role: kubed_cluster
+      when: "'baku' in hostvars"
+      vars:
+        cluster_kubeconfig: "{{ hostvars.baku.kubeconfig.dest | default('') }}"
+        cluster_namespace: 'kubed-sync'
+
+- name: Configure tls secret
+  hosts: baku
+  connection: local
+  tags:
+    - kubernetes
+    - kubed
+  tasks:
+    - name: Annotate secret for sync cross namespace
+      kubernetes.core.k8s:
+        state: patched
+        kubeconfig: '{{ kubeconfig.dest }}'
+        api_version: v1
+        kind: Secret
+        name: "{{ root_domain | replace('.', '-') }}-tls"
+        namespace: 'kubed-sync'
+        force: true
+        definition:
+          metadata:
+            annotations:
+              kubed.appscode.com/sync: 'domain={{ root_domain }}'
+
+- name: Install infrastructure applications
+  hosts: baku
+  connection: local
+  tags: kubernetes
+  roles:
+    - role: apps_system
+      tags: common
+    - baku_infrastructure

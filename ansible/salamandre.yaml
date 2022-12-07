@@ -1,0 +1,71 @@
+- name: Install database, configure coreDNS and create labeled namespaces
+  hosts: salamandre
+  connection: local
+  roles:
+    - role: database
+      connection: ssh
+      become: true
+      tags: database
+    - role: coredns
+      tags: kubernetes
+
+- name: Install prerequired applications
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  roles:
+    - role: apps_argocd
+      tags: argocd
+    - role: kubed_kubeconfig
+      tags: kubed
+
+- name: Install core applications
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  roles:
+    - role: apps_system
+      tags: common
+    - role: apps_external-secrets
+      tags: external-secret
+    - role: apps_cert-manager
+      tags:
+        - cert-manager
+        - tls
+    - role: apps_vault
+      tags: vault
+
+# TODO: deploy prod cert-manager secret
+
+- name: Install, configure OIDC and sync ArgoCD
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  pre_tasks:
+    - name: Retrieve keycloak informations
+      vars:
+        manifest: "{{ lookup('file', manifests_folder + '/keycloak.yaml') | from_yaml }}"
+        base_url: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+        realm: developer
+      ansible.builtin.set_fact:
+        apps_keycloak:
+          _manifest: '{{ manifest }}'
+          _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+          namespace: '{{ manifest.spec.destination.namespace }}'
+          base_url: '{{ base_url }}'
+          issuer: '{{ base_url }}/realms/{{ realm }}'
+          realm: '{{ realm }}'
+  roles:
+    # ALways deploy oidc secrets for applications (event if oidc is disabled, this is for argocd vaukt plugin)
+    - role: vault_oidc
+    - role: oidc
+      tags: oidc
+    - role: argocd_sync
+      tags: argocd
+
+- name: Install infrastructure applications
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  roles:
+    - salamandre_infrastructure

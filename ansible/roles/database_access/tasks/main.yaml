@@ -1,0 +1,31 @@
+- name: Create database
+  connection: ssh
+  become: true
+  become_user: postgres
+  vars:
+    ansible_ssh_pipelining: true
+  community.postgresql.postgresql_db:
+    name: '{{ database }}'
+
+- name: Create database user
+  connection: ssh
+  become: true
+  become_user: postgres
+  vars:
+    ansible_ssh_pipelining: true
+  community.postgresql.postgresql_user:
+    name: '{{ username }}'
+    password: '{{ password }}'
+
+- name: Grant database access to user
+  connection: ssh
+  become: true
+  become_user: postgres
+  vars:
+    ansible_ssh_pipelining: true
+  community.postgresql.postgresql_privs:
+    type: database
+    database: '{{ database }}'
+    roles: '{{ username }}'
+    grant_option: false
+    privs: all

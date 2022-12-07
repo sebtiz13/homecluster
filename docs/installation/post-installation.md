@@ -5,20 +5,28 @@
 Save the following files to a safe location like a password manager (if you're using the sandbox, you can skip this
 step):
 
-- `./out/kubeconfig/salamandre.production.yaml`
-- `./out/kubeconfig/baku.production.yaml`
-- `./out/credentials.json`
+- `./out/kubeconfig/salamandre.prod.yaml`
+- `./out/kubeconfig/baku.prod.yaml`
+- `./out/credentials/salamandre/prod/*` (for `vault.json` only `root_token` and `unseal_keys_b64` is important)
+- `./out/credentials/baku/prod/*`
 
 ## Admin credentials
 
+> ⚠️ **Before run command, replace `<env>` by the wanted environment (`dev` or `prod`)**
+
 - ArgoCD:
   - Username: `admin`
-  - Password: run `jq .argocd_admin_password ./out/credentials.json`
+  - Password: run `yq .argocd ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Vault:
-  - Root token: run `jq .vault.root_token ./out/credentials.json`
+  - Root token: run `jq -r .root_token ./out/credentials/salamandre/<env>/vault.json`
 - Keycloak:
   - Username: `admin`
-  - Password: run `jq .keycloak_admin_password ./out/credentials.json`
+  - Password: run `yq .keycloak ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Minio:
+  - Username: `root`
+  - Password:
+    - For salamandre: run `yq .minio ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+    - For baku: run `yq .minio ./out/credentials/baku/<env>/admin_passwords.yaml`
+- Gitlab:
   - Username: `admin`
-  - Password: run `jq .minio_admin_password ./out/credentials.json`
+  - Password: run `yq .gitlab ./out/credentials/salamandre/<env>/admin_passwords.yaml`

@@ -1,0 +1,5 @@
+env: prod
+manifests_folder: "../../../../manifests/{{ inventory_hostname }}"
+
+# The pool type (available values: stripe, mirror, raidz (similar to RAID5) or raidz2 (Similar to RAID5 with dual parity))
+zfs_pool_type: raidz

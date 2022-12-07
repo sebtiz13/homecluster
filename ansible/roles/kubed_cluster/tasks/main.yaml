@@ -1,0 +1,26 @@
+- name: Retrieve cluster kubeconfig
+  ansible.builtin.command: yq e '.contexts.0.context.namespace="{{ cluster_namespace }}"' {{ cluster_kubeconfig }}
+  changed_when: false
+  register: kubed_kubeconfig
+
+- name: Store cluster kubeconfig
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: v1
+    kind: Secret
+    name: '{{ apps_kubed.secret_name }}'
+    namespace: '{{ apps_kubed.namespace }}'
+    definition:
+      data:
+        kubeconfig: '{{ kubed_kubeconfig.stdout | b64encode }}'
+
+- name: Restart application resources for update secrets
+  connection: ssh
+  vars:
+    kubed_manifest: "{{ lookup('file', manifests_folder + '/kubed.yaml') | from_yaml }}"
+  ansible.builtin.command: |
+    kubectl rollout restart deployment
+      --namespace '{{ apps_kubed.namespace }}'
+      '{{ apps_kubed.release_name }}'
+  changed_when: false

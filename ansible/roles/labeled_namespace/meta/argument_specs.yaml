@@ -1,0 +1,9 @@
+argument_specs:
+  main:
+    short_description: The main entry point for the labeled namespace role.
+    options:
+      domain:
+        type: str
+        required: true
+      labeled_namespaces:
+        type: list

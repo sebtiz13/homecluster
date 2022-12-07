@@ -1,0 +1,34 @@
+- name: Create OIDC applications secrets
+  vars:
+    secrets:
+      - path: argocd/oidc
+        data:
+          issuer: '{{ apps_keycloak.issuer }}'
+          cliClientID: argocd-cli
+          clientID: argocd
+          clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
+  no_log: true
+  block:
+    - name: Retrieve current stored secret
+      vars:
+        full_path: '{{ secrets_base_path }}/{{ item.path }}'
+        not_found_msg: "The path '{{ full_path }}' doesn't seem to exist."
+      community.hashi_vault.vault_read:
+        url: '{{ ansible_hashi_vault_addr }}'
+        token: '{{ ansible_hashi_vault_token }}'
+        path: '{{ full_path }}'
+      failed_when:
+        - "'msg' in vault_check and vault_check.msg != not_found_msg"
+      register: vault_check
+      loop: '{{ secrets }}'
+
+    - name: Write new secret
+      when: ('msg' in item) or (item.data.data.data != item.item.data)
+      community.hashi_vault.vault_write:
+        url: '{{ ansible_hashi_vault_addr }}'
+        token: '{{ ansible_hashi_vault_token }}'
+        path: '{{ secrets_base_path }}/{{ item.item.path }}'
+        data:
+          data: '{{ item.item.data }}'
+      register: vault_secret
+      loop: '{{ vault_check.results }}'

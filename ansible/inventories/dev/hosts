@@ -1,0 +1,2 @@
+salamandre ansible_host=192.168.12.10
+baku ansible_host=192.168.12.11

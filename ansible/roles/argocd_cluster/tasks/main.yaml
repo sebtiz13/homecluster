@@ -1,0 +1,48 @@
+- name: Create service account
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    template: serviceaccount.yaml.j2
+
+- name: Create cluster role
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    template: cluster-role.yaml.j2
+
+- name: Create cluster role binding
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    template: cluster-role-binding.yaml.j2
+
+- name: Create service account token
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    template: sa-token.yaml.j2
+
+- name: Retrieve generated service account token
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: v1
+    kind: Secret
+    name: '{{ service_account_token.name }}'
+    namespace: '{{ service_account_token.namespace }}'
+  register: argocd_sa_token
+
+- name: Configure cluster in ArgoCD
+  ansible.builtin.uri:
+    url: '{{ hostvars.salamandre.argocd_api_url }}/clusters'
+    headers:
+      Authorization: 'Bearer {{ hostvars.salamandre.argocd_api_token }}'
+    method: POST
+    status_code: 200
+    body_format: json
+    body:
+      name: '{{ cluster_name }}'
+      server: '{{ cluster_url }}'
+      config:
+        bearerToken: '{{ argocd_sa_token.resources.0.data.token | b64decode }}'
+        tlsClientConfig:
+          caData: "{{ argocd_sa_token.resources.0.data['ca.crt'] }}"

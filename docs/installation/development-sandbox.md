@@ -3,7 +3,7 @@
 The sandbox is intended for trying out the cluster without any hardware or testing changes before applying them to the
 production environment.
 
-The local cluster have `local.vm` as base domain.
+The local cluster have `local.vm` as base domain but this can be changed by passing `DOMAIN_NAME` environment variable.
 
 ## Prerequisites
 
@@ -22,8 +22,8 @@ The local cluster have `local.vm` as base domain.
 - [Vagrant](https://www.vagrantup.com/)
   - [libvirt](https://libvirt.org/)
 - [mkcert](https://github.com/FiloSottile/mkcert)
-- [Terraform](https://www.terraform.io/)
 - [Helm](https://helm.sh/)
+- [Ansible](https://www.ansible.com/)
 
 ### Configuring DNS
 
@@ -55,38 +55,45 @@ Add the following line in `/etc/hosts` file:
 
 ### All-in-one (recommended)
 
-The following command create virtual machine, and deploy all stack :
+The following command create virtual machines, and deploy full stack :
 
 ```sh
-make test-cluster VM_NAME=<name>
+make test-cluster
 ```
+
+If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
+
+You can exclude some applications by specify environment variable `ANSIBLE_SKIP_TAGS` ([see more informations](#exclude-applications))
+
+### Provisioning virtual machines
+
+Provisioning virtual machines :
+
+```sh
+make test-provision
+```
+
+If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
+
+#### Exclude applications
+
+You can disable some applications by specify environment variable `ANSIBLE_SKIP_TAGS` with one or more next tags.
+The apps tags :
+
+- `oidc` (for disable keycloak)
+- `gitlab`
+
+_example_: `ANSIBLE_SKIP_TAGS=oidc,gitlab make test-cluster`, this deploy all cluster but without oidc and gitlab applications
 
 ### (Re)Create virtual machines
 
-Create or recreate VMs :
+Create or recreate virtual machines :
 
 ```sh
 make vagrant
 ```
 
-If you want create only one VM you can specify `VM_NAME` argument.
-
-### (Re)Create virtual machine with minimal configuration
-
-Create or recreate VM with `k3s`, and `zfs`, and `postgresql` pre installed :
-
-```sh
-make vm-init-state VM_NAME=<name>
-```
-
-### Reset virtual machine to minimal configuration
-
-You can reset machine to [minimal configuration](#recreate-virtual-machine-with-minimal-configuration) for clean
-machines with following command :
-
-```sh
-make vm-reset-state VM_NAME=<name>
-```
+If you want (re)create only one VM you can specify `VM_NAME` argument.
 
 ### Connect to virtual machine
 
@@ -96,15 +103,11 @@ Use the following command for connect to the machine in SSH :
 make vm-ssh VM_NAME=<name>
 ```
 
-## GitLab Agent
-
-For deploy GitLab Agent please follow [this section](../gitlab-agent.md).
-
 ## Explore
 
 The apps should be available at `https://<app>.local.vm`.
 
-See [admin credentials] for default passwords.
+For admin account see [admin credentials](post-installation.md#admin-credentials).
 
 For SSO (OpenID) apps the user is :
 
@@ -116,12 +119,12 @@ For SSO (OpenID) apps the user is :
 You can export kubeconfig with following command :
 
 ```sh
-export KUBECONFIG=./out/kubeconfig/salamandre.vm.yaml;./out/kubeconfig/baku.vm.yaml
+export KUBECONFIG=./out/kubeconfig/salamandre.dev.yaml;./out/kubeconfig/baku.dev.yaml
 ```
 
 ## Clean up
 
-Delete terraform cache and virtual machines :
+Delete development environment (credentials, vagrant files, virtual machines, etc) :
 
 ```sh
 make cleanup

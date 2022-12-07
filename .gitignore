@@ -1,9 +1,7 @@
-.terraform/
-*.tfstate*
-terraform.tfvars
-
 .vagrant/
+ansible/inventories/prod/host_vars/
 out/
-todo
+
 charts/*/charts
 manifests/**/*.yaml
+todo

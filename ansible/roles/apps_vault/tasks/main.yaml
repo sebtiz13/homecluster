@@ -1,0 +1,27 @@
+- name: Deploy application
+  ansible.builtin.import_tasks: deploy.yaml
+
+- name: Initialize application
+  ansible.builtin.import_tasks: initialize.yaml
+
+- name: Generate child token
+  vars:
+    vault_file: "{{ lookup('ansible.builtin.file', credentials_folder + '/vault.json') }}"
+  community.hashi_vault.vault_token_create:
+    url: '{{ ansible_hashi_vault_addr }}'
+    token: '{{ vault_file.root_token }}'
+    ttl: 1h
+  register: vault_token
+
+- name: Store child token
+  ansible.builtin.set_fact:
+    ansible_hashi_vault_token: '{{ vault_token.login.auth.client_token }}'
+
+- name: Configure Vault kubernetes auth
+  ansible.builtin.import_tasks: auth_kubernetes.yaml
+
+- name: Configure Vault for ArgoCD Vault Plugin (AVP)
+  ansible.builtin.import_tasks: argocd.yaml
+
+- name: Configure Vault for External-secrets
+  ansible.builtin.import_tasks: external-secrets.yaml

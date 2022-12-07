@@ -1,0 +1,32 @@
+- name: Define timezone
+  community.general.timezone:
+    name: '{{ timezone }}'
+
+- name: Update and install apt packages
+  ansible.builtin.import_tasks: apt.yaml
+
+- name: Configure SSH
+  tags: ssh
+  ansible.builtin.import_tasks: ssh.yaml
+
+- name: Create SSH users
+  tags: ssh
+  ansible.builtin.include_tasks: ssh_user.yaml
+  loop: '{{ ssh.users }}'
+
+- name: Install ZFS and create pool(s)
+  tags: zfs
+  ansible.builtin.import_tasks: zfs.yaml
+
+- name: Install k3s
+  tags: kubernetes
+  ansible.builtin.import_tasks: k3s.yaml
+
+- name: Upload CA certificate
+  when: env == 'dev'
+  tags: tls
+  ansible.builtin.copy:
+    src: '{{ ca.cert }}'
+    dest: /usr/local/share/ca-certificates/{{ ca.cert | basename }}.crt
+    mode: '0444'
+  notify: Update trusted ca

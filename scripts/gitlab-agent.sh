@@ -8,6 +8,9 @@ if [ "$ENVIRONMENT" != "vm" ] && [ "$ENVIRONMENT" != "production" ]; then
   echo "Incorrect environment. Valid value : 'vm' or 'production'"
   exit 1
 fi
+if [ "$ENVIRONMENT" = "vm" ]; then
+  ENVIRONMENT=dev
+fi
 
 # Define variables
 ROOT_TOKEN=$(jq .vault.root_token ./out/credentials.json)
@@ -15,13 +18,13 @@ MANIFESTS_PATH="./manifests/salamandre"
 KUBECONFIG="./out/kubeconfig/salamandre.${ENVIRONMENT}.yaml"
 KV_PATH="argocd/gitlab/agent"
 
-if [ "$ENVIRONMENT" = "vm" ]; then
-  MANIFESTS_PATH="./out/manifests/salamandre"
+if [ "$ENVIRONMENT" = "dev" ]; then
+  MANIFESTS_PATH="./vagrant/.vagrant/manifests/salamandre"
 fi
 
 # Generate KV keys
 KV_KEYS="token=\"$1\""
-if [ "$ENVIRONMENT" = "vm" ]; then
+if [ "$ENVIRONMENT" = "dev" ]; then
   KV_KEYS="$KV_KEYS caCert=\"$(cat ./vagrant/.vagrant/ca/rootCA.pem)\""
 fi
 

@@ -1,0 +1,25 @@
+- name: Deploy OpenEBS application manifest
+  tags:
+    - openebs
+    - zfs
+  kubernetes.core.k8s:
+    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    state: present
+    src: '{{ manifests_folder }}/openebs.yaml'
+    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'
+
+- name: Deploy Kubed application manifest
+  tags: kubed
+  kubernetes.core.k8s:
+    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    state: present
+    src: '{{ manifests_folder }}/kubed.yaml'
+    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'
+
+- name: Deploy Treafik application manifest
+  tags: traefik
+  kubernetes.core.k8s:
+    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    state: present
+    src: '{{ manifests_folder }}/traefik.yaml'
+    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'

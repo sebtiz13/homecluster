@@ -1,7 +1,5 @@
 # Documentation
 
-- [Terraform commands](./terraform.md)
-
 ## Installation
 
 - [Development sandbox](./installation/development-sandbox.md)

@@ -1,0 +1,7 @@
+- name: Deploy Keycloak
+  tags: keycloak
+  ansible.builtin.import_tasks: keycloak.yaml
+
+- name: Configure Vault OIDC
+  tags: vault
+  ansible.builtin.import_tasks: vault_oidc.yaml
