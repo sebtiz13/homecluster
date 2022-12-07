@@ -1,4 +1,4 @@
-- name: Store VM CA in cluster
+- name: Store CA in cluster
   when: env == 'dev'
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/cert-manager.yaml') | from_yaml }}"
@@ -14,10 +14,10 @@
           metadata:
             name: '{{ namespace }}'
 
-    - name: Store VM CA in cluster
+    - name: Store CA in cluster
       kubernetes.core.k8s:
         kubeconfig: '{{ kubeconfig.dest }}'
-        template: vm_ca_tls.yaml.j2
+        template: ca_tls.yaml.j2
         namespace: '{{ namespace }}'
         validate:
           fail_on_error: true
