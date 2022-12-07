@@ -75,4 +75,4 @@ vagrant: ## (Re)create vagrant VM
 	make vm-create --no-print-directory
 vm-manifests: ## Build manifests for VM
 	echo "Generate applications manifests..."
-	MANIFESTS_PATH=$(VAGRANT_DIR)/.vagrant/manifests ENVIRONMENT=vm ./scripts/apps/all.sh ./scripts/apps/build.sh
+	MANIFESTS_PATH=$(VAGRANT_DIR)/.vagrant/manifests ENVIRONMENT=dev ./scripts/apps/all.sh ./scripts/apps/build.sh

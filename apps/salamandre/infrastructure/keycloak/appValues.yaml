@@ -1,8 +1,8 @@
 {{- define "keycloak.realm" }}
 {{ $realm := tpl (.Values.realm | toYaml) . | fromYaml }}
-{{- if eq .Values.environment "vm" -}}
-{{ $realmVM := tpl (.Values.realm_vm | toYaml) . | fromYaml }}
-{{ $realm = deepCopy $realm | mustMerge $realmVM  }}
+{{- if eq (include "is-production" .) "true" -}}
+{{ $devRealm := tpl (.Values.realm_dev | toYaml) . | fromYaml }}
+{{ $realm = deepCopy $realm | mustMerge $devRealm  }}
 {{- end -}}
 {{ $realm | toYaml }}
 {{- end -}}

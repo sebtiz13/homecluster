@@ -218,7 +218,7 @@ realm:
             claim.name: policy
             jsonType.label: String
 
-realm_vm:
+realm_dev:
   users:
     - username: test
       email: test@test.com

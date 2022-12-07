@@ -2,7 +2,7 @@
 Environment is production
 */}}
 {{- define "is-production" }}
-{{- if ne .Values.environment "production" -}}
+{{- if ne .Values.environment "prod" -}}
 false
 {{- else -}}
 true

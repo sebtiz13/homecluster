@@ -24,7 +24,7 @@ The apps values deployed with **ArgoCD**
 - `appValues.<environment>.yaml`: Overwrite charts values for specific environment
 - `readme.md`: Description of project (with home page, source and secrets values if required)
 
-> Available `environment`: `vm` (for development) and `production`
+> Available `environment`: `dev` (for development) and `prod`
 
 ## [Charts](/charts/)
 

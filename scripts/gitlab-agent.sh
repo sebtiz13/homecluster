@@ -1,15 +1,12 @@
 #!/bin/sh
-ENVIRONMENT=${ENVIRONMENT:-production}
+ENVIRONMENT=${ENVIRONMENT:-prod}
 if [ -z "$1" ]; then
   echo "Usage: ./gitlab-agent.sh <token>"
   exit 1
 fi
-if [ "$ENVIRONMENT" != "vm" ] && [ "$ENVIRONMENT" != "production" ]; then
-  echo "Incorrect environment. Valid value : 'vm' or 'production'"
+if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
+  echo "Incorrect environment. Valid value : 'dev' or 'prod'"
   exit 1
-fi
-if [ "$ENVIRONMENT" = "vm" ]; then
-  ENVIRONMENT=dev
 fi
 
 # Define variables

@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck disable=SC3054
 
 extract_info () {
   CLUSTER_NAME=$(basename "$(dirname "$(dirname "$1")")")
@@ -11,7 +10,7 @@ extract_info () {
 }
 
 run_helm () {
-  ENVIRONMENT=${ENVIRONMENT:-production}
+  ENVIRONMENT=${ENVIRONMENT:-prod}
   DOMAIN_NAME=${DOMAIN_NAME:-local.vm}
 
   # helm base arguments

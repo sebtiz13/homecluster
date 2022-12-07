@@ -15,7 +15,7 @@ Deploy it with the following command
 ```sh
 ./scripts/gitlab-agent.sh <kas url> <token>
 # ⚠️ For development sandbox use the following command :
-ENVIRONMENT=vm ./scripts/gitlab-agent.sh <kas url> <token>
+ENVIRONMENT=dev ./scripts/gitlab-agent.sh <kas url> <token>
 ```
 
 Variables:
