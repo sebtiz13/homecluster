@@ -11,11 +11,9 @@
 - Install the following packages:
 
   - [Make](https://www.gnu.org/software/make/)
-  - [Vagrant](https://www.vagrantup.com/)
-    - [libvirt](https://libvirt.org/)
-  - [mkcert](https://github.com/FiloSottile/mkcert)
   - [Helm](https://helm.sh/)
   - [Ansible](https://www.ansible.com/)
+    - [yq](https://github.com/mikefarah/yq/)
 
 ### Servers
 
