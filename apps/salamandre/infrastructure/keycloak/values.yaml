@@ -141,6 +141,7 @@ realm:
       protocol: openid-connect
       attributes:
         backchannel.logout.session.required: "true"
+        post.logout.redirect.uris: https://vault-secrets.{{ .Values.baseDomain }}
       fullScopeAllowed: true
       defaultClientScopes:
         - web-origins
