@@ -11,25 +11,39 @@ randpw () {
   head -c 512 /dev/urandom | LC_CTYPE=C tr -cd "${2:-$DEFAULT_CHARS}" | head -c "${1:-$DEFAULT_LENGTH}"
 }
 
-mkdir -p "./out/credentials/salamandre/${ENVIRONMENT}"
-mkdir -p "./out/credentials/baku/${ENVIRONMENT}"
+insert_pwd() {
+  if [[ "$(yq "$2" "$1")" = "null" ]]; then
+    yq -i "$2 = \"$3\"" "$1"
+  fi
+}
 
 ##
 # Salamandre credentials
 ##
-cat - > "./out/credentials/salamandre/${ENVIRONMENT}/admin_passwords.yaml" <<EOF
-argocd: "$(randpw 16)"
-keycloak: "$(randpw 16)"
-minio: "$(randpw 16)"
-gitlab: "$(randpw 16)"
-EOF
+mkdir -p "./out/credentials/salamandre/${ENVIRONMENT}"
 
-randpw 64 > "./out/credentials/salamandre/${ENVIRONMENT}/gitlab-runner-token"
+# Admin passwords
+FILE="./out/credentials/salamandre/${ENVIRONMENT}/admin_passwords.yaml"
 
+touch "$FILE"
+insert_pwd "$FILE" .argocd "$(randpw 16)"
+insert_pwd "$FILE" .keycloak "$(randpw 16)"
+insert_pwd "$FILE" .minio "$(randpw 16)"
+insert_pwd "$FILE" .gitlab "$(randpw 16)"
+
+# GitLab runner regitration token
+FILE="./out/credentials/salamandre/${ENVIRONMENT}/gitlab-runner-token"
+if [ ! -f "$FILE" ]; then
+  randpw 64 > "$FILE"
+fi
 
 ##
 # Baku credentials
 ##
-cat - > "./out/credentials/baku/${ENVIRONMENT}/admin_passwords.yaml" <<EOF
-minio: "$(randpw 16)"
-EOF
+mkdir -p "./out/credentials/baku/${ENVIRONMENT}"
+
+# Admin passwords
+FILE="./out/credentials/baku/${ENVIRONMENT}/admin_passwords.yaml"
+
+touch "$FILE"
+insert_pwd "$FILE" .minio "$(randpw 16)"
