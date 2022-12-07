@@ -58,7 +58,17 @@
   loop_control:
     label: '{{ item.item }}'
 
+- name: Check if ArgoCD is already deploy
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: v1
+    kind: Service
+    name: '{{ apps_argocd.release_name }}-server'
+    namespace: '{{ apps_argocd.namespace }}'
+  register: argocd_server
+
 - name: Deploy chart
+  when: argocd_server.resources | length == 0 # This prevent re deploy with helm when is already deployed
   kubernetes.core.helm:
     kubeconfig: '{{ kubeconfig.dest }}'
     chart_ref: 'argo-cd/{{ apps_argocd._manifest.spec.source.chart }}'
