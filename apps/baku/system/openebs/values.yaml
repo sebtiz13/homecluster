@@ -6,7 +6,6 @@ source:
   targetRevision: 2.1.0
 
 destination:
-  server: https://baku.sebtiz13.fr
   namespace: kube-system
 
 syncPolicy:
