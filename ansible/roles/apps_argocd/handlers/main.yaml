@@ -6,3 +6,16 @@
     name: '{{ argocd_initial_admin_password.resources.0.metadata.name }}'
     namespace: '{{ argocd_initial_admin_password.resources.0.metadata.namespace }}'
     state: absent
+
+- name: Recreate auth token
+  connection: ssh
+  ansible.builtin.uri:
+    url: 'http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/session'
+    method: POST
+    return_content: true
+    status_code: 200
+    body_format: json
+    body:
+      username: admin
+      password: '{{ admin_passwords.argocd }}'
+  register: argocd_admin_auth

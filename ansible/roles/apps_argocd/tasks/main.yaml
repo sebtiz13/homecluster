@@ -138,4 +138,6 @@
       newPassword: '{{ admin_passwords.argocd }}'
   register: argocd_admin_update_password
   changed_when: argocd_admin_update_password.status == 200
-  notify: Delete initial admin password secret
+  notify:
+    - Delete initial admin password secret
+    - Recreate auth token
