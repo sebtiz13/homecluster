@@ -3,5 +3,7 @@
   ansible.builtin.import_tasks: minio.yaml
 
 - name: Deploy Gitlab
-  tags: gitlab
+  tags:
+    - minio # Depends on s3
+    - gitlab
   ansible.builtin.import_tasks: gitlab.yaml
