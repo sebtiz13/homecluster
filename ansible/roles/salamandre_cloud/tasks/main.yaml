@@ -1,0 +1,3 @@
+- name: Deploy Nextcloud
+  tags: nextcloud
+  ansible.builtin.import_tasks: nextcloud.yaml

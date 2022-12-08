@@ -61,3 +61,13 @@ projects:
     clusterResourceWhitelist:
       - group: "*"
         kind: "*"
+  - name: cloud
+    description: Cloud apps
+    sourceRepos:
+      - "*"
+    destinations:
+      - namespace: "*"
+        server: "*"
+    clusterResourceWhitelist:
+      - group: "*"
+        kind: "*"

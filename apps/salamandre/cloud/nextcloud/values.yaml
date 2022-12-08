@@ -1,0 +1,24 @@
+plugin: argocd-vault-plugin-helm
+
+ingress:
+  subdomain: cloud
+
+source:
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+  chart: nextcloud
+  targetRevision: 0.1.0
+
+destination:
+  namespace: nextcloud
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+
+apps:
+  admin_audit: true
+
+collabora:
+  enabled: true
+  dictionaries: en_GB en_US fr_FR

@@ -69,3 +69,10 @@
   tags: kubernetes
   roles:
     - salamandre_infrastructure
+
+- name: Install cloud applications
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  roles:
+    - salamandre_cloud

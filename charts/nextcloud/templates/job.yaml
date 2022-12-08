@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "nextcloud.fullname" .Subcharts.nextcloud }}-configure-{{ .Release.Revision }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: configure
+          image: {{ include "nextcloud.image" .Subcharts.nextcloud }}
+          command: ['su', '-m', 'www-data', '-s', '/bin/bash', '-c']
+          args:
+            - {{ include "nextcloud.configure-command" . | quote }}
+          env:
+{{- include "nextcloud.env" .Subcharts.nextcloud | indent 12 }}
+          volumeMounts:
+{{- include "nextcloud.volumeMounts" .Subcharts.nextcloud | trim | nindent 12 }}
+  backoffLimit: 4

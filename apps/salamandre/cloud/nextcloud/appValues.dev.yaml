@@ -1,0 +1,4 @@
+nextcloud:
+  persistence:
+    nextcloudData:
+      size: 8Gi

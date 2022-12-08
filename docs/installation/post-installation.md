@@ -30,3 +30,9 @@ step):
 - Gitlab:
   - Username: `admin`
   - Password: run `yq .gitlab ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+- Nextcloud:
+  - Username: `admin`
+  - Password: run `yq .nextcloud ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+- Collabora:
+  - Username: `admin`
+  - Password: run `yq .collabora ./out/credentials/salamandre/<env>/admin_passwords.yaml`

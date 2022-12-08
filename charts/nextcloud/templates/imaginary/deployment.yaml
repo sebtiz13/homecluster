@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nextcloud.fullname" .Subcharts.nextcloud }}-imaginary
+  labels:
+    app.kubernetes.io/name: {{ include "nextcloud.name" .Subcharts.nextcloud }}-imaginary
+    helm.sh/chart: {{ include "nextcloud.chart" .Subcharts.nextcloud }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: imaginary
+  {{- if .Values.nextcloud.deploymentLabels }}
+{{ toYaml .Values.nextcloud.deploymentLabels | indent 4 }}
+  {{- end }}
+  {{- if .Values.nextcloud.deploymentAnnotations }}
+  annotations:
+{{ toYaml .Values.nextcloud.deploymentAnnotations | indent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.imaginary.replicaCount }}
+  strategy:
+{{ toYaml .Values.imaginary.strategy | indent 4 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "nextcloud.name" .Subcharts.nextcloud }}-imaginary
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: imaginary
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "nextcloud.name" .Subcharts.nextcloud }}-imaginary
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: imaginary
+        {{- if .Values.imaginary.podLabels }}
+{{ toYaml .Values.imaginary.podLabels | indent 8 }}
+        {{- end }}
+      {{- if .Values.imaginary.podAnnotations }}
+      annotations:
+{{ toYaml .Values.imaginary.podAnnotations | indent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.imaginary.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.imaginary.image.pullSecrets }}
+        - name: {{ . }}
+      {{- end}}
+      {{- end }}
+      containers:
+      - name: imaginary
+        image: {{ include "nextcloud.imaginary.image" . }}
+        imagePullPolicy: {{ .Values.imaginary.image.pullPolicy }}
+        {{- if .Values.imaginary.commandArgs }}
+        command: ['imaginary']
+        args: {{ .Values.imaginary.commandArgs }}
+        {{- end }}
+        {{- if .Values.imaginary.lifecycle }}
+        lifecycle:
+        {{- if .Values.imaginary.lifecycle.postStartCommand }}
+          postStart:
+            exec:
+              command:
+                {{- toYaml .Values.imaginary.lifecycle.postStartCommand | nindent 16 -}}
+        {{- end }}
+        {{- if .Values.imaginary.lifecycle.preStopCommand }}
+          preStop:
+            exec:
+              command:
+                {{- toYaml .Values.imaginary.lifecycle.preStopCommand | nindent 16 -}}
+        {{- end }}
+        {{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.imaginary.containerPort | default "9000" }}
+          protocol: TCP
+        {{- if .Values.imaginary.persistence.enabled }}
+        volumeMounts:
+          - name: images
+            mountPath: /mnt/data
+            subPath: {{ ternary "data" (printf "%s/%s" .Values.imaginary.persistence.subPath "data") (empty .Values.imaginary.persistence.subPath) }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.imaginary.resources | indent 10 }}

@@ -1,0 +1,35 @@
+- name: Generate Nextcloud database password
+  ansible.builtin.set_fact:
+    apps_nextcloud:
+      _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+
+- name: Create Nextcloud database access
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: nextcloud
+    username: nextcloud
+    password: '{{ apps_nextcloud._db_passowrd }}'
+
+- name: Deploy Nextcloud application and secrets
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
+    restart_resources:
+      - kind: Deployment
+        name: '{{ manifest.spec.source.plugin.env.0.value }}'
+    secrets:
+      - path: nextcloud/auth
+        data:
+          adminUser: admin
+          adminPassword: '{{ admin_passwords.nextcloud }}'
+          collaboraAdminUser: admin
+          collaboraAdminPassword: '{{ admin_passwords.collabora }}'
+      - path: nextcloud/database
+        data:
+          host: postgresql.loc
+          port: '5432'
+          database: nextcloud
+          user: nextcloud
+          password: '{{ apps_nextcloud._db_passowrd }}'
