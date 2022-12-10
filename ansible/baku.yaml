@@ -28,7 +28,7 @@
     - kubed
   roles:
     - role: kubed_cluster
-      when: "'baku' in hostvars"
+      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       vars:
         cluster_kubeconfig: "{{ hostvars.baku.kubeconfig.dest | default('') }}"
         cluster_namespace: 'kubed-sync'
