@@ -1,7 +1,8 @@
+{{- with .Subcharts.nextcloud }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "nextcloud.fullname" .Subcharts.nextcloud }}-configure-{{ .Release.Revision }}
+  name: {{ template "nextcloud.fullname" . }}-configure-{{ .Release.Revision }}
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
@@ -11,12 +12,62 @@ spec:
       restartPolicy: Never
       containers:
         - name: configure
-          image: {{ include "nextcloud.image" .Subcharts.nextcloud }}
+          image: {{ include "nextcloud.image" . }}
           command: ['su', '-m', 'www-data', '-s', '/bin/bash', '-c']
           args:
             - {{ include "nextcloud.configure-command" . | quote }}
           env:
-{{- include "nextcloud.env" .Subcharts.nextcloud | indent 12 }}
+            {{- include "nextcloud.env" . | trim | nindent 12 }}
           volumeMounts:
-{{- include "nextcloud.volumeMounts" .Subcharts.nextcloud | trim | nindent 12 }}
+            {{- include "nextcloud.volumeMounts" . | trim | nindent 12 }}
+      volumes:
+        - name: nextcloud-main
+        {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ if .Values.persistence.existingClaim }}{{ .Values.persistence.existingClaim }}{{- else }}{{ template "nextcloud.fullname" . }}-nextcloud{{- end }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        {{- if and .Values.persistence.nextcloudData.enabled .Values.persistence.enabled }}
+        - name: nextcloud-data
+          persistentVolumeClaim:
+            claimName: {{ if .Values.persistence.nextcloudData.existingClaim }}{{ .Values.persistence.nextcloudData.existingClaim }}{{- else }}{{ template "nextcloud.fullname" . }}-nextcloud-data{{- end }}
+        {{- end }}
+        {{- if .Values.nextcloud.configs }}
+        - name: nextcloud-config
+          configMap:
+            name: {{ template "nextcloud.fullname" . }}-config
+        {{- end }}
+        {{- if .Values.nextcloud.phpConfigs }}
+        - name: nextcloud-phpconfig
+          configMap:
+            name: {{ template "nextcloud.fullname" . }}-phpconfig
+        {{- end }}
+        {{- if .Values.nginx.enabled }}
+        - name: nextcloud-nginx-config
+          configMap:
+            name: {{ template "nextcloud.fullname" . }}-nginxconfig
+        {{- end }}
+        {{- if .Values.nextcloud.extraVolumes }}
+        {{ toYaml .Values.nextcloud.extraVolumes | indent 8 }}
+        {{- end }}
+      {{- if .Values.nginx.enabled }}
+      # Will mount configuration files as www-data (id: 82) for nextcloud
+      securityContext:
+        fsGroup: 82
+        {{- if .Values.securityContext }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- end }}
+      {{- else }}
+      # Will mount configuration files as www-data (id: 33) for nextcloud
+      securityContext:
+        fsGroup: 33
+        {{- if .securityContext }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.rbac.enabled }}
+      serviceAccountName: {{ .rbac.serviceaccount.name }}
+      {{- end }}
   backoffLimit: 4
+{{- end -}}
