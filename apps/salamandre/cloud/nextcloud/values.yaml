@@ -15,10 +15,3 @@ syncPolicy:
   automated:
     prune: true
     selfHeal: true
-
-apps:
-  admin_audit: true
-
-collabora:
-  enabled: true
-  dictionaries: en_GB en_US fr_FR

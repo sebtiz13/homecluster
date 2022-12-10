@@ -1,5 +1,9 @@
 nextcloud:
   ingress:
+    annotations:
+      {{/* include "ingress.annotations.httpsRedirect" . | nindent 6 */}}
+      traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd,nextcloud-chained-middlewares@kubernetescrd
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     tls:
       - secretName: {{ include "ingress.tls.secretName" . }}
         hosts:
@@ -44,14 +48,12 @@ nextcloud:
     token: nextcloud-token
 
 collabora-code:
-  enabled: {{ .Values.collabora.enabled }}
-
   collabora:
     aliasgroups:
       - domain: https://{{ include "ingress.host" . }}
     server_name: {{ include "ingress.host" . }}
 
-    dictionaries: {{ .Values.collabora.dictionaries }}
+    dictionaries: en_GB en_US fr_FR
 
     username: <path:salamandre/data/nextcloud/auth#collaboraAdminUser>
     password: <path:salamandre/data/nextcloud/auth#collaboraAdminPassword>
