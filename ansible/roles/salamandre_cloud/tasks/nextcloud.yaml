@@ -1,7 +1,15 @@
 - name: Generate Nextcloud database password
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
+    values: '{{ manifest.spec.source.plugin.env.1.value }}'
+    host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
   ansible.builtin.set_fact:
     apps_nextcloud:
+      _manifest: '{{ manifest }}'
       _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+      release_name: '{{ manifest.spec.source.plugin.env.0.value }}'
+      namespace: '{{ manifest.spec.destination.namespace }}'
+      host: '{{ host }}'
 
 - name: Create Nextcloud database access
   ansible.builtin.include_role:
@@ -11,14 +19,23 @@
     username: nextcloud
     password: '{{ apps_nextcloud._db_passowrd }}'
 
+- name: Check if Nextcloud is already deploy
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: v1
+    kind: Service
+    name: '{{ apps_nextcloud.release_name }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+  register: nextcloud_server
+
 - name: Deploy Nextcloud application and secrets
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
-    manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
+    manifest: '{{ apps_nextcloud._manifest }}'
     restart_resources:
       - kind: Deployment
-        name: '{{ manifest.spec.source.plugin.env.0.value }}'
+        name: '{{ apps_nextcloud.release_name }}'
     secrets:
       - path: nextcloud/auth
         data:
@@ -33,3 +50,58 @@
           database: nextcloud
           user: nextcloud
           password: '{{ apps_nextcloud._db_passowrd }}'
+
+- name: Wait until Nextcloud is deployed
+  when: nextcloud_server.resources | length == 0 # This is for run only on first install
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: v1
+    kind: Deployment
+    name: '{{ apps_nextcloud.release_name }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 360
+- name: Retrieve Nexcloud pod informations
+  when: nextcloud_server.resources | length == 0 # This is for run only on first install
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: v1
+    kind: Pod
+    namespace: '{{ apps_nextcloud.namespace }}'
+    label_selectors:
+      - app.kubernetes.io/component=app
+      - 'app.kubernetes.io/instance={{ apps_nextcloud.release_name }}'
+      - 'app.kubernetes.io/name={{ apps_nextcloud.release_name }}'
+    field_selectors:
+      - status.phase=Running
+  register: nextcloud_pod
+
+- name: Configure Nexcloud apps
+  when: nextcloud_server.resources | length == 0 # This is for run only on first install
+  vars:
+    commands:
+      - name: Preview app
+        commands:
+          - php occ config:app:set preview jpeg_quality --value 60
+      - name: Admin audit
+        commands:
+          - php occ app:enable admin_audit
+          - php occ config:app:set admin_audit logfile --value /var/www/html/data/audit.log
+      - name: 2FA (TOTP)
+        commands:
+          - php occ app:enable twofactor_totp
+      - name: Collabora
+        commands:
+          - php occ app:enable richdocuments
+          - php occ config:app:set richdocuments disable_certificate_verification --value true
+          - php occ config:app:set richdocuments wopi_allowlist --value 10.42.0.0/16
+          - php occ config:app:set richdocuments wopi_url --value {{ apps_nextcloud.host }}
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+    pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+    command: su -m www-data -s /bin/sh -c '{{ item.commands | join(' && ') }}'
+  loop: '{{ commands }}'
+  loop_control:
+    label: '{{ item.name }}'
