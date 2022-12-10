@@ -1,3 +1,0 @@
-nextcloudConfig:
-  annotations:
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded

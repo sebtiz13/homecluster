@@ -119,20 +119,6 @@ nextcloud:
   internalDatabase:
     enabled: false
 
-nextcloudConfig:
-  enabled: true
-
-  annotations:
-    # argocd.argoproj.io/hook: PostSync
-    # argocd.argoproj.io/hook-delete-policy: HookSucceeded
-
-  restartPolicy: Never
-  backoffLimit: 2
-
-  commands:
-    # Set preview jpeg quality
-    - php occ config:app:set preview jpeg_quality --value 60
-
 collabora-code:
   enabled: true
 

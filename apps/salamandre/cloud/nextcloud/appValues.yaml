@@ -43,22 +43,6 @@ nextcloud:
     # fix token (prevent diff on ArgoCD)
     token: nextcloud-token
 
-nextcloudConfig:
-  annotations:
-    argocd.argoproj.io/hook: PostSync
-
-  commands:
-    # Set preview jpeg quality
-    - php occ config:app:set preview jpeg_quality --value 60
-    {{- if .Values.apps.admin_audit }}
-    # Configure admin audit
-    - php occ app:enable admin_audit && php occ config:app:set admin_audit logfile --value /var/www/html/data/audit.log
-    {{- end }}
-    {{- if .Values.collabora.enabled }}
-    # Configure collabora
-    - php occ app:enable richdocuments && php occ config:app:set richdocuments wopi_url --value https://{{ include "ingress.host" . }}
-    {{- end }}
-
 collabora-code:
   enabled: {{ .Values.collabora.enabled }}
 
