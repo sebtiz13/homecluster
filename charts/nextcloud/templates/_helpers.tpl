@@ -12,7 +12,7 @@ Build configure command
 {{- $commands := list -}}
 {{/* Wait nextcloud is installed */}}
 {{- $commands = append $commands "(until php occ status | grep -q \"installed: true\"; do sleep 1; done)" }}
-{{- range $k, $v := .Values.nextcloud.configCommands }}
+{{- range $k, $v := .Values.nextcloudConfig.commands }}
 {{- $commands = append $commands (printf "(%s)" $v) }}
 {{- end -}}
 {{/* Combine list in command */}}

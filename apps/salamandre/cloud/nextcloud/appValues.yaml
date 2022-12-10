@@ -39,7 +39,15 @@ nextcloud:
       enabled: true
       size: 50Gi
 
-  configCommands:
+  metrics:
+    # fix token (prevent diff on ArgoCD)
+    token: nextcloud-token
+
+nextcloudConfig:
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+
+  commands:
     # Set preview jpeg quality
     - php occ config:app:set preview jpeg_quality --value 60
     {{- if .Values.apps.admin_audit }}
@@ -50,10 +58,6 @@ nextcloud:
     # Configure collabora
     - php occ app:enable richdocuments && php occ config:app:set richdocuments wopi_url --value https://{{ include "ingress.host" . }}
     {{- end }}
-
-  metrics:
-    # fix token (prevent diff on ArgoCD)
-    token: nextcloud-token
 
 collabora-code:
   enabled: {{ .Values.collabora.enabled }}

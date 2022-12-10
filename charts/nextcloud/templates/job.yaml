@@ -1,21 +1,29 @@
+{{- if .Values.nextcloudConfig.enabled -}}
 {{- with .Subcharts.nextcloud }}
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ template "nextcloud.fullname" . }}-configure-{{ .Release.Revision }}
+  labels:
+    app.kubernetes.io/name: {{ include "nextcloud.name" . }}-configure
+    helm.sh/chart: {{ include "nextcloud.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: app
+  {{- if $.Values.nextcloudConfig.annotations }}
   annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+{{ toYaml $.Values.nextcloudConfig.annotations | indent 4 }}
+  {{- end }}
 spec:
   template:
     spec:
-      restartPolicy: Never
+      restartPolicy: {{ $.Values.nextcloudConfig.restartPolicy }}
       containers:
         - name: configure
           image: {{ include "nextcloud.image" . }}
           command: ['su', '-m', 'www-data', '-s', '/bin/bash', '-c']
           args:
-            - {{ include "nextcloud.configure-command" . | quote }}
+            - {{ include "nextcloud.configure-command" $ | quote }}
           env:
             {{- include "nextcloud.env" . | trim | nindent 12 }}
           volumeMounts:
@@ -69,5 +77,6 @@ spec:
       {{- if .Values.rbac.enabled }}
       serviceAccountName: {{ .rbac.serviceaccount.name }}
       {{- end }}
-  backoffLimit: 4
+  backoffLimit: {{ $.Values.nextcloudConfig.backoffLimit }}
+{{- end -}}
 {{- end -}}
