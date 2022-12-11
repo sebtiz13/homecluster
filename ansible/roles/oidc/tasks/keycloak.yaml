@@ -6,6 +6,15 @@
     username: keycloak
     password: '{{ apps_keycloak._db_passowrd }}'
 
+- name: Check if Keeycloak is already deploy
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: v1
+    kind: Service
+    name: '{{ apps_keycloak.release_name }}'
+    namespace: '{{ apps_keycloak.namespace }}'
+  register: keeycloak_service
+
 - name: Deploy Keycloak application and secrets
   ansible.builtin.include_role:
     name: argocd_vault
@@ -52,6 +61,7 @@
   delay: 10
 
 - name: Update Keycloak clients secrets
+  when: keeycloak_service.resources | length == 0 # This is for run only on first installz
   vars:
     secret: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/' + item + '/oidc') }}"
   community.general.keycloak_client:
