@@ -26,6 +26,10 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 - [Ansible](https://www.ansible.com/)
   - [yq](https://github.com/mikefarah/yq/)
 
+### Virish configuration
+
+You need have an storage pool named `vagrant`.
+
 ### Configuring DNS
 
 #### With `dnsmasq` (**recommended**)

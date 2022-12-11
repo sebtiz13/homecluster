@@ -43,6 +43,7 @@ Vagrant.configure("2") do |config|
       # Configure provider
       cfg.vm.provider :libvirt do |v|
         v.driver = "kvm"
+        v.storage_pool_name = "vagrant"
         v.title = node[:hostname]
         v.cpus = node[:cpus]
         v.memory = node[:memory]
