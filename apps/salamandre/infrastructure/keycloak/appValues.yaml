@@ -1,10 +1,10 @@
 {{- define "keycloak.realm" }}
-{{ $realm := tpl (.Values.realm | toYaml) . | fromYaml }}
-{{- if eq (include "is-production" .) "true" -}}
-{{ $devRealm := tpl (.Values.realm_dev | toYaml) . | fromYaml }}
-{{ $realm = deepCopy $realm | mustMerge $devRealm  }}
+{{- $realm := tpl (.Values.realm | toYaml) . | fromYaml }}
+{{- if eq (include "is-production" .) "false" -}}
+{{- $devRealm := tpl (.Values.realm_dev | toYaml) . | fromYaml }}
+{{- $realm = deepCopy $realm | mustMerge $devRealm  }}
 {{- end -}}
-{{ $realm | toYaml }}
+{{- $realm | toYaml }}
 {{- end -}}
 
 fullnameOverride: "keycloak"

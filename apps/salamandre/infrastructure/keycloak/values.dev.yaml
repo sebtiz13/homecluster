@@ -1,0 +1,18 @@
+# App values
+realm_dev:
+  users:
+    - username: test
+      email: test@local.vm
+      firstName: test
+      lastName: test
+      enabled: true
+      emailVerified: true
+      credentials:
+        - type: password
+          userLabel: initial
+          value: test
+      realmRoles:
+        - default-roles-developer
+        - admin
+      groups:
+        - Admin

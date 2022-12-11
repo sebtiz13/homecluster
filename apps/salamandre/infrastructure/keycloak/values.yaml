@@ -218,21 +218,3 @@ realm:
             access.token.claim: "true"
             claim.name: policy
             jsonType.label: String
-
-realm_dev:
-  users:
-    - username: test
-      email: test@test.com
-      firstName: test
-      lastName: test
-      enabled: true
-      emailVerified: true
-      credentials:
-        - type: password
-          userLabel: initial
-          value: test
-      realmRoles:
-        - default-roles-developer
-        - admin
-      groups:
-        - Admin
