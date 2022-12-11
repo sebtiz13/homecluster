@@ -51,17 +51,18 @@
           user: nextcloud
           password: '{{ apps_nextcloud._db_passowrd }}'
 
-- name: Wait until Nextcloud is deployed
+- name: Wait until Nextcloud is installed
   when: nextcloud_server.resources | length == 0 # This is for run only on first install
-  kubernetes.core.k8s_info:
-    kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
-    kind: Deployment
-    name: '{{ apps_nextcloud.release_name }}'
-    namespace: '{{ apps_nextcloud.namespace }}'
-    wait: true
-    wait_sleep: 10
-    wait_timeout: 360
+  ansible.builtin.uri:
+    url: '{{ apps_nextcloud.host }}/status.php'
+    method: GET
+    status_code: 200
+    return_content: true
+  register: health
+  until: (health.status == 200 and health.json.installed)
+  retries: 60 # This is for wait max 10min (this is for support slow connection)
+  delay: 10
+
 - name: Retrieve Nexcloud pod informations
   when: nextcloud_server.resources | length == 0 # This is for run only on first install
   kubernetes.core.k8s_info:
