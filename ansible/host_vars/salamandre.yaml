@@ -19,3 +19,4 @@ labeled_namespaces:
   - minio
   - gitlab
   - nextcloud
+  - vaultwarden
