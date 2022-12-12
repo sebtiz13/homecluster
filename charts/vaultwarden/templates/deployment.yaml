@@ -31,39 +31,39 @@ spec:
           image: {{ include "vaultwarden.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
-          - configMapRef:
-              name: {{ $fullName }}-config
-          {{- if or (eq .Values.database.type "mysql") (eq .Values.database.type "postgresql") }}
-          - secretRef:
-            {{- if .Values.database.existingSecret }}
-              name: {{ .Values.database.existingSecret }}
-            {{- else }}
-              name: {{ $fullName }}-database
+            - configMapRef:
+                name: {{ $fullName }}-config
+            {{- if or (eq .Values.database.type "mysql") (eq .Values.database.type "postgresql") }}
+            - secretRef:
+              {{- if .Values.database.existingSecret }}
+                name: {{ .Values.database.existingSecret }}
+              {{- else }}
+                name: {{ $fullName }}-database
+              {{- end }}
             {{- end }}
-          {{- end }}
-          {{- if .Values.smtp.enabled }}
-          - secretRef:
-            {{- if .Values.smtp.existingSecret }}
-              name: {{ .Values.smtp.existingSecret }}
-            {{- else }}
-              name: {{ $fullName }}-smtp
+            {{- if .Values.smtp.enabled }}
+            - secretRef:
+              {{- if .Values.smtp.existingSecret }}
+                name: {{ .Values.smtp.existingSecret }}
+              {{- else }}
+                name: {{ $fullName }}-smtp
+              {{- end }}
             {{- end }}
-          {{- end }}
-          {{- if .Values.extraSecrets }}
-          {{- range .Values.extraSecrets }}
-          - secretRef:
-              name: {{ . }}
-          {{- end }}
-          {{- end }}
+            {{- if .Values.extraSecrets }}
+            {{- range .Values.extraSecrets }}
+            - secretRef:
+                name: {{ . }}
+            {{- end }}
+            {{- end }}
           ports:
-          - name: http
-            containerPort: {{ .Values.service.target_port }}
-            protocol: TCP
-          {{- if .Values.vaultwarden.websocket_enabled }}
-          - name: ws
-            containerPort: {{ .Values.vaultwarden.websocket_port }}
-            protocol: TCP
-          {{- end }}
+            - name: http
+              containerPort: {{ .Values.service.target_port }}
+              protocol: TCP
+            {{- if .Values.vaultwarden.websocket_enabled }}
+            - name: ws
+              containerPort: {{ .Values.vaultwarden.websocket_port }}
+              protocol: TCP
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /

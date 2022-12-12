@@ -127,7 +127,7 @@ storage:
   # Whether storing persistent data is enabled or not
   enabled: true
   # Where to store persistent data
-  path: "/bw-data"
+  path: "/vw-data"
   # The maximum size of the persisted data
   size: 100Mi
   # what storge name to be used for data storage
