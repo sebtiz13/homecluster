@@ -85,6 +85,9 @@ The apps tags :
 
 - `oidc` (for disable keycloak)
 - `gitlab`
+- `cloud` (for disable nextcloud and vaultwarden)
+- `nextcloud`
+- `vaultwarden`
 
 _example_: `ANSIBLE_SKIP_TAGS=oidc,gitlab make test-cluster`, this deploy all cluster but without oidc and gitlab applications
 
