@@ -104,12 +104,14 @@ spec:
                 name: {{ $fullName }}-database
               {{- end }}
             {{- end }}
+            {{- if .Values.smtp.enabled }}
             - secretRef:
               {{- if .Values.smtp.existingSecret }}
                 name: {{ .Values.smtp.existingSecret }}
               {{- else }}
                 name: {{ $fullName }}-smtp
               {{- end }}
+            {{- end }}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
