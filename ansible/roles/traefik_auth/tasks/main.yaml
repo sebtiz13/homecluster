@@ -1,11 +1,13 @@
+- name: Deploy secret manifest
+  vars:
+    htpasswd: "{{ lookup('ansible.builtin.template', 'htpasswd.j2') }}"
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    template: 'secret.yaml.j2'
+
 - name: Deploy middleware manifest
   kubernetes.core.k8s:
     kubeconfig: '{{ kubeconfig.dest }}'
     state: present
-    src: 'middlewwre.yaml'
-
-- name: Deploy secret manifest
-  kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
-    state: present
-    template: 'secret.yaml'
+    src: 'middleware.yaml'
