@@ -1,0 +1,11 @@
+- name: Deploy middleware manifest
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    src: 'middlewwre.yaml'
+
+- name: Deploy secret manifest
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    template: 'secret.yaml'

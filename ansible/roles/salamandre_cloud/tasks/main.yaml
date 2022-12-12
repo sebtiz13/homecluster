@@ -1,3 +1,7 @@
 - name: Deploy Nextcloud
   tags: nextcloud
   ansible.builtin.import_tasks: nextcloud.yaml
+
+- name: Deploy Vaultwarden
+  tags: vaultwarden
+  ansible.builtin.import_tasks: vaultwarden.yaml

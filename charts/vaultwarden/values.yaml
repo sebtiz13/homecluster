@@ -1,0 +1,161 @@
+# Override all names
+nameOverride: ""
+fullnameOverride: ""
+
+# Image used for the deployment
+# See: https://www.github.com/dani-garcia/vaultwarden
+image:
+  repository: vaultwarden/server
+  # tag: 1.26.0
+  pullPolicy: IfNotPresent
+
+# Vaultwarden configuration.
+# The below values are used to construct a config map, which will be provided
+# to the vaultwarden container on start up.
+# For details about the options, see: https://github.com/dani-garcia/vaultwarden/wiki/Configuration-overviewhttps://github.com/dani-garcia/vaultwarden/wiki/Configuration-overview
+#
+# Besides the options listed below, Rocket can be further configured (though it shouldn't be required).
+# See: https://rocket.rs/v0.5-rc/guide/configuration/#environment-variables
+vaultwarden:
+  domain: https://vw.domain.tld
+
+  # Allow registration of new users
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Disable-registration-of-new-users
+  # signups_allowed: true
+
+  # Allow current users invite new users even if registrations are otherwise disabled.
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Disable-invitations
+  # invitations_allowed: true
+
+  # Websocket support for notifications
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Enabling-WebSocket-notifications
+  websocket_enabled: true
+  websocket_port: 3012
+
+  # Configuration of YubiKey OTP
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Enabling-Yubikey-OTP-authentication
+  # yubico_client_id: YUBICO_CLIENT_ID
+  # yubico_secret_key: YUBICO_SECRET_KEY
+
+  # API request size limits
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Changing-the-API-request-size-limit
+  # rocket_limits: "{json=10485760}"
+
+  # Number of workers to spin up for the service
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Changing-the-number-of-workers
+  # rocket_workers: 10
+
+  # Show password hint instead of sending it via email
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Password-hint-display
+  show_password_hints: false
+
+  # Enable Vault interface, when disabled, only API is served
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Disabling-or-overriding-the-Vault-interface-hosting
+  web_vault_enabled: true
+
+  # Logging configuration
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Logging
+  # log_file: /data/vaultwarden.log
+  # use_syslog: true
+  # extended_logging: true
+  # log_level: warn
+
+  # NOTE: DATA_FOLDER cannot be set here, as it is derived from the storage.path below.
+  # NOTE: ENABLE_DB_WAL cannot be set here, as it is derived from the database.wal below.
+  # NOTE: SMTP_* cannot be set here, as it is derived from the smtp configuration bellow
+  # NOTE: ROCKET_PORT cannot be set here, as it is derived from service.target_port bellow
+
+database:
+  # Database type,
+  # must be one of: 'sqlite', 'mysql' or 'postgresql'.
+  type: sqlite
+  # Enable DB Write-Ahead-Log for SQLite,
+  # disabled for other databases. https://github.com/dani-garcia/vaultwarden/wiki/Running-without-WAL-enabled
+  wal: true
+  # URL for external databases (mysql://user:pass@host:port/database or postgresql://user:pass@host:port/database).
+  # MySQL/MariaDB: https://github.com/dani-garcia/vaultwarden/wiki/Using-the-MariaDB-%28MySQL%29-Backend
+  # Postgresql: https://github.com/dani-garcia/vaultwarden/wiki/Using-the-PostgreSQL-Backend
+  url: ""
+  # Otherwise you can use an existing secret with key `DATABASE_URL`
+  existingSecret: null
+
+# SMTP settings, for sending out emails
+# See: https://github.com/dani-garcia/vaultwarden/wiki/SMTP-Configuration
+smtp:
+  enabled: false
+  existingSecret: null
+  host: smtp.domain.tld
+  from: vaultwarden@domain.tld
+  port: 587
+  security: starttls
+  username: username
+  password: password
+  mechanism: ""
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # requests:
+  #   cpu: 4m
+  #   memory: 64Mi
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Passwords and sensitive data can also be provided via secrets. This can be used for ADMIN_TOKEN and SMTP_PASSWORD.
+# Just provide the names of your secret resources that are already deployed to your namespace.
+extraSecrets: []
+
+securityContext:
+  enabled: false
+  runAsNonRoot: true
+  fsGroup: 1000
+  runAsUser: 1000
+
+# Should not be changed
+service:
+  type: ClusterIP
+  port: 80
+  target_port: 8080
+
+# Settings regarding persistent storage
+# See: https://github.com/dani-garcia/vaultwarden#changing-persistent-data-location
+storage:
+  # Whether storing persistent data is enabled or not
+  enabled: true
+  # Where to store persistent data
+  path: "/bw-data"
+  # The maximum size of the persisted data
+  size: 100Mi
+  # what storge name to be used for data storage
+  # className: "gp2"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # kubernetes.io/ssl-redirect: "true"
+  # className: nginx
+  paths:
+    - path: "/"
+      pathType: ImplementationSpecific
+  # tls:
+  #   - secretName: vaultwarden-tls
+  #     hosts:
+  #       - vaultwarden.domain.tld # host
+
+  # Specific ingress for `/admin` page
+  admin:
+    enabled: false
+
+    annotations:
+      {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+      # kubernetes.io/ssl-redirect: "true"

@@ -1,0 +1,135 @@
+{{- $fullName := include "vaultwarden.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app.kubernetes.io/name: {{ include "vaultwarden.name" . }}
+    helm.sh/chart: {{ include "vaultwarden.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "vaultwarden.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "vaultwarden.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        bitwarden-config-hash: {{ include "vaultwarden.config-hash" . | sha256sum }}
+    spec:
+      {{- if .Values.securityContext.enabled }}
+      securityContext:
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ include "vaultwarden.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+          - configMapRef:
+              name: {{ $fullName }}-config
+          {{- if or (eq .Values.database.type "mysql") (eq .Values.database.type "postgresql") }}
+          - secretRef:
+            {{- if .Values.database.existingSecret }}
+              name: {{ .Values.database.existingSecret }}
+            {{- else }}
+              name: {{ $fullName }}-database
+            {{- end }}
+          {{- end }}
+          {{- if .Values.smtp.enabled }}
+          - secretRef:
+            {{- if .Values.smtp.existingSecret }}
+              name: {{ .Values.smtp.existingSecret }}
+            {{- else }}
+              name: {{ $fullName }}-smtp
+            {{- end }}
+          {{- end }}
+          {{- if .Values.extraSecrets }}
+          {{- range .Values.extraSecrets }}
+          - secretRef:
+              name: {{ . }}
+          {{- end }}
+          {{- end }}
+          ports:
+          - name: http
+            containerPort: {{ .Values.vaultwarden.rocket_port }}
+            protocol: TCP
+          {{- if .Values.vaultwarden.websocket_enabled }}
+          - name: ws
+            containerPort: {{ .Values.vaultwarden.websocket_port }}
+            protocol: TCP
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          {{- if .Values.securityContext.enabled }}
+          securityContext:
+            runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+          {{- end }}
+          {{ if .Values.storage.enabled -}}
+          volumeMounts:
+            - mountPath: {{ .Values.storage.path }}
+              name: data-storage
+            {{ end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      initContainers:
+        - name: update-config
+          image: {{ include "vaultwarden.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - /scripts/update-config.sh
+          envFrom:
+            - configMapRef:
+                name: {{ $fullName }}-config
+            {{- if or (eq .Values.database.type "mysql") (eq .Values.database.type "postgresql") }}
+            - secretRef:
+              {{- if .Values.database.existingSecret }}
+                name: {{ .Values.database.existingSecret }}
+              {{- else }}
+                name: {{ $fullName }}-database
+              {{- end }}
+            {{- end }}
+            - secretRef:
+              {{- if .Values.smtp.existingSecret }}
+                name: {{ .Values.smtp.existingSecret }}
+              {{- else }}
+                name: {{ $fullName }}-smtp
+              {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /scripts
+              name: config-scripts
+            {{ if .Values.storage.enabled -}}
+            - mountPath: {{ .Values.storage.path }}
+              name: data-storage
+            {{ end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config-scripts
+          configMap:
+            defaultMode: 493
+            name: {{ $fullName }}-scripts
+        {{ if .Values.storage.enabled -}}
+        - name: data-storage
+          persistentVolumeClaim:
+          claimName: {{ $fullName }}
+        {{ end }}

@@ -1,0 +1,48 @@
+{{- define "vaultwarden.database-uri" }}
+{{- $host := "<path:salamandre/data/vaultwarden/database#host>:<path:salamandre/data/vaultwarden/database#port>" }}
+{{- $user := "<path:salamandre/data/vaultwarden/database#user>" }}
+{{- $password := "<path:salamandre/data/vaultwarden/database#password>" }}
+{{- $database := "<path:salamandre/data/vaultwarden/database#database>" }}
+{{ printf "postgresql://%s:%s@%s/%s" $user $password $host $database }}
+{{- end -}}
+
+vaultwarden:
+  tz: Europe/Paris
+
+  domain: https://{{ include "ingress.host" . }}
+
+  sends_allowed: true
+  user_attachment_limit: -1
+  org_attachment_limit: -1
+
+  trash_auto_delete_days: 30
+
+  signups_allowed: false
+
+  disable_admin_token: true
+
+ingress:
+  enabled: true
+  className: traefik
+
+  annotations:
+    {{ include "ingress.annotations.httpsRedirect" . | nindent 4 }}
+
+  tls:
+    - secretName: {{ include "ingress.tls.secretName" . }}
+      hosts:
+        - {{ include "ingress.host" . }}
+
+  admin:
+    enabled: true
+
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: traefik-admin-auth@kubernetescrd
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+
+database:
+  type: postgresql
+  url: {{ include "vaultwarden.database-uri" . | quote }}
+
+securityContext:
+  enabled: true

@@ -26,6 +26,8 @@
   roles:
     - role: apps_system
       tags: common
+    - role: traefik_auth
+      tags: traefik
     - role: apps_external-secrets
       tags: external-secret
     - role: apps_cert-manager
