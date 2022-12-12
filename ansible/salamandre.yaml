@@ -80,6 +80,8 @@
 - name: Install cloud applications
   hosts: salamandre
   connection: local
-  tags: kubernetes
+  tags:
+    - kubernetes
+    - cloud
   roles:
     - salamandre_cloud
