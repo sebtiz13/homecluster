@@ -53,6 +53,7 @@
         apps_keycloak:
           _manifest: '{{ manifest }}'
           _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+          release_name: '{{ manifest.spec.source.plugin.env.0.value }}'
           namespace: '{{ manifest.spec.destination.namespace }}'
           base_url: '{{ base_url }}'
           issuer: '{{ base_url }}/realms/{{ realm }}'
