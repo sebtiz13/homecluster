@@ -28,6 +28,15 @@ Database informations
 
 ### Dependencies
 
+#### `smtp`
+
+SMTP configuration
+
+- `host`: The server host
+- `port`: The server port
+- `username`: The auth username (and from email)
+- `username`: The auth password
+
 #### argocd/oidc
 
 - `cliClientID`: The client ID for cli

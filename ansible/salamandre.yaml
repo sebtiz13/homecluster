@@ -36,6 +36,8 @@
         - tls
     - role: apps_vault
       tags: vault
+    - role: vault_smtp
+      tags: smtp
 
 # TODO: deploy prod cert-manager secret
 

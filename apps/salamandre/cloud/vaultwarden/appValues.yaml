@@ -44,5 +44,13 @@ database:
   type: postgresql
   url: {{ include "vaultwarden.database-uri" . | quote }}
 
+smtp:
+  enabled: true
+  host: <path:salamandre/data/smtp#host>
+  port: <path:salamandre/data/smtp#port>
+  from: <path:salamandre/data/smtp#username>
+  username: <path:salamandre/data/smtp#username>
+  password: <path:salamandre/data/smtp#password>
+
 securityContext:
   enabled: true

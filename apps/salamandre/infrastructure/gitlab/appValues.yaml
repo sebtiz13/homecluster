@@ -6,9 +6,16 @@ externalSecrets:
           type: Opaque
           data:
             postgresql-password: '{{`{{ .password }}`}}'
+            smtp-password: '{{`{{ .smtp_password }}`}}'
       dataFrom:
         - extract:
             key: salamandre/gitlab/database
+        - extract:
+            key: salamandre/smtp
+          rewrite:
+            - regexp:
+                source: "password"
+                target: "smtp_password"
     - name: storage
       target:
         template:
@@ -158,6 +165,16 @@ gitlab:
         proxy_download: true
         connection:
           secret: gitlab-storage
+
+    smtp:
+      enabled: true
+      address: <path:salamandre/data/smtp#host>
+      domain: <path:salamandre/data/smtp#host>
+      port: <path:salamandre/data/smtp#port>
+      user_name: <path:salamandre/data/smtp#username>
+      password:
+        secret: gitlab-credentials
+        key: smtp-password
 
   gitlab:
     gitaly:

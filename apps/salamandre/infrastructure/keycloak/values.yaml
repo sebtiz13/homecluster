@@ -25,6 +25,14 @@ realm:
   registrationEmailAsUsername: false
   attributes:
     frontendUrl: https://{{ include "ingress.host" . }}
+  smtpServer:
+    host: <path:salamandre/data/smtp#host>
+    port: <path:salamandre/data/smtp#port>
+    from: <path:salamandre/data/smtp#username>
+    fromDisplayName: Keycloak
+    auth: true
+    user: <path:salamandre/data/smtp#username>
+    password: <path:salamandre/data/smtp#password>
 
   roles:
     realm:
