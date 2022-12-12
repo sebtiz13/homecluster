@@ -3,7 +3,7 @@
 {{- $user := "<path:salamandre/data/vaultwarden/database#user>" }}
 {{- $password := "<path:salamandre/data/vaultwarden/database#password>" }}
 {{- $database := "<path:salamandre/data/vaultwarden/database#database>" }}
-{{ printf "postgresql://%s:%s@%s/%s" $user $password $host $database }}
+{{- printf "postgresql://%s:%s@%s/%s" $user $password $host $database }}
 {{- end -}}
 
 vaultwarden:
