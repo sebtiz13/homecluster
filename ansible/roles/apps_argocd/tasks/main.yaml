@@ -40,7 +40,7 @@
     - application
     - applicationset
     - appproject
-- name: Patch CRDs
+- name: Deploy patched CRDs
   vars:
     metadata_patch:
       metadata:
