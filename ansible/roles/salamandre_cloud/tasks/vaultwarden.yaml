@@ -17,8 +17,8 @@
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
     restart_resources:
-      - kind: Deployment
-        name: '{{ apps_vaultwarden.release_name }}'
+      - kind: StatefulSet
+        name: '{{ manifest.spec.source.plugin.env.0.value }}'
     secrets:
       - path: vaultwarden/database
         data:
