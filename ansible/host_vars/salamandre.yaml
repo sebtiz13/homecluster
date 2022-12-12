@@ -20,3 +20,4 @@ labeled_namespaces:
   - gitlab
   - nextcloud
   - vaultwarden
+  - mailhog

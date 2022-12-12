@@ -38,6 +38,8 @@
       tags: vault
     - role: vault_smtp
       tags: smtp
+    - role: salamandre_dev
+      when: env == 'dev'
 
 # TODO: deploy prod cert-manager secret
 

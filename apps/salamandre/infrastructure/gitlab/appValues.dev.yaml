@@ -7,6 +7,10 @@ gitlab:
     shell:
       port: 2222
 
+    smtp:
+      starttls_auto: true
+      # TODO: fix mailhog work in dev
+
   gitlab:
     gitlab-exporter:
       resources:
@@ -34,6 +38,8 @@ gitlab:
         limits:
           cpu: 900m
           memory: 2Gi
+    toolbox:
+      enabled: true
     webservice:
       resources:
         limits:

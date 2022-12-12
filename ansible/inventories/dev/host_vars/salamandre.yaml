@@ -1,3 +1,9 @@
 basic_auth_users:
   - name: admin
     password: admin
+
+smtp_auth:
+  host: mailhog.mailhog.svc
+  port: '1025'
+  username: 'contact@{{ root_domain }}'
+  password: password

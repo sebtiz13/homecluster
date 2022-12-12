@@ -1,4 +1,11 @@
 nextcloud:
+  nextcloud:
+    mail:
+      smtp:
+        secure: ""
+        name: ""
+        password: ""
+
   persistence:
     nextcloudData:
       size: 8Gi

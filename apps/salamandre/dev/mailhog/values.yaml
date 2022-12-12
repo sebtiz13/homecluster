@@ -1,0 +1,17 @@
+plugin: helm
+
+ingress:
+  subdomain: mail
+
+source:
+  repoURL: https://codecentric.github.io/helm-charts
+  chart: mailhog
+  targetRevision: 5.2.2
+
+destination:
+  namespace: mailhog
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true

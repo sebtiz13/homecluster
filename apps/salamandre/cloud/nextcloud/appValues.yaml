@@ -28,8 +28,6 @@ nextcloud:
       smtp:
         host: <path:salamandre/data/smtp#host>
         port: <path:salamandre/data/smtp#port>
-        name: <path:salamandre/data/smtp#username>
-        password: <path:salamandre/data/smtp#password>
 
   resources:
     requests:
