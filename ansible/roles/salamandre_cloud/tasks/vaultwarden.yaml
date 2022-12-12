@@ -17,7 +17,7 @@
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/vaultwarden.yaml') | from_yaml }}"
     restart_resources:
-      - kind: StatefulSet
+      - kind: Deployment
         name: '{{ manifest.spec.source.plugin.env.0.value }}'
     secrets:
       - path: vaultwarden/database
