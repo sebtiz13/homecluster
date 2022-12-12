@@ -57,7 +57,7 @@ spec:
           {{- end }}
           ports:
           - name: http
-            containerPort: {{ .Values.vaultwarden.rocket_port }}
+            containerPort: {{ .Values.service.target_port }}
             protocol: TCP
           {{- if .Values.vaultwarden.websocket_enabled }}
           - name: ws
