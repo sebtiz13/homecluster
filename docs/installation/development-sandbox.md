@@ -117,6 +117,11 @@ For SSO (OpenID) apps the user is :
 - username: `test`
 - password `test`
 
+For Vaultwarden admin panel user is :
+
+- username: `admin`
+- password: `admin`
+
 ### Kubectl access
 
 You can export kubeconfig with following command :
