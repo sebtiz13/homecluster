@@ -15,7 +15,7 @@
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
-    manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
+    manifest: "{{ lookup('file', manifests_folder + '/vaultwarden.yaml') | from_yaml }}"
     restart_resources:
       - kind: StatefulSet
         name: '{{ manifest.spec.source.plugin.env.0.value }}'
