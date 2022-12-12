@@ -26,10 +26,6 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 - [Ansible](https://www.ansible.com/)
   - [yq](https://github.com/mikefarah/yq/)
 
-### Virish configuration
-
-You need have an storage pool named `vagrant`.
-
 ### Configuring DNS
 
 #### With `dnsmasq` (**recommended**)
@@ -69,6 +65,8 @@ make test-cluster
 If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
 
 You can exclude some applications by specify environment variable `ANSIBLE_SKIP_TAGS` ([see more informations](#exclude-applications))
+
+If you want change storage pool you can specify the name with `VAGRANT_STORAGE_POOL` environment variable.
 
 ### Provisioning virtual machines
 
