@@ -14,6 +14,7 @@ configuration:
 ingresses:
   adminPanel:
     enabled: true
+    className: traefik
 
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: web
@@ -22,6 +23,9 @@ ingresses:
         paths:
           - path: /
             pathType: ImplementationSpecific
+
+persistence:
+  enabled: true
 
 bootstrapConfig:
   users:
