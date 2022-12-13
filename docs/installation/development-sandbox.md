@@ -46,6 +46,7 @@ Add the following line in `/etc/hosts` file:
 
 ```conf
 192.168.12.10 local.vm argocd.local.vm vault-secrets.local.vm sso.local.vm s3.local.vm console.s3.local.vm git.local.vm
+192.168.12.11 baku.local.vm
 ```
 
 ## Commands
