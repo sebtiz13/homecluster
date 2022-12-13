@@ -18,7 +18,10 @@ ingresses:
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: web
     hosts:
-      - {{ include "ingress.host" . }}
+      - host: {{ include "ingress.host" . }}
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
 
 bootstrapConfig:
   users:
