@@ -173,11 +173,13 @@ spec:
           secret:
             secretName: {{ include "adguard.fullname" . }}
         {{- end }}
-        {{- if .Values.persistence.enabled }}
-        - name: data-storage
+        - name: data-vol
+          {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName:  {{ include "adguard.fullname" . }}
-        {{- end }}
+            claimName: {{ include "adguard.fullname" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
         {{- if and .Values.dnsOverTls.secretName .Values.dnsOverTls.mountPath }}
         - name: certificate
           secret:

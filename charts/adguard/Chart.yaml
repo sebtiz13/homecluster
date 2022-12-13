@@ -2,6 +2,6 @@ apiVersion: v2
 name: adguard
 description: A Helm chart for Kubernetes
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: v0.107.20
 icon: https://cdn.adtidy.org/website/adguard.com/favicons/favicon.svg
