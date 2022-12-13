@@ -115,10 +115,6 @@
       password: '{{ initial_password | default(admin_passwords.argocd) }}'
   register: argocd_admin_auth
 
-- name: Store api token
-  ansible.builtin.set_fact:
-    argocd_api_token: '{{ argocd_admin_auth.json.token }}'
-
 - name: Update admin password
   when:
     - argocd_initial_admin_password is not skipped

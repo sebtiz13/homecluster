@@ -15,7 +15,7 @@
   ansible.builtin.uri:
     url: '{{ argocd_api_url }}/applications/{{ name }}?refresh=hard'
     headers:
-      Authorization: 'Bearer {{ argocd_admin_auth.json.token }}'
+      Authorization: 'Bearer {{ argocd_api_token }}'
     method: GET
     status_code: 200
 

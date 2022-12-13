@@ -23,6 +23,10 @@
   hosts: salamandre
   connection: local
   tags: kubernetes
+  pre_tasks:
+    - name: Store ArgoCD api token in facts
+      ansible.builtin.set_fact:
+        argocd_api_token: '{{ argocd_admin_auth.json.token }}'
   roles:
     - role: apps_system
       tags: common
