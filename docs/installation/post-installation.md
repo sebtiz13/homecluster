@@ -14,6 +14,8 @@ step):
 
 > ⚠️ **Before run command, replace `<env>` by the wanted environment (`dev` or `prod`)**
 
+### Salamandre
+
 - ArgoCD:
   - Username: `admin`
   - Password: run `yq .argocd ./out/credentials/salamandre/<env>/admin_passwords.yaml`
@@ -24,9 +26,7 @@ step):
   - Password: run `yq .keycloak ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Minio:
   - Username: `root`
-  - Password:
-    - For salamandre: run `yq .minio ./out/credentials/salamandre/<env>/admin_passwords.yaml`
-    - For baku: run `yq .minio ./out/credentials/baku/<env>/admin_passwords.yaml`
+  - Password: `yq .minio ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Gitlab:
   - Username: `admin`
   - Password: run `yq .gitlab ./out/credentials/salamandre/<env>/admin_passwords.yaml`
@@ -36,3 +36,12 @@ step):
 - Collabora:
   - Username: `admin`
   - Password: run `yq .collabora ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+
+### Baku
+
+- Minio:
+  - Username: `root`
+  - Password: `yq .minio ./out/credentials/baku/<env>/admin_passwords.yaml`
+- Adguard:
+  - Username: `admin`
+  - Password: `yq .adguard ./out/credentials/baku/<env>/admin_passwords.yaml`

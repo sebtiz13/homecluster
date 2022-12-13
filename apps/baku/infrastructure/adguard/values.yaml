@@ -1,0 +1,17 @@
+plugin: argocd-vault-plugin-helm
+
+ingress:
+  subdomain: adguard
+
+source:
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+  chart: adguard
+  targetRevision: 0.1.0
+
+destination:
+  namespace: adguard
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true

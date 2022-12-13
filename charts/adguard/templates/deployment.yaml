@@ -1,0 +1,185 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "adguard.fullname" . }}
+  labels:
+    {{- include "adguard.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "adguard.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "adguard.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.hostNetwork.enabled }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "adguard.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.bootstrapConfig }}
+      initContainers:
+        - image: "{{ .Values.images.configurator.repository }}:{{ .Values.images.configurator.tag | default "latest" }}"
+          name: configurator
+          imagePullPolicy: {{ .Values.images.configurator.pullPolicy }}
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            - name: bootstrap-config-vol
+              mountPath: /var/adguardhome-bootstrap
+            - name: data-vol
+              mountPath: /opt/adguardhome/conf
+              subPath: conf
+          command:
+            - /bin/sh
+            - "-c"
+            - |
+              if ls /opt/adguardhome/conf/AdGuardHome.yaml; then
+                echo "Existing file will NOT be altered: /opt/adguardhome/conf/AdGuardHome.yaml"
+              else
+                cp -v /var/adguardhome-bootstrap/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
+              fi
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.images.adguard.repository }}:{{ .Values.images.adguard.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.images.adguard.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.http }}
+              {{- end }}
+              protocol: TCP
+            - name: admin
+              containerPort: 3000
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.adminPanel }}
+              {{- end }}
+              protocol: TCP
+            {{- if .Values.hostNetwork.enabled }}
+            - name: dhcp
+              containerPort: 67
+              hostPort: {{ .Values.hostNetwork.ports.dhcp }}
+              protocol: TCP
+            {{- end }}
+            {{- if or .Values.hostNetwork.enabled .Values.services.https.enabled }}
+            - name: https
+              containerPort: 443
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.https }}
+              {{- end }}
+              protocol: TCP
+            - name: https-udp
+              containerPort: 443
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.https }}
+              {{- end }}
+              protocol: UDP
+            {{- end }}
+            {{- if or .Values.hostNetwork.enabled .Values.services.dns.enabled }}
+            - name: dns-tcp
+              containerPort: 53
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.dns }}
+              {{- end }}
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.dns }}
+              {{- end }}
+              protocol: UDP
+            {{- end }}
+            {{- if or .Values.hostNetwork.enabled .Values.services.dnsOverTls.enabled }}
+            - name: dns-over-tls
+              containerPort: 853
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.dot }}
+              {{- end }}
+              protocol: TCP
+            {{- end }}
+            {{- if or .Values.hostNetwork.enabled .Values.services.dnsOverQuic.enabled }}
+            - name: dns-over-quic
+              containerPort: 754
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.doq }}
+              {{- end }}
+              protocol: UDP
+            {{- end }}
+            {{- if or .Values.hostNetwork.enabled .Values.services.dnscrypt.enabled }}
+            - name: dnscrypt
+              containerPort: 5443
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.dnscrypt }}
+              {{- end }}
+              protocol: TCP
+            - name: dnscrypt-udp
+              containerPort: 5443
+              {{- if .Values.hostNetwork.enabled }}
+              hostPort: {{ .Values.hostNetwork.ports.dnscrypt }}
+              {{- end }}
+              protocol: UDP
+            {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - /bin/netstat -pant | /bin/grep {{ .Values.livenessProbe.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          {{- end }}
+          volumeMounts:
+            - name: data-vol
+              mountPath: /opt/adguardhome/work
+              subPath: work
+            - name: data-vol
+              mountPath: /opt/adguardhome/conf
+              subPath: conf
+            {{- if and .Values.dnsOverTls.secretName .Values.dnsOverTls.mountPath }}
+            - name: certificate
+              mountPath: {{ .Values.dnsOverTls.mountPath }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        {{- if .Values.bootstrapConfig }}
+        - name: bootstrap-config-vol
+          secret:
+            secretName: {{ include "adguard.fullname" . }}
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: data-storage
+          persistentVolumeClaim:
+            claimName:  {{ include "adguard.fullname" . }}
+        {{- end }}
+        {{- if and .Values.dnsOverTls.secretName .Values.dnsOverTls.mountPath }}
+        - name: certificate
+          secret:
+            secretName: {{ .Values.dnsOverTls.secretName }}
+        {{- end }}
