@@ -1,0 +1,15 @@
+{{- $wildcard := printf "*.%s" (include "ingress.host" .) | quote -}}
+
+ingress:
+  enabled: true
+
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+  hosts:
+    - {{ include "ingress.host" . }}
+    - {{ $wildcard }}
+  tls:
+    - secretName: {{ include "ingress.tls.secretName" . }}
+      hosts:
+        - {{ include "ingress.host" . }}
+        - {{ $wildcard }}

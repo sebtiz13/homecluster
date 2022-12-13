@@ -1,0 +1,19 @@
+plugin: helm
+
+ingress:
+  subdomain: dns
+
+source:
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+  chart: adguard-proxy
+  targetRevision: 0.1.0
+
+destination:
+  namespace: adguard
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  options:
+    createNamespace: true
