@@ -82,22 +82,95 @@
   when: nextcloud_server.resources | length == 0 # This is for run only on first install
   vars:
     commands:
-      - name: Preview app
+      - name: Configure Preview app
         commands:
           - php occ config:app:set preview jpeg_quality --value 60
-      - name: Admin audit
+      - name: Enable Admin audit
         commands:
           - php occ app:enable admin_audit
           - php occ config:app:set admin_audit logfile --value /var/www/html/data/audit.log
-      - name: 2FA (TOTP)
+      - name: Enable 2FA (TOTP)
         commands:
           - php occ app:enable twofactor_totp
-      - name: Collabora
+      - name: Enable Collabora
         commands:
           - php occ app:enable richdocuments
           - php occ config:app:set richdocuments disable_certificate_verification --value true
           - php occ config:app:set richdocuments wopi_allowlist --value 10.42.0.0/16
           - php occ config:app:set richdocuments wopi_url --value {{ apps_nextcloud.host }}
+      - name: Enable Mail
+        commands:
+          - php occ app:enable mail
+      - name: Enable Bookmarks
+        commands:
+          - php occ app:enable bookmarks
+          - php occ config:app:set bookmarks privacy.enableScraping --value true
+      - name: Enable Brute-force settings
+        commands:
+          - php occ app:enable bruteforcesettings
+      - name: Enable Contacts
+        commands:
+          - php occ app:enable contacts
+      - name: Enable Draw.io
+        commands:
+          - php occ app:enable drawio
+          - php occ config:app:set drawio DrawioTheme --value dark
+          - php occ config:app:set drawio DrawioLibraries --value yes
+      - name: Enable External sites
+        commands:
+          - php occ app:enable external
+      - name: Enable Metadata
+        commands:
+          - php occ app:enable metadata
+      - name: Enable Notes
+        commands:
+          - php occ app:enable notes
+      - name: Enable Quota warning
+        commands:
+          - php occ app:enable quota_warning
+      - name: Enable Ransomware protection
+        commands:
+          - php occ app:enable ransomware_protection
+          - php occ config:app:set ransomware_protection notes_include_biased --value yes
+          # Exclude AndOTP backup
+          - php occ config:app:set ransomware_protection extension_additions --value ["^(?<!otp_accounts.*\\.json)\\.aes$"]
+          - php occ config:app:set ransomware_protection extension_exclusions --value [".aes"]
+      - name: Enable Retention
+        commands:
+          - php occ app:enable files_retention
+      - name: Enable Calendar
+        commands:
+          - php occ app:enable calendar
+      - name: Disable Activity
+        commands:
+          - php occ app:disable activity
+      - name: Disable Circles
+        commands:
+          - php occ app:disable circles
+      - name: Disable Collaborative tags
+        commands:
+          - php occ app:disable systemtags
+      - name: Disable Federation
+        commands:
+          - php occ app:disable federation
+      - name: Disable Privacy
+        commands:
+          - php occ app:disable privacy
+      - name: Disable Nextcloud announcements
+        commands:
+          - php occ app:disable nextcloud_announcements
+      - name: Disable Support
+        commands:
+          - php occ app:disable support
+      - name: Disable Usage survey
+        commands:
+          - php occ app:disable survey_client
+      - name: Disable User status
+        commands:
+          - php occ app:disable user_status
+      - name: Disable Weather status
+        commands:
+          - php occ app:disable weather_status
   kubernetes.core.k8s_exec:
     kubeconfig: '{{ kubeconfig.dest }}'
     namespace: '{{ apps_nextcloud.namespace }}'
