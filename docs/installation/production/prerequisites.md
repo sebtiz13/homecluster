@@ -51,3 +51,8 @@ Common settings:
 - Choose a static IP address for each machine (just the desired address, we don't set anything up yet)
 - OS disk name want used for ZFS pool (for example `/dev/sda`)
 - SSH root password
+
+## Fill data
+
+1. Duplicate files from `ansible/inventories/prod/host_vars/*.yaml.tpl` and remove the `.tpl` extension
+2. Fill the data inside each files

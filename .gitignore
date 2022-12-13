@@ -1,5 +1,5 @@
 .vagrant/
-ansible/inventories/prod/host_vars/
+ansible/inventories/prod/host_vars/*.yaml
 out/
 
 charts/*/charts
