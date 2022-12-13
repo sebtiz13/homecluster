@@ -9,5 +9,5 @@
     secrets:
       - path: adguard/auth
         data:
-          rootUser: admin
-          rootPassword: '{{ admin_passwords.adguard }}'
+          adminUser: admin
+          adminPassword: '{{ admin_passwords.adguard }}'

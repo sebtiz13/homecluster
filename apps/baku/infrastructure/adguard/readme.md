@@ -12,5 +12,5 @@ The secrets keys need to exist for deploy the app
 
 Admin user informations
 
-- `username`: The username
-- `password`: The password
+- `adminUser`: The username
+- `adminPassword`: The password

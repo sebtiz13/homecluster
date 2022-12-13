@@ -22,5 +22,5 @@ ingresses:
 
 bootstrapConfig:
   users:
-    - name: <path:baku/data/adguard/auth#username>
-      passowrd: <path:baku/data/adguard/auth#password>
+    - name: <path:baku/data/adguard/auth#adminUser>
+      passowrd: <path:baku/data/adguard/auth#adminPassword>
