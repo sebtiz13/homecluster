@@ -121,7 +121,7 @@
           - DrawioLibraries --value yes
       - id: external # External sites
         commands:
-          - sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"\",\"groups\":[],\"redirect\":false}}"
+          - sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}"
           - max_site --value 1
       - id: ransomware_protection # Ransomware protection
         commands:
@@ -137,3 +137,40 @@
   loop: '{{ commands }}'
   loop_control:
     label: '{{ item.id }}'
+
+- name: Retrieve Nexcloud instance id
+  when: nextcloud_pod is not skipped # This is for run only on first install
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+    pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+    command: su -m www-data -s /bin/sh -c 'php occ config:system:get instanceid'
+  register: nextcloud_instanceid
+
+- name: Upload external apps icons to Nexcloud
+  when: nextcloud_pod is not skipped # This is for run only on first install
+  vars:
+    base_path: /var/www/html/data/appdata_{{ nextcloud_instanceid.stdout_lines.0 }}/external/icons
+    icons:
+      - wallabag.svg
+      - wallabag-dark.svg
+  block:
+    - name: Upload external apps icons to Nexcloud
+      kubernetes.core.k8s_cp:
+        kubeconfig: '{{ kubeconfig.dest }}'
+        state: to_pod
+        namespace: '{{ apps_nextcloud.namespace }}'
+        pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+        container: nextcloud
+        local_path: '{{ item }}'
+        remote_path: '{{ base_path }}/{{ item }}'
+        no_preserve: true
+      loop: '{{ icons }}'
+
+    - name: Fix permission of external apps icons in Nexcloud
+      kubernetes.core.k8s_exec:
+        kubeconfig: '{{ kubeconfig.dest }}'
+        namespace: '{{ apps_nextcloud.namespace }}'
+        pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+        command: chown www-data:www-data {{ base_path }}/{{ item }}
+      loop: '{{ icons }}'
