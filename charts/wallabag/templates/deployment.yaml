@@ -77,7 +77,6 @@ spec:
           volumeMounts:
             - mountPath: /etc/wallabag
               name: config-template
-            - mountPath:
             {{- if .Values.persistence.images.enabled }}
             - mountPath: {{ .Values.persistence.image.mountPath }}
               name: images-vol
