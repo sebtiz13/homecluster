@@ -44,6 +44,9 @@ spec:
             httpGet:
               path: /login
               port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /login
