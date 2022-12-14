@@ -6,9 +6,10 @@ metadata:
     {{- include "wallabag.labels" . | nindent 4 }}
 data:
   entrypoint.sh: |-
+    #!/bin/sh
     cd /var/www/wallabag || exit
     echo "Starting Wallabag ..."
-    apk add postgresql-client
+    apk add postgresql-client >/dev/null
 
     cat > app/config/parameters.yml <<EOF
     parameters:
