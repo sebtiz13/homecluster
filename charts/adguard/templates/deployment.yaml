@@ -72,18 +72,6 @@ spec:
               hostPort: {{ .Values.hostNetwork.ports.http }}
               {{- end }}
               protocol: TCP
-            - name: admin
-              containerPort: 3000
-              {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.adminPanel }}
-              {{- end }}
-              protocol: TCP
-            {{- if .Values.hostNetwork.enabled }}
-            - name: dhcp
-              containerPort: 67
-              hostPort: {{ .Values.hostNetwork.ports.dhcp }}
-              protocol: TCP
-            {{- end }}
             {{- if or .Values.hostNetwork.enabled .Values.services.https.enabled }}
             - name: https
               containerPort: 443
@@ -141,6 +129,12 @@ spec:
               hostPort: {{ .Values.hostNetwork.ports.dnscrypt }}
               {{- end }}
               protocol: UDP
+            {{- end }}
+            {{- if .Values.hostNetwork.enabled }}
+            - name: dhcp
+              containerPort: 67
+              hostPort: {{ .Values.hostNetwork.ports.dhcp }}
+              protocol: TCP
             {{- end }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:

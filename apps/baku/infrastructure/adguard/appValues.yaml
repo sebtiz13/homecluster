@@ -1,5 +1,5 @@
 ingresses:
-  adminPanel:
+  http:
     enabled: true
     className: traefik
 

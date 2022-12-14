@@ -11,7 +11,7 @@ services:
     enabled: false
 
 ingresses:
-  adminPanel:
+  http:
     hosts:
       - adguard.baku.home
 
