@@ -38,11 +38,11 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /login
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /login
               port: http
           env:
             {{- range $key, $val := .Values.env }}
