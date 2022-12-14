@@ -32,10 +32,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/sh
-            - "-c"
-            - /etc/wallabag/entrypoint.sh
+          command: ['/etc/wallabag/entrypoint.sh']
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -51,6 +48,9 @@ spec:
             httpGet:
               path: /login
               port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 30
           env:
             {{- range $key, $val := .Values.env }}
             - name: {{ $key | quote }}
