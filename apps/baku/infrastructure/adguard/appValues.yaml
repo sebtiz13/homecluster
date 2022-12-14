@@ -2,9 +2,9 @@ ingresses:
   http:
     enabled: true
     className: traefik
-
     annotations:
       traefik.ingress.kubernetes.io/router.entrypoints: web
+
     hosts:
       - host: {{ include "ingress.host" . }}
         paths:

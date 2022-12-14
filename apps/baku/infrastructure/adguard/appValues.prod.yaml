@@ -13,7 +13,10 @@ services:
 ingresses:
   http:
     hosts:
-      - adguard.baku.home
+      - host: adguard.baku.home
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
 
 hostNetwork:
   enabled: true
