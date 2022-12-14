@@ -1,0 +1,29 @@
+- name: Generate Wallabag database password
+  ansible.builtin.set_fact:
+    apps_wallabag:
+      _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+
+- name: Create Wallabag database access
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: wallabag
+    username: wallabag
+    password: '{{ apps_wallabag._db_passowrd }}'
+
+- name: Deploy Wallabag application and secrets
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/wallabag.yaml') | from_yaml }}"
+    restart_resources:
+      - kind: Deployment
+        name: '{{ manifest.spec.source.plugin.env.0.value }}'
+    secrets:
+      - path: wallabag/database
+        data:
+          host: postgresql.loc
+          port: '5432'
+          database: wallabag
+          user: wallabag
+          password: '{{ apps_wallabag._db_passowrd }}'

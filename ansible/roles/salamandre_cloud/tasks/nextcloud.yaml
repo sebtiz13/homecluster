@@ -119,6 +119,8 @@
       - name: Enable External sites
         commands:
           - php occ app:enable external
+          - php occ config:app:set external sites --value '[{"id":1,"name":"Wallabag","url":"https://bag.{{ domain_name }}","lang":"","type":"link","device":"","icon":"","groups":"","redirect":false}]'
+          - php occ config:app:set external max_site --value 1
       - name: Enable Metadata
         commands:
           - php occ app:enable metadata
