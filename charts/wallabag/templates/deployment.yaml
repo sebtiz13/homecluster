@@ -35,7 +35,7 @@ spec:
           command:
             - /bin/sh
             - "-c"
-            - chmod +x /etc/wallabag/entrypoint.sh && /etc/wallabag/entrypoint.sh
+            - /etc/wallabag/entrypoint.sh
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -63,8 +63,9 @@ spec:
                 {{- end }}
           {{- end }}
           volumeMounts:
-            - mountPath: /etc/wallabag
+            - mountPath: /etc/wallabag/entrypoint.sh
               name: entrypoint
+              subPath: entrypoint.sh
             {{- if .Values.persistence.images.enabled }}
             - mountPath: {{ .Values.persistence.image.mountPath }}
               name: images-vol
@@ -79,9 +80,7 @@ spec:
         - name: entrypoint
           configMap:
             name: {{ $fullName }}-script
-            items:
-              - key: entrypoint.sh
-                path: entrypoint.sh
+            defaultMode: 0740
         {{- if .Values.persistence.images.enabled }}
         - name: images-vol
           persistentVolumeClaim:
