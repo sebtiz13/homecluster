@@ -1,4 +1,4 @@
-domain_name: '{{ root_domain }}'
+domain_name: "{{ root_domain }}"
 
 k3s:
   flags:
@@ -22,3 +22,33 @@ labeled_namespaces:
   - nextcloud
   - vaultwarden
   - mailhog
+
+nextcloud_apps:
+  disable:
+    - activity # Activity
+    - circles # Circles
+    - systemtags # Collaborative tags
+    - federation # Federation
+    - privacy # Privacy
+    - nextcloud_announcements # Nextcloud announcements
+    - support # Support
+    - survey_client # Usage survey
+    - user_status # User status
+    - weather_status # Weather status
+
+  enable:
+    - admin_audit # Admin audit
+    - twofactor_totp # 2FA (TOTP)
+    - richdocuments # Collabora
+    - mail # Mai
+    - bookmarks # Bookmark
+    - bruteforcesettings # Brute-force settings
+    - contacts # Contact
+    - drawio # Draw.io
+    - external # External sites
+    - metadata # Metadat
+    - notes # Note
+    - quota_warning # Quota warning
+    - ransomware_protection # Ransomware protection
+    - files_retention # Retentio
+    - calendar # Calenda
