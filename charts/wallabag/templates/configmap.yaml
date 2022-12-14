@@ -1,11 +1,16 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ include "wallabag.fullname" . }}
+  name: {{ include "wallabag.fullname" . }}-script
   labels:
     {{- include "wallabag.labels" . | nindent 4 }}
 data:
-  parameters.template.yml: |-
+  entrypoint.sh: |-
+    cd /var/www/wallabag || exit
+    echo "Starting Wallabag ..."
+    apk add postgresql-client
+
+    cat > app/config/parameters.yml <<EOF
     parameters:
       database_driver: ${SYMFONY__ENV__DATABASE_DRIVER:-pdo_sqlite}
       database_host: ${SYMFONY__ENV__DATABASE_HOST:-127.0.0.1}
@@ -69,3 +74,14 @@ data:
 
       # User-friendly name of your instance for 2FA issuer
       server_name: ${SYMFONY__ENV__SERVER_NAME:-"Your wallabag instance"}
+    EOF
+
+    export PGPASSWORD="${SYMFONY__ENV__DATABASE_PASSWORD}"
+    TABLE_EXIST=$(psql -qAt -h ${SYMFONY__ENV__DATABASE_HOST} -p ${SYMFONY__ENV__DATABASE_PORT} -U ${SYMFONY__ENV__DATABASE_USER} -d ${SYMFONY__ENV__DATABASE_NAME} -c "SELECT EXISTS(SELECT table_name FROM information_schema.tables WHERE table_catalog='${SYMFONY__ENV__DATABASE_NAME}' AND table_name='wallabag_user');")
+    [ "$TABLE_EXIST" = "f" ] && su -c "php bin/console wallabag:install --env=prod -n" -s /bin/sh nobody
+
+    rm -f -r /var/www/wallabag/var/cache
+    su -c "SYMFONY_ENV=prod composer install --no-dev -o --prefer-dist" -s /bin/sh nobody
+    echo "Wallabag is ready!"
+
+     exec s6-svscan /etc/s6/
