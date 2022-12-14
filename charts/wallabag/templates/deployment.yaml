@@ -1,7 +1,8 @@
+{{ $fullName := include "wallabag.fullname" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "wallabag.fullname" . }}
+  name: {{ $fullName }}
   labels:
     {{- include "wallabag.labels" . | nindent 4 }}
 spec:
@@ -54,8 +55,31 @@ spec:
                 {{- if and .Values.externalSecret.target .Values.externalSecret.target.name }}
                 name: {{ .Values.externalSecret.target.name }}
                 {{- else }}
-                name: {{ include "wallabag.fullname" . }}
+                name: {{ $fullName }}
                 {{- end }}
+          {{- end }}
+          {{- if or .Values.persistence.images.enabled .Values.persistence.cache.enabled }}
+          volumeMounts:
+            {{- if .Values.persistence.images.enabled }}
+            - mountPath: {{ .Values.persistence.image.mountPath }}
+              name: images-vol
+            {{- end }}
+            {{- if .Values.persistence.cache.enabled }}
+            - mountPath: {{ .Values.persistence.cache.mountPath }}
+              name: cache-vol
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      {{- if or .Values.persistence.images.enabled .Values.persistence.cache.enabled }}
+      volumes:
+        {{- if .Values.persistence.images.enabled }}
+        - name: images-vol
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}
+        {{- end }}
+        {{- if .Values.persistence.cache.enabled }}
+        - name: cache-vol
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}
+        {{- end }}
+      {{- end }}
