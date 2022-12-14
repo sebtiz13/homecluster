@@ -21,6 +21,7 @@ labeled_namespaces:
   - gitlab
   - nextcloud
   - vaultwarden
+  - wallabag
   - mailhog
 
 nextcloud_apps:
