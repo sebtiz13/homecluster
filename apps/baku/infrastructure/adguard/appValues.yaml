@@ -13,6 +13,7 @@ ingresses:
 
 persistence:
   enabled: true
+  size: 1Gi
 
 bootstrapConfig:
   users:
@@ -20,6 +21,7 @@ bootstrapConfig:
       passowrd: <path:baku/data/adguard/auth#adminPassword>
 
   dns:
+    querylog_interval: 24h
     upstream_dns:
       - https://dns10.quad9.net/dns-query
       - https://dns.cloudflare.com/dns-query
