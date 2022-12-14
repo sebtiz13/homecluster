@@ -32,6 +32,21 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - "-c"
+            - |
+              echo "Starting Wallabag ..."
+              envsubst < /etc/wallabag/parameters.template.yml > app/config/parameters.yml
+              if [ ! -f "app/config/INSTALLED" ]; then
+                php bin/console wallabag:install --env=prod -n
+                touch app/config/INSTALLED
+              fi
+              rm -f -r /var/www/wallabag/var/cache
+              su -c "SYMFONY_ENV=prod composer install --no-dev -o --prefer-dist" -s /bin/sh nobody
+              echo "Wallabag is ready!"
+
+              exec s6-svscan /etc/s6/
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -58,8 +73,9 @@ spec:
                 name: {{ $fullName }}
                 {{- end }}
           {{- end }}
-          {{- if or .Values.persistence.images.enabled .Values.persistence.cache.enabled }}
           volumeMounts:
+            - mountPath: /etc/wallabag
+              name: config-template
             {{- if .Values.persistence.images.enabled }}
             - mountPath: {{ .Values.persistence.image.mountPath }}
               name: images-vol
@@ -67,11 +83,16 @@ spec:
             {{- if .Values.persistence.cache.enabled }}
             - mountPath: {{ .Values.persistence.cache.mountPath }}
               name: cache-vol
-          {{- end }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- if or .Values.persistence.images.enabled .Values.persistence.cache.enabled }}
       volumes:
+        - name: config-template
+          configMap:
+            name: {{ $fullName }}
+            items:
+              - key: parameters.template.yml
+                path: parameters.template.yml
         {{- if .Values.persistence.images.enabled }}
         - name: images-vol
           persistentVolumeClaim:
@@ -82,4 +103,3 @@ spec:
           persistentVolumeClaim:
             claimName: {{ $fullName }}
         {{- end }}
-      {{- end }}

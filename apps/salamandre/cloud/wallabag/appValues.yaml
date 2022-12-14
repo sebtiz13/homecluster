@@ -1,9 +1,8 @@
 env:
   TZ: Europe/Paris
-  POPULATE_DATABASE: False
   SYMFONY__ENV__DOMAIN_NAME: https://{{ include "ingress.host" . }}
   SYMFONY__ENV__SERVER_NAME: {{ .Values.baseDomain }}
-  SYMFONY__ENV__FOSUSER_REGISTRATION: false
+  SYMFONY__ENV__FOSUSER_REGISTRATION: 'false'
   SYMFONY__ENV__DATABASE_DRIVER: pdo_pgsql
 
 ingress:
