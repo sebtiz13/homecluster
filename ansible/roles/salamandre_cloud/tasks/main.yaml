@@ -5,7 +5,7 @@
 - name: Deploy Vaultwarden
   tags: vaultwarden
   ansible.builtin.import_tasks: vaultwarden.yaml
-
-- name: Deploy Wallabag
-  tags: wallabag
-  ansible.builtin.import_tasks: wallabag.yaml
+# TODO: Fix it !
+# - name: Deploy Wallabag
+#   tags: wallabag
+#   ansible.builtin.import_tasks: wallabag.yaml
