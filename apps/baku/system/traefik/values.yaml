@@ -1,9 +1,9 @@
 plugin: helm
 
 source:
-  repoURL: https://helm.traefik.io/traefik
+  repoURL: https://traefik.github.io/charts
   chart: traefik
-  targetRevision: 17.0.5
+  targetRevision: 20.8.0
 
 destination:
   namespace: traefik

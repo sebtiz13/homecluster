@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://helm.releases.hashicorp.com
   chart: vault
-  targetRevision: 0.22.0
+  targetRevision: 0.23.0
 
 destination:
   namespace: vault
