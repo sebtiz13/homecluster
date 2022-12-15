@@ -68,6 +68,28 @@
     namespace: '{{ apps_argocd.namespace }}'
   register: argocd_server
 
+- name: Deploy extra objects
+  when: argocd_server.resources | length == 0 # This prevent re deploy with helm when is already deployed
+  vars:
+    metadata_patch:
+      metadata:
+        labels:
+          app.kubernetes.io/managed-by: Helm
+        annotations:
+          meta.helm.sh/release-namespace: '{{ apps_argocd.namespace }}'
+          meta.helm.sh/release-name: '{{ apps_argocd.release_name }}'
+    manifest: '{{ item | from_yaml | combine(metadata_patch, recursive=True) }}'
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    namespace: '{{ apps_argocd.namespace }}'
+    resource_definition: '{{ manifest }}'
+    validate:
+      fail_on_error: true
+  loop: '{{ apps_argocd._values.extraObjects | default([]) }}'
+  loop_control:
+    label: '{{ item.metadata.name }}'
+
 - name: Deploy chart
   when: argocd_server.resources | length == 0 # This prevent re deploy with helm when is already deployed
   kubernetes.core.helm:

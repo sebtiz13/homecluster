@@ -86,16 +86,6 @@ repoServer:
         - list
         - watch
 
-  volumes:
-    - configMap:
-        name: cmp-plugin
-      name: cmp-plugin
-    - emptyDir: {}
-      name: cmp-tmp
-
-    - name: custom-tools
-      emptyDir: {}
-
   initContainers:
     - name: download-tools
       image: alpine
@@ -138,7 +128,7 @@ repoServer:
         # Register plugins into sidecar
         - mountPath: /home/argocd/cmp-server/config/plugin.yaml
           subPath: avp-helm.yaml
-          name: argocd-cmp-plugin
+          name: cmp-plugin
         # Important: Mount tools into $PATH
         - name: custom-tools
           subPath: argocd-vault-plugin
@@ -146,10 +136,17 @@ repoServer:
 
   volumeMounts:
     - name: custom-tools
-      mountPath: /custom-tools
-    - name: custom-tools
       mountPath: /usr/local/bin/argocd-vault-plugin
       subPath: argocd-vault-plugin
+
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+    - name: cmp-plugin
+      configMap:
+        name: argocd-cmp-plugin
+    - name: cmp-tmp
+      emptyDir: {}
 
 configs:
   secret:
