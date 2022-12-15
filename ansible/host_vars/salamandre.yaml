@@ -14,15 +14,38 @@ domains:
 
 # TODO: Until ArgoCD release https://github.com/argoproj/argo-cd/issues/7799
 labeled_namespaces:
-  - argocd
-  - vault
-  - keycloak
-  - minio
-  - gitlab
-  - nextcloud
-  - vaultwarden
-  # - wallabag # TODO: fix it
-  - mailhog
+  - name: argocd
+    tags:
+      - argocd
+  - name: vault
+    tags:
+      - vault
+  - name: keycloak
+    tags:
+      - oidc
+      - keycloak
+  - name: minio
+    tags:
+      - minio
+  - name: gitlab
+    tags:
+      - minio
+      - gitlab
+  - name: nextcloud
+    tags:
+      - cloud
+      - nextcloud
+  - name: vaultwarden
+    tags:
+      - cloud
+      - vaultwarden
+  # - name: wallabag # TODO: fix it
+  #   tags:
+  #     - cloud
+  #     - wallabag
+  - name: mailhog
+    tags:
+      - mailhog
 
 nextcloud_apps:
   disable:

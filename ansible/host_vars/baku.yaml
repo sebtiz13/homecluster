@@ -6,5 +6,9 @@ k3s:
 
 # TODO: Until ArgoCD release https://github.com/argoproj/argo-cd/issues/7799
 labeled_namespaces:
-  - minio
-  - adguard
+  - name: minio
+    tags:
+      - minio
+  - name: adguard
+    tags:
+      - adguard
