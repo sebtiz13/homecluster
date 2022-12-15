@@ -20,9 +20,12 @@ Statement:
 
 fullnameOverride: "minio"
 
-rootUser: <path:salamandre/data/minio/auth#rootUser>
-rootPassword: <path:salamandre/data/minio/auth#rootPassword>
 mode: standalone
+
+users:
+  - accessKey: <path:baku/data/minio/auth#rootUser>
+    secretKey: <path:baku/data/minio/auth#rootPassword>
+    policy: consoleAdmin
 
 buckets:
   - name: tmp
