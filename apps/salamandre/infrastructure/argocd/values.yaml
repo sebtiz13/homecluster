@@ -17,6 +17,7 @@ syncPolicy:
     selfHeal: true
 
 # App values
+argocdVersion: 2.5.4
 gitlabProjectID: '40446088'
 vaultURL: http://vault-internal.vault.svc:8200
 

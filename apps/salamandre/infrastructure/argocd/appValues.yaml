@@ -1,3 +1,31 @@
+{{- define "argocd.avp" }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ConfigManagementPlugin
+metadata:
+  name: argocd-vault-plugin-helm
+spec:
+  version: "v{{ .Values.toolsVersion.avp }}"
+  allowConcurrency: true
+  lockRepo: false
+  init:
+    command: [sh, -c, 'helm dependency update']
+  generate:
+    command:
+      - sh
+      - -c
+      - |
+        echo "$$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml &&
+        helm template $${ARGOCD_ENV_HELM_RELEASE_NAME:-$${ARGOCD_APP_NAME}} --include-crds -n $$ARGOCD_APP_NAMESPACE $$ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . |
+        argocd-vault-plugin generate -'
+  discover:
+    find:
+      command:
+        - sh
+        - "-c"
+        - "find . -name 'Chart.yaml' && find . -name 'values.yaml'"
+{{- end -}}
+
 fullnameOverride: "argocd"
 
 global:
@@ -24,19 +52,6 @@ server:
 
   config:
     url: https://{{ include "ingress.host" . }}
-
-    configManagementPlugins: |-
-      - name: argocd-vault-plugin
-        generate:
-          command: ["argocd-vault-plugin"]
-          args: ["generate", "./"]
-      - name: argocd-vault-plugin-helm
-        init:
-          command: [sh, -c]
-          args: ["helm dependency update"]
-        generate:
-          command: [sh, -c]
-          args: ['echo "$$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml && helm template $${ARGOCD_ENV_HELM_RELEASE_NAME:-$${ARGOCD_APP_NAME}} --namespace $$ARGOCD_APP_NAMESPACE $$ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . | argocd-vault-plugin generate -']
 
     oidc.config: |
       {{ tpl (.Values.baseOidcConfig | toYaml) . | nindent 6  }}
@@ -72,6 +87,12 @@ repoServer:
         - watch
 
   volumes:
+    - configMap:
+        name: cmp-plugin
+      name: cmp-plugin
+    - emptyDir: {}
+      name: cmp-tmp
+
     - name: custom-tools
       emptyDir: {}
 
@@ -79,6 +100,9 @@ repoServer:
     - name: download-tools
       image: alpine
       command: [sh, -c]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
       env:
         - name: AVP_VERSION
           value: {{ .Values.toolsVersion.avp | quote }}
@@ -86,6 +110,7 @@ repoServer:
           value: {{ .Values.toolsVersion.vault | quote }}
       args:
         - |-
+          cd $(mktemp -d)
           echo "Install Vault plugin"
           wget -qO /custom-tools/argocd-vault-plugin https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v$${AVP_VERSION}/argocd-vault-plugin_$${AVP_VERSION}_linux_amd64
           echo "Install Vault cli"
@@ -95,6 +120,29 @@ repoServer:
       volumeMounts:
         - mountPath: /custom-tools
           name: custom-tools
+
+  extraContainers:
+    - name: avp-helm
+      command: [/var/run/argocd/argocd-cmp-server]
+      image: quay.io/argoproj/argocd:v{{ .Values.argocdVersion }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+      volumeMounts:
+        - mountPath: /var/run/argocd
+          name: var-files
+        - mountPath: /home/argocd/cmp-server/plugins
+          name: plugins
+        - mountPath: /tmp
+          name: cmp-tmp
+        # Register plugins into sidecar
+        - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+          subPath: avp-helm.yaml
+          name: argocd-cmp-plugin
+        # Important: Mount tools into $PATH
+        - name: custom-tools
+          subPath: argocd-vault-plugin
+          mountPath: /usr/local/bin/argocd-vault-plugin
 
   volumeMounts:
     - name: custom-tools
@@ -130,6 +178,13 @@ notifications:
   enabled: false
 
 extraObjects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: argocd-cmp-plugin
+    data:
+      avp-helm.yaml: |-
+        {{ include "argocd.avp" . | trim | nindent 8 }}
 {{- range .Values.projects }}
   - apiVersion: argoproj.io/v1alpha1
     kind: AppProject

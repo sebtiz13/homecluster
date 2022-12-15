@@ -17,7 +17,6 @@ spec:
     targetRevision: {{ .Values.source.targetRevision }}
     {{- if eq ( .Values.plugin | toString ) "argocd-vault-plugin-helm" }}
     plugin:
-      name: argocd-vault-plugin-helm
       {{- if or .Values.helmArgs $values }}
       env:
         {{- if .Values.releaseName }}
