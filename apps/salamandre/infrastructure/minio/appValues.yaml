@@ -3,19 +3,38 @@ Version: "2012-10-17"
 Statement:
   - Effect: Allow
     Action:
-      - s3:ListBucket
+      {{- range .actions }}
+      {{- if eq . "rw" }}
+      - s3:AbortMultipartUpload
       - s3:GetObject
       - s3:DeleteObject
       - s3:PutObject
+      - s3:ListMultipartUploadParts
+      {{- else if eq . "ro" }}
+      - s3:GetObject
+      {{- end }}
+      {{- if eq . "rwList" }}
+      - s3:CreateBucket
+      - s3:DeleteBucket
+      - s3:GetBucketLocation
+      - s3:ListBucket
+      - s3:ListBucketMultipartUploads
+      {{- else if eq . "roList" }}
+      - s3:GetBucketLocation
+      - s3:ListBucket
+      - s3:ListBucketMultipartUploads
+      {{- end }}
+      {{- end }}
     Resource:
-      {{- range . }}
+      {{- range .resources }}
       - {{ printf "arn:aws:s3:::%s" . | quote }}
-     {{ end -}}
+      {{- end }}
 {{- end -}}
 {{- define "svcacct.command" }}
 {{ $rootUser := "<path:salamandre/data/minio/auth#rootUser>" }}
-{{ $policy := printf "$(echo '%s' > policy.json && echo \"policy.json\")" (include "svcacct.policy" .resources | fromYaml | toJson) }}
-{{- printf "admin user svcacct add --access-key \"%s\" --secret-key \"%s\" --policy \"%s\" myminio \"%s\"" .accessKey .secretKey $policy $rootUser }}
+{{ $policy := printf "$(echo '%s' > policy.json && echo \"policy.json\")" (include "svcacct.policy" .policy | fromYaml | toJson) }}
+{{ $type := printf "$(runCommand admin user svcacct info myminio \"%s\" >/dev/null 2>&1 && echo 'set' || echo 'add --access-key \"%s\"')" .accessKey .accessKey }}
+{{- printf "admin user svcacct %s --secret-key \"%s\" --policy \"%s\" myminio \"%s\"" $type .secretKey $policy $rootUser }}
 {{- end -}}
 
 fullnameOverride: "minio"

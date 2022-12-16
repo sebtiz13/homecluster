@@ -42,7 +42,10 @@ buckets:
 serviceAccounts:
   - accessKey: <path:salamandre/data/gitlab/s3#accessKey>
     secretKey: <path:salamandre/data/gitlab/s3#secretKey>
-    resources:
-      - gitlab-*/*
-      - git-lfs/*
-      - tmp/*
+    policy:
+      actions:
+        - rw
+      resources:
+        - gitlab-*/*
+        - git-lfs/*
+        - tmp/*
