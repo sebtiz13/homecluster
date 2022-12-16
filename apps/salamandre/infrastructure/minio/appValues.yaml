@@ -1,94 +1,55 @@
-{{- define "svcacct.policy" }}
-Version: "2012-10-17"
-Statement:
-  - Effect: Allow
-    Action:
-      {{- range .actions }}
-      {{- if eq . "rw" }}
-      - s3:AbortMultipartUpload
-      - s3:GetObject
-      - s3:DeleteObject
-      - s3:PutObject
-      - s3:ListMultipartUploadParts
-      {{- else if eq . "ro" }}
-      - s3:GetObject
-      {{- end }}
-      {{- if eq . "rwList" }}
-      - s3:CreateBucket
-      - s3:DeleteBucket
-      - s3:GetBucketLocation
-      - s3:ListBucket
-      - s3:ListBucketMultipartUploads
-      {{- else if eq . "roList" }}
-      - s3:GetBucketLocation
-      - s3:ListBucket
-      - s3:ListBucketMultipartUploads
-      {{- end }}
-      {{- end }}
-    Resource:
-      {{- range .resources }}
-      - {{ printf "arn:aws:s3:::%s" . | quote }}
-      {{- end }}
-{{- end -}}
-{{- define "svcacct.command" }}
-{{ $rootUser := "<path:salamandre/data/minio/auth#rootUser>" }}
-{{ $policy := printf "$(echo '%s' > policy.json && echo policy.json)" (include "svcacct.policy" .policy | fromYaml | toJson) }}
-{{ $type := printf "$(runCommand admin user svcacct info myminio %s >/dev/null 2>&1 && echo 'set' || echo 'add --access-key %s')" .accessKey .accessKey }}
-{{- printf "admin user svcacct %s --secret-key %s --policy %s myminio %s" $type .secretKey $policy $rootUser }}
-{{- end -}}
-
-fullnameOverride: "minio"
-
-mode: standalone
-rootUser: <path:salamandre/data/minio/auth#rootUser>
-rootPassword: <path:salamandre/data/minio/auth#rootPassword>
-
-users: [] # Remove default user
-
-buckets:
-  - name: tmp
-    policy: none
-  {{- range .Values.buckets }}
-  - name: {{ .name }}
-    policy: {{ .policy }}
-  {{- end }}
-
-customCommands:
+svcaccts:
   {{- range .Values.serviceAccounts }}
-  - command: {{ include "svcacct.command" . | trim | quote }}
+  - {{ toYaml . | nindent 4 }}
   {{- end }}
 
-environment:
-  MINIO_BROWSER_REDIRECT_URL: https://console.{{ include "ingress.host" . }}
-ingress:
-  enabled: true
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-  path: /
-  hosts:
-    - {{ include "ingress.host" . }}
-  tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
-        - {{ include "ingress.host" . }}
-consoleIngress:
-  enabled: true
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-  hosts:
-    - console.{{ include "ingress.host" . }}
-  tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
-        - console.{{ include "ingress.host" . }}
+minio:
+  fullnameOverride: "minio"
 
-persistence:
-  size: 10Gi
+  mode: standalone
+  rootUser: <path:salamandre/data/minio/auth#rootUser>
+  rootPassword: <path:salamandre/data/minio/auth#rootPassword>
 
-resources:
-  requests:
-      cpu: 10m
-      memory: 192Mi
-  limits:
-      cpu: 1000m
-      memory: 1Gi
+  users: [] # Remove default user
+
+  buckets:
+    - name: tmp
+      policy: none
+    {{- range .Values.buckets }}
+    - name: {{ .name }}
+      policy: {{ .policy }}
+    {{- end }}
+  environment:
+    MINIO_BROWSER_REDIRECT_URL: https://console.{{ include "ingress.host" . }}
+  ingress:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    path: /
+    hosts:
+      - {{ include "ingress.host" . }}
+    tls:
+      - secretName: {{ include "ingress.tls.secretName" . }}
+        hosts:
+          - {{ include "ingress.host" . }}
+  consoleIngress:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    hosts:
+      - console.{{ include "ingress.host" . }}
+    tls:
+      - secretName: {{ include "ingress.tls.secretName" . }}
+        hosts:
+          - console.{{ include "ingress.host" . }}
+
+  persistence:
+    size: 10Gi
+
+  resources:
+    requests:
+        cpu: 10m
+        memory: 192Mi
+    limits:
+        cpu: 1000m
+        memory: 1Gi

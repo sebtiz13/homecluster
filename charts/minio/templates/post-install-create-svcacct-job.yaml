@@ -1,0 +1,111 @@
+{{- $global := . -}}
+{{- if .Values.svcaccts }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "minio.fullname" .Subcharts.minio }}-make-svcacct-job
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: {{ template "minio.name" .Subcharts.minio }}-make-svcacct-job
+    chart: {{ template "minio.chart" .Subcharts.minio }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+{{- with .Values.makeServiceAccountJob.annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ template "minio.name" . }}-job
+        release: {{ .Release.Name }}
+{{- if .Values.minio.podLabels }}
+{{ toYaml .Values.minio.podLabels | indent 8 }}
+{{- end }}
+{{- if .Values.makeServiceAccountJob.podAnnotations }}
+      annotations:
+{{ toYaml .Values.makeServiceAccountJob.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      restartPolicy: OnFailure
+{{- include "minio.imagePullSecrets" .Subcharts.minio | indent 6 }}
+{{- if .Values.minio.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.makeServiceAccountJob.nodeSelector | indent 8 }}
+{{- end }}
+{{- with .Values.makeServiceAccountJob.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.makeServiceAccountJob.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- if .Values.makeServiceAccountJob.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.makeServiceAccountJob.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.makeServiceAccountJob.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.makeServiceAccountJob.securityContext.fsGroup }}
+{{- end }}
+      volumes:
+        - name: minio-configuration
+          projected:
+            sources:
+            - configMap:
+                name: {{ template "minio.fullname" .Subcharts.minio }}-2
+            - secret:
+                name: {{ template "minio.secretName" .Subcharts.minio }}
+            {{- range .Values.svcaccts }}
+            {{- if .existingSecret }}
+            - secret:
+                name: {{ tpl .existingSecret $global }}
+                items:
+                  - key: {{ .existingSecretKey }}
+                    path: secrets/{{ tpl .existingSecret $global }}/{{ tpl .existingSecretKey $global }}
+            {{- end }}
+            {{- end }}
+        {{- if .Values.minio.tls.enabled }}
+        - name: cert-secret-volume-mc
+          secret:
+            secretName: {{ .Values.minio.tls.certSecret }}
+            items:
+            - key: {{ .Values.minio.tls.publicCrt }}
+              path: CAs/public.crt
+        {{ end }}
+        {{- if .Values.makeServiceAccountJob.extraVolumes }}
+          {{- toYaml .Values.makeServiceAccountJob.extraVolumes | nindent 8 }}
+        {{- end }}
+{{ if .Values.minio.serviceAccount.create }}
+      serviceAccountName: {{ .Values.minio.serviceAccount.name }}
+{{- end }}
+      containers:
+      - name: minio-mc
+        image: "{{ .Values.minio.mcImage.repository }}:{{ .Values.minio.mcImage.tag }}"
+        imagePullPolicy: {{ .Values.minio.mcImage.pullPolicy }}
+        {{- if .Values.makeServiceAccountJob.exitCommand }}
+        command: ["/bin/sh", "-c"]
+        args: ["/bin/sh /config/add-svcacct; x=$(echo $?); {{ .Values.makeServiceAccountJob.exitCommand }} && exit $x" ]
+        {{- else }}
+        command: ["/bin/sh", "/config/add-svcacct"]
+        {{- end }}
+        env:
+          - name: MINIO_ENDPOINT
+            value: {{ template "minio.fullname" . }}
+          - name: MINIO_PORT
+            value: {{ .Values.minio.service.port | quote }}
+        volumeMounts:
+          - name: minio-configuration
+            mountPath: /config
+          {{- if .Values.minio.tls.enabled }}
+          - name: cert-secret-volume-mc
+            mountPath: {{ .Values.configPathmc }}certs
+          {{ end }}
+          {{- if .Values.makeServiceAccountJob.extraVolumeMounts }}
+            {{- toYaml .Values.makeServiceAccountJob.extraVolumeMounts | nindent 10 }}
+          {{- end }}
+        resources:
+{{ toYaml .Values.makeServiceAccountJob.resources | indent 10 }}
+{{- end }}

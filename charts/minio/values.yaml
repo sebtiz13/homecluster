@@ -1,0 +1,44 @@
+## List of service accounts to be created after minio install
+## ! THIS IS TEMPORARY !
+##
+svcaccts: []
+  # accessKey, secretKey and parent user to be assigned to the service accounts
+  # Add new service accounts as explained here https://min.io/docs/minio/kubernetes/upstream/administration/identity-access-management/minio-user-management.html#service-accounts
+  # - accessKey: console-svcacct
+  #   secretKey: console123
+  #   user: console
+  # # Or you can refer to specific secret
+  # - accessKey: externalSecret
+  #   existingSecret: my-secret
+  #   existingSecretKey: password
+  #   user: console
+  #   policy:
+  #     statements:
+  #       - resources:
+  #           - 'arn:aws:s3:::example*/*'
+  #         actions:
+  #           - "s3:AbortMultipartUpload"
+  #           - "s3:GetObject"
+  #           - "s3:DeleteObject"
+  #           - "s3:PutObject"
+  #           - "s3:ListMultipartUploadParts"
+  #       - resources:
+  #           - 'arn:aws:s3:::example*'
+  #         actions:
+  #           - "s3:CreateBucket"
+  #           - "s3:DeleteBucket"
+  #           - "s3:GetBucketLocation"
+  #           - "s3:ListBucket"
+  #           - "s3:ListBucketMultipartUploads"
+
+makeServiceAccountJob:
+  securityContext:
+    enabled: false
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  resources:
+    requests:
+      memory: 128Mi
+  # Command to run after the main command on exit
+  exitCommand: ""
