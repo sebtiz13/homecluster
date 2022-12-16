@@ -31,7 +31,7 @@ Statement:
       {{- end }}
 {{- end -}}
 {{- define "svcacct.command" }}
-{{ $rootUser := "<path:salamandre/data/minio/auth#rootUser>" }}
+{{ $rootUser := "<path:baku/data/minio/auth#rootUser>" }}
 {{ $policy := printf "$(echo '%s' > policy.json && echo policy.json)" (include "svcacct.policy" .policy | fromYaml | toJson) }}
 {{ $type := printf "$(runCommand admin user svcacct info myminio %s >/dev/null 2>&1 && echo 'set' || echo 'add --access-key %s')" .accessKey .accessKey }}
 {{- printf "admin user svcacct %s --secret-key %s --policy %s myminio %s" $type .secretKey $policy $rootUser }}
@@ -40,8 +40,8 @@ Statement:
 fullnameOverride: "minio"
 
 mode: standalone
-rootUser: <path:salamandre/data/minio/auth#rootUser>
-rootPassword: <path:salamandre/data/minio/auth#rootPassword>
+rootUser: <path:baku/data/minio/auth#rootUser>
+rootPassword: <path:baku/data/minio/auth#rootPassword>
 
 users: [] # Remove default user
 
