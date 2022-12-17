@@ -1,7 +1,5 @@
 {
   "files.associations": {
-    "*.yaml.tftpl": "yaml",
-    "*.conf.tftpl": "properties",
     "appValues*.yaml": "helm",
     "*.yaml.j2": "yaml",
     "*.conf.j2": "properties",
