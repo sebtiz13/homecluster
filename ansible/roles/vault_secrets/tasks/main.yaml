@@ -5,7 +5,7 @@
   block:
     - name: Retrieve current stored secret
       vars:
-        full_path: "{{ item.full_path | default(secrets_base_path + '/' + item.path) }}"
+        full_path: "{{ item.full_path | default(secrets_base_path + '/' + item.path | default('')) }}"
         not_found_msg: "The path '{{ item.path }}' doesn't seem to exist."
       community.hashi_vault.vault_read:
         url: '{{ ansible_hashi_vault_addr }}'
@@ -24,7 +24,7 @@
         url: '{{ ansible_hashi_vault_addr }}'
         validate_certs: false
         token: '{{ ansible_hashi_vault_token }}'
-        path: "{{ item.item.full_path | default(secrets_base_path + '/' + item.item.path) }}"
+        path: "{{ item.item.full_path | default(secrets_base_path + '/' + item.item.path | default('')) }}"
         data:
           data: '{{ item.item.data }}'
       register: vault_secret

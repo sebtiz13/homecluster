@@ -48,3 +48,9 @@
         path: /etc/hosts
         line: 127.0.0.1 postgresql.loc
         backup: true
+
+- name: Create shortcut for postgres data dir
+  ansible.builtin.copy:
+    dest: /etc/profile.d/postgres.sh
+    content: 'export PGDATA=/var/lib/postgresql/{{ postgresql_version }}/main'
+    mode: 'u=rwx,g=rx,o=rx'

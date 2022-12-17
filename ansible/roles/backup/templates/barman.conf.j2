@@ -1,0 +1,20 @@
+[main_backup]
+description =  "Main backup (Streaming only)"
+
+conninfo = host=127.0.0.1 port=5432 user={{ barman.user }} dbname=postgres
+backup_method = postgres
+
+streaming_conninfo = host=127.0.0.1 port=5432 user={{ barman.streaming_user }}
+streaming_archiver = on
+slot_name = barman
+create_slot = auto
+
+; use pigz compression to WAL files
+compression = pigz
+; use modern 9.6+ concurrent backup
+backup_options = concurrent_backup,external_configuration
+
+minimum_redundancy = 2
+retention_policy = RECOVERY WINDOW OF 2 WEEKS
+
+post_backup_script = "{{ mc_cli }} --config-dir {{ mc_config }} mirror /var/lib/barman/$BARMAN_SERVER {{ mc_bucket }}/barman"
