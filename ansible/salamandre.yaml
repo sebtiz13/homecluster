@@ -1,7 +1,12 @@
-- name: Install database, configure coreDNS and create labeled namespaces
+- name: Install sensors, database, configure coreDNS
   hosts: salamandre
   connection: local
   roles:
+    - role: salamandre_sensors
+      when: motherboard_chip is defined
+      connection: ssh
+      become: true
+      tags: sensors
     - role: database
       connection: ssh
       become: true

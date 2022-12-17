@@ -1,0 +1,7 @@
+argument_specs:
+  main:
+    short_description: The main entry point for the salamandre sensors role.
+    options:
+      motherboard_chip:
+        type: str
+        description: "Only support one of https://github.com/frankcrawford/it87/blob/master/README (only numbers)"

@@ -1,0 +1,10 @@
+- name: Install fancontrol package
+  ansible.builtin.apt:
+    pkg:
+      - fancontrol
+
+- name: Configure fanspeed
+  ansible.builtin.copy:
+    dest: /etc/fancontrol
+    src: fancontrol/it{{ motherboard_chip }}
+    mode: 'u=rw,g=r,o=r'

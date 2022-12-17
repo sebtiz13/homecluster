@@ -3,6 +3,7 @@
 ansible_host: 0.0.0.0
 ansible_port: 0
 ansible_user: root
+motherboard_chip: 8686 # Gigabyte_B360M
 
 ssh:
   port: '{{ ansible_port }}'

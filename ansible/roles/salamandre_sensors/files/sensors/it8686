@@ -1,0 +1,23 @@
+# Gigabyte_B360M
+chip "it8686-isa-0a40"
+  label in0 "Vcore"
+  label in1 "+3.3V"
+    compute in1 @ * 1.65, @ / 1.65
+  label in2 "+12.0V"
+    compute in2 @ * 6, @ / 6
+  label in3 "+5.0V"
+    compute in3 @ * 2.5, @ / 2.5
+  label in4 "VSOC"
+  label in5 "VDDP"
+  label in6 "DRAM"
+  label fan1 "cpu"
+  label fan2 "system_1"
+  label fan3 "system_2"
+  label fan4 "system_3"
+  label temp1 "system_1"
+  label temp2 "PCH"
+  label temp3 "CPU"
+  label temp4 "PCIEX16"
+  label temp5 "VRM_MOS"
+  label temp6 "VSOC"
+  label intrusion0 "Intrusion"
