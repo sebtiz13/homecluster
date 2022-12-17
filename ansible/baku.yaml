@@ -1,3 +1,11 @@
+- name: Install and Configure DynDNS
+  hosts: baku
+  become: true
+  tags: dyndns
+  roles:
+    - role: baku_dyndns
+      when: env == 'prod'
+
 - name: Create ArgoCD access
   hosts: baku
   connection: local
