@@ -22,7 +22,6 @@
 - name: Check if Nextcloud is already deploy
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Service
     name: '{{ apps_nextcloud.release_name }}'
     namespace: '{{ apps_nextcloud.namespace }}'
@@ -67,7 +66,6 @@
   when: nextcloud_server.resources | length == 0 # This is for run only on first install
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Pod
     namespace: '{{ apps_nextcloud.namespace }}'
     label_selectors:

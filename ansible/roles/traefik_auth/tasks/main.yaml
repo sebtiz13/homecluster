@@ -1,7 +1,6 @@
 - name: Wait until traefik namepace exist
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Namespace
     name: traefik
     wait: true

@@ -16,7 +16,6 @@
 - name: Wait until application is available
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Deployment
     name: '{{ apps_external_secrets.release_name }}-webhook'
     namespace: '{{ apps_external_secrets.namespace }}'

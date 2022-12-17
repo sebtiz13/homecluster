@@ -44,7 +44,6 @@
       kubernetes.core.k8s:
         state: patched
         kubeconfig: '{{ kubeconfig.dest }}'
-        api_version: v1
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
         namespace: 'kubed-sync'

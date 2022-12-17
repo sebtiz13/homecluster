@@ -62,7 +62,6 @@
 - name: Check if ArgoCD is already deploy
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Service
     name: '{{ apps_argocd.release_name }}-server'
     namespace: '{{ apps_argocd.namespace }}'
@@ -108,7 +107,6 @@
 - name: Retrieve server service
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Service
     name: '{{ apps_argocd.release_name }}-server'
     namespace: '{{ apps_argocd.namespace }}'
@@ -117,7 +115,6 @@
   when: argocd_deploy is changed
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Secret
     name: '{{ apps_argocd.release_name }}-initial-admin-secret'
     namespace: '{{ apps_argocd.namespace }}'

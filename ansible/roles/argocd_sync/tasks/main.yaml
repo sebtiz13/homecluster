@@ -30,20 +30,9 @@
 - name: Wait until application is available
   kubernetes.core.k8s_info:
     kubeconfig: '{{ kubeconfig.dest }}'
-    api_version: v1
     kind: Deployment
     name: '{{ apps_argocd.release_name }}-server'
     namespace: '{{ apps_argocd.namespace }}'
     wait: true
     wait_sleep: 10
     wait_timeout: 360
-# - name: Wait until ArgoCD server is available
-#   ansible.builtin.uri:
-#     url: '{{ apps_argocd.host }}/healthz'
-#     method: GET
-#     status_code: 200
-#     return_content: true
-#   register: wait
-#   until: wait.status == 200
-#   retries: 180 # This is for wait max 30min (this is for support slow connection)
-#   delay: 10
