@@ -12,6 +12,7 @@
   when: "('data' not in vault_k8s_role) or (name not in existing_roles)"
   community.hashi_vault.vault_write:
     url: '{{ ansible_hashi_vault_addr }}'
+    validate_certs: false
     token: '{{ ansible_hashi_vault_token }}'
     path: 'auth/kubernetes/role/{{ name }}'
     data:
@@ -22,7 +23,7 @@
 
 - name: Enable static secrets engine for each cluster
   vars:
-    mounts: "{{ lookup('community.hashi_vault.vault_read', 'sys/mounts') }}"
+    mounts: "{{ lookup('community.hashi_vault.vault_read', 'sys/mounts', validate_certs=false) }}"
   when: "(item + '/') is not in mounts.data"
   kubernetes.core.k8s_exec:
     kubeconfig: '{{ kubeconfig.dest }}'

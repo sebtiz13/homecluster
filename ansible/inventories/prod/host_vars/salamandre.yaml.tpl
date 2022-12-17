@@ -26,3 +26,8 @@ smtp_auth:
   port: '465'
   username: 'contact@{{ root_domain }}'
   password: user
+
+cert_manager_ovh_auth:
+  application_key: ''
+  application_secret: ''
+  consumer_key: ''

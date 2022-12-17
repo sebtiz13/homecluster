@@ -1,6 +1,7 @@
 cert-manager-webhook-ovh:
   issuers:
     - name: {{ .Values.baseDomain | replace "." "-" }}-issuer
+      kind: Issuer
       create: true
       namespace: {{ .Release.Namespace }}
       server: https://acme-v02.api.letsencrypt.org/directory

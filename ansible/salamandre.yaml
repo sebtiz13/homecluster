@@ -18,8 +18,14 @@
       tags: argocd
     - role: kubed_kubeconfig
       tags: kubed
+    - role: apps_system
+      tags: common
+    - role: apps_external-secrets
+      tags: external-secret
+    - role: apps_vault
+      tags: vault
 
-- name: Install core applications
+- name: Install cert-manager , dev apps, create traefik auth
   hosts: salamandre
   connection: local
   tags: kubernetes
@@ -28,18 +34,12 @@
       ansible.builtin.set_fact:
         argocd_api_token: '{{ argocd_admin_auth.json.token }}'
   roles:
-    - role: apps_system
-      tags: common
     - role: traefik_auth
       tags: traefik
-    - role: apps_external-secrets
-      tags: external-secret
     - role: apps_cert-manager
       tags:
         - cert-manager
         - tls
-    - role: apps_vault
-      tags: vault
     - role: vault_secrets
       tags: smtp
       vars:
@@ -48,8 +48,6 @@
             data: '{{ smtp_auth }}'
     - role: salamandre_dev
       when: env == 'dev'
-
-# TODO: deploy prod cert-manager secret
 
 - name: Install, configure OIDC and sync ArgoCD
   hosts: salamandre

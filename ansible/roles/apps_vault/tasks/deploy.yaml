@@ -23,6 +23,7 @@
 - name: Wait until application is available
   ansible.builtin.uri:
     url: '{{ ansible_hashi_vault_addr }}/v1/sys/health'
+    validate_certs: false
     method: GET
     status_code:
       - 501

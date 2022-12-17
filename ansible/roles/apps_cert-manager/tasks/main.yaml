@@ -22,6 +22,18 @@
         validate:
           fail_on_error: true
 
+- name: Write Vault secrets
+  when: env == 'prod'
+  vars:
+    secrets:
+      - path: cert-manager/ovh
+        data:
+          applicationKey: '{{ cert_manager_ovh_auth.application_key }}'
+          applicationSecret: '{{ cert_manager_ovh_auth.application_secret }}'
+          consumerKey: '{{ cert_manager_ovh_auth.consumer_key }}'
+  ansible.builtin.import_role:
+    name: vault_secrets
+
 - name: Deploy application manifest
   kubernetes.core.k8s:
     kubeconfig: '{{ kubeconfig.dest }}'

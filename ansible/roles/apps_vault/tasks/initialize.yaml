@@ -1,6 +1,7 @@
 - name: Check application status
   community.hashi_vault.vault_read:
     url: '{{ ansible_hashi_vault_addr }}'
+    validate_certs: false
     auth_method: none
     path: 'sys/seal-status'
   register: vault_init_status
