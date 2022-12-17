@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://charts.bitnami.com/bitnami
   chart: keycloak
-  targetRevision: 12.2.0
+  targetRevision: 12.3.0
 
 destination:
   namespace: keycloak
