@@ -1,0 +1,7 @@
+# Here are common variable across environment
+
+timezone: Europe/Paris
+
+out_dir: "{{ playbook_dir }}/../out"
+credentials_folder: "{{ out_dir }}/credentials/{{ inventory_hostname }}/{{ env }}"
+secrets_base_path: "{{ inventory_hostname }}/data"

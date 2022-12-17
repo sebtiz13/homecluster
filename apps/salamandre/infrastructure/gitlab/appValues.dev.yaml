@@ -1,0 +1,82 @@
+gitlab:
+  global:
+    certificates:
+      customCAs:
+        - secret: vm-ca-tls-secret
+
+    shell:
+      port: 2222
+
+    smtp:
+      starttls_auto: true
+      # TODO: fix mailhog work in dev
+
+  gitlab:
+    gitlab-exporter:
+      resources:
+        requests:
+          cpu: 75m
+          memory: 100Mi
+        limits:
+          cpu: 500m
+          memory: 1Gi
+    gitlab-pages:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 500m
+          memory: 1Gi
+    gitlab-shell:
+      resources:
+        limits:
+          cpu: 250m
+          memory: 256Mi
+    sidekiq:
+      resources:
+        limits:
+          cpu: 900m
+          memory: 2Gi
+    toolbox:
+      enabled: true
+    webservice:
+      resources:
+        limits:
+          memory: 2.5Gi
+      workhorse:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 50m
+            memory: 50Mi
+
+  gitlab-runner:
+    certsSecretName: vm-ca-tls-secret
+    runners:
+      config: |
+        [[runners]]
+          environment = ["container=docker","GIT_SSL_NO_VERIFY=true"]
+          [runners.kubernetes]
+            namespace = "{{ .Values.destination.namespace }}"
+            image = "ubuntu:18.04"
+          [runners.cache]
+            Type = "s3"
+            Shared = true
+            [runners.cache.s3]
+              ServerAddress = "<path:salamandre/data/gitlab/s3#endpoint>"
+              BucketName = "<path:salamandre/data/gitlab/s3#bucket_runner>"
+              BucketLocation = "<path:salamandre/data/gitlab/s3#region>"
+              Insecure = true
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+  registry:
+    resources:
+      limits:
+        memory: 128Mi

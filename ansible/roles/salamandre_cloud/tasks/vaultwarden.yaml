@@ -1,0 +1,29 @@
+- name: Generate Vaultwarden database password
+  ansible.builtin.set_fact:
+    apps_vaultwarden:
+      _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+
+- name: Create Vaultwarden database access
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: vaultwarden
+    username: vaultwarden
+    password: '{{ apps_vaultwarden._db_passowrd }}'
+
+- name: Deploy Vaultwarden application and secrets
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/vaultwarden.yaml') | from_yaml }}"
+    restart_resources:
+      - kind: Deployment
+        name: '{{ manifest.spec.source.plugin.env.0.value }}'
+    secrets:
+      - path: vaultwarden/database
+        data:
+          host: postgresql.loc
+          port: '5432'
+          database: vaultwarden
+          user: vaultwarden
+          password: '{{ apps_vaultwarden._db_passowrd }}'

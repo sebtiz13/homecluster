@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "nextcloud.fullname" .Subcharts.nextcloud }}-imaginary
+  labels:
+    app.kubernetes.io/name: {{ include "nextcloud.name" .Subcharts.nextcloud }}-imaginary
+    helm.sh/chart: {{ include "nextcloud.chart" .Subcharts.nextcloud }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: imaginary
+spec:
+  type: {{ .Values.imaginary.service.type }}
+  {{- if eq .Values.imaginary.service.type "LoadBalancer" }}
+  loadBalancerIP: {{ default "" .Values.imaginary.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+  - port: {{ .Values.imaginary.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+    {{- if eq .Values.imaginary.service.type "NodePort" }}
+    nodePort: {{ default "" .Values.imaginary.service.nodePort}}
+    {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "nextcloud.name" .Subcharts.nextcloud }}-imaginary
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: imaginary

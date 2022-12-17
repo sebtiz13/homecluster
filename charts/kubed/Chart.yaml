@@ -1,0 +1,10 @@
+apiVersion: v2
+description: 'Config Syncer by AppsCode - Kubernetes daemon'
+name: kubed
+version: 1.0.0
+appVersion: v0.13.2
+
+home: https://github.com/kubeops/config-syncer
+icon: https://cdn.appscode.com/images/products/kubed/icons/android-icon-192x192.png
+sources:
+  - https://github.com/kubeops/config-syncer

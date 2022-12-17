@@ -1,0 +1,43 @@
+{{- if or .Values.traefik.middlewares.headers .Values.traefik.middlewares.redirectHttps }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: chained-middlewares
+spec:
+  chain:
+    middlewares:
+      {{- if .Values.traefik.middlewares.headers }}
+      - name: headers
+      {{- end }}
+      {{- if .Values.traefik.middlewares.redirectHttps }}
+      - name: redirect-https
+      {{- end }}
+{{- end }}
+{{- if .Values.traefik.middlewares.redirectHttps }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}
+{{- if .Values.traefik.middlewares.headers }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: headers
+spec:
+  headers:
+    frameDeny: true
+    sslRedirect: true
+    browserXssFilter: true
+    contentTypeNosniff: true
+    #HSTS
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 31536000
+{{- end }}

@@ -1,0 +1,23 @@
+- name: Create user
+  ansible.builtin.user:
+    name: '{{ item.name }}'
+    password_expire_max: 20
+    update_password: on_create
+
+- name: Add ssh key
+  when:
+    - item.authorized_key is defined
+    - item.authorized_key != ""
+  ansible.posix.authorized_key:
+    user: '{{ item.name }}'
+    state: present
+    key: '{{ item.authorized_key }}'
+
+- name: Add sudoers file
+  when: item.sudoer
+  ansible.builtin.template:
+    src: sudoer.j2
+    dest: '/etc/sudoers.d/{{ item.name }}'
+    owner: root
+    group: root
+    mode: 0440

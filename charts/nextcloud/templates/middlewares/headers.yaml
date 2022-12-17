@@ -1,0 +1,26 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: headers
+spec:
+  headers:
+    referrerPolicy: no-referrer
+    contentTypeNosniff: true
+    customFrameOptionsValue: SAMEORIGIN
+    browserXssFilter: true
+    customResponseHeaders:
+      X-Download-Options: noopen
+      X-Permitted-Cross-Domain-Policies: none
+      X-Robots-Tag: none
+      X-Powered-By: ''
+      Server: ''
+    accessControlMaxAge: 100
+    hostsProxyHeaders:
+      - X-Forwarded-Host
+    accessControlAllowHeaders:
+      - X-Forwarded-For
+    {{/* # HSTS (useless ?)
+    stsPreload: true
+    forceSTSHeader: true
+    stsIncludeSubdomains: true
+    stsSeconds: 31536000 */}}

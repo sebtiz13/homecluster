@@ -1,0 +1,16 @@
+- name: Update and upgrade apt packages
+  ansible.builtin.apt:
+    upgrade: 'yes'
+    update_cache: true
+    cache_valid_time: 86400
+
+- name: Reboot if kernel/libs updated and requested by the system
+  when: "'/var/run/reboot-required' is exists"
+  ansible.builtin.reboot: {}
+  notify: Update kernel version
+
+- name: Install utils packages (htop, curl)
+  ansible.builtin.apt:
+    pkg:
+      - htop
+      - curl

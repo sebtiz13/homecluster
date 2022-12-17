@@ -7,6 +7,8 @@
 
 The secrets keys need to exist for deploy the app
 
+> **Mount path:** `salamandre`
+
 ### argocd/oidc
 
 - `issuer`: The issuer URL (eg. `https://sso.local.vm/realm/developer`)

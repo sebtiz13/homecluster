@@ -1,0 +1,55 @@
+- name: Retrieve Wallabag informations
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/wallabag.yaml') | from_yaml }}"
+  ansible.builtin.set_fact:
+    apps_wallabag:
+      _manifest: '{{ manifest }}'
+      _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+      release_name: '{{ manifest.spec.source.helm.releaseName }}'
+      namespace: '{{ manifest.spec.destination.namespace }}'
+
+- name: Create Wallabag database access
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: wallabag
+    username: wallabag
+    password: '{{ apps_wallabag._db_passowrd }}'
+
+- name: Deploy Wallabag application and secrets
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    manifest: '{{ apps_wallabag._manifest }}'
+    secrets:
+      - path: wallabag/database
+        data:
+          host: postgresql.loc
+          port: '5432'
+          database: wallabag
+          user: wallabag
+          password: '{{ apps_wallabag._db_passowrd }}'
+
+- name: Update Wallabag secret
+  when: argocd_refresh is not skipped
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    name: '{{ apps_wallabag.release_name }}'
+    namespace: '{{ apps_wallabag.namespace }}'
+    force: true
+    definition:
+      metadata:
+        annotations:
+          force-sync: '{{ ansible_date_time.epoch }}'
+
+- name: Restart application resources for update secret
+  when: argocd_refresh is not skipped
+  connection: ssh
+  ansible.builtin.command: |
+    kubectl rollout restart deployment
+      --namespace '{{ apps_wallabag.namespace }}'
+      '{{ apps_wallabag.release_name }}'
+  changed_when: false

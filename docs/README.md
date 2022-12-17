@@ -1,7 +1,5 @@
 # Documentation
 
-- [Terraform commands](./terraform.md)
-
 ## Installation
 
 - [Development sandbox](./installation/development-sandbox.md)
@@ -15,3 +13,4 @@
 - **Architecture**
   - [Overview](./references/architecture/overview.md)
 - [Roadmap](./references/roadmap.md)
+- [Backup](./references/backup.md)

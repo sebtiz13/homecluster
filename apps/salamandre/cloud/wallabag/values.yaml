@@ -1,0 +1,17 @@
+plugin: helm
+
+ingress:
+  subdomain: bag
+
+source:
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+  chart: wallabag
+  targetRevision: 0.1.0
+
+destination:
+  namespace: wallabag
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true

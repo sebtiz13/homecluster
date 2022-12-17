@@ -1,0 +1,11 @@
+- name: Deploy Nextcloud
+  tags: nextcloud
+  ansible.builtin.import_tasks: nextcloud.yaml
+
+- name: Deploy Vaultwarden
+  tags: vaultwarden
+  ansible.builtin.import_tasks: vaultwarden.yaml
+# TODO: Fix it !
+# - name: Deploy Wallabag
+#   tags: wallabag
+#   ansible.builtin.import_tasks: wallabag.yaml

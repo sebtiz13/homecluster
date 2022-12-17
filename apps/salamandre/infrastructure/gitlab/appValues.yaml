@@ -6,9 +6,16 @@ externalSecrets:
           type: Opaque
           data:
             postgresql-password: '{{`{{ .password }}`}}'
+            smtp-password: '{{`{{ .smtp_password }}`}}'
       dataFrom:
-        extract:
-          key: gitlab/database
+        - extract:
+            key: salamandre/gitlab/database
+        - extract:
+            key: salamandre/smtp
+          rewrite:
+            - regexp:
+                source: "password"
+                target: "smtp_password"
     - name: storage
       target:
         template:
@@ -25,8 +32,8 @@ externalSecrets:
               aws_access_key_id: "{{ .accessKey }}"
               aws_secret_access_key: "{{ .secretKey }}"`}}
       dataFrom:
-        extract:
-          key: gitlab/s3
+        - extract:
+            key: salamandre/gitlab/s3
     - name: backup
       target:
         template:
@@ -40,8 +47,8 @@ externalSecrets:
               secret_key = {{ .secretKey }}
               signature_v2 = false`}}
       dataFrom:
-        extract:
-          key: gitlab/s3
+        - extract:
+            key: salamandre/gitlab/s3
     - name: oidc
       target:
         template:
@@ -61,10 +68,10 @@ externalSecrets:
                 client_options:
                   identifier: "{{`{{ .clientID }}`}}"
                   secret: "{{`{{ .clientSecret }}`}}"
-                  redirect_uri: "https://git.{{ .Values.baseDomain }}/users/auth/openid_connect/callback"
+                  redirect_uri: "https://{{ include "ingress.host" . }}/users/auth/openid_connect/callback"
       dataFrom:
-        extract:
-          key: gitlab/oidc
+        - extract:
+            key: salamandre/gitlab/oidc
 
 gitlab:
   upgradeCheck:
@@ -77,7 +84,7 @@ gitlab:
       domain: {{ .Values.baseDomain }}
       https: true
       gitlab:
-        name: git.{{ .Values.baseDomain }}
+        name: {{ include "ingress.host" . }}
       kas:
         name: kas.{{ .Values.baseDomain }}
       pages:
@@ -96,45 +103,45 @@ gitlab:
         useSecret: true
         secret: gitlab-credentials
         key: postgresql-password
-      host: <path:argocd/data/gitlab/database#host>
+      host: <path:salamandre/data/gitlab/database#host>
       port: 5432
-      username: <path:argocd/data/gitlab/database#user>
-      database: <path:argocd/data/gitlab/database#database>
+      username: <path:salamandre/data/gitlab/database#user>
+      database: <path:salamandre/data/gitlab/database#database>
       applicationName: "gitlab"
       preparedStatements: false
 
     registry:
-      bucket: <path:argocd/data/gitlab/s3#bucket_registry>
+      bucket: <path:salamandre/data/gitlab/s3#bucket_registry>
 
     appConfig:
       lfs:
-        bucket: <path:argocd/data/gitlab/s3#bucket_lfs>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_lfs>
         connection:
           secret: gitlab-storage
       artifacts:
-        bucket: <path:argocd/data/gitlab/s3#bucket_artifacts>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_artifacts>
         connection:
           secret: gitlab-storage
       uploads:
-        bucket: <path:argocd/data/gitlab/s3#bucket_uploads>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_uploads>
         connection:
           secret: gitlab-storage
       packages:
-        bucket: <path:argocd/data/gitlab/s3#bucket_packages>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_packages>
         connection:
           secret: gitlab-storage
       terraformState:
         enabled: true
-        bucket: <path:argocd/data/gitlab/s3#bucket_tfState>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_tfState>
         connection:
           secret: gitlab-storage
       dependencyProxy:
         enabled: true
-        bucket: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_depsProxy>
         connection:
           secret: gitlab-storage
       backups:
-        bucket: <path:argocd/data/gitlab/s3#bucket_backups>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_backups>
         tmpBucket: tmp
 
       omniauth:
@@ -154,10 +161,20 @@ gitlab:
       enabled: true
       accessControl: true
       objectStore:
-        bucket: <path:argocd/data/gitlab/s3#bucket_pages>
+        bucket: <path:salamandre/data/gitlab/s3#bucket_pages>
         proxy_download: true
         connection:
           secret: gitlab-storage
+
+    smtp:
+      enabled: true
+      address: <path:salamandre/data/smtp#host>
+      domain: <path:salamandre/data/smtp#host>
+      port: <path:salamandre/data/smtp#port>
+      user_name: <path:salamandre/data/smtp#username>
+      password:
+        secret: gitlab-credentials
+        key: smtp-password
 
   gitlab:
     gitaly:
@@ -231,7 +248,7 @@ gitlab:
   gitlab-runner:
     replica: 1
     gitlabUrl: {{ printf "http://gitlab-webservice-default.%s.svc:8181" .Values.destination.namespace | quote }}
-    runnerRegistrationToken: <path:argocd/data/gitlab/runner#registrationToken>
+    runnerRegistrationToken: <path:salamandre/data/gitlab/runner#registrationToken>
     unregisterRunners: false
     runners:
       locked: false
@@ -247,9 +264,9 @@ gitlab:
             Type = "s3"
             Shared = true
             [runners.cache.s3]
-              ServerAddress = "<path:argocd/data/gitlab/s3#endpoint>"
-              BucketName = "<path:argocd/data/gitlab/s3#bucket_runner>"
-              BucketLocation = "<path:argocd/data/gitlab/s3#region>"
+              ServerAddress = "<path:salamandre/data/gitlab/s3#endpoint>"
+              BucketName = "<path:salamandre/data/gitlab/s3#bucket_runner>"
+              BucketLocation = "<path:salamandre/data/gitlab/s3#region>"
               Insecure = true
 
   resources:

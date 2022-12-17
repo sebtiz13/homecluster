@@ -3,10 +3,9 @@ plugin: argocd-vault-plugin-helm
 source:
   repoURL: https://charts.gitlab.io/
   chart: gitlab-agent
-  targetRevision: 1.5.0
+  targetRevision: 1.9.0
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: gitlab
 
 syncPolicy:

@@ -1,0 +1,13 @@
+argument_specs:
+  main:
+    short_description: The main entry point for the database access.
+    options:
+      database:
+        type: str
+        required: true
+      username:
+        type: str
+        required: true
+      password:
+        type: str
+        required: true

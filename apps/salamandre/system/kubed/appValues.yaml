@@ -1,14 +1,16 @@
-fullnameOverride: "kubed"
-enableAnalytics: false
+kubed:
+  enableAnalytics: false
 
-config:
-  clusterName: salamandre
+  config:
+    clusterName: salamandre
+    existingSecret: kubed-config
+    existingSecretKubeconfigKey: kubeconfig
 
-operator:
-  resources:
-    requests:
-      cpu: 4m
-      memory: 32Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
+  operator:
+    resources:
+      requests:
+        cpu: 4m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi

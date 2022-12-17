@@ -1,0 +1,133 @@
+{{- $major := default "0" .Capabilities.KubeVersion.Major | trimSuffix "+" | int64 }}
+{{- $minor := default "0" .Capabilities.KubeVersion.Minor | trimSuffix "+" | int64 }}
+{{- $criticalAddon := and .Values.kubed.criticalAddon (or (eq .Release.Namespace "kube-system") (and (ge $major 1) (ge $minor 17))) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kubed.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kubed.labels" . | nindent 4 }}
+  {{- with .Values.kubed.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.kubed.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kubed.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kubed.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/apiregistration.yaml: {{ include (print $.Template.BasePath "/apiregistration.yaml") . | sha256sum }}
+      {{- if $criticalAddon }}
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+      {{- end }}
+      {{- with .Values.kubed.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+    {{- with .Values.kubed.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "kubed.serviceAccountName" . }}
+      containers:
+      - name: kubed
+        securityContext:
+          {{- toYaml .Values.kubed.operator.securityContext | nindent 10 }}
+        image: {{ .Values.kubed.operator.registry }}/{{ .Values.kubed.operator.repository }}:{{ .Values.kubed.operator.tag }}
+        imagePullPolicy: {{ .Values.kubed.imagePullPolicy }}
+        args:
+        - run
+        - --v={{ .Values.kubed.logLevel }}
+        - --secure-port={{ default "8443" .Values.kubed.apiserver.securePort }}
+        - --audit-log-path=-
+        - --tls-cert-file=/var/serving-cert/tls.crt
+        - --tls-private-key-file=/var/serving-cert/tls.key
+        - --use-kubeapiserver-fqdn-for-aks={{ .Values.kubed.apiserver.useKubeapiserverFqdnForAks }}
+        - --enable-analytics={{ .Values.kubed.enableAnalytics }}
+      {{- with .Values.kubed.config.clusterName }}
+        - --cluster-name={{ . }}
+      {{- end }}
+      {{- with .Values.kubed.config.configSourceNamespace }}
+        - --config-source-namespace={{ . }}
+      {{- end }}
+      {{- if and .Values.kubed.config.existingSecret .Values.kubed.config.existingSecretKubeconfigKey }}
+        - --kubeconfig-file=/srv/kubed/{{ .Values.kubed.config.existingSecretKubeconfigKey }}
+      {{- else if .Values.kubed.config.kubeconfigContent }}
+        - --kubeconfig-file=/srv/kubed/kubeconfig
+      {{- end }}
+      {{- range .Values.kubed.config.additionalOptions }}
+        - {{ . }}
+      {{- end }}
+        ports:
+        - containerPort: {{ default "8443" .Values.kubed.apiserver.securePort }}
+      {{- if .Values.kubed.apiserver.healthcheck.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ default "8443" .Values.kubed.apiserver.securePort }}
+            scheme: HTTPS
+          initialDelaySeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ default "8443" .Values.kubed.apiserver.securePort }}
+            scheme: HTTPS
+          initialDelaySeconds: 5
+      {{- end }}
+        resources:
+          {{- toYaml .Values.kubed.operator.resources | nindent 10 }}
+        volumeMounts:
+        {{- if or .Values.kubed.config.existingSecret .Values.kubed.config.kubeconfigContent }}
+        - name: config
+          mountPath: /srv/kubed
+        {{- end }}
+        - name: scratch
+          mountPath: /tmp
+        - mountPath: /var/serving-cert
+          name: serving-cert
+      volumes:
+      {{- if or .Values.kubed.config.existingSecret .Values.kubed.config.kubeconfigContent }}
+      - name: config
+        secret:
+          optional: true
+          {{- if .Values.kubed.config.existingSecret }}
+          secretName: {{ .Values.kubed.config.existingSecret | quote }}
+          {{- else }}
+          secretName: {{ template "kubed.fullname" . }}
+          {{- end }}
+      {{- end }}
+      - name: scratch
+        emptyDir: {}
+      - name: serving-cert
+        secret:
+          defaultMode: 420
+          secretName: {{ template "kubed.fullname" . }}-apiserver-cert
+      securityContext:
+        {{- toYaml .Values.kubed.podSecurityContext | nindent 8 }}
+    {{- if or .Values.kubed.tolerations $criticalAddon }}
+      tolerations:
+      {{- with .Values.kubed.tolerations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $criticalAddon }}
+        - key: CriticalAddonsOnly
+          operator: Exists
+      {{- end -}}
+    {{- end -}}
+    {{- with .Values.kubed.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.kubed.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if $criticalAddon }}
+      priorityClassName: system-cluster-critical
+    {{- end -}}

@@ -1,0 +1,40 @@
+- name: Write Vault secrets
+  vars:
+    ansible_hashi_vault_addr: '{{ hostvars.salamandre.ansible_hashi_vault_addr }}'
+    ansible_hashi_vault_token: '{{ hostvars.salamandre.ansible_hashi_vault_token }}'
+  ansible.builtin.import_role:
+    name: vault_secrets
+
+- name: Deploy application manifest
+  kubernetes.core.k8s:
+    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    state: present
+    resource_definition: '{{ manifest }}'
+    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'
+  register: argocd_manifest
+
+- name: Refresh application
+  when:
+    - argocd_manifest is not changed
+    - vault_secret is changed
+  ansible.builtin.uri:
+    url: '{{ hostvars.salamandre.argocd_api_url }}/applications/{{ manifest.metadata.name }}?refresh=hard'
+    headers:
+      Authorization: 'Bearer {{ hostvars.salamandre.argocd_api_token }}'
+    method: GET
+    status_code: 200
+    timeout: 120
+  register: argocd_refresh
+
+- name: Restart application resources for update secrets
+  when:
+    - argocd_manifest is not changed
+    - vault_secret is changed
+  environment:
+    KUBECONFIG: '{{ hostvars.salamandre.kubeconfig.dest }}'
+  ansible.builtin.command: |
+    kubectl rollout restart {{ item.kind }}
+      --namespace '{{ manifest.spec.destination.namespace }}'
+      '{{ item.name }}'
+  changed_when: false
+  loop: '{{ restart_resources }}'

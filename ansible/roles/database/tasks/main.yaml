@@ -1,0 +1,56 @@
+- name: Install postgresql package
+  ansible.builtin.apt:
+    pkg:
+      - postgresql-{{ postgresql_version }}
+      - python3-psycopg2
+
+- name: Allow connection from kubernetes and localhost
+  vars:
+    config_folder: '/etc/postgresql/{{ postgresql_version }}/main'
+  block:
+    - name: Listen all hosts
+      ansible.builtin.lineinfile:
+        path: '{{ config_folder }}/postgresql.conf'
+        regexp: "#(listen_addresses = )'localhost'(.*)"
+        line: '\1{{ "%-12s" | format("''*''") }}\2'
+        backrefs: true
+      notify: Restart postgresql
+
+    - name: Allow md5 connection in local network
+      become: true
+      become_user: postgres
+      vars:
+        ansible_ssh_pipelining: true
+        net_mask: '{{ ansible_eth0.ipv4.network }}/{{ ansible_eth0.ipv4.netmask }}'
+      community.postgresql.postgresql_pg_hba:
+        dest: '{{ config_folder }}/pg_hba.conf'
+        contype: host
+        users: all # TODO: replace this for better security !
+        source: "{{ net_mask | ansible.utils.ipaddr('network/prefix') }}"
+        keep_comments_at_rules: true
+        comment: local network access
+      notify: Restart postgresql
+    - name: Allow md5 connection in kubernetes network
+      become: true
+      become_user: postgres
+      vars:
+        ansible_ssh_pipelining: true
+      community.postgresql.postgresql_pg_hba:
+        dest: '{{ config_folder }}/pg_hba.conf'
+        contype: host
+        source: 10.42.0.0/24
+        keep_comments_at_rules: true
+        comment: kubernetes network access
+      notify: Restart postgresql
+
+    - name: Add database local domain alias
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: 127.0.0.1 postgresql.loc
+        backup: true
+
+- name: Create shortcut for postgres data dir
+  ansible.builtin.copy:
+    dest: /etc/profile.d/postgres.sh
+    content: 'export PGDATA=/var/lib/postgresql/{{ postgresql_version }}/main'
+    mode: 'u=rwx,g=rx,o=rx'

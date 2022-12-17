@@ -1,0 +1,2 @@
+config:
+  caCert: <path:salamandre/data/gitlab/agent#caCert>

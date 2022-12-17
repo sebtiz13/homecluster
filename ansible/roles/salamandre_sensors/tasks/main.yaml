@@ -1,0 +1,14 @@
+- name: Configure motherboard sensors
+  ansible.builtin.copy:
+    dest: /etc/sensors.d/it{{ motherboard_chip }}
+    src: sensors/it{{ motherboard_chip }}
+    mode: 'u=rw,g=r,o=r'
+  notify:
+    - Create folder for build motherboard driver
+    - Download module
+    - Extract module
+    - Build and install module
+    - Enbable module
+
+- name: Install and configure fancontrol
+  ansible.builtin.import_tasks: fancontrol.yaml

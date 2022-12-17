@@ -1,0 +1,174 @@
+services:
+  https:
+    enabled: false
+  dns:
+    enabled: false
+  dnsOverTls:
+    enabled: false
+  dnsOverQuic:
+    enabled: false
+  dnscrypt:
+    enabled: false
+
+ingresses:
+  http:
+    hosts:
+      - host: adguard.baku.home
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+
+hostNetwork:
+  enabled: true
+  ports:
+    http: 8080
+    https: 4443
+
+bootstrapConfig:
+  dns:
+    rewrites:
+      - domain: baku.home
+        answer: 10.0.0.2
+      - domain: '*.baku.home'
+        answer: baku.home
+      - domain: baku.{{ .Values.baseDomain }}
+        answer: baku.home
+  tls:
+    server_name: baku.home
+
+  dhcp:
+    enabled: true
+    interface_name: enp2s0
+    dhcpv4:
+      gateway_ip: 10.0.0.1
+      subnet_mask: 255.255.0.0
+      range_start: 10.0.1.1
+      range_end: 10.0.1.254
+
+  user_rules:
+    - '# Spotify'
+    - '@@||wl.spotify.com^$important'
+    - '# Brave sync'
+    - '@@||sdk.fra-01.braze.eu^$important'
+    - '# Twitter'
+    - '@@||t.co^$important'
+    - '# Other'
+    -'@@||go.ndi.tv^$important'
+  filters:
+    - enabled: true
+      name: AdGuard DNS filter
+      url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+      id: 1
+    - enabled: true
+      name: '[ads] AdAway Default Blocklist'
+      url: https://adaway.org/hosts.txt
+      id: 2
+
+    - enabled: true
+      name: '[susp] KADhosts'
+      url: https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt
+      id: 3
+    - enabled: true
+      name: '[susp] FadeMind - add.Spam'
+      url: https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts
+      id: 4
+    - enabled: true
+      name: '[susp] Personal Blocklist by WaLLy3K'
+      url: https://v.firebog.net/hosts/static/w3kbl.txt
+      id: 5
+    - enabled: true
+      name: '[ads] Firebog - Adguard DNS'
+      url: https://v.firebog.net/hosts/AdguardDNS.txt
+      id: 6
+    - enabled: true
+      name: '[ads] Firebog - Admiral'
+      url: https://v.firebog.net/hosts/Admiral.txt
+      id: 7
+    - enabled: true
+      name: '[ads] Anudeep''s Blacklist'
+      url: https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt
+      id: 8
+    - enabled: true
+      name: '[ads] Disconnect - DNS filter'
+      url: https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
+      id: 9
+    - enabled: true
+      name: '[ads] Firebog - Easylist'
+      url: https://v.firebog.net/hosts/Easylist.txt
+      id: 10
+    - enabled: true
+      name: '[ads] Peter Lowe - DNS filter'
+      url: https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext
+      id: 11
+    - enabled: true
+      name: '[ads] FadeMind - UncheckyAds'
+      url: https://raw.githubusercontent.com/FadeMind/hosts.extras/master/UncheckyAds/hosts
+      id: 12
+    - enabled: true
+      name: '[ads] hostsVN'
+      url: https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts
+      id: 13
+    - enabled: true
+      name: '[track&tel] Firebog - Easyprivacy'
+      url: https://v.firebog.net/hosts/Easyprivacy.txt
+      id: 14
+    - enabled: true
+      name: '[track&tel] FadeMind - add.2o7Net'
+      url: https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.2o7Net/hosts
+      id: 15
+    - enabled: true
+      name: '[track&tel] WindowsSpyBlocker'
+      url: https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
+      id: 16
+    - enabled: true
+      name: '[track&tel] First-party trackers'
+      url: https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt
+      id: 17
+    - enabled: true
+      name: '[mal] Firebog - Prigent Crypto'
+      url: https://v.firebog.net/hosts/Prigent-Crypto.txt
+      id: 18
+    - enabled: true
+      name: '[mal] ethanr - Mandiant APT1 Report Appendix D'
+      url: https://bitbucket.org/ethanr/dns-blacklists/raw/8575c9f96e5b4a1308f2f12394abd86d0927a4a0/bad_lists/Mandiant_APT1_Report_Appendix_D.txt
+      id: 19
+    - enabled: true
+      name: '[mal] Phishing Army - The Blocklist to filter Phishing'
+      url: https://phishing.army/download/phishing_army_blocklist_extended.txt
+      id: 20
+    - enabled: true
+      name: '[mal] NoTrack Malware Blocklist'
+      url: https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-malware.txt
+      id: 21
+    - enabled: true
+      name: '[mal] Spam404'
+      url: https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt
+      id: 22
+    - enabled: true
+      name: '[mal] FadeMind - add.Risk'
+      url: https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Risk/hosts
+      id: 23
+    - enabled: true
+      name: '[mal] abuse.ch URLhaus Host file'
+      url: https://urlhaus.abuse.ch/downloads/hostfile/
+      id: 24
+    - enabled: true
+      name: "[mal] \U0001F48A Dandelion Sprout's Anti-Malware List"
+      url: https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Alternate%20versions%20Anti-Malware%20List/AntiMalwareHosts.txt
+      id: 25
+    - enabled: true
+      name: '[mal] Threat-Intel'
+      url: https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt
+      id: 26
+    - enabled: true
+      name: '[mal] Disconnect - Malvertising list'
+      url: https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt
+      id: 27
+    - enabled: true
+      name: '[other] CoinBlockerLists'
+      url: https://zerodot1.gitlab.io/CoinBlockerLists/hosts_browser
+      id: 28
+    - enabled: true
+      name: '[porno] list'
+      url: https://raw.githubusercontent.com/mhhakim/pihole-blocklist/master/porn.txt
+      id: 29

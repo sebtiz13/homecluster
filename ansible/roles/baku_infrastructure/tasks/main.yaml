@@ -1,0 +1,7 @@
+- name: Deploy Minio
+  tags: minio
+  ansible.builtin.import_tasks: minio.yaml
+
+- name: Deploy Adguard
+  tags: adguard
+  ansible.builtin.import_tasks: adguard.yaml

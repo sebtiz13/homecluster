@@ -1,0 +1,184 @@
+nextcloud:
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: nextcloud-chained-middlewares@kubernetescrd
+
+  phpClientHttpsFix:
+    enabled: true
+
+  nextcloud:
+    phpConfigs:
+      z-nextcloud.ini: |-
+        ;Permanent cache (need restart to revalidate) useful for production
+        opcache.validate_timestamps=false
+    configs:
+      # AIO (chart) config
+      aio.config.php: |-
+        <?php
+        $CONFIG = array (
+          // Imaginary (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L226)
+          'enable_previews' => true,
+          'preview_max_x' => '2048',
+          'preview_max_x' => '2048',
+          'jpeg_quality' => '60',
+          'enabledPreviewProviders' => array (
+            'OC\Preview\Imaginary',
+            'OC\Preview\MarkDown',
+            'OC\Preview\MP3',
+            'OC\Preview\TXT',
+            'OC\Preview\OpenDocument',
+            'OC\Preview\Movie'
+          ),
+          'preview_imaginary_url' => 'http://nextcloud-imaginary:8088',
+
+          // Other settings (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L241)
+          'upgrade.disable-web' => true,
+          'trashbin_retention_obligation' => 'auto, 30',
+          'versions_retention_obligation' => 'auto, 30',
+          'activity_expire_days' => '30',
+          'activity_expire_days' => '30',
+          'simpleSignUpLink.shown' => false,
+
+          // Collabora settings (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L400)
+          'allow_local_remote_servers' => true
+        );
+
+        $trustedDomains = getenv('NEXTCLOUD_TRUSTED_DOMAINS');
+        if ($trustedDomains) {
+          $CONFIG['trusted_domains'] = array_merge(['nextcloud:8080'], explode(' ', $trustedDomains));
+        }
+      # Support dynamic database credentials
+      db.config.php: |-
+        <?
+        $overwriteDbName = getenv('POSTGRES_DB');
+        if ($overwriteDbName) {
+          $CONFIG['dbname'] = $overwriteDbName;
+        }
+
+        $overwriteDbHost = getenv('POSTGRES_HOST');
+        if ($overwriteDbHost) {
+          $CONFIG['dbhost'] = $overwriteDbHost;
+        }
+
+        $overwriteDbUser = getenv('POSTGRES_USER');
+        if ($overwriteDbUser) {
+          $CONFIG['dbuser'] = $overwriteDbUser;
+        }
+
+        $overwriteDbPassword = getenv('POSTGRES_PASSWORD');
+        if ($overwriteDbPassword) {
+          $CONFIG['dbpassword'] = $overwriteDbPassword;
+        }
+      # Add missing config files
+      reverse-proxy.config.php: |-
+        <?php
+        $overwriteHost = getenv('OVERWRITEHOST');
+        if ($overwriteHost) {
+          $CONFIG['overwritehost'] = $overwriteHost;
+        }
+
+        $overwriteProtocol = getenv('OVERWRITEPROTOCOL');
+        if ($overwriteProtocol) {
+          $CONFIG['overwriteprotocol'] = $overwriteProtocol;
+        }
+
+        $overwriteCliUrl = getenv('OVERWRITECLIURL');
+        if ($overwriteCliUrl) {
+          $CONFIG['overwrite.cli.url'] = $overwriteCliUrl;
+        }
+
+        $overwriteWebRoot = getenv('OVERWRITEWEBROOT');
+        if ($overwriteWebRoot) {
+          $CONFIG['overwritewebroot'] = $overwriteWebRoot;
+        }
+
+        $overwriteCondAddr = getenv('OVERWRITECONDADDR');
+        if ($overwriteCondAddr) {
+          $CONFIG['overwritecondaddr'] = $overwriteCondAddr;
+        }
+
+        $trustedProxies = getenv('TRUSTED_PROXIES');
+        if ($trustedProxies) {
+          $CONFIG['trusted_proxies'] = array_filter(array_map('trim', explode(' ', $trustedProxies)));
+        }
+
+    extraEnv:
+      - name: TRUSTED_PROXIES
+        value: "10.42.0.0/16"
+      - name: PHP_MEMORY_LIMIT
+        value: 1024M
+      - name: PHP_UPLOAD_LIMIT
+        value: 16G
+
+  cronjob:
+    enabled: true
+
+  # Disable not necessary apps
+  internalDatabase:
+    enabled: false
+
+collabora-code:
+  enabled: true
+
+  image:
+    tag: 22.05.7.2.1
+
+imaginary:
+  enabled: true
+
+  # Number of replicas to be deployed
+  replicaCount: 1
+
+  ## Strategy used to replace old pods
+  ## IMPORTANT: use with care, it is suggested to leave as that for upgrade purposes
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  strategy:
+    type: Recreate
+    # type: RollingUpdate
+    # rollingUpdate:
+    #   maxSurge: 1
+    #   maxUnavailable: 0
+
+  podAnnotations: {}
+
+  image:
+    repository: nextcloud/aio-imaginary
+    # tag: 20221130_091423-latest
+    pullPolicy: IfNotPresent
+    # pullSecrets:
+    #   - myRegistrKeySecretName
+
+  # Allow configuration of lifecycle hooks
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/attach-handler-lifecycle-event/
+  lifecycle:
+    {}
+    # postStartCommand: []
+    # preStopCommand: []
+
+  # commandArgs: []
+  # containerPort: 9000
+
+  resources:
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 1500m
+    #  memory: 2Gi
+    # requests:
+    #  cpu: 200m
+    #  memory: 256Mi
+
+  persistence:
+    enabled: false
+    subPath:
+
+  service:
+    type: ClusterIP
+    port: 8088
+    loadBalancerIP: nil
+    nodePort: nil

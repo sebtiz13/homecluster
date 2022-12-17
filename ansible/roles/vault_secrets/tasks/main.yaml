@@ -1,0 +1,31 @@
+- name: Create vault secrets
+  no_log: true
+  connection: local
+  become: false
+  block:
+    - name: Retrieve current stored secret
+      vars:
+        full_path: "{{ item.full_path | default(secrets_base_path + '/' + item.path | default('')) }}"
+        not_found_msg: "The path '{{ item.path }}' doesn't seem to exist."
+      community.hashi_vault.vault_read:
+        url: '{{ ansible_hashi_vault_addr }}'
+        validate_certs: false
+        token: '{{ ansible_hashi_vault_token }}'
+        path: '{{ full_path }}'
+      failed_when:
+        - item.full_path is not defined and secrets_base_path == ''
+        - "'msg' in vault_check and vault_check.msg != not_found_msg"
+      register: vault_check
+      loop: '{{ secrets }}'
+
+    - name: Write new secret
+      when: ('msg' in item) or (item.data.data.data != item.item.data)
+      community.hashi_vault.vault_write:
+        url: '{{ ansible_hashi_vault_addr }}'
+        validate_certs: false
+        token: '{{ ansible_hashi_vault_token }}'
+        path: "{{ item.item.full_path | default(secrets_base_path + '/' + item.item.path | default('')) }}"
+        data:
+          data: '{{ item.item.data }}'
+      register: vault_secret
+      loop: '{{ vault_check.results }}'

@@ -8,13 +8,13 @@ services in our home cluster.
 
 ## Overview
 
-> Project status: **BETA**
+> Project status: **ALPHA**
 
 ### Features
 
-- [x] Automated bare metal provisioning with Terraform
+- [x] Automated bare metal provisioning with Ansible
 - [x] Automated Kubernetes installation and management
-- [ ] Installing and managing applications using GitOps
+- [x] Installing and managing applications using GitOps
 - [ ] Automatic rolling upgrade for OS and Kubernetes
 - [ ] Automatically update apps (with approval, _Currently: only manual update_) 🚧
 - [x] Modular architecture, easy to add or remove features/components
@@ -34,6 +34,7 @@ services in our home cluster.
 
 | Logo                                                                                                                      | Name                                                          | Description                                                               |
 | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| <img width="32" src="https://simpleicons.org/icons/ansible.svg">                                                          | [Ansible](https://www.ansible.com/)                           | Provisioning machines                                                     |
 | <img width="32" src="https://cncf-branding.netlify.app/img/projects/argo/icon/color/argo-icon-color.svg">                 | [ArgoCD](https://argoproj.github.io/cd)                       | GitOps tool built to deploy applications to Kubernetes                    |
 | <img width="32" src="https://github.com/jetstack/cert-manager/raw/master/logo/logo.png">                                  | [cert-manager](https://cert-manager.io)                       | Cloud native certificate management                                       |
 | <img width="32" src="https://appscode.com/assets/images/products/kubed/icons/favicon-32x32.png">                          | [Config Syncer (kubed)](https://appscode.com/products/kubed/) | Synchronize `ConfigMaps` and `Secrets` across namespaces and/or clusters. |
@@ -45,7 +46,6 @@ services in our home cluster.
 | <img width="32" src="https://min.io/resources/img/logo/MINIO_Bird.png">                                                   | [MinIO](https://min.io/)                                      | Multi-Cloud Object Storage                                                |
 | <img width="32" src="https://cncf-branding.netlify.app/img/projects/openebs/icon/color/openebs-icon-color.svg">           | [OpenEBS (zfs-localpv)](https://openebs.io/)                  | CSI driver for provisioning Local PVs backed by ZFS                       |
 | <img width="32" src="https://www.postgresql.org/media/img/about/press/elephant.png">                                      | [PostgreSQL](https://www.postgresql.org/)                     | Object-relational database                                                |
-| <img width="32" src="https://www.datocms-assets.com/2885/1620155116-brandhcterraformverticalcolor.svg">                   | [Terraform](https://www.terraform.io/)                        | Automate Infrastructure as code                                           |
 | <img width="32" src="https://doc.traefik.io/traefik/assets/img/traefikproxy-vertical-logo-color.svg">                     | [Traefik proxy](https://doc.traefik.io/traefik/)              | Kubernetes Ingress Controller                                             |
 | <img width="32" src="https://simpleicons.org/icons/vault.svg">                                                            | [Vault](https://www.vaultproject.io)                          | Secrets and encryption management system                                  |
 

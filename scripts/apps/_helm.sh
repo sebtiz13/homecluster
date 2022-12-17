@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck disable=SC3054
 
 extract_info () {
   CLUSTER_NAME=$(basename "$(dirname "$(dirname "$1")")")
@@ -11,7 +10,7 @@ extract_info () {
 }
 
 run_helm () {
-  ENVIRONMENT=${ENVIRONMENT:-production}
+  ENVIRONMENT=${ENVIRONMENT:-prod}
   DOMAIN_NAME=${DOMAIN_NAME:-local.vm}
 
   # helm base arguments
@@ -25,14 +24,14 @@ run_helm () {
     helm_args="$helm_args --set-file appValuesEnv="$2/appValues.$ENVIRONMENT.yaml""
   fi
   if [ -f "$2/values.$ENVIRONMENT.yaml" ]; then
-    helm_args="$helm_args --f "$2/values.$ENVIRONMENT.yaml""
+    helm_args="$helm_args -f "$2/values.$ENVIRONMENT.yaml""
   fi
 
-  helm "$1" -f "$2/values.yaml" $helm_args charts/common-app \
+  helm "$1" --set destination.server="$CLUSTER_NAME" \
+     -f "$2/values.yaml" $helm_args charts/common-app \
     --set releaseName="$APP_NAME" \
     --set-file appValues="$2/appValues.yaml" \
     --set environment="$ENVIRONMENT" \
     --set project="$PROJECT_NAME" \
-    --set baseDomain="$DOMAIN_NAME" \
-    --set oidc.realm="${OIDC_REALM:-"https://sso.$DOMAIN_NAME/realms/developer"}"
+    --set baseDomain="$DOMAIN_NAME"
 }

@@ -24,7 +24,7 @@ The apps values deployed with **ArgoCD**
 - `appValues.<environment>.yaml`: Overwrite charts values for specific environment
 - `readme.md`: Description of project (with home page, source and secrets values if required)
 
-> Available `environment`: `vm` (for development) and `production`
+> Available `environment`: `dev` (for development) and `prod`
 
 ## [Charts](/charts/)
 
@@ -42,15 +42,9 @@ The builded production manifests for deploy it to cluster with **GitOps**.
 
 This folder contains all documentation.
 
-## [Provisioning](/terraform/)
+## [Provisioning](/ansible/)
 
 Files for provisioning clusters.
-
-> This folder have strict root folders: `baku` (for baku cluster), `salamandre` (for salamandre cluster) and `common-modules`
-
-### Development values
-
-The values for development, is defined in static at `<cluster>/vm.tfvars`.
 
 ## [Virtual machines](/vagrant/)
 

@@ -1,0 +1,15 @@
+ingress:
+  enabled: true
+
+  annotations:
+    {{ include "ingress.annotations.httpsRedirect" . | nindent 4 }}
+
+  hosts:
+    - host: {{ include "ingress.host" . }}
+      paths:
+        - path: "/"
+          pathType: Prefix
+  tls:
+    - secretName: {{ include "ingress.tls.secretName" . }}
+      hosts:
+        - {{ include "ingress.host" . }}

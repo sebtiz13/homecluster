@@ -1,0 +1,38 @@
+- name: Check application status
+  community.hashi_vault.vault_read:
+    url: '{{ ansible_hashi_vault_addr }}'
+    validate_certs: false
+    auth_method: none
+    path: 'sys/seal-status'
+  register: vault_init_status
+
+- name: Initialize application
+  when: not vault_health.json.initialized
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_vault.namespace }}'
+    pod: '{{ apps_vault.pod_name }}'
+    command: |
+      vault operator init -key-shares={{ key.shares }} -key-threshold={{ key.threshold }} -format=json
+  register: vault_init
+  notify: Store Vault unseal keys
+
+- name: Unseal application
+  when:
+    - vault_health.json.sealed
+    - vault_init is changed
+  no_log: true
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_vault.namespace }}'
+    pod: '{{ apps_vault.pod_name }}'
+    command: 'vault operator unseal {{ item }}'
+  loop: '{{ (vault_init.stdout | from_json).unseal_keys_b64 }}'
+
+- name: Store Vault keys # noqa: no-handler
+  when: vault_init is changed
+  no_log: true
+  ansible.builtin.copy:
+    content: '{{ vault_init.stdout | from_json | to_nice_json }}'
+    dest: '{{ credentials_folder }}/vault.json'
+    mode: '0600'

@@ -11,11 +11,9 @@
 - Install the following packages:
 
   - [Make](https://www.gnu.org/software/make/)
-  - [Vagrant](https://www.vagrantup.com/)
-    - [libvirt](https://libvirt.org/)
-  - [mkcert](https://github.com/FiloSottile/mkcert)
-  - [Terraform](https://www.terraform.io/)
   - [Helm](https://helm.sh/)
+  - [Ansible](https://www.ansible.com/)
+    - [yq](https://github.com/mikefarah/yq/)
 
 ### Servers
 
@@ -53,3 +51,8 @@ Common settings:
 - Choose a static IP address for each machine (just the desired address, we don't set anything up yet)
 - OS disk name want used for ZFS pool (for example `/dev/sda`)
 - SSH root password
+
+## Fill data
+
+1. Duplicate files from `ansible/inventories/prod/host_vars/*.yaml.tpl` and remove the `.tpl` extension
+2. Fill the data inside each files

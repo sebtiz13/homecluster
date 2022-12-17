@@ -7,6 +7,8 @@
 
 The secrets keys need to exist for deploy the app
 
+> **Mount path:** `salamandre`
+
 ### `gitlab/database`
 
 - `host`: The server hostname
@@ -41,3 +43,14 @@ The secrets keys need to exist for deploy the app
 ### `gitlab/runner`
 
 - `registrationToken`: The token for auto register runner
+
+### Dependencies
+
+#### `smtp`
+
+SMTP configuration
+
+- `host`: The server host
+- `port`: The server port
+- `username`: The auth username (and from email)
+- `username`: The auth password

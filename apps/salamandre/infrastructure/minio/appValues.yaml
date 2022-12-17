@@ -1,73 +1,59 @@
-{{- define "svcacct.policy" }}
-Version: "2012-10-17"
-Statement:
-  - Effect: Allow
-    Action:
-      - s3:ListBucket
-      - s3:GetObject
-      - s3:DeleteObject
-      - s3:PutObject
-    Resource:
-      {{- range . }}
-      - {{ printf "arn:aws:s3:::%s" . | quote }}
-     {{ end -}}
-{{- end -}}
-{{- define "svcacct.command" }}
-{{ $rootUser := "<path:argocd/data/minio/auth#rootUser>" }}
-{{ $policy := printf "$(echo '%s' > policy.json && echo \"policy.json\")" (include "svcacct.policy" .resources | fromYaml | toJson) }}
-{{- printf "admin user svcacct add --access-key \"%s\" --secret-key \"%s\" --policy \"%s\" myminio \"%s\"" .accessKey .secretKey $policy $rootUser }}
-{{- end -}}
-
-fullnameOverride: "minio"
-
-rootUser: <path:argocd/data/minio/auth#rootUser>
-rootPassword: <path:argocd/data/minio/auth#rootPassword>
-mode: standalone
-
-buckets:
-  - name: tmp
-    policy: none
-  {{- range .Values.buckets }}
-  - name: {{ .name }}
-    policy: {{ .policy }}
-  {{- end }}
-
-customCommands:
-  {{- range .Values.serviceAccounts }}
-  - command: {{ include "svcacct.command" . | trim | quote }}
-  {{- end }}
-
-environment:
-  MINIO_BROWSER_REDIRECT_URL: https://console.s3.{{ .Values.baseDomain }}
-ingress:
-  enabled: true
+{{- if .Values.serviceAccounts }}
+svcaccts:
+  {{ toYaml .Values.serviceAccounts | nindent 2 }}
+{{- end }}
+makeServiceAccountJob:
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-  path: /
-  hosts:
-    - s3.{{ .Values.baseDomain }}
-  tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
-        - s3.{{ .Values.baseDomain }}
-consoleIngress:
-  enabled: true
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-  hosts:
-    - console.s3.{{ .Values.baseDomain }}
-  tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
-        - console.s3.{{ .Values.baseDomain }}
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 
-persistence:
-  size: 10Gi
+minio:
+  fullnameOverride: "minio"
 
-resources:
-  requests:
-      cpu: 10m
-      memory: 192Mi
-  limits:
-      cpu: 1000m
-      memory: 1Gi
+  mode: standalone
+  rootUser: <path:salamandre/data/minio/auth#rootUser>
+  rootPassword: <path:salamandre/data/minio/auth#rootPassword>
+
+  users: [] # Remove default user
+
+  buckets:
+    - name: tmp
+      policy: none
+    {{- range .Values.buckets }}
+    - name: {{ .name }}
+      policy: {{ .policy }}
+    {{- end }}
+  environment:
+    MINIO_BROWSER_REDIRECT_URL: https://console.{{ include "ingress.host" . }}
+  ingress:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    path: /
+    hosts:
+      - {{ include "ingress.host" . }}
+    tls:
+      - secretName: {{ include "ingress.tls.secretName" . }}
+        hosts:
+          - {{ include "ingress.host" . }}
+  consoleIngress:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    hosts:
+      - console.{{ include "ingress.host" . }}
+    tls:
+      - secretName: {{ include "ingress.tls.secretName" . }}
+        hosts:
+          - console.{{ include "ingress.host" . }}
+
+  persistence:
+    size: 10Gi
+
+  resources:
+    requests:
+        cpu: 10m
+        memory: 192Mi
+    limits:
+        cpu: 1000m
+        memory: 1Gi

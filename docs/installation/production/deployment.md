@@ -4,23 +4,21 @@
 
 ## Commands
 
-### Variables
-
-- `SERVER` (possible values: `salamandre`, `baku`): the server name
-
 ### All-in-one
 
 ```sh
-make cluster SERVER=<name>
+DOMAIN_NAME=<domain> make cluster
 ```
 
-### Deploy cluster
+#### Exclude applications
 
-Deploy the cluster
+You can disable some applications by specify environment variable `ANSIBLE_SKIP_TAGS` with one or more next tags.
+The apps tags :
 
-```sh
-make apply SERVER=<name>
-```
+- `oidc` (for disable keycloak)
+- `gitlab`
+
+_example_: `ANSIBLE_SKIP_TAGS=oidc,gitlab make test-cluster`, this deploy all cluster but without oidc and gitlab applications
 
 ## GitLab Agent
 

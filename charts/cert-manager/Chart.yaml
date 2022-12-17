@@ -2,8 +2,8 @@ apiVersion: v2
 name: cert-manager
 description: cert-manager + webhook solver for OVH
 type: application
-version: 1.10.0
-appVersion: v1.10.0
+version: 1.0.0
+appVersion: v1.10.1
 
 icon: https://raw.githubusercontent.com/cert-manager/cert-manager/d53c0b9270f8cd90d908460d69502694e1838f5f/logo/logo-small.png
 sources:
@@ -12,7 +12,8 @@ sources:
 dependencies:
   - name: cert-manager
     repository: https://charts.jetstack.io
-    version: 1.10.0
+    version: 1.10.1
   - name: cert-manager-webhook-ovh
     repository: https://aureq.github.io/cert-manager-webhook-ovh/
     version: 0.4.0
+    condition: cert-manager-webhook-ovh.enabled

@@ -1,12 +1,16 @@
 plugin: argocd-vault-plugin-helm
 
+ingress:
+  subdomain: s3
+
 source:
-  repoURL: https://charts.min.io/
+  # repoURL: https://charts.min.io/
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
   chart: minio
-  targetRevision: 4.0.15
+  # targetRevision: 5.0.1
+  targetRevision: 1.0.0
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: minio
 
 syncPolicy:
@@ -16,31 +20,40 @@ syncPolicy:
 
 # App Values
 buckets:
-  - name: <path:argocd/data/gitlab/s3#bucket_artifacts>
+  - name: <path:salamandre/data/gitlab/s3#bucket_artifacts>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_backups>
+  - name: <path:salamandre/data/gitlab/s3#bucket_backups>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_depsProxy>
+  - name: <path:salamandre/data/gitlab/s3#bucket_depsProxy>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_packages>
+  - name: <path:salamandre/data/gitlab/s3#bucket_packages>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_pages>
+  - name: <path:salamandre/data/gitlab/s3#bucket_pages>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_registry>
+  - name: <path:salamandre/data/gitlab/s3#bucket_registry>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_runner>
+  - name: <path:salamandre/data/gitlab/s3#bucket_runner>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_tfState>
+  - name: <path:salamandre/data/gitlab/s3#bucket_tfState>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_uploads>
+  - name: <path:salamandre/data/gitlab/s3#bucket_uploads>
     policy: none
-  - name: <path:argocd/data/gitlab/s3#bucket_lfs>
+  - name: <path:salamandre/data/gitlab/s3#bucket_lfs>
     policy: none
 
 serviceAccounts:
-  - accessKey: <path:argocd/data/gitlab/s3#accessKey>
-    secretKey: <path:argocd/data/gitlab/s3#secretKey>
-    resources:
-      - gitlab-*/*
-      - git-lfs/*
-      - tmp/*
+  - accessKey: <path:salamandre/data/gitlab/s3#accessKey>
+    secretKey: <path:salamandre/data/gitlab/s3#secretKey>
+    user: <path:salamandre/data/minio/auth#rootUser>
+    policy:
+      statements:
+        - actions:
+            - s3:AbortMultipartUpload
+            - s3:GetObject
+            - s3:DeleteObject
+            - s3:PutObject
+            - s3:ListMultipartUploadParts
+          resources:
+            - arn:aws:s3:::gitlab-*/*
+            - arn:aws:s3:::git-lfs/*
+            - arn:aws:s3:::tmp/*

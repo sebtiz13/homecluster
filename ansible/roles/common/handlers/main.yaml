@@ -1,0 +1,24 @@
+- name: Update kernel version
+  block:
+    - name: Retrieve new kernel version
+      ansible.builtin.command: uname -r
+      register: apt_kernel_version
+      changed_when: 'apt_kernel_version.stdout != ansible_kernel'
+    - name: Update ansible fact
+      ansible.builtin.set_fact:
+        ansible_kernel: '{{ apt_kernel_version.stdout }}'
+
+- name: Restart sshd
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+
+- name: Fix kubeconfig mode
+  connection: local
+  become: false
+  ansible.builtin.file:
+    path: '{{ kubeconfig.dest }}'
+    mode: '0600'
+
+- name: Update trusted ca
+  ansible.builtin.command: update-ca-certificates

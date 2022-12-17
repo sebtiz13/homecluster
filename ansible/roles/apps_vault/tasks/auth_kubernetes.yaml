@@ -1,0 +1,40 @@
+- name: Login inside pod
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_vault.namespace }}'
+    pod: '{{ apps_vault.pod_name }}'
+    command: 'vault login {{ vault_token.login.auth.client_token }}'
+
+- name: Setup kubernetes auth
+  vars:
+    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', validate_certs=false) }}"
+  when: "'kubernetes/' not in auth_engines.data"
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_vault.namespace }}'
+    pod: '{{ apps_vault.pod_name }}'
+    command: 'vault auth enable kubernetes'
+  register: vault_k8s_auth
+
+- name: Configure host for kubernetes auth # noqa: no-handler
+  when: vault_k8s_auth is changed
+  vars:
+    ip: '{{ (k3s_apiserver.resources | first).spec.clusterIP }}'
+    port: '{{ (k3s_apiserver.resources | first).spec.ports | first }}'
+  community.hashi_vault.vault_write:
+    url: '{{ ansible_hashi_vault_addr }}'
+    validate_certs: false
+    token: '{{ ansible_hashi_vault_token }}'
+    path: auth/kubernetes/config
+    data:
+      kubernetes_host: "{{ '%s://%s:%s' | format(port.name, ip, port.port) }}"
+
+- name: List kubernetes roles
+  community.hashi_vault.vault_read:
+    url: '{{ ansible_hashi_vault_addr }}'
+    validate_certs: false
+    token: '{{ ansible_hashi_vault_token }}'
+    path: auth/kubernetes/role?list=true
+  register: vault_k8s_role
+  failed_when:
+    - '''msg'' in vault_k8s_role and vault_k8s_role.msg != "The path ''auth/kubernetes/role?list=true'' doesn''t seem to exist."'

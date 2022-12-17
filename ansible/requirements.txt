@@ -1,0 +1,7 @@
+jmespath>=1.0,<1.1
+kubernetes>=25.3,<25.4
+netaddr>=0.8,<0.9
+kubernetes-validate>=1.25,<1.26
+hvac>=1.0,<1.1
+psycopg2>=2.9,<2.10
+passlib>=1.7,<1.8

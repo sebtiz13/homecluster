@@ -1,0 +1,174 @@
+- name: Generate Nextcloud database password
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
+    values: '{{ manifest.spec.source.plugin.env.1.value }}'
+    host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+  ansible.builtin.set_fact:
+    apps_nextcloud:
+      _manifest: '{{ manifest }}'
+      _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+      release_name: '{{ manifest.spec.source.plugin.env.0.value }}'
+      namespace: '{{ manifest.spec.destination.namespace }}'
+      host: '{{ host }}'
+
+- name: Create Nextcloud database access
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: nextcloud
+    username: nextcloud
+    password: '{{ apps_nextcloud._db_passowrd }}'
+
+- name: Check if Nextcloud is already deploy
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    kind: Service
+    name: '{{ apps_nextcloud.release_name }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+  register: nextcloud_server
+
+- name: Deploy Nextcloud application and secrets
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    manifest: '{{ apps_nextcloud._manifest }}'
+    restart_resources:
+      - kind: Deployment
+        name: '{{ apps_nextcloud.release_name }}'
+    secrets:
+      - path: nextcloud/auth
+        data:
+          adminUser: admin
+          adminPassword: '{{ admin_passwords.nextcloud }}'
+          collaboraAdminUser: admin
+          collaboraAdminPassword: '{{ admin_passwords.collabora }}'
+      - path: nextcloud/database
+        data:
+          host: postgresql.loc
+          port: '5432'
+          database: nextcloud
+          user: nextcloud
+          password: '{{ apps_nextcloud._db_passowrd }}'
+
+- name: Wait until Nextcloud is installed
+  when: nextcloud_server.resources | length == 0 # This is for run only on first install
+  ansible.builtin.uri:
+    url: '{{ apps_nextcloud.host }}/status.php'
+    method: GET
+    status_code: 200
+    return_content: true
+  register: health
+  until: (health.status == 200 and health.json.installed)
+  retries: 60 # This is for wait max 10min (this is for support slow connection)
+  delay: 10
+
+- name: Retrieve Nexcloud pod informations
+  when: nextcloud_server.resources | length == 0 # This is for run only on first install
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    kind: Pod
+    namespace: '{{ apps_nextcloud.namespace }}'
+    label_selectors:
+      - app.kubernetes.io/component=app
+      - 'app.kubernetes.io/instance={{ apps_nextcloud.release_name }}'
+      - 'app.kubernetes.io/name={{ apps_nextcloud.release_name }}'
+    field_selectors:
+      - status.phase=Running
+  register: nextcloud_pod
+
+- name: Remove unused Nexcloud apps
+  when: nextcloud_pod is not skipped # This is for run only on first install
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+    pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+    command: su -m www-data -s /bin/sh -c 'php occ app:disable {{ item }}'
+  loop: '{{ nextcloud_apps.disable }}'
+
+- name: Install wanted Nexcloud apps
+  when: nextcloud_pod is not skipped # This is for run only on first install
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+    pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+    command: su -m www-data -s /bin/sh -c 'php occ app:enable {{ item }}'
+  loop: '{{ nextcloud_apps.enable }}'
+
+- name: Configure Nexcloud apps
+  when: nextcloud_pod is not skipped # This is for run only on first install
+  vars:
+    base: 'php occ config:app:set {{ item.id }} '
+    commands:
+      - id: preview
+        commands:
+          - jpeg_quality --value 60
+      - id: admin_audit # Admin Audit
+        commands:
+          - logfile --value /var/www/html/data/audit.log
+      - id: richdocuments # Collabora
+        commands:
+          - disable_certificate_verification --value true
+          - wopi_allowlist --value 10.42.0.0/16
+          - wopi_url --value {{ apps_nextcloud.host }}
+      - id: bookmarks # Bookmarks
+        commands:
+          - privacy.enableScraping --value true
+      - id: drawio # Draw.io
+        commands:
+          - DrawioTheme --value dark
+          - DrawioLibraries --value yes
+      - id: external # External sites
+        commands:
+          - sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}"
+          - max_site --value 1
+      - id: ransomware_protection # Ransomware protection
+        commands:
+          - notes_include_biased --value yes
+          # Exclude AndOTP backup
+          - extension_additions --value "[\"^(?<!otp_accounts.*\\\\.json)\\\\.aes$\"]"
+          - extension_exclusions --value "[\".aes\"]"
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+    pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+    command: su -m www-data -s /bin/sh -c '{{ base }}{{ item.commands | join(' && ' + base) }}'
+  loop: '{{ commands }}'
+  loop_control:
+    label: '{{ item.id }}'
+
+- name: Retrieve Nexcloud instance id
+  when: nextcloud_pod is not skipped # This is for run only on first install
+  kubernetes.core.k8s_exec:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    namespace: '{{ apps_nextcloud.namespace }}'
+    pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+    command: su -m www-data -s /bin/sh -c 'php occ config:system:get instanceid'
+  register: nextcloud_instanceid
+
+- name: Upload external apps icons to Nexcloud
+  when: nextcloud_pod is not skipped # This is for run only on first install
+  vars:
+    base_path: /var/www/html/data/appdata_{{ nextcloud_instanceid.stdout_lines.0 }}/external/icons
+    icons:
+      - wallabag.svg
+      - wallabag-dark.svg
+  block:
+    - name: Upload external apps icons to Nexcloud
+      kubernetes.core.k8s_cp:
+        kubeconfig: '{{ kubeconfig.dest }}'
+        state: to_pod
+        namespace: '{{ apps_nextcloud.namespace }}'
+        pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+        container: nextcloud
+        local_path: '{{ item }}'
+        remote_path: '{{ base_path }}/{{ item }}'
+        no_preserve: true
+      loop: '{{ icons }}'
+
+    - name: Fix permission of external apps icons in Nexcloud
+      kubernetes.core.k8s_exec:
+        kubeconfig: '{{ kubeconfig.dest }}'
+        namespace: '{{ apps_nextcloud.namespace }}'
+        pod: '{{ (nextcloud_pod.resources | first).metadata.name }}'
+        command: chown www-data:www-data {{ base_path }}/{{ item }}
+      loop: '{{ icons }}'

@@ -1,11 +1,10 @@
-{{ $host := printf "sso.%s" .Values.baseDomain }}
 {{- define "keycloak.realm" }}
-{{ $realm := tpl (.Values.realm | toYaml) . | fromYaml }}
-{{- if eq .Values.environment "vm" -}}
-{{ $realmVM := tpl (.Values.realm_vm | toYaml) . | fromYaml }}
-{{ $realm = deepCopy $realm | mustMerge $realmVM  }}
+{{- $realm := tpl (.Values.realm | toYaml) . | fromYaml }}
+{{- if eq (include "is-production" .) "false" -}}
+{{- $devRealm := tpl (.Values.realm_dev | toYaml) . | fromYaml }}
+{{- $realm = deepCopy $realm | mustMerge $devRealm  }}
 {{- end -}}
-{{ $realm | toYaml }}
+{{- $realm | toYaml }}
 {{- end -}}
 
 fullnameOverride: "keycloak"
@@ -14,20 +13,20 @@ proxy: edge
 ingress:
   enabled: true
   ingressClassName: traefik
-  hostname: {{ $host }}
+  hostname: {{ include "ingress.host" . }}
   annotations:
     {{ include "ingress.annotations.httpsRedirect" . | nindent 4 }}
   extraTls:
     - secretName: {{ include "ingress.tls.secretName" . }}
       hosts:
-        - {{ $host }}
+        - {{ include "ingress.host" . }}
 
 cache:
   enabled: true
 
 auth:
-  adminUser: <path:argocd/data/keycloak/auth#adminUser>
-  adminPassword: <path:argocd/data/keycloak/auth#adminPassword>
+  adminUser: <path:salamandre/data/keycloak/auth#adminUser>
+  adminPassword: <path:salamandre/data/keycloak/auth#adminPassword>
 
 extraEnvVars:
   - name: TZ
@@ -35,28 +34,23 @@ extraEnvVars:
   - name: KEYCLOAK_PRODUCTION
     value: "true"
   - name: KEYCLOAK_HOSTNAME
-    value: {{ $host }}
+    value: {{ include "ingress.host" . }}
 
 service:
   type: ClusterIP
 
 externalDatabase:
-  host: <path:argocd/data/keycloak/database#host>
-  port: <path:argocd/data/keycloak/database#port>
-  user: <path:argocd/data/keycloak/database#user>
-  database: <path:argocd/data/keycloak/database#database>
-  password: <path:argocd/data/keycloak/database#password>
+  host: <path:salamandre/data/keycloak/database#host>
+  port: <path:salamandre/data/keycloak/database#port>
+  user: <path:salamandre/data/keycloak/database#user>
+  database: <path:salamandre/data/keycloak/database#database>
+  password: <path:salamandre/data/keycloak/database#password>
 
 postgresql:
   enabled: false
 
 keycloakConfigCli:
   enabled: true
-  {{/* Load old tool version due to unreleased cli (issue https://github.com/bitnami/charts/issues/12699) */}}
-  command:
-    - java
-    - -jar
-    - /opt/bitnami/keycloak-config-cli/keycloak-config-cli-19.0.1.jar
 
   configuration:
     realm1.yaml: |

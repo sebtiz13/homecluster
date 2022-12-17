@@ -7,6 +7,8 @@
 
 The secrets keys need to exist for deploy the app
 
+> **Mount path:** `salamandre`
+
 ### keycloak/auth
 
 Admin user informations
@@ -25,6 +27,15 @@ Database informations
 - `database`: The database name
 
 ### Dependencies
+
+#### `smtp`
+
+SMTP configuration
+
+- `host`: The server host
+- `port`: The server port
+- `username`: The auth username (and from email)
+- `username`: The auth password
 
 #### argocd/oidc
 

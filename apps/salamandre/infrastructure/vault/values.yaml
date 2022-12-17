@@ -1,12 +1,14 @@
 plugin: helm
 
+ingress:
+  subdomain: vault-secrets
+
 source:
   repoURL: https://helm.releases.hashicorp.com
   chart: vault
-  targetRevision: 0.22.0
+  targetRevision: 0.23.0
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: vault
 
 syncPolicy:

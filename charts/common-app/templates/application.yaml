@@ -5,6 +5,10 @@ metadata:
   name: {{ include "common-app.name" . }}
   labels:
     {{- include "common-app.labels" . | indent 4 }}
+  {{- if and .Values.ingress .Values.ingress.subdomain }}
+  annotations:
+    sebtiz13.fr/host: {{ include "ingress.host" . }}
+  {{- end }}
 spec:
   project: {{ .Values.project }}
   source:
@@ -13,7 +17,6 @@ spec:
     targetRevision: {{ .Values.source.targetRevision }}
     {{- if eq ( .Values.plugin | toString ) "argocd-vault-plugin-helm" }}
     plugin:
-      name: argocd-vault-plugin-helm
       {{- if or .Values.helmArgs $values }}
       env:
         {{- if .Values.releaseName }}
@@ -45,7 +48,11 @@ spec:
       {{- end }}
     {{- end }}
   destination:
-    server: {{ .Values.destination.server }}
+    {{- if eq .Values.destination.server "salamandre" }}
+    name: in-cluster
+    {{- else }}
+    name: {{ .Values.destination.server }}
+    {{- end }}
     namespace: {{ .Values.destination.namespace }}
   {{- if and .Values.syncPolicy ( or .Values.syncPolicy.automated .Values.syncPolicy.options ) }}
   {{- with .Values.syncPolicy }}

@@ -1,3 +1,3 @@
 #!/bin/sh
-helm dependency build "$1"
+helm dependency build --skip-refresh "$1"
 helm lint "$1"

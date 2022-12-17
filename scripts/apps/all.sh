@@ -12,6 +12,8 @@ do
     exit 0
   fi
 
-  # Run script
-  $SCRIPT "$APP_PATH"
+  # Run script (with skip dev project if prod)
+  if [ "$ENVIRONMENT" = "dev" ] || [ "$APP_PATH" != "/dev/" ]; then
+    $SCRIPT "$APP_PATH"
+  fi
 done

@@ -1,0 +1,34 @@
+ingresses:
+  http:
+    enabled: true
+    className: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+
+    hosts:
+      - host: {{ include "ingress.host" . }}
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+bootstrapConfig:
+  users:
+    - name: <path:baku/data/adguard/auth#adminUser>
+      passowrd: <path:baku/data/adguard/auth#adminPassword>
+
+  dns:
+    querylog_interval: 24h
+    upstream_dns:
+      - https://dns10.quad9.net/dns-query
+      - https://dns.cloudflare.com/dns-query
+    bootstrap_dns:
+      - 9.9.9.10
+      - 149.112.112.10
+      - 2620:fe::10
+      - 2620:fe::fe:10
+      - 1.1.1.1
+      - 1.0.0.1

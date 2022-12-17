@@ -1,0 +1,38 @@
+- name: Sync ArgoCD application
+  # ?REF: 'gitlab/oidc' > oidc/keycloak
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    state: present
+    resource_definition: '{{ apps_argocd._manifest }}'
+    namespace: '{{ apps_argocd.namespace }}'
+  register: argocd_manifest
+
+- name: Refresh ArgoCD application
+  when:
+    - argocd_manifest is not changed
+  vars:
+    name: '{{ apps_argocd._manifest.metadata.name }}'
+  ansible.builtin.uri:
+    url: '{{ argocd_api_url }}/applications/{{ name }}?refresh=hard'
+    headers:
+      Authorization: 'Bearer {{ argocd_api_token }}'
+    method: GET
+    status_code: 200
+
+- name: Restart ArgoCD server for update oidc
+  connection: ssh
+  ansible.builtin.command: |
+    kubectl rollout restart deployment
+      --namespace '{{ apps_argocd.namespace }}'
+      '{{ apps_argocd.release_name }}-server'
+  changed_when: false
+
+- name: Wait until application is available
+  kubernetes.core.k8s_info:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    kind: Deployment
+    name: '{{ apps_argocd.release_name }}-server'
+    namespace: '{{ apps_argocd.namespace }}'
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 360

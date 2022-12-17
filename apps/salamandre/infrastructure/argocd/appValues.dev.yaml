@@ -1,0 +1,16 @@
+server:
+  config:
+    oidc.config: |
+      {{ tpl (.Values.baseOidcConfig | toYaml) . | nindent 6  }}
+      rootCA: $$vm-ca-tls-secret:tls.crt
+
+  volumeMounts:
+    - name: certificate
+      mountPath: /etc/ssl/certs/ca.crt
+      subPath: tls.crt
+  volumes:
+    - name: certificate
+      secret:
+        secretName: vm-ca-tls-secret
+        defaultMode: 420
+        optional: true

@@ -1,0 +1,28 @@
+- name: Retrieve s3 credentials
+  connection: local
+  become: false
+  community.hashi_vault.vault_read:
+    url: '{{ ansible_hashi_vault_addr }}'
+    token: '{{ ansible_hashi_vault_token }}'
+    path: '{{ secrets_base_path }}/backup/s3'
+  register: backup_s3
+
+- name: Upload backup excutables
+  ansible.builtin.import_tasks: scripts.yaml
+
+- name: Configure MinIO
+  ansible.builtin.import_tasks: minio.yaml
+
+- name: Configure Barman
+  ansible.builtin.import_tasks: barman.yaml
+
+- name: Add sudoers permission to users
+  ansible.builtin.copy:
+    src: '{{ item }}_sudoer'
+    dest: '/etc/sudoers.d/{{ item }}'
+    owner: root
+    group: root
+    mode: 'u=rw,g=r,o='
+  loop:
+    - barman
+    - backup

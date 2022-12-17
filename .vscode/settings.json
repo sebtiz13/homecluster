@@ -1,8 +1,11 @@
 {
   "files.associations": {
-    "*.yaml.tftpl": "yaml",
-    "*.conf.tftpl": "properties",
-    "appValues*.yaml": "helm"
+    "appValues*.yaml": "helm",
+    "*.yaml.j2": "yaml",
+    "*.conf.j2": "properties",
+    "*.json.j2": "json",
+    "**/ansible/{site,salamandre,baku}.yaml": "ansible",
+    "**/ansible/**/{handlers,tasks}/*.yaml": "ansible"
   },
   "[yaml]": {
     "editor.formatOnSave": false

@@ -1,0 +1,106 @@
+- name: Install sensors, database, configure coreDNS
+  hosts: salamandre
+  connection: local
+  roles:
+    - role: salamandre_sensors
+      when: motherboard_chip is defined
+      connection: ssh
+      become: true
+      tags: sensors
+    - role: database
+      connection: ssh
+      become: true
+      tags: database
+    - role: coredns
+      tags: kubernetes
+
+- name: Install prerequired applications
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  roles:
+    - role: apps_argocd
+      tags: argocd
+    - role: kubed_kubeconfig
+      tags: kubed
+    - role: apps_system
+      tags: common
+    - role: apps_external-secrets
+      tags: external-secret
+    - role: apps_vault
+      tags: vault
+
+- name: Install cert-manager , dev apps, create traefik auth
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  pre_tasks:
+    - name: Store ArgoCD api token in facts
+      ansible.builtin.set_fact:
+        argocd_api_token: '{{ argocd_admin_auth.json.token }}'
+  roles:
+    - role: traefik_auth
+      tags: traefik
+    - role: apps_cert-manager
+      tags:
+        - cert-manager
+        - tls
+    - role: vault_secrets
+      tags: smtp
+      vars:
+        secrets:
+          - path: smtp
+            data: '{{ smtp_auth }}'
+    - role: salamandre_dev
+      when: env == 'dev'
+
+- name: Install, configure OIDC and sync ArgoCD
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  pre_tasks:
+    - name: Retrieve keycloak informations
+      vars:
+        manifest: "{{ lookup('file', manifests_folder + '/keycloak.yaml') | from_yaml }}"
+        base_url: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+        realm: developer
+      ansible.builtin.set_fact:
+        apps_keycloak:
+          _manifest: '{{ manifest }}'
+          _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+          release_name: '{{ manifest.spec.source.plugin.env.0.value }}'
+          namespace: '{{ manifest.spec.destination.namespace }}'
+          base_url: '{{ base_url }}'
+          issuer: '{{ base_url }}/realms/{{ realm }}'
+          realm: '{{ realm }}'
+  roles:
+    # ALways deploy oidc secrets for applications (event if oidc is disabled, this is for argocd vaukt plugin)
+    - role: vault_secrets
+      vars:
+        secrets:
+          - path: argocd/oidc
+            data:
+              issuer: '{{ apps_keycloak.issuer }}'
+              cliClientID: argocd-cli
+              clientID: argocd
+              clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
+    - role: oidc
+      tags: oidc
+    - role: argocd_sync
+      tags: argocd
+
+- name: Install infrastructure applications
+  hosts: salamandre
+  connection: local
+  tags: kubernetes
+  roles:
+    - salamandre_infrastructure
+
+- name: Install cloud applications
+  hosts: salamandre
+  connection: local
+  tags:
+    - kubernetes
+    - cloud
+  roles:
+    - salamandre_cloud

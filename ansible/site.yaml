@@ -1,0 +1,33 @@
+- name: Install common requirement and create namespaces
+  hosts: all
+  tags: common
+  roles:
+    - role: common
+      become: true
+    # TODO: Until ArgoCD release https://github.com/argoproj/argo-cd/issues/7799
+    - role: labeled_namespace
+      connection: local
+      tags: kubernetes
+      vars:
+        domain: '{{ root_domain }}'
+  tasks:
+    - name: Load applications admin passwords
+      ansible.builtin.include_vars:
+        file: '{{ credentials_folder }}/admin_passwords.yaml'
+        name: admin_passwords
+
+- name: Deploy salamandre
+  ansible.builtin.import_playbook: salamandre.yaml
+
+- name: Deploy Baku
+  ansible.builtin.import_playbook: baku.yaml
+
+- name: Configure backup
+  hosts: salamandre
+  become: true
+  tags:
+    - backup
+    - minio
+  roles:
+    - role: backup
+      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"

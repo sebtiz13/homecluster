@@ -1,0 +1,96 @@
+{{ $fullName := include "wallabag.fullname" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "wallabag.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wallabag.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "wallabag.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "wallabag.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ['/etc/wallabag/entrypoint.sh']
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 30
+          env:
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key | quote }}
+              value: {{ $val | quote }}
+            {{- end }}
+          {{- if .Values.externalSecret.enabled }}
+          envFrom:
+            - secretRef:
+                {{- if and .Values.externalSecret.target .Values.externalSecret.target.name }}
+                name: {{ .Values.externalSecret.target.name }}
+                {{- else }}
+                name: {{ $fullName }}
+                {{- end }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /etc/wallabag/entrypoint.sh
+              name: entrypoint
+              subPath: entrypoint.sh
+            {{- if .Values.persistence.images.enabled }}
+            - mountPath: {{ .Values.persistence.image.mountPath }}
+              name: images-vol
+            {{- end }}
+            {{- if .Values.persistence.cache.enabled }}
+            - mountPath: {{ .Values.persistence.cache.mountPath }}
+              name: cache-vol
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: entrypoint
+          configMap:
+            name: {{ $fullName }}-script
+            defaultMode: 0740
+        {{- if .Values.persistence.images.enabled }}
+        - name: images-vol
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}
+        {{- end }}
+        {{- if .Values.persistence.cache.enabled }}
+        - name: cache-vol
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}
+        {{- end }}

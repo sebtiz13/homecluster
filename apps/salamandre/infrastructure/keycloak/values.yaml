@@ -1,12 +1,14 @@
 plugin: argocd-vault-plugin-helm
 
+ingress:
+  subdomain: sso
+
 source:
   repoURL: https://charts.bitnami.com/bitnami
   chart: keycloak
-  targetRevision: 10.1.4
+  targetRevision: 12.3.0
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: keycloak
 
 syncPolicy:
@@ -22,7 +24,15 @@ realm:
   registrationAllowed: false
   registrationEmailAsUsername: false
   attributes:
-    frontendUrl: https://sso.{{ .Values.baseDomain }}
+    frontendUrl: https://{{ include "ingress.host" . }}
+  smtpServer:
+    host: <path:salamandre/data/smtp#host>
+    port: <path:salamandre/data/smtp#port>
+    from: <path:salamandre/data/smtp#username>
+    fromDisplayName: Keycloak
+    auth: true
+    user: <path:salamandre/data/smtp#username>
+    password: <path:salamandre/data/smtp#password>
 
   roles:
     realm:
@@ -32,7 +42,11 @@ realm:
         containerId: developer
       - name: admin
         description: "$${role_admin}"
-        composite: false
+        composite: true
+        composites:
+          client:
+            realm-management:
+              - realm-admin
         clientRole: false
         containerId: developer
 
@@ -56,13 +70,14 @@ realm:
       path: /Users
 
   clients:
-    - clientId: <path:argocd/data/argocd/oidc#clientID>
+    - name: argoCD
+      clientId: <path:salamandre/data/argocd/oidc#clientID>
       rootUrl: https://argocd.{{ .Values.baseDomain }}
       baseUrl: /
       enabled: true
       publicClient: false
       clientAuthenticatorType: client-secret
-      secret: <path:argocd/data/argocd/oidc#clientSecret>
+      secret: <path:salamandre/data/argocd/oidc#clientSecret>
       redirectUris:
         - /
         - /applications
@@ -86,7 +101,8 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
-    - clientId: <path:argocd/data/argocd/oidc#cliClientID>
+    - name: argoCD CLI
+      clientId: <path:salamandre/data/argocd/oidc#cliClientID>
       rootUrl: http://localhost:8085
       adminUrl: http://localhost:8085
       enabled: true
@@ -113,14 +129,15 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
-    - clientId: <path:argocd/data/vault/oidc#clientID>
+    - name: vault
+      clientId: <path:salamandre/data/vault/oidc#clientID>
       rootUrl: https://vault-secrets.{{ .Values.baseDomain }}
       baseUrl: /ui/
       adminUrl: /ui/vault/auth/oidc/oidc/callback
       enabled: true
       publicClient: false
       clientAuthenticatorType: client-secret
-      secret: <path:argocd/data/argocd/oidc#clientSecret>
+      secret: <path:salamandre/data/vault/oidc#clientSecret>
       redirectUris:
         - /oidc/callback
         - /ui/vault/auth/oidc/oidc/callback/*
@@ -132,6 +149,7 @@ realm:
       protocol: openid-connect
       attributes:
         backchannel.logout.session.required: "true"
+        post.logout.redirect.uris: https://vault-secrets.{{ .Values.baseDomain }}
       fullScopeAllowed: true
       defaultClientScopes:
         - web-origins
@@ -144,6 +162,35 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
+    - name: gitlab
+      clientId: <path:salamandre/data/gitlab/oidc#clientID>
+      rootUrl: https://git.{{ .Values.baseDomain }}
+      baseUrl: /
+      enabled: true
+      publicClient: false
+      clientAuthenticatorType: client-secret
+      secret: <path:salamandre/data/vault/oidc#clientSecret>
+      redirectUris:
+        - /*
+      webOrigins:
+        - '*'
+      standardFlowEnabled: true
+      directAccessGrantsEnabled: true
+      protocol: openid-connect
+      attributes:
+        backchannel.logout.session.required: "true"
+      fullScopeAllowed: true
+      defaultClientScopes:
+        - web-origins
+        - profile
+        - roles
+        - email
+      optionalClientScopes:
+        - address
+        - phone
+        - offline_access
+        - microprofile-jwt
+
 
   clientScopes:
     - name: groups
@@ -179,21 +226,3 @@ realm:
             access.token.claim: "true"
             claim.name: policy
             jsonType.label: String
-
-realm_vm:
-  users:
-    - username: test
-      email: test@test.com
-      firstName: test
-      lastName: test
-      enabled: true
-      emailVerified: true
-      credentials:
-        - type: password
-          userLabel: initial
-          value: test
-      realmRoles:
-        - default-roles-developer
-        - admin
-      groups:
-        - Admin

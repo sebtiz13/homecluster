@@ -1,0 +1,76 @@
+- name: Retrieve GitLab informations
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/gitlab.yaml') | from_yaml }}"
+    values: '{{ manifest.spec.source.plugin.env.1.value | from_yaml }}'
+  ansible.builtin.set_fact:
+    apps_gitlab:
+      _manifest: '{{ manifest }}'
+      _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+      release_name: '{{ manifest.spec.source.plugin.env.0.value }}'
+      namespace: '{{ manifest.spec.destination.namespace }}'
+      secretNames: "{{ values.externalSecrets.secrets | map(attribute='name') }}"
+
+- name: Create GitLab database access
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: gitlab
+    username: gitlab
+    password: '{{ apps_gitlab._db_passowrd }}'
+
+- name: Store root password
+  kubernetes.core.k8s:
+    kubeconfig: '{{ kubeconfig.dest }}'
+    template: gitlab_root_pwd.yaml.j2
+    validate:
+      fail_on_error: true
+
+- name: Deploy GitLab application and secrets
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    _keycloak_host: "{{ (lookup('file', manifests_folder + '/keycloak.yaml') | from_yaml).metadata.annotations['sebtiz13.fr/host'] }}"
+    manifest: '{{ apps_gitlab._manifest }}'
+    secrets:
+      # ?REF: 'gitlab/oidc' > oidc/keycloak
+      # ?REF: 'gitlab/s3' > apps_minio
+      - path: gitlab/database
+        data:
+          host: postgresql.loc
+          database: gitlab
+          user: gitlab
+          password: '{{ apps_gitlab._db_passowrd }}'
+      - path: gitlab/runner
+        data:
+          registrationToken: "{{ lookup('file', credentials_folder + '/gitlab-runner-token') }}"
+
+- name: Update GitLab secrets
+  when: argocd_refresh is not skipped
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: '{{ kubeconfig.dest }}'
+    api_version: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    name: '{{ apps_gitlab.release_name }}-{{ item }}'
+    namespace: '{{ apps_gitlab.namespace }}'
+    force: true
+    definition:
+      metadata:
+        annotations:
+          force-sync: '{{ ansible_date_time.epoch }}'
+  loop: '{{ apps_gitlab.secretNames }}'
+
+- name: Restart application resources for update secrets
+  when: argocd_refresh is not skipped
+  connection: ssh
+  ansible.builtin.command: |
+    kubectl rollout restart deployment
+      --namespace '{{ apps_gitlab.namespace }}'
+      '{{ apps_gitlab.release_name }}-{{ item }}'
+  changed_when: false
+  loop:
+    - gitlab-exporter
+    - gitlab-pages
+    - gitlab-runner
+    - sidekiq-all-in-1-v2
+    - webservice-default

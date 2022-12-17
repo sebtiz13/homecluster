@@ -3,10 +3,9 @@ plugin: helm
 source:
   repoURL: https://charts.external-secrets.io
   chart: external-secrets
-  targetRevision: 0.6.0
+  targetRevision: 0.7.0
 
 destination:
-  server: https://kubernetes.default.svc
   namespace: external-secrets
 
 syncPolicy:

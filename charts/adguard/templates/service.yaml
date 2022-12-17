@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "adguard.fullname" . }}-http
+  labels:
+    {{- include "adguard.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.services.http.type }}
+  ports:
+    - port: {{ .Values.services.http.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "adguard.selectorLabels" . | nindent 4 }}
+{{- if .Values.services.https.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "adguard.fullname" . }}-https
+  labels:
+    {{- include "adguard.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.services.https.type }}
+  ports:
+    - port: {{ .Values.services.https.port }}
+      targetPort: https
+      protocol: TCP
+      name: https
+  selector:
+    {{- include "adguard.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- if .Values.services.dns.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "adguard.fullname" . }}-dns
+  labels:
+    {{- include "adguard.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.services.dns.type }}
+  ports:
+    - port: {{ .Values.services.dns.port }}
+      name: dns-tcp
+      targetPort: dns-tcp
+      protocol: TCP
+    - port: {{ .Values.services.dns.port }}
+      name: dns-udp
+      targetPort: dns-udp
+      protocol: UDP
+  selector:
+    {{- include "adguard.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- if .Values.services.dnsOverQuic.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "adguard.fullname" . }}-doq
+  labels:
+    {{- include "adguard.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.services.dnsOverQuic.type }}
+  ports:
+    - port: {{ .Values.services.dnsOverQuic.port }}
+      name: dns-over-quic
+      targetPort: dns-over-quic
+      protocol: UDP
+  selector:
+    {{- include "adguard.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- if .Values.services.dnscrypt.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "adguard.fullname" . }}-dnscrypt
+  labels:
+    {{- include "adguard.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.services.dnscrypt.type }}
+  ports:
+    - port: {{ .Values.services.dnscrypt.port }}
+      name: dnscrypt-tcp
+      targetPort: dnscrypt
+      protocol: TCP
+    - port: {{ .Values.services.dnscrypt.port }}
+      name: dnscrypt-udp
+      targetPort: dnscrypt-udp
+      protocol: UDP
+  selector:
+    {{- include "adguard.selectorLabels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,25 @@
+env: dev
+_vagrant_dir: "{{ playbook_dir }}/../vagrant/.vagrant"
+manifests_folder: "{{ _vagrant_dir }}/manifests/{{ inventory_hostname }}"
+
+ansible_port: 22
+ansible_user: vagrant
+ansible_ssh_private_key_file: '../vagrant/.vagrant/machines/{{ inventory_hostname }}/libvirt/private_key'
+
+ssh:
+  port: 22
+  users:
+    - name: test
+      sudoer: true
+
+zfs_pool:
+  # The pool type (available values: stripe, mirror, raidz (similar to RAID5) or raidz2 (Similar to RAID5 with dual parity))
+  type: raidz
+  disks:
+    - /dev/sda
+    - /dev/sdb
+    - /dev/sdc
+
+ca:
+  cert: "{{ _vagrant_dir }}/ca/rootCA.pem"
+  key: "{{ _vagrant_dir }}/ca/rootCA-key.pem"

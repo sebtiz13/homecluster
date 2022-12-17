@@ -2,12 +2,19 @@
 Environment is production
 */}}
 {{- define "is-production" }}
-{{- if ne .Values.environment "production" -}}
+{{- if ne .Values.environment "prod" -}}
 false
 {{- else -}}
 true
 {{- end -}}
 {{- end -}}
+
+{{/*
+TLS Secret name
+*/}}
+{{- define "ingress.host" -}}
+{{ .Values.ingress.subdomain }}.{{ .Values.baseDomain }}
+{{- end}}
 
 {{/*
 Annotation for redirect to https
