@@ -2,5 +2,5 @@ apiVersion: v2
 name: adguard-proxy
 description: A Helm chart for Kubernetes
 type: application
-version: 0.1.0
+version: 1.0.0
 icon: https://cdn.adtidy.org/website/adguard.com/favicons/favicon.svg

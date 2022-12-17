@@ -8,7 +8,7 @@ source:
   repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
   chart: minio
   # targetRevision: 5.0.1
-  targetRevision: 0.1.0
+  targetRevision: 1.0.0
 
 destination:
   namespace: minio
