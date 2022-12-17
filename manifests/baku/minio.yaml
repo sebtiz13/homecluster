@@ -3,13 +3,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: salamandre-minio
+  name: baku-minio
   labels:    
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
   annotations:
-    sebtiz13.fr/host: s3.sebtiz13.fr
+    sebtiz13.fr/host: baku.sebtiz13.fr
 spec:
   project: infrastructure
   source:
@@ -30,49 +30,31 @@ spec:
               buckets:
               - name: tmp
                 policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_artifacts>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_backups>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_depsProxy>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_packages>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_pages>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_registry>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_runner>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_tfState>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_uploads>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_lfs>
+              - name: <path:salamandre/data/backup/s3#bucket>
                 policy: none
               consoleIngress:
                 annotations:
                   traefik.ingress.kubernetes.io/router.entrypoints: websecure
                 enabled: true
                 hosts:
-                - console.s3.sebtiz13.fr
+                - baku.sebtiz13.fr
                 tls:
                 - hosts:
-                  - console.s3.sebtiz13.fr
+                  - baku.sebtiz13.fr
                   secretName: sebtiz13-fr-tls
               environment:
-                MINIO_BROWSER_REDIRECT_URL: https://console.s3.sebtiz13.fr
+                MINIO_BROWSER_REDIRECT_URL: https://baku.sebtiz13.fr
               fullnameOverride: minio
               ingress:
                 annotations:
-                  traefik.ingress.kubernetes.io/router.entrypoints: websecure
+                  traefik.ingress.kubernetes.io/router.entrypoints: minio
                 enabled: true
                 hosts:
-                - s3.sebtiz13.fr
+                - baku.sebtiz13.fr
                 path: /
                 tls:
                 - hosts:
-                  - s3.sebtiz13.fr
+                  - baku.sebtiz13.fr
                   secretName: sebtiz13-fr-tls
               mode: standalone
               persistence:
@@ -84,13 +66,19 @@ spec:
                 requests:
                   cpu: 10m
                   memory: 192Mi
-              rootPassword: <path:salamandre/data/minio/auth#rootPassword>
-              rootUser: <path:salamandre/data/minio/auth#rootUser>
+              rootPassword: <path:baku/data/minio/auth#rootPassword>
+              rootUser: <path:baku/data/minio/auth#rootUser>
               users: []
             svcaccts:
-            - accessKey: <path:salamandre/data/gitlab/s3#accessKey>
+            - accessKey: <path:salamandre/data/backup/s3#accessKey>
               policy:
                 statements:
+                - actions:
+                  - s3:GetBucketLocation
+                  - s3:ListBucket
+                  - s3:ListBucketMultipartUploads
+                  resources:
+                  - arn:aws:s3:::backup-cluster
                 - actions:
                   - s3:AbortMultipartUpload
                   - s3:GetObject
@@ -98,13 +86,11 @@ spec:
                   - s3:PutObject
                   - s3:ListMultipartUploadParts
                   resources:
-                  - arn:aws:s3:::gitlab-*/*
-                  - arn:aws:s3:::git-lfs/*
-                  - arn:aws:s3:::tmp/*
-              secretKey: <path:salamandre/data/gitlab/s3#secretKey>
-              user: <path:salamandre/data/minio/auth#rootUser>
+                  - arn:aws:s3:::backup-cluster/*
+              secretKey: <path:salamandre/data/backup/s3#secretKey>
+              user: <path:baku/data/minio/auth#rootUser>
   destination:
-    name: in-cluster
+    name: baku
     namespace: minio
   syncPolicy:
     automated: 

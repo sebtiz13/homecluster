@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: salamandre-openebs
+  name: baku-openebs
   labels:    
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
@@ -19,7 +19,7 @@ spec:
       values: |
         fullnameOverride: openebs
   destination:
-    name: in-cluster
+    name: baku
     namespace: kube-system
   syncPolicy:
     automated: 

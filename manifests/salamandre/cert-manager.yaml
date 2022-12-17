@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
     chart: cert-manager
-    targetRevision: 1.10.0
+    targetRevision: 1.0.0
     helm:
       releaseName: cert-manager
       values: |
@@ -30,12 +30,13 @@ spec:
           issuers:
           - create: true
             email: contact@sebtiz13.fr
+            kind: Issuer
             name: sebtiz13-fr-issuer
             namespace: default
             ovhAuthentication:
-              applicationKey: <path:argocd/data/cert-manager/ovh#applicationKey>
-              applicationSecret: <path:argocd/data/cert-manager/ovh#applicationSecret>
-              consumerKey: <path:argocd/data/cert-manager/ovh#consumerKey>
+              applicationKey: <path:salamandre/data/cert-manager/ovh#applicationKey>
+              applicationSecret: <path:salamandre/data/cert-manager/ovh#applicationSecret>
+              consumerKey: <path:salamandre/data/cert-manager/ovh#consumerKey>
             ovhEndpointName: ovh-eu
             server: https://acme-v02.api.letsencrypt.org/directory
           resources:
@@ -55,6 +56,7 @@ spec:
           secretTemplate:
             annotations:
               kubed.appscode.com/sync: domain=sebtiz13.fr
+              kubed.appscode.com/sync-contexts: baku
             labels:
               domain: sebtiz13-fr
         - dnsNames:
@@ -68,7 +70,7 @@ spec:
             labels:
               domain: pages-sebtiz13-fr
   destination:
-    server: https://kubernetes.default.svc
+    name: in-cluster
     namespace: cert-manager
   syncPolicy:
     automated: 

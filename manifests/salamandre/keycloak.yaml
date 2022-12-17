@@ -8,30 +8,31 @@ metadata:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
+  annotations:
+    sebtiz13.fr/host: sso.sebtiz13.fr
 spec:
   project: infrastructure
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: keycloak
-    targetRevision: 10.1.4
+    targetRevision: 12.3.0
     plugin:
-      name: argocd-vault-plugin-helm
       env:
         - name: HELM_RELEASE_NAME
           value: keycloak
         - name: HELM_VALUES
           value: |
             auth:
-              adminPassword: <path:argocd/data/keycloak/auth#adminPassword>
-              adminUser: <path:argocd/data/keycloak/auth#adminUser>
+              adminPassword: <path:salamandre/data/keycloak/auth#adminPassword>
+              adminUser: <path:salamandre/data/keycloak/auth#adminUser>
             cache:
               enabled: true
             externalDatabase:
-              database: <path:argocd/data/keycloak/database#database>
-              host: <path:argocd/data/keycloak/database#host>
-              password: <path:argocd/data/keycloak/database#password>
-              port: <path:argocd/data/keycloak/database#port>
-              user: <path:argocd/data/keycloak/database#user>
+              database: <path:salamandre/data/keycloak/database#database>
+              host: <path:salamandre/data/keycloak/database#host>
+              password: <path:salamandre/data/keycloak/database#password>
+              port: <path:salamandre/data/keycloak/database#port>
+              user: <path:salamandre/data/keycloak/database#user>
             extraEnvVars:
             - name: TZ
               value: Europe/Paris
@@ -52,13 +53,8 @@ spec:
               hostname: sso.sebtiz13.fr
               ingressClassName: traefik
             keycloakConfigCli:
-              command:
-              - java
-              - -jar
-              - /opt/bitnami/keycloak-config-cli/keycloak-config-cli-19.0.1.jar
               configuration:
-                realm1.yaml: |2
-            
+                realm1.yaml: |
                   attributes:
                     frontendUrl: https://sso.sebtiz13.fr
                   clientScopes:
@@ -100,7 +96,7 @@ spec:
                       backchannel.logout.session.required: "true"
                     baseUrl: /
                     clientAuthenticatorType: client-secret
-                    clientId: <path:argocd/data/argocd/oidc#clientID>
+                    clientId: <path:salamandre/data/argocd/oidc#clientID>
                     defaultClientScopes:
                     - web-origins
                     - profile
@@ -110,6 +106,7 @@ spec:
                     directAccessGrantsEnabled: true
                     enabled: true
                     fullScopeAllowed: true
+                    name: argoCD
                     optionalClientScopes:
                     - address
                     - phone
@@ -122,7 +119,7 @@ spec:
                     - /applications
                     - /auth/callback
                     rootUrl: https://argocd.sebtiz13.fr
-                    secret: <path:argocd/data/argocd/oidc#clientSecret>
+                    secret: <path:salamandre/data/argocd/oidc#clientSecret>
                     standardFlowEnabled: true
                     webOrigins:
                     - /ui/vault/auth
@@ -130,7 +127,7 @@ spec:
                     attributes:
                       backchannel.logout.session.required: "true"
                     clientAuthenticatorType: client-secret
-                    clientId: <path:argocd/data/argocd/oidc#cliClientID>
+                    clientId: <path:salamandre/data/argocd/oidc#cliClientID>
                     defaultClientScopes:
                     - web-origins
                     - profile
@@ -140,6 +137,7 @@ spec:
                     directAccessGrantsEnabled: true
                     enabled: true
                     fullScopeAllowed: true
+                    name: argoCD CLI
                     optionalClientScopes:
                     - address
                     - phone
@@ -156,9 +154,10 @@ spec:
                   - adminUrl: /ui/vault/auth/oidc/oidc/callback
                     attributes:
                       backchannel.logout.session.required: "true"
+                      post.logout.redirect.uris: https://vault-secrets.sebtiz13.fr
                     baseUrl: /ui/
                     clientAuthenticatorType: client-secret
-                    clientId: <path:argocd/data/vault/oidc#clientID>
+                    clientId: <path:salamandre/data/vault/oidc#clientID>
                     defaultClientScopes:
                     - web-origins
                     - profile
@@ -168,6 +167,7 @@ spec:
                     directAccessGrantsEnabled: true
                     enabled: true
                     fullScopeAllowed: true
+                    name: vault
                     optionalClientScopes:
                     - address
                     - phone
@@ -180,10 +180,38 @@ spec:
                     - /ui/vault/auth/oidc/oidc/callback/*
                     - http://localhost:8250/oidc/callback
                     rootUrl: https://vault-secrets.sebtiz13.fr
-                    secret: <path:argocd/data/argocd/oidc#clientSecret>
+                    secret: <path:salamandre/data/vault/oidc#clientSecret>
                     standardFlowEnabled: true
                     webOrigins:
                     - /ui/vault/auth
+                  - attributes:
+                      backchannel.logout.session.required: "true"
+                    baseUrl: /
+                    clientAuthenticatorType: client-secret
+                    clientId: <path:salamandre/data/gitlab/oidc#clientID>
+                    defaultClientScopes:
+                    - web-origins
+                    - profile
+                    - roles
+                    - email
+                    directAccessGrantsEnabled: true
+                    enabled: true
+                    fullScopeAllowed: true
+                    name: gitlab
+                    optionalClientScopes:
+                    - address
+                    - phone
+                    - offline_access
+                    - microprofile-jwt
+                    protocol: openid-connect
+                    publicClient: false
+                    redirectUris:
+                    - /*
+                    rootUrl: https://git.sebtiz13.fr
+                    secret: <path:salamandre/data/vault/oidc#clientSecret>
+                    standardFlowEnabled: true
+                    webOrigins:
+                    - '*'
                   enabled: true
                   groups:
                   - attributes:
@@ -214,10 +242,22 @@ spec:
                       containerId: developer
                       name: editor
                     - clientRole: false
-                      composite: false
+                      composite: true
+                      composites:
+                        client:
+                          realm-management:
+                          - realm-admin
                       containerId: developer
                       description: $${role_admin}
                       name: admin
+                  smtpServer:
+                    auth: true
+                    from: <path:salamandre/data/smtp#username>
+                    fromDisplayName: Keycloak
+                    host: <path:salamandre/data/smtp#host>
+                    password: <path:salamandre/data/smtp#password>
+                    port: <path:salamandre/data/smtp#port>
+                    user: <path:salamandre/data/smtp#username>
               enabled: true
             postgresql:
               enabled: false
@@ -225,7 +265,7 @@ spec:
             service:
               type: ClusterIP
   destination:
-    server: https://kubernetes.default.svc
+    name: in-cluster
     namespace: keycloak
   syncPolicy:
     automated: 

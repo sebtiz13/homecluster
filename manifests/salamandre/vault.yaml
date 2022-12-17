@@ -8,12 +8,14 @@ metadata:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
+  annotations:
+    sebtiz13.fr/host: vault-secrets.sebtiz13.fr
 spec:
   project: infrastructure
   source:
     repoURL: https://helm.releases.hashicorp.com
     chart: vault
-    targetRevision: 0.22.0
+    targetRevision: 0.23.0
     helm:
       releaseName: vault
       values: |
@@ -51,7 +53,7 @@ spec:
         ui:
           enabled: true
   destination:
-    server: https://kubernetes.default.svc
+    name: in-cluster
     namespace: vault
   syncPolicy:
     automated: 

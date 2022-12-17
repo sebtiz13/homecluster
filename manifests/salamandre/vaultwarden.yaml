@@ -1,0 +1,67 @@
+---
+# Source: common-app/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: salamandre-vaultwarden
+  labels:    
+    helm.sh/chart: common-app-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    sebtiz13.fr/host: vault.sebtiz13.fr
+spec:
+  project: cloud
+  source:
+    repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+    chart: vaultwarden
+    targetRevision: 1.0.0
+    plugin:
+      env:
+        - name: HELM_RELEASE_NAME
+          value: vaultwarden
+        - name: HELM_VALUES
+          value: |
+            database:
+              type: postgresql
+              url: postgresql://<path:salamandre/data/vaultwarden/database#user>:<path:salamandre/data/vaultwarden/database#password>@<path:salamandre/data/vaultwarden/database#host>:<path:salamandre/data/vaultwarden/database#port>/<path:salamandre/data/vaultwarden/database#database>
+            ingress:
+              admin:
+                annotations:
+                  traefik.ingress.kubernetes.io/router.entrypoints: websecure
+                  traefik.ingress.kubernetes.io/router.middlewares: traefik-admin-auth@kubernetescrd
+                enabled: true
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+                traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
+              className: traefik
+              enabled: true
+              tls:
+              - hosts:
+                - vault.sebtiz13.fr
+                secretName: sebtiz13-fr-tls
+            securityContext:
+              enabled: true
+            smtp:
+              enabled: true
+              from: <path:salamandre/data/smtp#username>
+              host: <path:salamandre/data/smtp#host>
+              password: <path:salamandre/data/smtp#password>
+              port: <path:salamandre/data/smtp#port>
+              username: <path:salamandre/data/smtp#username>
+            vaultwarden:
+              disable_admin_token: true
+              domain: https://vault.sebtiz13.fr
+              org_attachment_limit: -1
+              sends_allowed: true
+              signups_allowed: false
+              trash_auto_delete_days: 30
+              tz: Europe/Paris
+              user_attachment_limit: -1
+  destination:
+    name: in-cluster
+    namespace: vaultwarden
+  syncPolicy:
+    automated: 
+      prune: true
+      selfHeal: true

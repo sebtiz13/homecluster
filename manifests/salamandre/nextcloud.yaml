@@ -1,0 +1,88 @@
+---
+# Source: common-app/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: salamandre-nextcloud
+  labels:    
+    helm.sh/chart: common-app-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    sebtiz13.fr/host: cloud.sebtiz13.fr
+spec:
+  project: cloud
+  source:
+    repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+    chart: nextcloud
+    targetRevision: 1.0.0
+    plugin:
+      env:
+        - name: HELM_RELEASE_NAME
+          value: nextcloud
+        - name: HELM_VALUES
+          value: |
+            collabora-code:
+              collabora:
+                aliasgroups:
+                - domain: https://cloud.sebtiz13.fr
+                dictionaries: en_GB en_US fr_FR
+                password: <path:salamandre/data/nextcloud/auth#collaboraAdminPassword>
+                server_name: cloud.sebtiz13.fr
+                username: <path:salamandre/data/nextcloud/auth#collaboraAdminUser>
+            nextcloud:
+              externalDatabase:
+                database: <path:salamandre/data/nextcloud/database#database>
+                enabled: true
+                host: <path:salamandre/data/nextcloud/database#host>:<path:salamandre/data/nextcloud/database#port>
+                password: <path:salamandre/data/nextcloud/database#password>
+                type: postgresql
+                user: <path:salamandre/data/nextcloud/database#user>
+              ingress:
+                annotations:
+                  traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+                  traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd,nextcloud-chained-middlewares@kubernetescrd
+                tls:
+                - hosts:
+                  - cloud.sebtiz13.fr
+                  secretName: sebtiz13-fr-tls
+              metrics:
+                token: nextcloud-token
+              nextcloud:
+                configs:
+                  custom.config.php: |-
+                    <?php
+                    $$CONFIG = array (
+                      'default_phone_region' => 'FR'
+                    );
+                host: cloud.sebtiz13.fr
+                mail:
+                  domain: sebtiz13.fr
+                  enabled: true
+                  fromAddress: contact
+                  smtp:
+                    host: <path:salamandre/data/smtp#host>
+                    name: <path:salamandre/data/smtp#username>
+                    password: <path:salamandre/data/smtp#password>
+                    port: <path:salamandre/data/smtp#port>
+                password: <path:salamandre/data/nextcloud/auth#adminPassword>
+                username: <path:salamandre/data/nextcloud/auth#adminUser>
+              persistence:
+                enabled: true
+                nextcloudData:
+                  enabled: true
+                  size: 50Gi
+              resources:
+                limits:
+                  cpu: 1500m
+                  memory: 2Gi
+                requests:
+                  cpu: 200m
+                  memory: 256Mi
+  destination:
+    name: in-cluster
+    namespace: nextcloud
+  syncPolicy:
+    automated: 
+      prune: true
+      selfHeal: true

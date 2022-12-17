@@ -11,9 +11,9 @@ metadata:
 spec:
   project: system
   source:
-    repoURL: https://helm.traefik.io/traefik
+    repoURL: https://traefik.github.io/charts
     chart: traefik
-    targetRevision: 17.0.5
+    targetRevision: 20.8.0
     helm:
       releaseName: traefik
       values: |
@@ -33,13 +33,21 @@ spec:
         ingressClass:
           enabled: true
           isDefaultClass: true
+        ports:
+          minio:
+            expose: true
+            exposedPort: 3882
+            port: 3882
+            protocol: TCP
+            tls:
+              enabled: true
         priorityClassName: system-cluster-critical
         providers:
           kubernetesIngress:
             publishedService:
               enabled: true
   destination:
-    server: https://baku.sebtiz13.fr
+    name: baku
     namespace: traefik
   syncPolicy:
     automated: 

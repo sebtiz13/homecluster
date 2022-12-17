@@ -1,0 +1,62 @@
+---
+# Source: common-app/templates/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: baku-adguard
+  labels:    
+    helm.sh/chart: common-app-0.0.1
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    sebtiz13.fr/host: adguard.sebtiz13.fr
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+    chart: adguard
+    targetRevision: 1.0.0
+    plugin:
+      env:
+        - name: HELM_RELEASE_NAME
+          value: adguard
+        - name: HELM_VALUES
+          value: |
+            Error: 'error converting YAML to JSON: yaml: line 57: could not find expected '':'''
+            bootstrapConfig:
+              dns:
+                bootstrap_dns:
+                - 9.9.9.10
+                - 149.112.112.10
+                - 2620:fe::10
+                - 2620:fe::fe:10
+                - 1.1.1.1
+                - 1.0.0.1
+                querylog_interval: 24h
+                upstream_dns:
+                - https://dns10.quad9.net/dns-query
+                - https://dns.cloudflare.com/dns-query
+              users:
+              - name: <path:baku/data/adguard/auth#adminUser>
+                passowrd: <path:baku/data/adguard/auth#adminPassword>
+            ingresses:
+              http:
+                annotations:
+                  traefik.ingress.kubernetes.io/router.entrypoints: web
+                className: traefik
+                enabled: true
+                hosts:
+                - host: adguard.sebtiz13.fr
+                  paths:
+                  - path: /
+                    pathType: ImplementationSpecific
+            persistence:
+              enabled: true
+              size: 1Gi
+  destination:
+    name: baku
+    namespace: adguard
+  syncPolicy:
+    automated: 
+      prune: true
+      selfHeal: true
