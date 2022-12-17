@@ -1,7 +1,7 @@
+{{- if .Values.serviceAccounts }}
 svcaccts:
-  {{- range .Values.serviceAccounts }}
-  - {{ toYaml . | nindent 4 }}
-  {{- end }}
+  {{ toYaml .Values.serviceAccounts | nindent 2 }}
+{{- end }}
 
 minio:
   fullnameOverride: "minio"
