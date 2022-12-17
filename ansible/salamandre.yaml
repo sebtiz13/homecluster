@@ -40,8 +40,12 @@
         - tls
     - role: apps_vault
       tags: vault
-    - role: vault_smtp
+    - role: vault_secrets
       tags: smtp
+      vars:
+        secrets:
+          - path: smtp
+            data: '{{ smtp_auth }}'
     - role: salamandre_dev
       when: env == 'dev'
 
@@ -68,7 +72,15 @@
           realm: '{{ realm }}'
   roles:
     # ALways deploy oidc secrets for applications (event if oidc is disabled, this is for argocd vaukt plugin)
-    - role: vault_oidc
+    - role: vault_secrets
+      vars:
+        secrets:
+          - path: argocd/oidc
+            data:
+              issuer: '{{ apps_keycloak.issuer }}'
+              cliClientID: argocd-cli
+              clientID: argocd
+              clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
     - role: oidc
       tags: oidc
     - role: argocd_sync

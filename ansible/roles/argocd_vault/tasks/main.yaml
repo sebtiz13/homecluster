@@ -1,32 +1,9 @@
 - name: Write Vault secrets
   vars:
-    url: '{{ hostvars.salamandre.ansible_hashi_vault_addr }}'
-    token: '{{ hostvars.salamandre.ansible_hashi_vault_token }}'
-  no_log: true
-  block:
-    - name: Retrieve current stored secret
-      vars:
-        full_path: '{{ secrets_base_path }}/{{ item.path }}'
-        not_found_msg: "The path '{{ full_path }}' doesn't seem to exist."
-      community.hashi_vault.vault_read:
-        url: '{{ url }}'
-        token: '{{ token }}'
-        path: '{{ full_path }}'
-      failed_when:
-        - "'msg' in vault_check and vault_check.msg != not_found_msg"
-      register: vault_check
-      loop: '{{ secrets }}'
-
-    - name: Write new secret
-      when: ('msg' in item) or (item.data.data.data != item.item.data)
-      community.hashi_vault.vault_write:
-        url: '{{ url }}'
-        token: '{{ token }}'
-        path: '{{ secrets_base_path }}/{{ item.item.path }}'
-        data:
-          data: '{{ item.item.data }}'
-      register: vault_secret
-      loop: '{{ vault_check.results }}'
+    ansible_hashi_vault_addr: '{{ hostvars.salamandre.ansible_hashi_vault_addr }}'
+    ansible_hashi_vault_token: '{{ hostvars.salamandre.ansible_hashi_vault_token }}'
+  ansible.builtin.import_role:
+    name: vault_secrets
 
 - name: Deploy application manifest
   kubernetes.core.k8s:
