@@ -2,7 +2,7 @@
 
 - name: Setup Vault OIDC auth
   vars:
-    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', validate_certs=false) }}"
+    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth') }}"
   when: "'oidc/' not in auth_engines.data"
   kubernetes.core.k8s_exec:
     kubeconfig: '{{ kubeconfig.dest }}'
@@ -24,13 +24,12 @@
 - name: Configure access for Vault OIDC auth
   vars:
     path: auth/oidc/config
-    oidc_creds: "{{ lookup('community.hashi_vault.vault_read',  secrets_base_path + '/vault/oidc', validate_certs=false) }}"
+    oidc_creds: "{{ lookup('community.hashi_vault.vault_read',  secrets_base_path + '/vault/oidc') }}"
   block:
     - name: Configure access for Vault OIDC auth (prod)
       when: env == 'prod'
       community.hashi_vault.vault_write:
         url: '{{ ansible_hashi_vault_addr }}'
-        validate_certs: false
         token: '{{ ansible_hashi_vault_token }}'
         path: '{{ path }}'
         data:
@@ -42,7 +41,6 @@
       when: env == 'dev'
       community.hashi_vault.vault_write:
         url: '{{ ansible_hashi_vault_addr }}'
-        validate_certs: false
         token: '{{ ansible_hashi_vault_token }}'
         path: '{{ path }}'
         data:
@@ -55,7 +53,6 @@
 - name: Configure Vault OIDC role reader
   community.hashi_vault.vault_write:
     url: '{{ ansible_hashi_vault_addr }}'
-    validate_certs: false
     token: '{{ ansible_hashi_vault_token }}'
     path: auth/oidc/role/reader
     data:
@@ -69,13 +66,12 @@
 
 - name: Create and configure Vault identity groups
   vars:
-    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', validate_certs=false) }}"
+    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth') }}"
     mount_accessor: "{{ auth_engines['oidc/'].accessor }}"
   block:
     - name: Create Vault identity groups
       community.hashi_vault.vault_write:
         url: '{{ ansible_hashi_vault_addr }}'
-        validate_certs: false
         token: '{{ ansible_hashi_vault_token }}'
         path: identity/group
         data:
@@ -99,7 +95,6 @@
       when: item is changed
       community.hashi_vault.vault_write:
         url: '{{ ansible_hashi_vault_addr }}'
-        validate_certs: false
         token: '{{ ansible_hashi_vault_token }}'
         path: identity/group-alias
         data:

@@ -1,3 +1,5 @@
+validate_certs: true
+
 # The base path for secrets
 secrets_base_path: ''
 

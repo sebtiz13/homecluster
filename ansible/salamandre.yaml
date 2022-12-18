@@ -48,11 +48,24 @@
     - role: vault_secrets
       tags: smtp
       vars:
+        validate_certs: false
         secrets:
           - path: smtp
             data: '{{ smtp_auth }}'
     - role: salamandre_dev
       when: env == 'dev'
+  post_tasks:
+    - name: Wait until tls certificate created
+      tags:
+        - cert-manager
+        - tls
+      vars:
+        manifest: "{{ lookup('file', manifests_folder + '/cert-manager.yaml') | from_yaml }}"
+      kubernetes.core.k8s_info:
+        kubeconfig: '{{ kubeconfig.dest }}'
+        kind: Secret
+        name: "{{ root_domain | replace('.', '-') }}-tls"
+        namespace: '{{ manifest.spec.destination.namespace }}'
 
 - name: Install, configure OIDC and sync ArgoCD
   hosts: salamandre
