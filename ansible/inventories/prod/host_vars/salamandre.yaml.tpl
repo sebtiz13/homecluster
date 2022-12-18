@@ -3,7 +3,9 @@
 ansible_host: 0.0.0.0
 ansible_port: 0
 ansible_user: root
-motherboard_chip: 8686 # Gigabyte_B360M
+
+# Only support one of https://github.com/frankcrawford/it87/blob/master/README (only numbers)
+# motherboard_chip: 8686 # Gigabyte_B360M
 
 ssh:
   port: '{{ ansible_port }}'
