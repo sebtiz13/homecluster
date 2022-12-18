@@ -1,6 +1,6 @@
 - name: Configure custom DNS
   vars:
-    server_ip: '{{ ansible_eth0.ipv4.address }}'
+    server_ip: "{{ host_prefix | ansible.utils.ipaddr('address') }}"
     base_domain: '{{ domain_name }}'
     server:
       loc: "{{ lookup('ansible.builtin.template', 'loc.j2') }}"
