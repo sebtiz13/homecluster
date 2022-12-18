@@ -32,7 +32,7 @@ ifndef DOMAIN_NAME
 	$(error DOMAIN_NAME is required for this command)
 endif
 	make init --no-print-directory
-	echo "Create credentials...
+	echo "Create credentials..."
 	./scripts/gen-credentials.sh
 	./scripts/ansible.sh
 
