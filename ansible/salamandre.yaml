@@ -65,6 +65,9 @@
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
         namespace: '{{ apps_vault.namespace }}'
+        wait: true
+        wait_sleep: 10
+        wait_timeout: 360
 
 - name: Install, configure OIDC and sync ArgoCD
   hosts: salamandre
