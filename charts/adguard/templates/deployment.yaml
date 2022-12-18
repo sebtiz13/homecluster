@@ -68,73 +68,73 @@ spec:
           imagePullPolicy: {{ .Values.images.adguard.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.bootstrapConfig.bind_port }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.http }}
+              hostPort: {{ .Values.bootstrapConfig.bind_port }}
               {{- end }}
               protocol: TCP
             {{- if or .Values.hostNetwork.enabled .Values.services.https.enabled }}
             - name: https
-              containerPort: 443
+              containerPort: {{ .Values.bootstrapConfig.tls.port_https }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.https }}
+              hostPort: {{ .Values.bootstrapConfig.tls.port_https }}
               {{- end }}
               protocol: TCP
             - name: https-udp
-              containerPort: 443
+              containerPort: {{ .Values.bootstrapConfig.tls.port_https }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.https }}
+              hostPort: {{ .Values.bootstrapConfig.tls.port_https }}
               {{- end }}
               protocol: UDP
             {{- end }}
             {{- if or .Values.hostNetwork.enabled .Values.services.dns.enabled }}
             - name: dns-tcp
-              containerPort: 53
+              containerPort: {{ .Values.bootstrapConfig.dns.port }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.dns }}
+              hostPort: {{ .Values.bootstrapConfig.dns.port }}
               {{- end }}
               protocol: TCP
             - name: dns-udp
-              containerPort: 53
+              containerPort: {{ .Values.bootstrapConfig.dns.port }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.dns }}
+              hostPort: {{ .Values.bootstrapConfig.dns.port }}
               {{- end }}
               protocol: UDP
             {{- end }}
             {{- if or .Values.hostNetwork.enabled .Values.services.dnsOverTls.enabled }}
             - name: dns-over-tls
-              containerPort: 853
+              containerPort: {{ .Values.bootstrapConfig.tls.port_dns_over_tls }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.dot }}
+              hostPort: {{ .Values.bootstrapConfig.tls.port_dns_over_tls }}
               {{- end }}
               protocol: TCP
             {{- end }}
             {{- if or .Values.hostNetwork.enabled .Values.services.dnsOverQuic.enabled }}
             - name: dns-over-quic
-              containerPort: 754
+              containerPort: {{ .Values.bootstrapConfig.tls.port_dns_over_quic }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.doq }}
+              hostPort: {{ .Values.bootstrapConfig.tls.port_dns_over_quic }}
               {{- end }}
               protocol: UDP
             {{- end }}
             {{- if or .Values.hostNetwork.enabled .Values.services.dnscrypt.enabled }}
             - name: dnscrypt
-              containerPort: 5443
+              containerPort: {{ .Values.bootstrapConfig.tls.port_dnscrypt }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.dnscrypt }}
+              hostPort: {{ .Values.bootstrapConfig.tls.port_dnscrypt }}
               {{- end }}
               protocol: TCP
             - name: dnscrypt-udp
-              containerPort: 5443
+              containerPort: {{ .Values.bootstrapConfig.tls.port_dnscrypt }}
               {{- if .Values.hostNetwork.enabled }}
-              hostPort: {{ .Values.hostNetwork.ports.dnscrypt }}
+              hostPort: {{ .Values.bootstrapConfig.tls.port_dnscrypt }}
               {{- end }}
               protocol: UDP
             {{- end }}
             {{- if .Values.hostNetwork.enabled }}
             - name: dhcp
               containerPort: 67
-              hostPort: {{ .Values.hostNetwork.ports.dhcp }}
+              hostPort: 67
               protocol: TCP
             {{- end }}
           {{- if .Values.livenessProbe.enabled }}
