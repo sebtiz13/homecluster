@@ -10,3 +10,5 @@ argument_specs:
         description: The policy content
         type: str
         required: true
+      validate_certs:
+        type: bool
