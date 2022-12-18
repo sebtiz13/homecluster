@@ -48,13 +48,22 @@
     - kubernetes
     - kubed
   tasks:
+    - name: Wait until secret is synced
+      kubernetes.core.k8s_info:
+        kubeconfig: '{{ kubeconfig.dest }}'
+        kind: Secret
+        name: "{{ root_domain | replace('.', '-') }}-tls"
+        namespace: kubed-sync
+        wait: true
+        wait_sleep: 10
+        wait_timeout: 360
     - name: Annotate secret for sync cross namespace
       kubernetes.core.k8s:
         state: patched
         kubeconfig: '{{ kubeconfig.dest }}'
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
-        namespace: 'kubed-sync'
+        namespace: kubed-sync
         force: true
         definition:
           metadata:
