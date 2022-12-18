@@ -1,9 +1,5 @@
 domain_name: "{{ root_domain }}"
 
-k3s:
-  flags:
-    - --tls-san='{{ domain_name }}'
-
 domains:
   - argocd.{{ root_domain }}
   - vault-secrets.{{ root_domain }} # Vault
