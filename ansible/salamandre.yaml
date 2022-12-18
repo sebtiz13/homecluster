@@ -57,15 +57,14 @@
   post_tasks:
     - name: Wait until tls certificate created
       tags:
+        - vault
         - cert-manager
         - tls
-      vars:
-        manifest: "{{ lookup('file', manifests_folder + '/cert-manager.yaml') | from_yaml }}"
       kubernetes.core.k8s_info:
         kubeconfig: '{{ kubeconfig.dest }}'
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
-        namespace: '{{ manifest.spec.destination.namespace }}'
+        namespace: '{{ apps_vault.namespace }}'
 
 - name: Install, configure OIDC and sync ArgoCD
   hosts: salamandre
