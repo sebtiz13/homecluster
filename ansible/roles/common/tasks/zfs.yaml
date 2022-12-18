@@ -17,6 +17,10 @@
       - zfs-dkms
     state: present
 
+- name: Enbable zfs module
+  community.general.modprobe:
+    name: zfs
+
 - name: Create ZFS pool
   vars:
     zfs_pool_state: present
