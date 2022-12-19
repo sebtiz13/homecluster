@@ -62,4 +62,7 @@ spec:
     {{- end }}
     {{- include "common-app.syncOptions" . | indent 4 }}
   {{- end }}
+  {{- with .Values.ignoreDifferences }}
+  ignoreDifferences: {{ . | toYaml | nindent 4 }}
+  {{- end }}
   {{- end }}
