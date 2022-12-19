@@ -14,3 +14,9 @@ syncPolicy:
   automated:
     prune: true
     selfHeal: true
+
+ignoreDifferences:
+  - group: cert-manager.io
+    kind: Certificate
+    jqPathExpressions:
+    - .spec.duration
