@@ -56,7 +56,7 @@ spec:
                 argocd.argoproj.io/hook-delete-policy: HookSucceeded
             mode: standalone
             persistence:
-              size: 10Gi
+              size: 500Gi
             resources:
               limits:
                 cpu: 1000m

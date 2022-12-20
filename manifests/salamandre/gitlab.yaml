@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: salamandre-gitlab
-  labels:    
+  labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
@@ -156,10 +156,17 @@ spec:
                       memory: 1.5Gi
                 toolbox:
                   backups:
+                    cron:
+                      enabled: true
+                      resources:
+                        requests:
+                          cpu: 50m
+                          memory: 350M
+                      schedule: 0 1 * * *
                     objectStorage:
                       config:
                         secret: gitlab-backup
-                  enabled: false
+                  enabled: true
                   replicas: 1
                 webservice:
                   maxReplicas: 2
