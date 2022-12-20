@@ -6,7 +6,7 @@ if [ -z "$SCRIPT" ]; then
 fi
 
 matches() {
-    echo "$1" | grep -q "$2"
+  echo "$1" | grep -q "$2"
 }
 
 for CHART_PATH in charts/*/
