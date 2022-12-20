@@ -1,57 +1,56 @@
+mode: standalone
+rootUser: <path:baku/data/minio/auth#rootUser>
+rootPassword: <path:baku/data/minio/auth#rootPassword>
+
+users: [] # Remove default user
+
+buckets:
+  - name: tmp
+    policy: none
+  {{- range .Values.buckets }}
+  - name: {{ .name }}
+    policy: {{ .policy }}
+  {{- end }}
+
 {{- if .Values.serviceAccounts }}
-svcaccts:
-  {{ toYaml .Values.serviceAccounts | nindent 2 }}
-{{- end }}
+svcaccts: {{ toYaml .Values.serviceAccounts | nindent 2 }}
 makeServiceAccountJob:
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+{{- end }}
 
-minio:
-  mode: standalone
-  rootUser: <path:baku/data/minio/auth#rootUser>
-  rootPassword: <path:baku/data/minio/auth#rootPassword>
+environment:
+  MINIO_BROWSER_REDIRECT_URL: https://{{ include "ingress.host" . }}
+ingress:
+  enabled: true
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: minio
+  path: /
+  hosts:
+    - {{ include "ingress.host" . }}
+  tls:
+    - secretName: {{ include "ingress.tls.secretName" . }}
+      hosts:
+        - {{ include "ingress.host" . }}
+consoleIngress:
+  enabled: true
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  hosts:
+    - {{ include "ingress.host" . }}
+  tls:
+    - secretName: {{ include "ingress.tls.secretName" . }}
+      hosts:
+        - {{ include "ingress.host" . }}
 
-  users: [] # Remove default user
+persistence:
+  size: 10Gi
 
-  buckets:
-    - name: tmp
-      policy: none
-    {{- range .Values.buckets }}
-    - name: {{ .name }}
-      policy: {{ .policy }}
-    {{- end }}
-  environment:
-    MINIO_BROWSER_REDIRECT_URL: https://{{ include "ingress.host" . }}
-  ingress:
-    enabled: true
-    annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: minio
-    path: /
-    hosts:
-      - {{ include "ingress.host" . }}
-    tls:
-      - secretName: {{ include "ingress.tls.secretName" . }}
-        hosts:
-          - {{ include "ingress.host" . }}
-  consoleIngress:
-    enabled: true
-    annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    hosts:
-      - {{ include "ingress.host" . }}
-    tls:
-      - secretName: {{ include "ingress.tls.secretName" . }}
-        hosts:
-          - {{ include "ingress.host" . }}
-
-  persistence:
-    size: 10Gi
-
-  resources:
-    requests:
-        cpu: 10m
-        memory: 192Mi
-    limits:
-        cpu: 1000m
-        memory: 1Gi
+resources:
+  requests:
+      cpu: 10m
+      memory: 192Mi
+  limits:
+      cpu: 1000m
+      memory: 1Gi
