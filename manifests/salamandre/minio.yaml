@@ -13,79 +13,77 @@ metadata:
 spec:
   project: infrastructure
   source:
-    repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+    repoURL: https://charts.min.io/
     chart: minio
-    targetRevision: 1.0.0
+    targetRevision: 5.0.3
     plugin:
       env:
         - name: HELM_RELEASE_NAME
           value: minio
         - name: HELM_VALUES
           value: |
+            buckets:
+            - name: tmp
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_artifacts>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_backups>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_depsProxy>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_packages>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_pages>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_registry>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_runner>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_tfState>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_uploads>
+              policy: none
+            - name: <path:salamandre/data/gitlab/s3#bucket_lfs>
+              policy: none
+            consoleIngress:
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              enabled: true
+              hosts:
+              - console.s3.sebtiz13.fr
+              tls:
+              - hosts:
+                - console.s3.sebtiz13.fr
+                secretName: sebtiz13-fr-tls
+            environment:
+              MINIO_BROWSER_REDIRECT_URL: https://console.s3.sebtiz13.fr
+            ingress:
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              enabled: true
+              hosts:
+              - s3.sebtiz13.fr
+              path: /
+              tls:
+              - hosts:
+                - s3.sebtiz13.fr
+                secretName: sebtiz13-fr-tls
             makeServiceAccountJob:
               annotations:
                 argocd.argoproj.io/hook: PostSync
                 argocd.argoproj.io/hook-delete-policy: HookSucceeded
-            minio:
-              buckets:
-              - name: tmp
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_artifacts>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_backups>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_depsProxy>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_packages>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_pages>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_registry>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_runner>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_tfState>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_uploads>
-                policy: none
-              - name: <path:salamandre/data/gitlab/s3#bucket_lfs>
-                policy: none
-              consoleIngress:
-                annotations:
-                  traefik.ingress.kubernetes.io/router.entrypoints: websecure
-                enabled: true
-                hosts:
-                - console.s3.sebtiz13.fr
-                tls:
-                - hosts:
-                  - console.s3.sebtiz13.fr
-                  secretName: sebtiz13-fr-tls
-              environment:
-                MINIO_BROWSER_REDIRECT_URL: https://console.s3.sebtiz13.fr
-              ingress:
-                annotations:
-                  traefik.ingress.kubernetes.io/router.entrypoints: websecure
-                enabled: true
-                hosts:
-                - s3.sebtiz13.fr
-                path: /
-                tls:
-                - hosts:
-                  - s3.sebtiz13.fr
-                  secretName: sebtiz13-fr-tls
-              mode: standalone
-              persistence:
-                size: 10Gi
-              resources:
-                limits:
-                  cpu: 1000m
-                  memory: 1Gi
-                requests:
-                  cpu: 10m
-                  memory: 192Mi
-              rootPassword: <path:salamandre/data/minio/auth#rootPassword>
-              rootUser: <path:salamandre/data/minio/auth#rootUser>
-              users: []
+            mode: standalone
+            persistence:
+              size: 10Gi
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 1Gi
+              requests:
+                cpu: 10m
+                memory: 192Mi
+            rootPassword: <path:salamandre/data/minio/auth#rootPassword>
+            rootUser: <path:salamandre/data/minio/auth#rootUser>
             svcaccts:
             - accessKey: <path:salamandre/data/gitlab/s3#accessKey>
               policy:
@@ -102,6 +100,7 @@ spec:
                   - arn:aws:s3:::tmp/*
               secretKey: <path:salamandre/data/gitlab/s3#secretKey>
               user: <path:salamandre/data/minio/auth#rootUser>
+            users: []
   destination:
     name: in-cluster
     namespace: minio

@@ -13,61 +13,59 @@ metadata:
 spec:
   project: infrastructure
   source:
-    repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+    repoURL: https://charts.min.io/
     chart: minio
-    targetRevision: 1.0.0
+    targetRevision: 5.0.3
     plugin:
       env:
         - name: HELM_RELEASE_NAME
           value: minio
         - name: HELM_VALUES
           value: |
+            buckets:
+            - name: tmp
+              policy: none
+            - name: <path:salamandre/data/backup/s3#bucket>
+              policy: none
+            consoleIngress:
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              enabled: true
+              hosts:
+              - baku.sebtiz13.fr
+              tls:
+              - hosts:
+                - baku.sebtiz13.fr
+                secretName: sebtiz13-fr-tls
+            environment:
+              MINIO_BROWSER_REDIRECT_URL: https://baku.sebtiz13.fr
+            ingress:
+              annotations:
+                traefik.ingress.kubernetes.io/router.entrypoints: minio
+              enabled: true
+              hosts:
+              - baku.sebtiz13.fr
+              path: /
+              tls:
+              - hosts:
+                - baku.sebtiz13.fr
+                secretName: sebtiz13-fr-tls
             makeServiceAccountJob:
               annotations:
                 argocd.argoproj.io/hook: PostSync
                 argocd.argoproj.io/hook-delete-policy: HookSucceeded
-            minio:
-              buckets:
-              - name: tmp
-                policy: none
-              - name: <path:salamandre/data/backup/s3#bucket>
-                policy: none
-              consoleIngress:
-                annotations:
-                  traefik.ingress.kubernetes.io/router.entrypoints: websecure
-                enabled: true
-                hosts:
-                - baku.sebtiz13.fr
-                tls:
-                - hosts:
-                  - baku.sebtiz13.fr
-                  secretName: sebtiz13-fr-tls
-              environment:
-                MINIO_BROWSER_REDIRECT_URL: https://baku.sebtiz13.fr
-              ingress:
-                annotations:
-                  traefik.ingress.kubernetes.io/router.entrypoints: minio
-                enabled: true
-                hosts:
-                - baku.sebtiz13.fr
-                path: /
-                tls:
-                - hosts:
-                  - baku.sebtiz13.fr
-                  secretName: sebtiz13-fr-tls
-              mode: standalone
-              persistence:
-                size: 10Gi
-              resources:
-                limits:
-                  cpu: 1000m
-                  memory: 1Gi
-                requests:
-                  cpu: 10m
-                  memory: 192Mi
-              rootPassword: <path:baku/data/minio/auth#rootPassword>
-              rootUser: <path:baku/data/minio/auth#rootUser>
-              users: []
+            mode: standalone
+            persistence:
+              size: 10Gi
+            resources:
+              limits:
+                cpu: 1000m
+                memory: 1Gi
+              requests:
+                cpu: 10m
+                memory: 192Mi
+            rootPassword: <path:baku/data/minio/auth#rootPassword>
+            rootUser: <path:baku/data/minio/auth#rootUser>
             svcaccts:
             - accessKey: <path:salamandre/data/backup/s3#accessKey>
               policy:
@@ -88,6 +86,7 @@ spec:
                   - arn:aws:s3:::backup-cluster/*
               secretKey: <path:salamandre/data/backup/s3#secretKey>
               user: <path:baku/data/minio/auth#rootUser>
+            users: []
   destination:
     name: baku
     namespace: minio
