@@ -8,5 +8,7 @@ fi
 for FOLDER_PATH in $(git diff --dirstat=files,0 HEAD~1 -- charts | sed 's/^[ 0-9.]\+% //g' | cut -d'/' -f 2 | sort -u)
 do
   # Run script
-  $SCRIPT "charts/$FOLDER_PATH"
+  if [ -f "charts/$FOLDER_PATH/Chart.yaml" ]; then
+    $SCRIPT "charts/$FOLDER_PATH"
+  fi
 done
