@@ -8,8 +8,6 @@ makeServiceAccountJob:
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
 
 minio:
-  fullnameOverride: "minio"
-
   mode: standalone
   rootUser: <path:baku/data/minio/auth#rootUser>
   rootPassword: <path:baku/data/minio/auth#rootPassword>

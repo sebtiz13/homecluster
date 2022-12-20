@@ -7,8 +7,6 @@
 {{- $realm | toYaml }}
 {{- end -}}
 
-fullnameOverride: "keycloak"
-
 proxy: edge
 ingress:
   enabled: true
