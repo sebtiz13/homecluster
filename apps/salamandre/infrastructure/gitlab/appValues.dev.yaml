@@ -38,8 +38,6 @@ gitlab:
         limits:
           cpu: 900m
           memory: 2Gi
-    toolbox:
-      enabled: true
     webservice:
       resources:
         limits:

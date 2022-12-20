@@ -1,3 +1,6 @@
+persistence:
+  size: 10Gi
+
 resources:
   limits:
     cpu: 500m

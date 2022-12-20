@@ -51,7 +51,13 @@ serviceAccounts:
             - s3:DeleteObject
             - s3:PutObject
             - s3:ListMultipartUploadParts
+            - s3:ListBucket
+            - s3:GetBucketPolicy # s3:GetObjectAcl
+            - s3:PutBucketPolicy # s3:PutObjectAcl
           resources:
             - arn:aws:s3:::gitlab-*/*
+            - arn:aws:s3:::gitlab-*
             - arn:aws:s3:::git-lfs/*
+            - arn:aws:s3:::git-lfs
             - arn:aws:s3:::tmp/*
+            - arn:aws:s3:::tmp

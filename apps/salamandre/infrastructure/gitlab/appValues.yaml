@@ -218,7 +218,7 @@ gitlab:
           cpu: 300m
           memory: 1.5Gi
     toolbox:
-      enabled: false
+      enabled: true
       replicas: 1
       backups:
         objectStorage:

@@ -45,7 +45,7 @@ consoleIngress:
         - {{ include "ingress.host" . }}
 
 persistence:
-  size: 10Gi
+  size: 500Gi
 
 resources:
   requests:
