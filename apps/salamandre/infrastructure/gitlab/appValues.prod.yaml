@@ -1,5 +1,14 @@
 gitlab:
   gitlab:
+    toolbox:
+      backups:
+        cron:
+          enabled: true
+          schedule: '0 1 * * *'
+          resources:
+            requests:
+              cpu: '50m'
+              memory: '350M'
     gitlab-shell:
       resources:
         limits:
