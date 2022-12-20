@@ -2,5 +2,6 @@ gitops:
   manifest_projects:
     - id: sebtiz13-cluster/homecluster
       default_namespace: argocd
+      inventory_policy: adopt_if_no_inventory
       paths:
         - glob: "/manifests/**/*.yaml"

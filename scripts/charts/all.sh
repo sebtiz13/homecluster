@@ -11,8 +11,11 @@ matches() {
 
 for CHART_PATH in charts/*/
 do
-  # Run script (with skip charts/common-app/)
-  if ! matches "$CHART_PATH" "charts/common-app*"; then
-    $SCRIPT "$CHART_PATH"
+  if [ -f "$CHART_PATH/Chart.yaml" ]; then
+    # skip charts/common-app
+    if ! matches "$CHART_PATH" "charts/common-app.*"; then
+      # Run script
+      $SCRIPT "$CHART_PATH"
+    fi
   fi
 done

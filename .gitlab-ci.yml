@@ -9,6 +9,7 @@ variables:
   HELM_CHANNEL: stable
   HELM_REPOSITORY_CACHE: out/helm/cache
   HELM_REPOSITORY_CONFIG: out/helm/repositories.yaml
+  SKIP_APP: .*wallabag/
 
 image:
   name: alpine/helm:3.10.1

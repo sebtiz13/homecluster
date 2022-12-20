@@ -16,8 +16,12 @@ do
     exit 0
   fi
 
-  # Run script (with skip dev project if prod)
+  # skip dev project if prod
   if [ "$ENVIRONMENT" = "dev" ] || ! matches "$APP_PATH" "*/dev/*"; then
-    $SCRIPT "$APP_PATH"
+    # Check valid app and allow skip apps on prod
+    if [ -f "${APP_PATH%?}/values.yaml" ] && ! matches "$APP_PATH" "${SKIP_APP:-'###'}"; then
+      # Run script
+      $SCRIPT "${APP_PATH%?}"
+    fi
   fi
 done
