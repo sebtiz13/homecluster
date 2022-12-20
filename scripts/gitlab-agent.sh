@@ -10,10 +10,11 @@ if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
 fi
 
 # Define variables
-ROOT_TOKEN=$(jq .vault.root_token ./out/credentials.json)
+ROOT_TOKEN=$(jq .root_token "./out/credentials/salamandre/$ENVIRONMENT/vault.json")
 MANIFESTS_PATH="./manifests/salamandre"
 KUBECONFIG="./out/kubeconfig/salamandre.${ENVIRONMENT}.yaml"
-KV_PATH="argocd/gitlab/agent"
+KV_PATH="salamandre/gitlab/agent"
+ARGO_NAMESPACE="argocd"
 
 if [ "$ENVIRONMENT" = "dev" ]; then
   MANIFESTS_PATH="./vagrant/.vagrant/manifests/salamandre"
@@ -33,4 +34,4 @@ vault kv get $KV_PATH > /dev/null 2>&1 ||\
   vault kv put $KV_PATH $KV_KEYS"
 
 # Deploy agent
-kubectl apply -f "$MANIFESTS_PATH/gitlab-agent.yaml"
+kubectl apply -n "$ARGO_NAMESPACE" -f "$MANIFESTS_PATH/gitlab-agent.yaml"
