@@ -85,6 +85,57 @@
         }
       }
     },
+    "ignoreDifferences": {
+      "description": "Ignore differences (ref: https://argo-cd.readthedocs.io/en/stable/user-guide/diffing/)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "jsonPointers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "jqPathExpressions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "managedFieldsManagers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["group", "kind"],
+        "oneOf": [
+          {
+            "required": ["jsonPointers"]
+          },
+          {
+            "required": ["jqPathExpressions"]
+          },
+          {
+            "required": ["managedFieldsManagers"]
+          }
+        ]
+      }
+    },
     "plugin": {
       "description": "Plugin used for application",
       "type": "string"

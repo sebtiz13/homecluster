@@ -10,6 +10,12 @@
 DOMAIN_NAME=<domain> make cluster
 ```
 
+### Only provisioning
+
+```sh
+DOMAIN_NAME=<domain> make provision
+```
+
 #### Exclude applications
 
 You can disable some applications by specify environment variable `ANSIBLE_SKIP_TAGS` with one or more next tags.

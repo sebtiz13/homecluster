@@ -1,3 +1,8 @@
+- name: Install sensors package
+  ansible.builtin.apt:
+    pkg:
+      - lm-sensors
+
 - name: Configure motherboard sensors
   ansible.builtin.copy:
     dest: /etc/sensors.d/it{{ motherboard_chip }}

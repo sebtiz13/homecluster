@@ -124,17 +124,6 @@ ingresses:
 hostNetwork:
   # Enable this for support DHCP service
   enabled: false
-  ports:
-    http: 80
-    https: 443
-
-    dhcp: 67
-    dns: 53
-    # DNS over TLS
-    dot: 853
-    # DNS over QUIC
-    doq: 754
-    dnscrypt: 5443
 
 traefik:
   middleware:

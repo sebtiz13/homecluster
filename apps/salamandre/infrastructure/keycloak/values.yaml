@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://charts.bitnami.com/bitnami
   chart: keycloak
-  targetRevision: 12.3.0
+  targetRevision: 12.1.5 # TODO: wait until https://github.com/bitnami/charts/issues/13407
 
 destination:
   namespace: keycloak
@@ -89,6 +89,7 @@ realm:
       protocol: openid-connect
       attributes:
         backchannel.logout.session.required: "true"
+        post.logout.redirect.uris: https://argocd.{{ .Values.baseDomain }}
       fullScopeAllowed: true
       defaultClientScopes:
         - web-origins
@@ -179,6 +180,7 @@ realm:
       protocol: openid-connect
       attributes:
         backchannel.logout.session.required: "true"
+        post.logout.redirect.uris: https://git.{{ .Values.baseDomain }}
       fullScopeAllowed: true
       defaultClientScopes:
         - web-origins

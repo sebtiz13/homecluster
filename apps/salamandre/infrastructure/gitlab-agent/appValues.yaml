@@ -1,8 +1,6 @@
-fullnameOverride: "gitlab-agent"
-
 config:
   kasAddress: wss://kas.{{ .Values.baseDomain }}
-  token: <path:salamandre/data/gitlab/agent#token>
+  token: <path:salamandre/data/gitlab/agents/local#token>
 
 resources:
   limits:

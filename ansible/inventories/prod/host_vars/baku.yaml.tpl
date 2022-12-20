@@ -3,6 +3,7 @@
 ansible_host: 0.0.0.0
 ansible_port: 0
 ansible_user: root
+host_prefix: '192.168.1.11/24' # CIDR format with this schema: address/netmask
 
 ssh:
   port: '{{ ansible_port }}'

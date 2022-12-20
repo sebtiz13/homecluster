@@ -4,7 +4,7 @@ kind: Application
 metadata:
   name: {{ include "common-app.name" . }}
   labels:
-    {{- include "common-app.labels" . | indent 4 }}
+    {{- include "common-app.labels" . | trim | nindent 4 }}
   {{- if and .Values.ingress .Values.ingress.subdomain }}
   annotations:
     sebtiz13.fr/host: {{ include "ingress.host" . }}
@@ -61,5 +61,8 @@ spec:
     automated: {{ .automated | toYaml | nindent 6 }}
     {{- end }}
     {{- include "common-app.syncOptions" . | indent 4 }}
+  {{- end }}
+  {{- with .Values.ignoreDifferences }}
+  ignoreDifferences: {{ . | toYaml | nindent 4 }}
   {{- end }}
   {{- end }}

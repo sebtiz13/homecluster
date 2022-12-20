@@ -1,5 +1,3 @@
-fullnameOverride: "vault"
-
 injector:
   enabled: false
 

@@ -23,7 +23,7 @@
       Authorization: 'Bearer {{ hostvars.salamandre.argocd_api_token }}'
     method: GET
     status_code: 200
-    timeout: 120
+    timeout: 300
   register: argocd_refresh
 
 - name: Restart application resources for update secrets

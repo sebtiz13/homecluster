@@ -20,11 +20,10 @@ ingresses:
 
 hostNetwork:
   enabled: true
-  ports:
-    http: 8080
-    https: 4443
 
 bootstrapConfig:
+  bind_port: 8080
+
   dns:
     rewrites:
       - domain: baku.home
@@ -34,6 +33,7 @@ bootstrapConfig:
       - domain: baku.{{ .Values.baseDomain }}
         answer: baku.home
   tls:
+    port_https: 4443
     server_name: baku.home
 
   dhcp:
@@ -53,7 +53,7 @@ bootstrapConfig:
     - '# Twitter'
     - '@@||t.co^$important'
     - '# Other'
-    -'@@||go.ndi.tv^$important'
+    - '@@||go.ndi.tv^$important'
   filters:
     - enabled: true
       name: AdGuard DNS filter

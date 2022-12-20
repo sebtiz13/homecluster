@@ -1,4 +1,3 @@
-fullnameOverride: "traefik"
 priorityClassName: system-cluster-critical
 
 ingressClass:

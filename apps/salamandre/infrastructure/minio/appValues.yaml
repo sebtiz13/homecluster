@@ -8,8 +8,6 @@ makeServiceAccountJob:
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
 
 minio:
-  fullnameOverride: "minio"
-
   mode: standalone
   rootUser: <path:salamandre/data/minio/auth#rootUser>
   rootPassword: <path:salamandre/data/minio/auth#rootPassword>

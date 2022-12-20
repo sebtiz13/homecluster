@@ -23,7 +23,7 @@
     version: '{{ apps_argocd._manifest.spec.source.targetRevision }}'
   ansible.builtin.shell: |
     set -o pipefail
-    helm repo update '{{ chart }}' > /dev/null
+    helm repo update argo-cd > /dev/null
     helm search repo '{{ chart }}' --version '{{ version }}' -o json | jq -r '.[0].app_version'
   changed_when: false
   register: argocd_appVersion

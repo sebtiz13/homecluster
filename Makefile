@@ -32,8 +32,11 @@ ifndef DOMAIN_NAME
 	$(error DOMAIN_NAME is required for this command)
 endif
 	make init --no-print-directory
-	echo "Create credentials...
+	echo "Create credentials..."
 	./scripts/gen-credentials.sh
+	make provision --no-print-directory
+provision: ## Provisioning machines
+	echo "Provisioning cluster(s)"
 	./scripts/ansible.sh
 
 test-cluster: ## [DEV] All-in-one command for cluster deployment

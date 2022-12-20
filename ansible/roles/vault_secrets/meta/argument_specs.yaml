@@ -12,3 +12,5 @@ argument_specs:
       secrets:
         description: List of secret want create
         type: list
+      validate_certs:
+        type: bool

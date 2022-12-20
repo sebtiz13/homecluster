@@ -9,7 +9,6 @@ The secrets keys need to exist for deploy the app
 
 > **Mount path:** `salamandre`
 
-### `gitlab/agents/local`
+### `gitlab/agents/homecluster`
 
 - `token`: The token for connect cluster
-- `caCert` (only in VM): The CA certificate

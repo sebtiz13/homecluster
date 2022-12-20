@@ -2,7 +2,7 @@ apiVersion: v2
 name: cert-manager
 description: cert-manager + webhook solver for OVH
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: v1.10.1
 
 icon: https://raw.githubusercontent.com/cert-manager/cert-manager/d53c0b9270f8cd90d908460d69502694e1838f5f/logo/logo-small.png

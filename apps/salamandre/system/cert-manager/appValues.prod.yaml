@@ -3,7 +3,7 @@ cert-manager-webhook-ovh:
     - name: {{ .Values.baseDomain | replace "." "-" }}-issuer
       kind: Issuer
       create: true
-      namespace: {{ .Release.Namespace }}
+      namespace: {{ .Values.destination.namespace }}
       server: https://acme-v02.api.letsencrypt.org/directory
       email: "contact@{{ .Values.baseDomain }}"
       ovhEndpointName: ovh-eu

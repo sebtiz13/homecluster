@@ -46,6 +46,8 @@ apps:deploy:
     - 'git commit -m "build: deploy manifests from $CI_COMMIT_SHORT_SHA" -m "[skip ci]" || echo "No changes, nothing to commit!"'
     - git push origin HEAD:$CI_COMMIT_REF_NAME # Pushes to the same branch as the trigger
   rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: never
     - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_BRANCH == "main"
       changes:

@@ -9,7 +9,7 @@
         not_found_msg: "The path '{{ item.path }}' doesn't seem to exist."
       community.hashi_vault.vault_read:
         url: '{{ ansible_hashi_vault_addr }}'
-        validate_certs: false
+        validate_certs: '{{ validate_certs }}'
         token: '{{ ansible_hashi_vault_token }}'
         path: '{{ full_path }}'
       failed_when:
@@ -22,7 +22,7 @@
       when: ('msg' in item) or (item.data.data.data != item.item.data)
       community.hashi_vault.vault_write:
         url: '{{ ansible_hashi_vault_addr }}'
-        validate_certs: false
+        validate_certs: '{{ validate_certs }}'
         token: '{{ ansible_hashi_vault_token }}'
         path: "{{ item.item.full_path | default(secrets_base_path + '/' + item.item.path | default('')) }}"
         data:

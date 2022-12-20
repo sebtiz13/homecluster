@@ -62,7 +62,7 @@
 - name: Update Keycloak clients secrets
   when: keeycloak_service.resources | length == 0 # This is for run only on first installz
   vars:
-    secret: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/' + item + '/oidc', validate_certs=false) }}"
+    secret: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/' + item + '/oidc') }}"
   community.general.keycloak_client:
     auth_keycloak_url: '{{ apps_keycloak.base_url }}'
     auth_realm: master
