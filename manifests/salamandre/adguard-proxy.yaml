@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: salamandre-adguard-proxy
-  labels:    
+  labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
@@ -27,8 +27,14 @@ spec:
             traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
           enabled: true
           hosts:
-          - dns.sebtiz13.fr
-          - '*.dns.sebtiz13.fr'
+          - host: dns.sebtiz13.fr
+            paths:
+            - path: /
+              pathType: ImplementationSpecific
+          - host: '*.dns.sebtiz13.fr'
+            paths:
+            - path: /
+              pathType: ImplementationSpecific
           tls:
           - hosts:
             - dns.sebtiz13.fr

@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: salamandre-cert-manager
-  labels:    
+  labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
@@ -13,62 +13,65 @@ spec:
   source:
     repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
     chart: cert-manager
-    targetRevision: 1.0.0
-    helm:
-      releaseName: cert-manager
-      values: |
-        cert-manager:
-          global:
-            priorityClassName: system-cluster-critical
-          installCRDs: true
-          resources:
-            requests:
-              cpu: 10m
-              memory: 32Mi
-        cert-manager-webhook-ovh:
-          groupName: sebtiz13.fr
-          issuers:
-          - create: true
-            email: contact@sebtiz13.fr
-            kind: Issuer
-            name: sebtiz13-fr-issuer
-            namespace: default
-            ovhAuthentication:
-              applicationKey: <path:salamandre/data/cert-manager/ovh#applicationKey>
-              applicationSecret: <path:salamandre/data/cert-manager/ovh#applicationSecret>
-              consumerKey: <path:salamandre/data/cert-manager/ovh#consumerKey>
-            ovhEndpointName: ovh-eu
-            server: https://acme-v02.api.letsencrypt.org/directory
-          resources:
-            limits:
-              cpu: 200m
-              memory: 256Mi
-            requests:
-              cpu: 30m
-              memory: 32Mi
-        certificates:
-        - dnsNames:
-          - sebtiz13.fr
-          - '*.sebtiz13.fr'
-          - console.s3.sebtiz13.fr
-          issuerName: sebtiz13-fr-issuer
-          name: sebtiz13-fr
-          secretTemplate:
-            annotations:
-              kubed.appscode.com/sync: domain=sebtiz13.fr
-              kubed.appscode.com/sync-contexts: baku
-            labels:
-              domain: sebtiz13-fr
-        - dnsNames:
-          - pages.sebtiz13.fr
-          - '*.pages.sebtiz13.fr'
-          issuerName: sebtiz13-fr-issuer
-          name: pages-sebtiz13-fr
-          secretTemplate:
-            annotations:
-              kubed.appscode.com/sync: kubernetes.io/metadata.name=gitlab
-            labels:
-              domain: pages-sebtiz13-fr
+    targetRevision: 1.0.1
+    plugin:
+      env:
+        - name: HELM_RELEASE_NAME
+          value: cert-manager
+        - name: HELM_VALUES
+          value: |
+            cert-manager:
+              global:
+                priorityClassName: system-cluster-critical
+              installCRDs: true
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+            cert-manager-webhook-ovh:
+              groupName: sebtiz13.fr
+              issuers:
+              - create: true
+                email: contact@sebtiz13.fr
+                kind: Issuer
+                name: sebtiz13-fr-issuer
+                namespace: cert-manager
+                ovhAuthentication:
+                  applicationKey: <path:salamandre/data/cert-manager/ovh#applicationKey>
+                  applicationSecret: <path:salamandre/data/cert-manager/ovh#applicationSecret>
+                  consumerKey: <path:salamandre/data/cert-manager/ovh#consumerKey>
+                ovhEndpointName: ovh-eu
+                server: https://acme-v02.api.letsencrypt.org/directory
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+                requests:
+                  cpu: 30m
+                  memory: 32Mi
+            certificates:
+            - dnsNames:
+              - sebtiz13.fr
+              - '*.sebtiz13.fr'
+              - console.s3.sebtiz13.fr
+              issuerName: sebtiz13-fr-issuer
+              name: sebtiz13-fr
+              secretTemplate:
+                annotations:
+                  kubed.appscode.com/sync: domain=sebtiz13.fr
+                  kubed.appscode.com/sync-contexts: baku
+                labels:
+                  domain: sebtiz13-fr
+            - dnsNames:
+              - pages.sebtiz13.fr
+              - '*.pages.sebtiz13.fr'
+              issuerName: sebtiz13-fr-issuer
+              name: pages-sebtiz13-fr
+              secretTemplate:
+                annotations:
+                  kubed.appscode.com/sync: kubernetes.io/metadata.name=gitlab
+                labels:
+                  domain: pages-sebtiz13-fr
   destination:
     name: in-cluster
     namespace: cert-manager
@@ -78,3 +81,8 @@ spec:
       selfHeal: true    
     syncOptions:
       - CreateNamespace=true
+  ignoreDifferences: 
+    - group: cert-manager.io
+      jqPathExpressions:
+      - .spec.duration
+      kind: Certificate

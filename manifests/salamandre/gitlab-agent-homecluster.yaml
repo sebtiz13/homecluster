@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: salamandre-gitlab-agent
+  name: salamandre-gitlab-agent-homecluster
   labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
@@ -17,12 +17,12 @@ spec:
     plugin:
       env:
         - name: HELM_RELEASE_NAME
-          value: gitlab-agent
+          value: gitlab-agent-homecluster
         - name: HELM_VALUES
           value: |
             config:
-              kasAddress: wss://kas.sebtiz13.fr
-              token: <path:salamandre/data/gitlab/agents/local#token>
+              kasAddress: wss://kas.gitlab.com
+              token: <path:salamandre/data/gitlab/agents/homecluster#token>
             resources:
               limits:
                 cpu: 100m

@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: baku-minio
-  labels:    
+  labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
@@ -44,7 +44,6 @@ spec:
                   secretName: sebtiz13-fr-tls
               environment:
                 MINIO_BROWSER_REDIRECT_URL: https://baku.sebtiz13.fr
-              fullnameOverride: minio
               ingress:
                 annotations:
                   traefik.ingress.kubernetes.io/router.entrypoints: minio

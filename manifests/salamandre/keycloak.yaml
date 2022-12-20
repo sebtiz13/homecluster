@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: salamandre-keycloak
-  labels:    
+  labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: keycloak
-    targetRevision: 12.3.0
+    targetRevision: 12.1.5
     plugin:
       env:
         - name: HELM_RELEASE_NAME
@@ -40,7 +40,6 @@ spec:
               value: "true"
             - name: KEYCLOAK_HOSTNAME
               value: sso.sebtiz13.fr
-            fullnameOverride: keycloak
             ingress:
               annotations:
                 traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
@@ -94,6 +93,7 @@ spec:
                   clients:
                   - attributes:
                       backchannel.logout.session.required: "true"
+                      post.logout.redirect.uris: https://argocd.sebtiz13.fr
                     baseUrl: /
                     clientAuthenticatorType: client-secret
                     clientId: <path:salamandre/data/argocd/oidc#clientID>
@@ -186,6 +186,7 @@ spec:
                     - /ui/vault/auth
                   - attributes:
                       backchannel.logout.session.required: "true"
+                      post.logout.redirect.uris: https://git.sebtiz13.fr
                     baseUrl: /
                     clientAuthenticatorType: client-secret
                     clientId: <path:salamandre/data/gitlab/oidc#clientID>
@@ -257,6 +258,8 @@ spec:
                     host: <path:salamandre/data/smtp#host>
                     password: <path:salamandre/data/smtp#password>
                     port: <path:salamandre/data/smtp#port>
+                    ssl: true
+                    starttls: true
                     user: <path:salamandre/data/smtp#username>
               enabled: true
             postgresql:

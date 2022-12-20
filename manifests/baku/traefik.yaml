@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: baku-traefik
-  labels:    
+  labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
@@ -29,7 +29,6 @@ spec:
             redirectScheme:
               permanent: true
               scheme: https
-        fullnameOverride: traefik
         ingressClass:
           enabled: true
           isDefaultClass: true

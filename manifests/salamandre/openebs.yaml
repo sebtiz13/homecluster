@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: salamandre-openebs
-  labels:    
+  labels:
     helm.sh/chart: common-app-0.0.1
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/managed-by: Helm
@@ -17,7 +17,7 @@ spec:
     helm:
       releaseName: openebs
       values: |
-        fullnameOverride: openebs
+        {}
   destination:
     name: in-cluster
     namespace: kube-system
