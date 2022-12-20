@@ -7,8 +7,8 @@ gitlab:
           schedule: '0 1 * * *'
           resources:
             requests:
-              cpu: '50m'
-              memory: '350M'
+              cpu: 50m
+              memory: 350Mi
     gitlab-shell:
       resources:
         limits:
