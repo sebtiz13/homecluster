@@ -19,6 +19,10 @@ run_helm () {
     helm_args=""
   fi
 
+  if [ -f "$2/appValues.yaml" ]; then
+    helm_args="$helm_args --set-file appValues="$2/appValues.yaml""
+  fi
+
   # Overwrite config for environment
   if [ -f "$2/appValues.$ENVIRONMENT.yaml" ]; then
     helm_args="$helm_args --set-file appValuesEnv="$2/appValues.$ENVIRONMENT.yaml""
@@ -30,7 +34,6 @@ run_helm () {
   helm "$1" --set destination.server="$CLUSTER_NAME" \
      -f "$2/values.yaml" $helm_args charts/common-app \
     --set releaseName="$APP_NAME" \
-    --set-file appValues="$2/appValues.yaml" \
     --set environment="$ENVIRONMENT" \
     --set project="$PROJECT_NAME" \
     --set baseDomain="$DOMAIN_NAME"
