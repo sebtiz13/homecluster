@@ -161,7 +161,7 @@ spec:
                       resources:
                         requests:
                           cpu: 50m
-                          memory: 350M
+                          memory: 350Mi
                       schedule: 0 1 * * *
                     objectStorage:
                       config:
