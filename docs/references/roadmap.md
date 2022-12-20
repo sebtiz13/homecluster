@@ -32,7 +32,7 @@ Good enough for tinkering, personal usage and reasonably secure.
   - [x] Automated certificate management (cert-manager, on Salamandre)
   - [x] Declarative secret management (vault and external-secrets, on Salamandre)
   - [x] Replace all default passwords with randomly generated ones
-- [ ] Backup solution (velero, _Strategy: 3 copies, 2 separate devices, 1 offsite_)
+- [x] Backup solution (Barman/ZFS, _Strategy: 3 copies, 2 separate devices, 1 offsite_)
 - [ ] Observability (on Baku)
   - [ ] Monitoring
   - [ ] Logging
@@ -58,13 +58,13 @@ Can be used in "production" (for family).
   - [ ] Encrypted backups
   - [x] Self healing
 - [x] Minimal dependency on external services
-- [ ] Additional applications
+- [x] Additional applications
   - **Salamandre**
     - [x] GitLab (git server and private container registry)
-    - [ ] Nextcloud
-    - [ ] Vaultwarden
+    - [x] Nextcloud
+    - [x] Vaultwarden
   - **Baku**
-    - [ ] Adguard
+    - [x] Adguard
 
 ## Unplanned
 
