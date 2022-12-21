@@ -75,6 +75,7 @@ spec:
             mode: standalone
             persistence:
               size: 200Gi
+              storageClass: openebs-zfspv
             resources:
               limits:
                 cpu: 1000m

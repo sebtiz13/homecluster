@@ -95,12 +95,14 @@ spec:
                             identifier: "{{ .clientID }}"
                             secret: "{{ .clientSecret }}"
                             redirect_uri: "https://git.sebtiz13.fr/users/auth/openid_connect/callback"
+                            end_session_endpoint: "{{ .issuer }}/protocol/openid-connect/logout?client_id={{ .clientID }}&post_logout_redirect_uri=https://git.sebtiz13.fr"
                     type: Opaque
             gitlab:
               gitlab:
                 gitaly:
                   persistence:
                     size: 10Gi
+                    storageClass: openebs-zfspv
                   resources:
                     limits:
                       cpu: 400m

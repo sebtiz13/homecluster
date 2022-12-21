@@ -197,6 +197,7 @@ spec:
                   - path: /
                     pathType: ImplementationSpecific
             persistence:
+              className: openebs-zfspv
               enabled: true
               size: 1Gi
             services:
