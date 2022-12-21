@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: openebs-zfspv
+provisioner: zfs.csi.openebs.io
+parameters:
+  recordsize: 4k
+  compression: "off"
+  dedup: "off"
+  fstype: "zfs"
+  poolname: "{{ pool_name }}"
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
