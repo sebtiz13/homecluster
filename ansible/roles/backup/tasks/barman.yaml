@@ -62,7 +62,7 @@
 - name: Configure barman
   vars:
     mc_cli: /opt/backup-cluster/mc
-    mc_config: /vars/backups/.mc
+    mc_config: /opt/backup-cluster/.mc
     mc_bucket: "baku/{{ backup_s3.data.data.data.bucket }}"
   ansible.builtin.template:
     dest: /etc/barman.d/main_backup.conf
