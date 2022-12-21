@@ -69,6 +69,7 @@
       '{{ apps_gitlab.release_name }}-{{ item }}'
   changed_when: false
   loop:
+    - gitlab-toolbox
     - gitlab-exporter
     - gitlab-pages
     - gitlab-runner
