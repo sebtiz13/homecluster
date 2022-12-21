@@ -6,20 +6,21 @@
 - name: Download module
   ansible.builtin.get_url:
     url: https://api.github.com/repos/frankcrawford/it87/tarball
-    dest: '{{ tmp_directory.path }}/module.tar.gz'
-    mode: 'u=rw,g=r,o=r'
+    dest: "{{ tmp_directory.path }}/module.tar.gz"
+    mode: "u=rw,g=r,o=r"
 
 - name: Extract module
   ansible.builtin.unarchive:
-    src: '{{ tmp_directory.path }}/module.tar.gz'
+    src: "{{ tmp_directory.path }}/module.tar.gz"
     remote_src: true
-    dest: '{{ tmp_directory.path }}'
-    extra_opts: [--strip-components=1]
+    dest: "{{ tmp_directory.path }}"
+    extra_opts:
+      - "--strip-components=1"
 
 - name: Build and install module
   ansible.builtin.command:
-    cmd: '{{ item }}'
-    chdir: '{{ tmp_directory.path }}'
+    cmd: "{{ item }}"
+    chdir: "{{ tmp_directory.path }}"
   changed_when: false
   loop:
     - make clean

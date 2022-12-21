@@ -1,4 +1,4 @@
-domain_name: 'baku.{{ root_domain }}'
+domain_name: "baku.{{ root_domain }}"
 
 # TODO: Until ArgoCD release https://github.com/argoproj/argo-cd/issues/7799
 labeled_namespaces:

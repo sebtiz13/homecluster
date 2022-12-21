@@ -4,51 +4,51 @@
   vars:
     database: keycloak
     username: keycloak
-    password: '{{ apps_keycloak._db_passowrd }}'
+    password: "{{ apps_keycloak._db_passowrd }}"
 
 - name: Check if Keeycloak is already deploy
   kubernetes.core.k8s_info:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     kind: Service
-    name: '{{ apps_keycloak.release_name }}'
-    namespace: '{{ apps_keycloak.namespace }}'
+    name: "{{ apps_keycloak.release_name }}"
+    namespace: "{{ apps_keycloak.namespace }}"
   register: keeycloak_service
 
 - name: Deploy Keycloak application and secrets
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
-    manifest: '{{ apps_keycloak._manifest }}'
+    manifest: "{{ apps_keycloak._manifest }}"
     restart_resources:
       - kind: StatefulSet
-        name: '{{ apps_keycloak._manifest.spec.source.plugin.env.0.value }}'
+        name: "{{ apps_keycloak._manifest.spec.source.plugin.env.0.value }}"
     secrets:
       - path: keycloak/auth
         data:
           adminUser: admin
-          adminPassword: '{{ admin_passwords.keycloak }}'
+          adminPassword: "{{ admin_passwords.keycloak }}"
       - path: keycloak/database
         data:
           host: postgresql.loc
-          port: '5432'
+          port: "5432"
           database: keycloak
           user: keycloak
-          password: '{{ apps_keycloak._db_passowrd }}'
+          password: "{{ apps_keycloak._db_passowrd }}"
       # * Dependencies
       - path: vault/oidc
         data:
-          issuer: '{{ apps_keycloak.issuer }}'
+          issuer: "{{ apps_keycloak.issuer }}"
           clientID: vault
           clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
       - path: gitlab/oidc
         data:
-          issuer: '{{ apps_keycloak.issuer }}'
+          issuer: "{{ apps_keycloak.issuer }}"
           clientID: gitlab
           clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
 
 - name: Wait until Keycloak realm is configured
   ansible.builtin.uri:
-    url: '{{ apps_keycloak.issuer }}'
+    url: "{{ apps_keycloak.issuer }}"
     method: GET
     status_code: 200
     return_content: true
@@ -64,13 +64,13 @@
   vars:
     secret: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/' + item + '/oidc') }}"
   community.general.keycloak_client:
-    auth_keycloak_url: '{{ apps_keycloak.base_url }}'
+    auth_keycloak_url: "{{ apps_keycloak.base_url }}"
     auth_realm: master
     auth_username: admin
-    auth_password: '{{ admin_passwords.keycloak }}'
-    realm: '{{ apps_keycloak.realm }}'
-    client_id: '{{ item }}'
-    secret: '{{ secret.data.data.clientSecret }}'
+    auth_password: "{{ admin_passwords.keycloak }}"
+    realm: "{{ apps_keycloak.realm }}"
+    client_id: "{{ item }}"
+    secret: "{{ secret.data.data.clientSecret }}"
   loop:
     - argocd
     - vault

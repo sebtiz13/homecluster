@@ -1,6 +1,6 @@
 - name: Remove swapfile from /etc/fstab
   ansible.posix.mount:
-    name: '{{ item }}'
+    name: "{{ item }}"
     fstype: swap
     state: absent
   with_items:
@@ -28,15 +28,15 @@
   vars:
     k3s_release_query: "data[?name == '{{ k3s.channel | default('stable') }}'].latest"
   ansible.builtin.set_fact:
-    k3s_default_version: '{{ k3s_releases.json | community.general.json_query(k3s_release_query) | first }}'
+    k3s_default_version: "{{ k3s_releases.json | community.general.json_query(k3s_release_query) | first }}"
 
 - name: Download k3s installer
   vars:
-    k3s_version: '{{ k3s.version | default(k3s_default_version) }}'
+    k3s_version: "{{ k3s.version | default(k3s_default_version) }}"
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_version }}/install.sh
     dest: ~/k3s-install.sh
-    mode: '0540'
+    mode: "0540"
   register: k3s_install_file
 
 - name: Install k3s # noqa: no-handler
@@ -49,13 +49,13 @@
       - --tls-san='{{ k3s_domain | default(domain_name) }}'
     flags: '{{ (default_flags + (k3s.flags | default([]))) | join(" ") }}'
   environment:
-    INSTALL_K3S_VERSION: '{{ k3s.version | default(k3s_default_version) }}'
+    INSTALL_K3S_VERSION: "{{ k3s.version | default(k3s_default_version) }}"
   ansible.builtin.command: sh {{ k3s_install_file.dest }} server {{ flags }}
 
 - name: Store kubeconfig
   ansible.builtin.fetch:
     src: /etc/rancher/k3s/k3s.yaml
-    dest: '{{ out_dir }}/kubeconfig/{{ inventory_hostname }}.{{ env }}.yaml'
+    dest: "{{ out_dir }}/kubeconfig/{{ inventory_hostname }}.{{ env }}.yaml"
     flat: true
   register: kubeconfig
   notify: Fix kubeconfig mode
@@ -63,7 +63,7 @@
   connection: local
   become: false
   ansible.builtin.lineinfile:
-    path: '{{ kubeconfig.dest }}'
+    path: "{{ kubeconfig.dest }}"
     regexp: '^(.*server: https:\/\/)127\.0\.0\.1(:6443)$'
     line: '\1{{ k3s_domain | default(domain_name) }}\2'
     backrefs: true
@@ -71,24 +71,24 @@
   connection: local
   become: false
   ansible.builtin.replace:
-    path: '{{ kubeconfig.dest }}'
-    regexp: 'default$'
-    replace: '{{ inventory_hostname }}'
+    path: "{{ kubeconfig.dest }}"
+    regexp: "default$"
+    replace: "{{ inventory_hostname }}"
 
 - name: Wait node started
   connection: local
   become: false
   kubernetes.core.k8s_info:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     kind: Node
-    name: '{{ inventory_hostname }}'
+    name: "{{ inventory_hostname }}"
     wait: true
 
 - name: Retrieve api server info
   connection: local
   become: false
   kubernetes.core.k8s_info:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     kind: Service
     name: kubernetes
     namespace: default

@@ -4,3 +4,19 @@ rules:
   line-length: disable
   comments:
     min-spaces-from-content: 1
+  braces:
+    forbid: non-empty
+    min-spaces-inside-empty: 0
+    max-spaces-inside-empty: 0
+  brackets:
+    forbid: non-empty
+    min-spaces-inside-empty: 0
+    max-spaces-inside-empty: 0
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 0
+  truthy:
+    allowed-values:
+      - "true"
+      - "false"

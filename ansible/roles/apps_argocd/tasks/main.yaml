@@ -5,22 +5,22 @@
     host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
   ansible.builtin.set_fact:
     apps_argocd:
-      _manifest: '{{ manifest }}'
-      _values: '{{ values }}'
-      release_name: '{{ manifest.spec.source.plugin.env.0.value }}'
-      namespace: '{{ manifest.spec.destination.namespace }}'
-      host: '{{ host }}'
-    argocd_api_url: '{{ host }}/api/v1'
+      _manifest: "{{ manifest }}"
+      _values: "{{ values }}"
+      release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+      host: "{{ host }}"
+    argocd_api_url: "{{ host }}/api/v1"
 
 - name: Add chart repo
   kubernetes.core.helm_repository:
     name: argo-cd
-    repo_url: '{{ apps_argocd._manifest.spec.source.repoURL }}'
+    repo_url: "{{ apps_argocd._manifest.spec.source.repoURL }}"
 
 - name: Retrieve appVersion
   vars:
-    chart: 'argo-cd/{{ apps_argocd._manifest.spec.source.chart }}'
-    version: '{{ apps_argocd._manifest.spec.source.targetRevision }}'
+    chart: "argo-cd/{{ apps_argocd._manifest.spec.source.chart }}"
+    version: "{{ apps_argocd._manifest.spec.source.targetRevision }}"
   ansible.builtin.shell: |
     set -o pipefail
     helm repo update argo-cd > /dev/null
@@ -30,9 +30,9 @@
 
 - name: Download CRDs
   vars:
-    base_url: 'https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_appVersion.stdout }}/manifests/crds'
+    base_url: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_appVersion.stdout }}/manifests/crds"
   ansible.builtin.uri:
-    url: '{{ base_url }}/{{ item }}-crd.yaml'
+    url: "{{ base_url }}/{{ item }}-crd.yaml"
     method: GET
     return_content: true
     status_code: 200
@@ -48,23 +48,23 @@
         labels:
           app.kubernetes.io/managed-by: Helm
         annotations:
-          meta.helm.sh/release-namespace: '{{ apps_argocd.namespace }}'
-          meta.helm.sh/release-name: '{{ apps_argocd.release_name }}'
-    manifest: '{{ item.content | from_yaml | combine(metadata_patch, recursive=True) }}'
+          meta.helm.sh/release-namespace: "{{ apps_argocd.namespace }}"
+          meta.helm.sh/release-name: "{{ apps_argocd.release_name }}"
+    manifest: "{{ item.content | from_yaml | combine(metadata_patch, recursive=True) }}"
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
-    resource_definition: '{{ manifest }}'
-  loop: '{{ argocd_crds.results }}'
+    resource_definition: "{{ manifest }}"
+  loop: "{{ argocd_crds.results }}"
   loop_control:
-    label: '{{ item.item }}'
+    label: "{{ item.item }}"
 
 - name: Check if ArgoCD is already deploy
   kubernetes.core.k8s_info:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     kind: Service
-    name: '{{ apps_argocd.release_name }}-server'
-    namespace: '{{ apps_argocd.namespace }}'
+    name: "{{ apps_argocd.release_name }}-server"
+    namespace: "{{ apps_argocd.namespace }}"
   register: argocd_server
 
 - name: Deploy extra objects
@@ -75,29 +75,29 @@
         labels:
           app.kubernetes.io/managed-by: Helm
         annotations:
-          meta.helm.sh/release-namespace: '{{ apps_argocd.namespace }}'
-          meta.helm.sh/release-name: '{{ apps_argocd.release_name }}'
-    manifest: '{{ item | from_yaml | combine(metadata_patch, recursive=True) }}'
+          meta.helm.sh/release-namespace: "{{ apps_argocd.namespace }}"
+          meta.helm.sh/release-name: "{{ apps_argocd.release_name }}"
+    manifest: "{{ item | from_yaml | combine(metadata_patch, recursive=True) }}"
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
-    namespace: '{{ apps_argocd.namespace }}'
-    resource_definition: '{{ manifest }}'
+    namespace: "{{ apps_argocd.namespace }}"
+    resource_definition: "{{ manifest }}"
     validate:
       fail_on_error: true
-  loop: '{{ apps_argocd._values.extraObjects | default([]) }}'
+  loop: "{{ apps_argocd._values.extraObjects | default([]) }}"
   loop_control:
-    label: '{{ item.metadata.name }}'
+    label: "{{ item.metadata.name }}"
 
 - name: Deploy chart
   when: argocd_server.resources | length == 0 # This prevent re deploy with helm when is already deployed
   kubernetes.core.helm:
-    kubeconfig: '{{ kubeconfig.dest }}'
-    chart_ref: 'argo-cd/{{ apps_argocd._manifest.spec.source.chart }}'
-    chart_version: '{{ apps_argocd._manifest.spec.source.targetRevision }}'
-    release_name: '{{ apps_argocd.release_name }}'
-    release_namespace: '{{ apps_argocd.namespace }}'
-    release_values: '{{ apps_argocd._values }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
+    chart_ref: "argo-cd/{{ apps_argocd._manifest.spec.source.chart }}"
+    chart_version: "{{ apps_argocd._manifest.spec.source.targetRevision }}"
+    release_name: "{{ apps_argocd.release_name }}"
+    release_namespace: "{{ apps_argocd.namespace }}"
+    release_values: "{{ apps_argocd._values }}"
     wait: true
   register: argocd_deploy
 
@@ -106,33 +106,33 @@
 ##
 - name: Retrieve server service
   kubernetes.core.k8s_info:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     kind: Service
-    name: '{{ apps_argocd.release_name }}-server'
-    namespace: '{{ apps_argocd.namespace }}'
+    name: "{{ apps_argocd.release_name }}-server"
+    namespace: "{{ apps_argocd.namespace }}"
   register: argocd_server
 - name: Retrieve initial admin password # noqa: no-handler
   when: argocd_deploy is changed
   kubernetes.core.k8s_info:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     kind: Secret
-    name: '{{ apps_argocd.release_name }}-initial-admin-secret'
-    namespace: '{{ apps_argocd.namespace }}'
+    name: "{{ apps_argocd.release_name }}-initial-admin-secret"
+    namespace: "{{ apps_argocd.namespace }}"
   register: argocd_initial_admin_password
 
 - name: Create auth token
   connection: ssh
   vars:
-    initial_password: '{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}'
+    initial_password: "{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}"
   ansible.builtin.uri:
-    url: 'http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/session'
+    url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/session"
     method: POST
     return_content: true
     status_code: 200
     body_format: json
     body:
       username: admin
-      password: '{{ initial_password | default(admin_passwords.argocd) }}'
+      password: "{{ initial_password | default(admin_passwords.argocd) }}"
   register: argocd_admin_auth
 
 - name: Update admin password
@@ -141,17 +141,17 @@
     - argocd_initial_admin_password.resources | length > 0
   connection: ssh
   ansible.builtin.uri:
-    url: 'http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/account/password'
+    url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/account/password"
     method: PUT
     headers:
-      Authorization: 'Bearer {{ argocd_admin_auth.json.token }}'
+      Authorization: "Bearer {{ argocd_admin_auth.json.token }}"
     return_content: true
     status_code: 200
     body_format: json
     body:
       name: admin
-      currentPassword: '{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}'
-      newPassword: '{{ admin_passwords.argocd }}'
+      currentPassword: "{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}"
+      newPassword: "{{ admin_passwords.argocd }}"
   register: argocd_admin_update_password
   changed_when: argocd_admin_update_password.status == 200
   notify:

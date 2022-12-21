@@ -5,7 +5,7 @@
   vars:
     ansible_ssh_pipelining: true
   community.postgresql.postgresql_db:
-    name: '{{ database }}'
+    name: "{{ database }}"
 
 - name: Create database user
   connection: ssh
@@ -14,8 +14,8 @@
   vars:
     ansible_ssh_pipelining: true
   community.postgresql.postgresql_user:
-    name: '{{ username }}'
-    password: '{{ password }}'
+    name: "{{ username }}"
+    password: "{{ password }}"
 
 - name: Grant database access to user
   connection: ssh
@@ -25,7 +25,7 @@
     ansible_ssh_pipelining: true
   community.postgresql.postgresql_privs:
     type: database
-    database: '{{ database }}'
-    roles: '{{ username }}'
+    database: "{{ database }}"
+    roles: "{{ username }}"
     grant_option: false
     privs: all

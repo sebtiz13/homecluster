@@ -6,7 +6,7 @@
 
 - name: Install linux-header needed to build ZFS module
   ansible.builtin.apt:
-    name: 'linux-headers-{{ ansible_kernel }}'
+    name: "linux-headers-{{ ansible_kernel }}"
     state: present
 
 - name: Install ZFS module

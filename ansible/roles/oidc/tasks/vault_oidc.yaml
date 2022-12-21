@@ -5,16 +5,16 @@
     auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth') }}"
   when: "'oidc/' not in auth_engines.data"
   kubernetes.core.k8s_exec:
-    kubeconfig: '{{ kubeconfig.dest }}'
-    namespace: '{{ apps_vault.namespace }}'
-    pod: '{{ apps_vault.pod_name }}'
-    command: 'vault auth enable oidc'
+    kubeconfig: "{{ kubeconfig.dest }}"
+    namespace: "{{ apps_vault.namespace }}"
+    pod: "{{ apps_vault.pod_name }}"
+    command: "vault auth enable oidc"
 
 - name: Create Vault policies for OIDC
   ansible.builtin.include_role:
     name: vault_policy
   vars:
-    policy_name: '{{ item }}'
+    policy_name: "{{ item }}"
     policy: "{{ lookup('ansible.builtin.file', './vault-policies/' + item + '.hcl') }}"
   loop:
     - reader
@@ -24,41 +24,41 @@
 - name: Configure access for Vault OIDC auth
   vars:
     path: auth/oidc/config
-    oidc_creds: "{{ lookup('community.hashi_vault.vault_read',  secrets_base_path + '/vault/oidc') }}"
+    oidc_creds: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/vault/oidc') }}"
   block:
     - name: Configure access for Vault OIDC auth (prod)
       when: env == 'prod'
       community.hashi_vault.vault_write:
-        url: '{{ ansible_hashi_vault_addr }}'
-        token: '{{ ansible_hashi_vault_token }}'
-        path: '{{ path }}'
+        url: "{{ ansible_hashi_vault_addr }}"
+        token: "{{ ansible_hashi_vault_token }}"
+        path: "{{ path }}"
         data:
-          oidc_discovery_url: '{{ oidc_creds.data.data.issuer }}'
-          oidc_client_id: '{{ oidc_creds.data.data.clientID }}'
-          oidc_client_secret: '{{ oidc_creds.data.data.clientSecret }}'
+          oidc_discovery_url: "{{ oidc_creds.data.data.issuer }}"
+          oidc_client_id: "{{ oidc_creds.data.data.clientID }}"
+          oidc_client_secret: "{{ oidc_creds.data.data.clientSecret }}"
           default_role: reader
     - name: Configure access for Vault OIDC auth (dev)
       when: env == 'dev'
       community.hashi_vault.vault_write:
-        url: '{{ ansible_hashi_vault_addr }}'
-        token: '{{ ansible_hashi_vault_token }}'
-        path: '{{ path }}'
+        url: "{{ ansible_hashi_vault_addr }}"
+        token: "{{ ansible_hashi_vault_token }}"
+        path: "{{ path }}"
         data:
-          oidc_discovery_url: '{{ oidc_creds.data.data.issuer }}'
+          oidc_discovery_url: "{{ oidc_creds.data.data.issuer }}"
           oidc_discovery_ca_pem: "{{ lookup('file', ca.cert) }}"
-          oidc_client_id: '{{ oidc_creds.data.data.clientID }}'
-          oidc_client_secret: '{{ oidc_creds.data.data.clientSecret }}'
+          oidc_client_id: "{{ oidc_creds.data.data.clientID }}"
+          oidc_client_secret: "{{ oidc_creds.data.data.clientSecret }}"
           default_role: reader
 
 - name: Configure Vault OIDC role reader
   community.hashi_vault.vault_write:
-    url: '{{ ansible_hashi_vault_addr }}'
-    token: '{{ ansible_hashi_vault_token }}'
+    url: "{{ ansible_hashi_vault_addr }}"
+    token: "{{ ansible_hashi_vault_token }}"
     path: auth/oidc/role/reader
     data:
       bound_audiences: vault
       allowed_redirect_uris:
-        - '{{ ansible_hashi_vault_addr }}/ui/vault/auth/oidc/oidc/callback'
+        - "{{ ansible_hashi_vault_addr }}/ui/vault/auth/oidc/oidc/callback"
         - http://localhost:8200/oidc/callback,http://localhost:8200/ui/vault/auth/oidc/oidc/callback
       user_claim: preferred_username
       groups_claim: groups
@@ -71,11 +71,11 @@
   block:
     - name: Create Vault identity groups
       community.hashi_vault.vault_write:
-        url: '{{ ansible_hashi_vault_addr }}'
-        token: '{{ ansible_hashi_vault_token }}'
+        url: "{{ ansible_hashi_vault_addr }}"
+        token: "{{ ansible_hashi_vault_token }}"
         path: identity/group
         data:
-          name: '{{ item.name }}'
+          name: "{{ item.name }}"
           policies: "{{ item.policies | join(',') }}"
           type: external
       register: vault_identity
@@ -89,18 +89,18 @@
             - operator
             - admin
       loop_control:
-        label: '{{ item.name }}'
+        label: "{{ item.name }}"
 
     - name: Create Vault identity group alias
       when: item is changed
       community.hashi_vault.vault_write:
-        url: '{{ ansible_hashi_vault_addr }}'
-        token: '{{ ansible_hashi_vault_token }}'
+        url: "{{ ansible_hashi_vault_addr }}"
+        token: "{{ ansible_hashi_vault_token }}"
         path: identity/group-alias
         data:
-          name: '{{ item.item.name }}'
-          mount_accessor: '{{ mount_accessor }}'
-          canonical_id: '{{ item.data.data.id }}'
-      loop: '{{ vault_identity.results }}'
+          name: "{{ item.item.name }}"
+          mount_accessor: "{{ mount_accessor }}"
+          canonical_id: "{{ item.data.data.id }}"
+      loop: "{{ vault_identity.results }}"
       loop_control:
-        label: '{{ item.item.name }}'
+        label: "{{ item.item.name }}"

@@ -9,7 +9,7 @@
   vars:
     database: vaultwarden
     username: vaultwarden
-    password: '{{ apps_vaultwarden._db_passowrd }}'
+    password: "{{ apps_vaultwarden._db_passowrd }}"
 
 - name: Deploy Vaultwarden application and secrets
   ansible.builtin.include_role:
@@ -18,12 +18,12 @@
     manifest: "{{ lookup('file', manifests_folder + '/vaultwarden.yaml') | from_yaml }}"
     restart_resources:
       - kind: Deployment
-        name: '{{ manifest.spec.source.plugin.env.0.value }}'
+        name: "{{ manifest.spec.source.plugin.env.0.value }}"
     secrets:
       - path: vaultwarden/database
         data:
           host: postgresql.loc
-          port: '5432'
+          port: "5432"
           database: vaultwarden
           user: vaultwarden
-          password: '{{ apps_vaultwarden._db_passowrd }}'
+          password: "{{ apps_vaultwarden._db_passowrd }}"

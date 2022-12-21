@@ -4,22 +4,22 @@
     values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
   ansible.builtin.set_fact:
     apps_kubed:
-      release_name: '{{ manifest.spec.source.helm.releaseName }}'
-      namespace: '{{ manifest.spec.destination.namespace }}'
-      secret_name: '{{ values.kubed.config.existingSecret }}'
+      release_name: "{{ manifest.spec.source.helm.releaseName }}"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+      secret_name: "{{ values.kubed.config.existingSecret }}"
 
 - name: Create application namespace
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
     resource_definition:
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: '{{ apps_kubed.namespace }}'
+        name: "{{ apps_kubed.namespace }}"
 
 - name: Create application config secret
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
     template: secret.yaml.j2

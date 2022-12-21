@@ -5,15 +5,15 @@
     manifest: "{{ lookup('file', manifests_folder + '/minio.yaml') | from_yaml }}"
     restart_resources:
       - kind: Deployment
-        name: '{{ manifest.spec.source.plugin.env.0.value }}'
+        name: "{{ manifest.spec.source.plugin.env.0.value }}"
     secrets:
       - path: minio/auth
         data:
           rootUser: admin
-          rootPassword: '{{ admin_passwords.minio }}'
+          rootPassword: "{{ admin_passwords.minio }}"
       - full_path: salamandre/data/backup/s3
         data:
-          endpoint: 'https://{{ domain_name }}:3882'
+          endpoint: "https://{{ domain_name }}:3882"
           region: minio
           accessKey: salamandre-backup
           secretKey: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"

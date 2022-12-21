@@ -15,18 +15,18 @@
       tags: argocd
       vars:
         cluster_name: baku
-        cluster_url: 'https://{{ domain_name }}:6443'
+        cluster_url: "https://{{ domain_name }}:6443"
   tasks:
     - name: Create kubed sync namespace
       tags: kubed
       kubernetes.core.k8s:
-        kubeconfig: '{{ kubeconfig.dest }}'
+        kubeconfig: "{{ kubeconfig.dest }}"
         state: present
         resource_definition:
           apiVersion: v1
           kind: Namespace
           metadata:
-            name: 'kubed-sync'
+            name: "kubed-sync"
 
 - name: Configure salamandre kubed access to baku cluster
   hosts: salamandre
@@ -39,7 +39,7 @@
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       vars:
         cluster_kubeconfig: "{{ hostvars.baku.kubeconfig.dest | default('') }}"
-        cluster_namespace: 'kubed-sync'
+        cluster_namespace: "kubed-sync"
 
 - name: Configure tls secret
   hosts: baku
@@ -50,7 +50,7 @@
   tasks:
     - name: Wait until secret is synced
       kubernetes.core.k8s_info:
-        kubeconfig: '{{ kubeconfig.dest }}'
+        kubeconfig: "{{ kubeconfig.dest }}"
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
         namespace: kubed-sync
@@ -60,7 +60,7 @@
     - name: Annotate secret for sync cross namespace
       kubernetes.core.k8s:
         state: patched
-        kubeconfig: '{{ kubeconfig.dest }}'
+        kubeconfig: "{{ kubeconfig.dest }}"
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
         namespace: kubed-sync
@@ -68,7 +68,7 @@
         definition:
           metadata:
             annotations:
-              kubed.appscode.com/sync: 'domain={{ root_domain }}'
+              kubed.appscode.com/sync: "domain={{ root_domain }}"
 
 - name: Install infrastructure applications
   hosts: baku

@@ -5,11 +5,11 @@
 
 - name: Configure DynDNS
   vars:
-    username: '{{ dyndns.username }}'
-    password: '{{ dyndns.password }}'
-    domain: '{{ dyndns.domain }}'
+    username: "{{ dyndns.username }}"
+    password: "{{ dyndns.password }}"
+    domain: "{{ dyndns.domain }}"
   ansible.builtin.template:
     dest: /etc/ddclient.conf
     src: ddclient.conf.j2
-    mode: 'u=rwx,g=rx,o=rx'
+    mode: "u=rwx,g=rx,o=rx"
     backup: true

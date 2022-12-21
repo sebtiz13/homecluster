@@ -1,12 +1,12 @@
 - name: Configure custom DNS
   vars:
     server_ip: "{{ host_prefix | ansible.utils.ipaddr('address') }}"
-    base_domain: '{{ domain_name }}'
+    base_domain: "{{ domain_name }}"
     server:
       loc: "{{ lookup('ansible.builtin.template', 'loc.j2') }}"
       domain: "{{ lookup('ansible.builtin.template', 'domain.j2') }}"
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
     template: config_map.yaml.j2
     validate:

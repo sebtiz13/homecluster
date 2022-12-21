@@ -1,6 +1,6 @@
 - name: Define timezone
   community.general.timezone:
-    name: '{{ timezone }}'
+    name: "{{ timezone }}"
 
 - name: Update and install apt packages
   ansible.builtin.import_tasks: apt.yaml
@@ -12,7 +12,7 @@
 - name: Create SSH users
   tags: ssh
   ansible.builtin.include_tasks: ssh_user.yaml
-  loop: '{{ ssh.users }}'
+  loop: "{{ ssh.users }}"
 
 - name: Install ZFS and create pool(s)
   tags: zfs
@@ -26,7 +26,7 @@
   when: env == 'dev'
   tags: tls
   ansible.builtin.copy:
-    src: '{{ ca.cert }}'
+    src: "{{ ca.cert }}"
     dest: /usr/local/share/ca-certificates/{{ ca.cert | basename }}.crt
-    mode: '0444'
+    mode: "0444"
   notify: Update trusted ca

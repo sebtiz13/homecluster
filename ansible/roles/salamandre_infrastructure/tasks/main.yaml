@@ -12,7 +12,7 @@
   tags: adguard
   when: env == 'prod'
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
-    src: '{{ manifests_folder }}/adguard-proxy.yaml'
-    namespace: '{{ apps_argocd.namespace }}'
+    src: "{{ manifests_folder }}/adguard-proxy.yaml"
+    namespace: "{{ apps_argocd.namespace }}"

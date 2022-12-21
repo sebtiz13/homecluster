@@ -4,17 +4,17 @@
     path: /opt/backup-cluster/.mc
     owner: backup
     group: backup
-    mode: 'u=rwx,g=rwx,o=rx'
+    mode: "u=rwx,g=rwx,o=rx"
 
 - name: Upload MinIO config
   vars:
-    url: '{{ backup_s3.data.data.data.endpoint }}'
-    access_key: '{{ backup_s3.data.data.data.accessKey }}'
-    secret_key: '{{ backup_s3.data.data.data.secretKey }}'
+    url: "{{ backup_s3.data.data.data.endpoint }}"
+    access_key: "{{ backup_s3.data.data.data.accessKey }}"
+    secret_key: "{{ backup_s3.data.data.data.secretKey }}"
   ansible.builtin.template:
     dest: /opt/backup-cluster/.mc/config.json
     src: mc_config.json.j2
-    mode: 'u=rw,g=r,o=r'
+    mode: "u=rw,g=r,o=r"
 
 - name: Configure mail to root for backup cron
   community.general.cronvar:
@@ -28,6 +28,6 @@
     cron_file: backup-cluster
     name: backup cluster
     job: '[ -x /opt/backup-cluster/backup.sh ] && /opt/backup-cluster/backup.sh > /var/log/backup-$(date +\%U_\%Y-\%m-\%d_\%H-\%M-\%S).log'
-    minute: '0'
-    hour: '2'
+    minute: "0"
+    hour: "2"
     disabled: "{{ env == 'dev' }}"
