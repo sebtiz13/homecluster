@@ -180,6 +180,7 @@ gitlab:
   gitlab:
     gitaly:
       persistence:
+        storageClass: openebs-zfspv
         size: 10Gi
       resources:
         requests:

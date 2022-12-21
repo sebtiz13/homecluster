@@ -45,6 +45,7 @@ consoleIngress:
         - {{ include "ingress.host" . }}
 
 persistence:
+  storageClass: openebs-zfspv
   size: 500Gi
 
 resources:

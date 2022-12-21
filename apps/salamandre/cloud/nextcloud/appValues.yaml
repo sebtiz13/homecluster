@@ -49,6 +49,7 @@ nextcloud:
     enabled: true
     nextcloudData:
       enabled: true
+      storageClass: openebs-zfspv
       size: 50Gi
 
   metrics:
