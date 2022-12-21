@@ -1,7 +1,7 @@
 - name: Retrieve Minio informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/minio.yaml') | from_yaml }}"
-    release_name: "{{ manifest.metadata.name }}"
+    release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
     namespace: "{{ manifest.spec.destination.namespace }}"
   ansible.builtin.set_fact:
     apps_minio:
@@ -25,7 +25,7 @@
       # * Dependencies
       - path: gitlab/s3
         data:
-          endpoint: "https://{{ apps_minio.endpoint }}"
+          endpoint: "http://{{ apps_minio.endpoint }}"
           region: "{{ apps_minio.region }}"
           accessKey: gitlab
           secretKey: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
