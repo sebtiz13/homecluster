@@ -1,7 +1,7 @@
 - name: Create folder for backup excutables
   ansible.builtin.file:
     state: directory
-    path: /opt/backup-cluster
+    path: "{{ exec_dir }}"
     mode: "u=rwx,g=rx,o=rx"
 - name: Create folder for backup script
   ansible.builtin.file:
@@ -14,29 +14,28 @@
 - name: Download CLI
   ansible.builtin.get_url:
     url: https://dl.min.io/client/mc/release/linux-amd64/mc
-    dest: /opt/backup-cluster/mc
+    dest: "{{ exec_dir }}/mc"
     mode: "u=rwx,g=rx,o=rx"
 
 - name: Upload backup script
   vars:
     keep_weeks: 2
-    mc_dir: /opt/backup-cluster
     mc_bucket: "baku/{{ backup_s3.data.data.data.bucket }}"
     backup_dir: /var/backups/cluster
   ansible.builtin.template:
-    dest: /opt/backup-cluster/backup.sh
+    dest: "{{ exec_dir }}/backup.sh"
     src: scripts/backup.sh
     mode: "u=rwx,g=rx,o=rx"
     backup: true
 
 - name: Upload restore script
   ansible.builtin.copy:
-    dest: /opt/backup-cluster/restore.sh
+    dest: "{{ exec_dir }}/restore.sh"
     src: scripts/restore.sh
     mode: "u=rwx,g=rx,o=rx"
 
 - name: Upload barman restore script
   ansible.builtin.copy:
-    dest: /opt/backup-cluster/barman-restore.sh
+    dest: "{{ exec_dir }}/barman-restore.sh"
     src: scripts/barman-restore.sh
     mode: "u=rwx,g=rx,o=rx"

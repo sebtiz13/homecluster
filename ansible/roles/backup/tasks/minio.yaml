@@ -1,10 +1,10 @@
 - name: Create folder for MinIO config
   ansible.builtin.file:
     state: directory
-    path: /opt/backup-cluster/.mc
+    path: "{{ exec_dir }}/.mc"
     owner: backup
     group: backup
-    mode: "u=rwx,g=rwx,o=rx"
+    mode: "0750" # u=rwx,g=rx
 
 - name: Upload MinIO config
   vars:
@@ -12,9 +12,9 @@
     access_key: "{{ backup_s3.data.data.data.accessKey }}"
     secret_key: "{{ backup_s3.data.data.data.secretKey }}"
   ansible.builtin.template:
-    dest: /opt/backup-cluster/.mc/config.json
+    dest: "{{ exec_dir }}/.mc/config.json"
     src: mc_config.json.j2
-    mode: "u=rw,g=r,o=r"
+    mode: "0640" # u=rw,g=r
 
 - name: Create folder for backup task log
   ansible.builtin.file:
@@ -35,7 +35,7 @@
     user: backup
     cron_file: backup-cluster
     name: backup cluster
-    job: '[ -x /opt/backup-cluster/backup.sh ] && /opt/backup-cluster/backup.sh > /var/log/backup-cluster/backup-$(date +\%U_\%Y-\%m-\%d_\%H-\%M-\%S).log'
+    job: '[ -x {{ exec_dir }}/backup.sh ] && {{ exec_dir }}/backup.sh > /var/log/backup-cluster/backup-$(date +\%U_\%Y-\%m-\%d_\%H-\%M-\%S).log'
     minute: "0"
     hour: "2"
     disabled: "{{ env == 'dev' }}"

@@ -36,9 +36,24 @@
       password: "{{ barman.streaming_password }}"
       flags: REPLICATION
 
+- name: Create folder for MinIO config
+  ansible.builtin.file:
+    state: directory
+    path: "{{ barman_dir }}/.mc"
+    owner: barman
+    group: barman
+    mode: "0700" # u=rwx
+- name: Link MinIO config to barman
+  ansible.builtin.file:
+    src: "{{ exec_dir }}/.mc/config.json"
+    dest: "{{ barman_dir }}/.mc/config.json"
+    owner: barman
+    group: barman
+    mode: "0600" # u=rw
+
 - name: Store postgresql credentials
   ansible.builtin.template:
-    dest: /var/lib/barman/.pgpass
+    dest: "{{ barman_dir }}/.pgpass"
     src: .pgpass.j2
     owner: barman
     group: barman
@@ -61,8 +76,6 @@
 
 - name: Configure barman
   vars:
-    mc_cli: /opt/backup-cluster/mc
-    mc_config: /opt/backup-cluster/.mc
     mc_bucket: "baku/{{ backup_s3.data.data.data.bucket }}"
   ansible.builtin.template:
     dest: /etc/barman.d/main_backup.conf
