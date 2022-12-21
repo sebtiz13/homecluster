@@ -13,5 +13,5 @@
 - **Architecture**
   - [Overview](./references/architecture/overview.md)
 - [Roadmap](./references/roadmap.md)
-- [Backup](./references/backup.md)
+- [Backup & Restore](./references/backup-restore.md)
 - [Storage](./references/storage.md)
