@@ -8,15 +8,15 @@
   vars:
     vault_file: "{{ lookup('ansible.builtin.file', credentials_folder + '/vault.json') }}"
   community.hashi_vault.vault_token_create:
-    url: '{{ ansible_hashi_vault_addr }}'
+    url: "{{ ansible_hashi_vault_addr }}"
     validate_certs: false
-    token: '{{ vault_file.root_token }}'
+    token: "{{ vault_file.root_token }}"
     ttl: 1h
   register: vault_token
 
 - name: Store child token
   ansible.builtin.set_fact:
-    ansible_hashi_vault_token: '{{ vault_token.login.auth.client_token }}'
+    ansible_hashi_vault_token: "{{ vault_token.login.auth.client_token }}"
 
 - name: Configure Vault kubernetes auth
   ansible.builtin.import_tasks: auth_kubernetes.yaml

@@ -1,32 +1,32 @@
 - name: Retrieve Minio informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/minio.yaml') | from_yaml }}"
-    release_name: '{{ manifest.metadata.name }}'
-    namespace: '{{ manifest.spec.destination.namespace }}'
+    release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
+    namespace: "{{ manifest.spec.destination.namespace }}"
   ansible.builtin.set_fact:
     apps_minio:
-      _manifest: '{{ manifest }}'
-      endpoint: '{{ release_name }}.{{ namespace }}.svc.cluster.local:9000'
-      region: 'minio'
+      _manifest: "{{ manifest }}"
+      endpoint: "{{ release_name }}.{{ namespace }}.svc.cluster.local:9000"
+      region: "minio"
 
 - name: Deploy Minio application and secrets
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
-    manifest: '{{ apps_minio._manifest }}'
+    manifest: "{{ apps_minio._manifest }}"
     restart_resources:
       - kind: Deployment
-        name: '{{ apps_minio._manifest.spec.source.plugin.env.0.value }}'
+        name: "{{ apps_minio._manifest.spec.source.plugin.env.0.value }}"
     secrets:
       - path: minio/auth
         data:
           rootUser: admin
-          rootPassword: '{{ admin_passwords.minio }}'
+          rootPassword: "{{ admin_passwords.minio }}"
       # * Dependencies
       - path: gitlab/s3
         data:
-          endpoint: 'https://{{ apps_minio.endpoint }}'
-          region: '{{ apps_minio.region }}'
+          endpoint: "http://{{ apps_minio.endpoint }}"
+          region: "{{ apps_minio.region }}"
           accessKey: gitlab
           secretKey: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
           # Buckets

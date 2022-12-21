@@ -4,7 +4,7 @@
 # Script constants
 ###
 LOG_DIR=/var/log
-MINIO_DIR='{{ mc_dir }}'
+MINIO_DIR='{{ exec_dir }}'
 BACKUP_DIR='{{ backup_dir }}'
 KEEP_WEEKS='{{ keep_weeks }}'
 BACKUP_BUCKET='{{ mc_bucket }}/backup'

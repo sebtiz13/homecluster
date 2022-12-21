@@ -25,24 +25,39 @@
     ansible_ssh_pipelining: true
   no_log: true
   community.postgresql.postgresql_user:
-    name: '{{ item.name }}'
-    password: '{{ item.password }}'
-    role_attr_flags: '{{ item.flags }}'
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    role_attr_flags: "{{ item.flags }}"
   loop:
-    - name: '{{ barman.user }}'
-      password: '{{ barman.password }}'
+    - name: "{{ barman.user }}"
+      password: "{{ barman.password }}"
       flags: CREATEROLE,CREATEDB,SUPERUSER
-    - name: '{{ barman.streaming_user }}'
-      password: '{{ barman.streaming_password }}'
+    - name: "{{ barman.streaming_user }}"
+      password: "{{ barman.streaming_password }}"
       flags: REPLICATION
+
+- name: Create folder for MinIO config
+  ansible.builtin.file:
+    state: directory
+    path: "{{ barman_dir }}/.mc"
+    owner: barman
+    group: barman
+    mode: "0700" # u=rwx
+- name: Link MinIO config to barman
+  ansible.builtin.file:
+    src: "{{ exec_dir }}/.mc/config.json"
+    dest: "{{ barman_dir }}/.mc/config.json"
+    owner: barman
+    group: barman
+    mode: "0600" # u=rw
 
 - name: Store postgresql credentials
   ansible.builtin.template:
-    dest: /var/lib/barman/.pgpass
+    dest: "{{ barman_dir }}/.pgpass"
     src: .pgpass.j2
     owner: barman
     group: barman
-    mode: '0600' # u=rw
+    mode: "0600" # u=rw
 
 - name: Check permissions
   become_user: barman
@@ -53,7 +68,7 @@
       community.postgresql.postgresql_query:
         db: postgres
         query: SELECT version();
-        login_user: '{{ barman.user }}'
+        login_user: "{{ barman.user }}"
     - name: Check streaming barman permissions
       ansible.builtin.command:
         cmd: psql -U {{ barman.streaming_user }} -h 127.0.0.1 -c "IDENTIFY_SYSTEM" replication=1
@@ -61,22 +76,20 @@
 
 - name: Configure barman
   vars:
-    mc_cli: /opt/backup-cluster/mc
-    mc_config: /vars/backups/.mc
-    mc_bucket: 'baku/{{ backup_s3.data.data.data.bucket }}'
+    mc_bucket: "baku/{{ backup_s3.data.data.data.bucket }}"
   ansible.builtin.template:
     dest: /etc/barman.d/main_backup.conf
     src: barman.conf.j2
     owner: root
     group: root
-    mode: 'u=rw,g=r,o=r'
+    mode: "u=rw,g=r,o=r"
 
 - name: Configure cron task for backup
   ansible.builtin.cron:
     name: barman backup
     user: barman
     cron_file: barman
-    job: '[ -x /usr/bin/barman ] && /usr/bin/barman -q backup --wait main_backup'
-    minute: '0'
-    hour: '1'
+    job: "[ -x /usr/bin/barman ] && /usr/bin/barman -q backup --wait main_backup"
+    minute: "0"
+    hour: "1"
     disabled: "{{ env == 'dev' }}"

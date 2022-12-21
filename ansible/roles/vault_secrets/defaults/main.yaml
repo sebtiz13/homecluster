@@ -1,10 +1,11 @@
 validate_certs: true
 
 # The base path for secrets
-secrets_base_path: ''
+secrets_base_path: ""
 
 # List of secret want create
-secrets: []
+secrets:
+  []
   # - path: app/auth
   #   data:
   #     username: admin

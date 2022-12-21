@@ -37,7 +37,7 @@
   pre_tasks:
     - name: Store ArgoCD api token in facts
       ansible.builtin.set_fact:
-        argocd_api_token: '{{ argocd_admin_auth.json.token }}'
+        argocd_api_token: "{{ argocd_admin_auth.json.token }}"
   roles:
     - role: traefik_auth
       tags: traefik
@@ -51,7 +51,7 @@
         validate_certs: false
         secrets:
           - path: smtp
-            data: '{{ smtp_auth }}'
+            data: "{{ smtp_auth }}"
     - role: salamandre_dev
       when: env == 'dev'
   post_tasks:
@@ -61,10 +61,10 @@
         - cert-manager
         - tls
       kubernetes.core.k8s_info:
-        kubeconfig: '{{ kubeconfig.dest }}'
+        kubeconfig: "{{ kubeconfig.dest }}"
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
-        namespace: '{{ apps_vault.namespace }}'
+        namespace: "{{ apps_vault.namespace }}"
         wait: true
         wait_sleep: 10
         wait_timeout: 360
@@ -81,13 +81,13 @@
         realm: developer
       ansible.builtin.set_fact:
         apps_keycloak:
-          _manifest: '{{ manifest }}'
+          _manifest: "{{ manifest }}"
           _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
-          release_name: '{{ manifest.spec.source.plugin.env.0.value }}'
-          namespace: '{{ manifest.spec.destination.namespace }}'
-          base_url: '{{ base_url }}'
-          issuer: '{{ base_url }}/realms/{{ realm }}'
-          realm: '{{ realm }}'
+          release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
+          namespace: "{{ manifest.spec.destination.namespace }}"
+          base_url: "{{ base_url }}"
+          issuer: "{{ base_url }}/realms/{{ realm }}"
+          realm: "{{ realm }}"
   roles:
     # ALways deploy oidc secrets for applications (event if oidc is disabled, this is for argocd vaukt plugin)
     - role: vault_secrets
@@ -95,7 +95,7 @@
         secrets:
           - path: argocd/oidc
             data:
-              issuer: '{{ apps_keycloak.issuer }}'
+              issuer: "{{ apps_keycloak.issuer }}"
               cliClientID: argocd-cli
               clientID: argocd
               clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"

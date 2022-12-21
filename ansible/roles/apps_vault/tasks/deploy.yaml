@@ -2,27 +2,27 @@
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/vault.yaml') | from_yaml }}"
     values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
-    release_name: '{{ manifest.spec.source.helm.releaseName }}'
+    release_name: "{{ manifest.spec.source.helm.releaseName }}"
     host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
   ansible.builtin.set_fact:
     apps_vault:
-      release_name: '{{ release_name }}'
-      namespace: '{{ manifest.spec.destination.namespace }}'
-      pod_name: '{{ release_name }}-0'
-      keys_secret_name: '{{ (values.server.volumes | first).secret.secretName }}'
-    ansible_hashi_vault_addr: '{{ host }}'
+      release_name: "{{ release_name }}"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+      pod_name: "{{ release_name }}-0"
+      keys_secret_name: "{{ (values.server.volumes | first).secret.secretName }}"
+    ansible_hashi_vault_addr: "{{ host }}"
 
 - name: Deploy application manifest
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
-    src: '{{ manifests_folder }}/vault.yaml'
-    namespace: '{{ apps_argocd.namespace }}'
+    src: "{{ manifests_folder }}/vault.yaml"
+    namespace: "{{ apps_argocd.namespace }}"
   register: vault_deploy
 
 - name: Wait until application is available
   ansible.builtin.uri:
-    url: '{{ ansible_hashi_vault_addr }}/v1/sys/health'
+    url: "{{ ansible_hashi_vault_addr }}/v1/sys/health"
     validate_certs: false
     method: GET
     status_code:

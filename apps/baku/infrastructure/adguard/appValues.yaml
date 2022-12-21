@@ -13,6 +13,7 @@ ingresses:
 
 persistence:
   enabled: true
+  className: openebs-zfspv
   size: 1Gi
 
 bootstrapConfig:

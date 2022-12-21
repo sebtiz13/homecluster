@@ -1,4 +1,4 @@
-host_prefix: '{{ ansible_eth0.ipv4.address }}/{{ ansible_eth0.ipv4.netmask }}'
+host_prefix: "{{ ansible_eth0.ipv4.address }}/{{ ansible_eth0.ipv4.netmask }}"
 
 basic_auth_users:
   - name: admin
@@ -6,6 +6,6 @@ basic_auth_users:
 
 smtp_auth:
   host: mailhog.mailhog.svc
-  port: '1025'
-  username: 'contact@{{ root_domain }}'
+  port: "1025"
+  username: "contact@{{ root_domain }}"
   password: password

@@ -6,13 +6,13 @@
 - name: Store cluster kubeconfig
   kubernetes.core.k8s:
     state: patched
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     kind: Secret
-    name: '{{ apps_kubed.secret_name }}'
-    namespace: '{{ apps_kubed.namespace }}'
+    name: "{{ apps_kubed.secret_name }}"
+    namespace: "{{ apps_kubed.namespace }}"
     definition:
       data:
-        kubeconfig: '{{ kubed_kubeconfig.stdout | b64encode }}'
+        kubeconfig: "{{ kubed_kubeconfig.stdout | b64encode }}"
 
 - name: Restart application resources for update secrets
   connection: ssh

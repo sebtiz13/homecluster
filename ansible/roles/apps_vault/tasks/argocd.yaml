@@ -12,13 +12,13 @@
     existing_roles: "{{ (vault_k8s_role.data | default({})) | community.general.json_query('data.keys') }}"
   when: "('data' not in vault_k8s_role) or (name not in existing_roles)"
   community.hashi_vault.vault_write:
-    url: '{{ ansible_hashi_vault_addr }}'
+    url: "{{ ansible_hashi_vault_addr }}"
     validate_certs: false
-    token: '{{ ansible_hashi_vault_token }}'
-    path: 'auth/kubernetes/role/{{ name }}'
+    token: "{{ ansible_hashi_vault_token }}"
+    path: "auth/kubernetes/role/{{ name }}"
     data:
-      bound_service_account_names: '{{ apps_argocd.release_name }}-repo-server'
-      bound_service_account_namespaces: '{{ apps_argocd.namespace }}'
+      bound_service_account_names: "{{ apps_argocd.release_name }}-repo-server"
+      bound_service_account_namespaces: "{{ apps_argocd.namespace }}"
       policies: argocd
       ttl: 1h
 
@@ -27,8 +27,8 @@
     mounts: "{{ lookup('community.hashi_vault.vault_read', 'sys/mounts', validate_certs=false) }}"
   when: "(item + '/') is not in mounts.data"
   kubernetes.core.k8s_exec:
-    kubeconfig: '{{ kubeconfig.dest }}'
-    namespace: '{{ apps_vault.namespace }}'
-    pod: '{{ apps_vault.pod_name }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
+    namespace: "{{ apps_vault.namespace }}"
+    pod: "{{ apps_vault.pod_name }}"
     command: vault secrets enable -path={{ item }} kv-v2
-  loop: '{{ hostvars.keys() | list }}'
+  loop: "{{ hostvars.keys() | list }}"

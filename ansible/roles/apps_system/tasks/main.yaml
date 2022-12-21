@@ -3,23 +3,46 @@
     - openebs
     - zfs
   kubernetes.core.k8s:
-    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
     state: present
-    src: '{{ manifests_folder }}/openebs.yaml'
-    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'
+    src: "{{ manifests_folder }}/openebs.yaml"
+    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
+
+- name: Deploy OpenEBS storage classes
+  tags:
+    - openebs
+    - zfs
+  vars:
+    pool_name: "{{ zfs_pool.name | default('data') }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    state: present
+    template: "{{ item }}.yaml.j2"
+  loop:
+    - openebs-zfspv
+    - zfspv-block
+
+- name: Deploy OpenEBS snapshot class
+  tags:
+    - openebs
+    - zfs
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    state: present
+    src: zfspv-snapclass.yaml
 
 - name: Deploy Kubed application manifest
   tags: kubed
   kubernetes.core.k8s:
-    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
     state: present
-    src: '{{ manifests_folder }}/kubed.yaml'
-    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'
+    src: "{{ manifests_folder }}/kubed.yaml"
+    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
 
 - name: Deploy Treafik application manifest
   tags: traefik
   kubernetes.core.k8s:
-    kubeconfig: '{{ hostvars.salamandre.kubeconfig.dest }}'
+    kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
     state: present
-    src: '{{ manifests_folder }}/traefik.yaml'
-    namespace: '{{ hostvars.salamandre.apps_argocd.namespace }}'
+    src: "{{ manifests_folder }}/traefik.yaml"
+    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"

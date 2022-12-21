@@ -1,17 +1,17 @@
 - name: Create namespace
   vars:
-    filtered_tags: '{{ ansible_skip_tags | difference(item.tags) }}'
+    filtered_tags: "{{ ansible_skip_tags | difference(item.tags) }}"
   when: filtered_tags == ansible_skip_tags
   kubernetes.core.k8s:
-    kubeconfig: '{{ kubeconfig.dest }}'
+    kubeconfig: "{{ kubeconfig.dest }}"
     state: present
     resource_definition:
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: '{{ item.name }}'
+        name: "{{ item.name }}"
         labels:
-          domain: '{{ domain }}'
-  loop: '{{ labeled_namespaces }}'
+          domain: "{{ domain }}"
+  loop: "{{ labeled_namespaces }}"
   loop_control:
-    label: '{{ item.name }}'
+    label: "{{ item.name }}"

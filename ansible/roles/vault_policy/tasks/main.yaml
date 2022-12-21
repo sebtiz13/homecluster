@@ -2,10 +2,10 @@
   vars:
     not_found_msg: "The path 'sys/policy/{{ policy_name }}' doesn't seem to exist."
   community.hashi_vault.vault_read:
-    url: '{{ ansible_hashi_vault_addr }}'
-    validate_certs: '{{ validate_certs }}'
-    token: '{{ ansible_hashi_vault_token }}'
-    path: 'sys/policy/{{ policy_name }}'
+    url: "{{ ansible_hashi_vault_addr }}"
+    validate_certs: "{{ validate_certs }}"
+    token: "{{ ansible_hashi_vault_token }}"
+    path: "sys/policy/{{ policy_name }}"
   register: vault_check
   failed_when:
     - "'msg' in vault_check and vault_check.msg != not_found_msg"
@@ -13,9 +13,9 @@
 - name: Create Vault policy
   when: "'msg' is in vault_check"
   community.hashi_vault.vault_write:
-    url: '{{ ansible_hashi_vault_addr }}'
-    validate_certs: '{{ validate_certs }}'
-    token: '{{ ansible_hashi_vault_token }}'
-    path: 'sys/policy/{{ policy_name }}'
+    url: "{{ ansible_hashi_vault_addr }}"
+    validate_certs: "{{ validate_certs }}"
+    token: "{{ ansible_hashi_vault_token }}"
+    path: "sys/policy/{{ policy_name }}"
     data:
-      policy: '{{ policy }}'
+      policy: "{{ policy }}"

@@ -4,6 +4,6 @@
     dest: /etc/ssh/sshd_config.d/10-custom.conf
     owner: root
     group: root
-    mode: '0600'
+    mode: "0600"
     validate: /usr/sbin/sshd -t -f %s
   notify: Restart sshd

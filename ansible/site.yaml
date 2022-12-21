@@ -9,11 +9,11 @@
       connection: local
       tags: kubernetes
       vars:
-        domain: '{{ root_domain }}'
+        domain: "{{ root_domain }}"
   tasks:
     - name: Load applications admin passwords
       ansible.builtin.include_vars:
-        file: '{{ credentials_folder }}/admin_passwords.yaml'
+        file: "{{ credentials_folder }}/admin_passwords.yaml"
         name: admin_passwords
 
 - name: Deploy salamandre

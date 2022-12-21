@@ -6,11 +6,11 @@
 
 - name: Allow connection from kubernetes and localhost
   vars:
-    config_folder: '/etc/postgresql/{{ postgresql_version }}/main'
+    config_folder: "/etc/postgresql/{{ postgresql_version }}/main"
   block:
     - name: Listen all hosts
       ansible.builtin.lineinfile:
-        path: '{{ config_folder }}/postgresql.conf'
+        path: "{{ config_folder }}/postgresql.conf"
         regexp: "#(listen_addresses = )'localhost'(.*)"
         line: '\1{{ "%-12s" | format("''*''") }}\2'
         backrefs: true
@@ -22,7 +22,7 @@
       vars:
         ansible_ssh_pipelining: true
       community.postgresql.postgresql_pg_hba:
-        dest: '{{ config_folder }}/pg_hba.conf'
+        dest: "{{ config_folder }}/pg_hba.conf"
         contype: host
         users: all # TODO: replace this for better security !
         source: "{{ host_prefix | ansible.utils.ipaddr('network/prefix') }}"
@@ -35,7 +35,7 @@
       vars:
         ansible_ssh_pipelining: true
       community.postgresql.postgresql_pg_hba:
-        dest: '{{ config_folder }}/pg_hba.conf'
+        dest: "{{ config_folder }}/pg_hba.conf"
         contype: host
         source: 10.42.0.0/24
         keep_comments_at_rules: true
@@ -51,5 +51,5 @@
 - name: Create shortcut for postgres data dir
   ansible.builtin.copy:
     dest: /etc/profile.d/postgres.sh
-    content: 'export PGDATA=/var/lib/postgresql/{{ postgresql_version }}/main'
-    mode: 'u=rwx,g=rx,o=rx'
+    content: "export PGDATA=/var/lib/postgresql/{{ postgresql_version }}/main"
+    mode: "u=rwx,g=rx,o=rx"
