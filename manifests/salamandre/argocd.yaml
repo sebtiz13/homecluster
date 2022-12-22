@@ -236,7 +236,24 @@ spec:
                   secretName: sebtiz13-fr-tls
               rbacConfig:
                 policy.csv: |
+                  # OIDC admin
                   g, Admin, role:admin
+                  # OIDC Operator
+                  p, Operator, applications, create, */*, allow
+                  p, Operator, applications, update, */*, allow
+                  p, Operator, applications, delete, */*, allow
+                  p, Operator, applications, sync, */*, allow
+                  p, Operator, applications, override, */*, allow
+                  p, Operator, applications, action/*, */*, allow
+                  p, Operator, applicationsets, get, */*, allow
+                  p, Operator, applicationsets, create, */*, allow
+                  p, Operator, applicationsets, update, */*, allow
+                  p, Operator, applicationsets, delete, */*, allow
+                  p, Operator, projects, create, *, allow
+                  p, Operator, projects, update, *, allow
+                  p, Operator, projects, delete, *, allow
+                  p, Operator, exec, create, */*, allow
+                  g, Operator, role:readonly
                 policy.default: role:readonly
   destination:
     name: in-cluster
