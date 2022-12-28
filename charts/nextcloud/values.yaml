@@ -25,6 +25,7 @@ nextcloud:
           'jpeg_quality' => '60',
           'enabledPreviewProviders' => array (
             'OC\Preview\Imaginary',
+            'OC\Preview\Image',
             'OC\Preview\MarkDown',
             'OC\Preview\MP3',
             'OC\Preview\TXT',
