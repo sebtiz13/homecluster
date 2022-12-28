@@ -17,4 +17,4 @@ backup_options = concurrent_backup,external_configuration
 minimum_redundancy = 2
 retention_policy = RECOVERY WINDOW OF 2 WEEKS
 
-post_backup_script = "{{ exec_dir }}/mc --config-dir {{ barman_dir }}/.mc mirror {{ barman_dir }}/$BARMAN_SERVER {{ mc_bucket }}/barman"
+post_backup_script = "{{ exec_dir }}/mc --config-dir {{ barman_dir }}/.mc mirror --overwrite {{ barman_dir }}/$BARMAN_SERVER {{ mc_bucket }}/barman"
