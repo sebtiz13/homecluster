@@ -31,6 +31,15 @@ externalSecrets:
               region: "{{ .region }}"
               aws_access_key_id: "{{ .accessKey }}"
               aws_secret_access_key: "{{ .secretKey }}"`}}
+            registry: |-
+              {{`s3:
+                v4auth: true
+                regionendpoint: "{{ .endpoint }}"
+                pathstyle: true
+                region: "{{ .region }}"
+                bucket: "{{ .bucket_registry }}"
+                accesskey: "{{ .accessKey }}"
+                secretkey: "{{ .secretKey }}"`}}
       dataFrom:
         - extract:
             key: salamandre/gitlab/s3
@@ -280,6 +289,9 @@ gitlab:
     hpa:
       minReplicas: 1
       maxReplicas: 10
+    storage:
+      secret: gitlab-storage
+      key: registry
     resources:
       requests:
         cpu: 10m
