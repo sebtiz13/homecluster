@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
     chart: adguard-proxy
-    targetRevision: 1.0.0
+    targetRevision: 1.0.1
     helm:
       releaseName: adguard-proxy
       values: |
