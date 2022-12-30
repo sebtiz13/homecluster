@@ -214,6 +214,10 @@ gitlab:
         limits:
           cpu: 1000m
           memory: 2Gi
+      ingress:
+        tls:
+          enabled: true
+          secretName: pages-{{ include "ingress.tls.secretName" . }}
     gitlab-shell:
       minReplicas: 1
       maxReplicas: 2
