@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
     chart: cert-manager
-    targetRevision: 1.0.1
+    targetRevision: 1.0.2
     plugin:
       env:
         - name: HELM_RELEASE_NAME
@@ -30,18 +30,6 @@ spec:
                   memory: 32Mi
             cert-manager-webhook-ovh:
               groupName: sebtiz13.fr
-              issuers:
-              - create: true
-                email: contact@sebtiz13.fr
-                kind: Issuer
-                name: sebtiz13-fr-issuer
-                namespace: cert-manager
-                ovhAuthentication:
-                  applicationKey: <path:salamandre/data/cert-manager/ovh#applicationKey>
-                  applicationSecret: <path:salamandre/data/cert-manager/ovh#applicationSecret>
-                  consumerKey: <path:salamandre/data/cert-manager/ovh#consumerKey>
-                ovhEndpointName: ovh-eu
-                server: https://acme-v02.api.letsencrypt.org/directory
               resources:
                 limits:
                   cpu: 200m
@@ -82,6 +70,19 @@ spec:
                   kubed.appscode.com/sync: kubernetes.io/metadata.name=adguard
                 labels:
                   domain: dns-sebtiz13-fr
+            ovhIssuers:
+            - create: true
+              email: contact@sebtiz13.fr
+              kind: Issuer
+              name: sebtiz13-fr-issuer
+              namespace: cert-manager
+              ovhAuthentication:
+                applicationKey: <path:salamandre/data/cert-manager/ovh#applicationKey>
+                applicationSecret: <path:salamandre/data/cert-manager/ovh#applicationSecret>
+                consumerKey: <path:salamandre/data/cert-manager/ovh#consumerKey>
+              ovhEndpointName: ovh-eu
+              preferredChain: ISRG Root X1
+              server: https://acme-v02.api.letsencrypt.org/directory
   destination:
     name: in-cluster
     namespace: cert-manager
