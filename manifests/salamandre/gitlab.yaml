@@ -128,6 +128,10 @@ spec:
                       cpu: 75m
                       memory: 100Mi
                 gitlab-pages:
+                  ingress:
+                    tls:
+                      enabled: true
+                      secretName: pages-sebtiz13-fr-tls
                   resources:
                     limits:
                       cpu: 1000m

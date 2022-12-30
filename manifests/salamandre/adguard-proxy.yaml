@@ -39,7 +39,7 @@ spec:
           - hosts:
             - dns.sebtiz13.fr
             - '*.dns.sebtiz13.fr'
-            secretName: sebtiz13-fr-tls
+            secretName: dns-sebtiz13-fr-tls
   destination:
     name: in-cluster
     namespace: adguard
