@@ -44,3 +44,13 @@ certificates:
         kubed.appscode.com/sync: "kubernetes.io/metadata.name=gitlab"
       labels:
         domain: "pages-{{ $domainName }}"
+  - name: "dns-{{ $domainName }}"
+    issuerName: {{ $domainName }}-issuer
+    dnsNames:
+      - "dns.{{ .Values.baseDomain }}"
+      - "*.dns.{{ .Values.baseDomain }}"
+    secretTemplate:
+      annotations:
+        kubed.appscode.com/sync: "kubernetes.io/metadata.name=adguard"
+      labels:
+        domain: "dns-{{ $domainName }}"
