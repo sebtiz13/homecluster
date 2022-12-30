@@ -60,3 +60,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Returns true if ovhAuthentication is correctly set.
+*/}}
+{{- define "cert-manager-webhook-ovh.isOvhAuthenticationAvail" }}
+  {{- if . }}
+    {{- if and (.consumerKey) (.applicationKey) (.applicationSecret) }}
+      {{- eq "true" "true" }}
+    {{- end }}
+  {{- end }}
+{{- end }}

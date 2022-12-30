@@ -1,0 +1,58 @@
+{{- range $.Values.ovhIssuers }}
+  {{- if .create }}
+    {{- if or (and (.ovhAuthentication) (.ovhAuthenticationRef)) (and (not .ovhAuthentication) (not .ovhAuthenticationRef)) }}
+      {{ fail "For each issuer you wish to create, you need to define either 'ovhAuthentication' or 'ovhAuthenticationRef'" }}
+    {{- end }}
+apiVersion: cert-manager.io/v1
+kind: {{ .kind }}
+metadata:
+  labels:
+    {{- include "cert-manager.labels" $ | nindent 4 }}
+  name: {{ .name | quote }}
+  {{- if eq .kind "Issuer" }}
+  namespace: {{ .namespace | quote }}
+  {{- end }}
+spec:
+  acme:
+    server: {{ .acmeServerUrl | default "https://acme-v02.api.letsencrypt.org/directory" | quote }}
+    {{- if .email }}
+    email: {{ .email | quote }}
+    {{- end}}
+    privateKeySecretRef:
+      name: {{ printf "%s-account-key" .name | quote }}
+    {{- if .preferredChain }}
+    preferredChain: {{ .preferredChain | quote }}
+    {{- end}}
+    solvers:
+      - dns01:
+          cnameStrategy: {{ .cnameStrategy | default "None" | quote }}
+          webhook:
+            solverName: ovh
+            groupName: {{ index $.Values "cert-manager-webhook-ovh" "groupName" | quote }}
+            config:
+              endpoint: {{ .ovhEndpointName | quote }}
+              {{- if eq (include "cert-manager-webhook-ovh.isOvhAuthenticationAvail" .ovhAuthentication) "true" }}
+              applicationKeyRef:
+                name: {{ printf "%s-ovh-credentials" .name }}
+                key: applicationKey
+              applicationSecretRef:
+                name: {{ printf "%s-ovh-credentials" .name }}
+                key: applicationSecret
+              consumerKeyRef:
+                name: {{ printf "%s-ovh-credentials" .name }}
+                key: consumerKey
+              {{- end }}
+              {{- if eq (include "cert-manager-webhook-ovh.isOvhAuthenticationRefAvail" .ovhAuthenticationRef) "true" }}
+              applicationKeyRef:
+                name: {{ .ovhAuthenticationRef.applicationKeyRef.name }}
+                key: {{ .ovhAuthenticationRef.applicationKeyRef.key }}
+              applicationSecretRef:
+                name: {{ .ovhAuthenticationRef.applicationSecretRef.name }}
+                key: {{ .ovhAuthenticationRef.applicationSecretRef.key }}
+              consumerKeyRef:
+                name: {{ .ovhAuthenticationRef.consumerKeyRef.name }}
+                key: {{ .ovhAuthenticationRef.consumerKeyRef.key }}
+              {{- end }}
+---
+  {{- end }}{{/* end if .create */}}
+{{- end }}{{/* end range */}}

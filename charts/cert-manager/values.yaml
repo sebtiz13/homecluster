@@ -6,6 +6,9 @@ cert-manager-webhook-ovh:
 cert-manager:
   fullnameOverride: cert-manager
 
+# Same as https://github.com/aureq/cert-manager-webhook-ovh/blob/main/charts/cert-manager-webhook-ovh/values.yaml#L15 but with additional `preferredChain` props
+ovhIssuers: []
+
 # Refer to https://cert-manager.io/docs/usage/certificate/ for more details to options
 certificates:
   #* Examples
