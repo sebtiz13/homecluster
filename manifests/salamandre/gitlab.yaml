@@ -56,6 +56,15 @@ spec:
                         region: "{{ .region }}"
                         aws_access_key_id: "{{ .accessKey }}"
                         aws_secret_access_key: "{{ .secretKey }}"
+                      registry: |-
+                        s3:
+                          v4auth: true
+                          regionendpoint: "{{ .endpoint }}"
+                          pathstyle: true
+                          region: "{{ .region }}"
+                          bucket: "{{ .bucket_registry }}"
+                          accesskey: "{{ .accessKey }}"
+                          secretkey: "{{ .secretKey }}"
                       secretkey: '{{ .secretkey }}'
                     type: Opaque
               - dataFrom:
@@ -325,6 +334,9 @@ spec:
                   requests:
                     cpu: 10m
                     memory: 32Mi
+                storage:
+                  key: registry
+                  secret: gitlab-storage
               resources:
                 limits:
                   cpu: 500m

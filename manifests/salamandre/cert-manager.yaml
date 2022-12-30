@@ -72,6 +72,16 @@ spec:
                   kubed.appscode.com/sync: kubernetes.io/metadata.name=gitlab
                 labels:
                   domain: pages-sebtiz13-fr
+            - dnsNames:
+              - dns.sebtiz13.fr
+              - '*.dns.sebtiz13.fr'
+              issuerName: sebtiz13-fr-issuer
+              name: dns-sebtiz13-fr
+              secretTemplate:
+                annotations:
+                  kubed.appscode.com/sync: kubernetes.io/metadata.name=adguard
+                labels:
+                  domain: dns-sebtiz13-fr
   destination:
     name: in-cluster
     namespace: cert-manager
