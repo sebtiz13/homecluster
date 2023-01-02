@@ -177,10 +177,12 @@ configs:
   repositories:
     sebtiz13-repo:
       url: {{ printf "https://gitlab.com/api/v4/projects/%s/packages/helm/stable" .Values.gitlabProjectID | quote  }}
+      name: sebtiz13-homecluster
       type: helm
     {{- if ne .Values.environment "prod" }}
     sebtiz13-devel-repo:
       url: {{ printf "https://gitlab.com/api/v4/projects/%s/packages/helm/devel" .Values.gitlabProjectID | quote }}
+      name: sebtiz13-homecluster-dev
       type: helm
     {{- end -}}
 
