@@ -54,3 +54,49 @@ certificates:
         kubed.appscode.com/sync: "kubernetes.io/metadata.name=adguard"
       labels:
         domain: "dns-{{ $domainName }}"
+
+extraObjects:
+  - apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-prod
+    spec:
+      acme:
+        # The ACME server URL
+        server: https://acme-v02.api.letsencrypt.org/directory
+        # Email address used for ACME registration
+        email: contact@sebtiz13.fr
+        # Name of a secret used to store the ACME account private key
+        privateKeySecretRef:
+          name: letsencrypt-prod
+        preferredChain: "ISRG Root X1"
+        # Enable the HTTP-01 challenge provider
+        solvers:
+        - http01:
+            ingress:
+              ingressTemplate:
+                metadata:
+                  annotations:
+                    traefik.ingress.kubernetes.io/router.entrypoints: web
+  - apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-staging
+    spec:
+      acme:
+        # The ACME server URL
+        server: https://acme-staging-v02.api.letsencrypt.org/directory
+        # Email address used for ACME registration
+        email: sebtiz13@gmail.com
+        # Name of a secret used to store the ACME account private key
+        privateKeySecretRef:
+          name: letsencrypt-staging
+        preferredChain: "ISRG Root X1"
+        # Enable the HTTP-01 challenge provider
+        solvers:
+        - http01:
+            ingress:
+              ingressTemplate:
+                metadata:
+                  annotations:
+                    traefik.ingress.kubernetes.io/router.entrypoints: web
