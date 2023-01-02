@@ -29,6 +29,7 @@ spec:
                 server.insecure: true
               repositories:
                 sebtiz13-repo:
+                  name: sebtiz13-homecluster
                   type: helm
                   url: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
               secret:
