@@ -6,6 +6,7 @@ domains:
   - sso.{{ root_domain }} # Keycloak
   - s3.{{ root_domain }} # Minio
   - git.{{ root_domain }} # GitLab
+  - kas.{{ root_domain }} # GitLab
   - bag.{{ root_domain }} # Wallabag
 
 # TODO: Until ArgoCD release https://github.com/argoproj/argo-cd/issues/7799
