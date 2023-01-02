@@ -2,12 +2,12 @@ nameOverride: null
 
 project: project
 destination:
-  server: "https://kubernetes.default.svc"
+  server: salamandre
   namespace: default
 source:
-  repoURL: null
-  chart: null
-  targetRevision: null
+  repoURL: ""
+  chart: ""
+  targetRevision: ""
 syncPolicy:
   automated:
     {}

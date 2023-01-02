@@ -12,10 +12,7 @@ matches() {
 for FOLDER_PATH in $(git diff --dirstat=files,0 HEAD~1 -- charts | sed 's/^[ 0-9.]\+% //g' | cut -d'/' -f 2 | sort -u)
 do
   if [ -f "charts/$FOLDER_PATH/Chart.yaml" ]; then
-    # skip charts/common-app
-    if ! matches "$FOLDER_PATH" "common-app.*"; then
-      # Run script
-      $SCRIPT "charts/$FOLDER_PATH"
-    fi
+    # Run script
+    $SCRIPT "charts/$FOLDER_PATH"
   fi
 done
