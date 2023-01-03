@@ -53,3 +53,9 @@
     dest: /etc/profile.d/postgres.sh
     content: "export PGDATA=/var/lib/postgresql/{{ postgresql_version }}/main"
     mode: "u=rwx,g=rx,o=rx"
+
+- name: Create script for new user
+  ansible.builtin.copy:
+    dest: "/usr/bin/create-db-user"
+    src: create-user.sh
+    mode: "u=rwx,g=rx,o=rx"
