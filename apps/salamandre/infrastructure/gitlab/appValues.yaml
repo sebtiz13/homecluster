@@ -27,14 +27,14 @@ externalSecrets:
               {{`provider: AWS
               aws_signature_version: 4
               path_style: true
-              endpoint: "{{ .endpoint }}"
+              endpoint: "http://{{ .endpoint }}"
               region: "{{ .region }}"
               aws_access_key_id: "{{ .accessKey }}"
               aws_secret_access_key: "{{ .secretKey }}"`}}
             registry: |-
               {{`s3:
                 v4auth: true
-                regionendpoint: "{{ .endpoint }}"
+                regionendpoint: "http://{{ .endpoint }}"
                 pathstyle: true
                 region: "{{ .region }}"
                 bucket: "{{ .bucket_registry }}"

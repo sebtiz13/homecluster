@@ -25,7 +25,7 @@
       # * Dependencies
       - path: gitlab/s3
         data:
-          endpoint: "http://{{ apps_minio.endpoint }}"
+          endpoint: "{{ apps_minio.endpoint }}"
           region: "{{ apps_minio.region }}"
           accessKey: gitlab
           secretKey: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
