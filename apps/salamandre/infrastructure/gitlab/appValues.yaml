@@ -21,8 +21,8 @@ externalSecrets:
         template:
           type: Opaque
           data:
-            accesskey:  '{{`{{ .accesskey }}`}}'
-            secretkey:  '{{`{{ .secretkey }}`}}'
+            accesskey:  '{{`{{ .accessKey }}`}}'
+            secretkey:  '{{`{{ .secretKey }}`}}'
             connection: |-
               {{`provider: AWS
               aws_signature_version: 4
