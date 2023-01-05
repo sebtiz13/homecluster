@@ -7,6 +7,7 @@
     apps_minio:
       _manifest: "{{ manifest }}"
       endpoint: "{{ release_name }}.{{ namespace }}.svc.cluster.local:9000"
+      host: "{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
       region: "minio"
 
 - name: Deploy Minio application and secrets
@@ -26,6 +27,7 @@
       - path: gitlab/s3
         data:
           endpoint: "{{ apps_minio.endpoint }}"
+          endpoint_host: "{{ apps_minio.host }}"
           region: "{{ apps_minio.region }}"
           accessKey: gitlab
           secretKey: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"

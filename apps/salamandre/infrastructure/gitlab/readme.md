@@ -20,6 +20,7 @@ The secrets keys need to exist for deploy the app
 ### `gitlab/s3`
 
 - `endpoint`: The endpoint domain
+- `endpoint_host`: The endpoint host (external fqdn, eg. `s3.domain.tld`)
 - `region`: The region of buckets
 - `accessKey`: The access key
 - `accessSecret`: The access secret

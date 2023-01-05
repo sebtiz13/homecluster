@@ -34,7 +34,7 @@ externalSecrets:
             registry: |-
               {{`s3:
                 v4auth: true
-                regionendpoint: "http://{{ .endpoint }}"
+                regionendpoint: "http://{{ .endpoint_host }}"
                 pathstyle: true
                 region: "{{ .region }}"
                 bucket: "{{ .bucket_registry }}"
