@@ -61,15 +61,16 @@ nextcloud_apps:
     - admin_audit # Admin audit
     - twofactor_totp # 2FA (TOTP)
     - richdocuments # Collabora
-    - mail # Mai
-    - bookmarks # Bookmark
+    - mail # Mail
+    - bookmarks # Bookmarks
     - bruteforcesettings # Brute-force settings
-    - contacts # Contact
+    - contacts # Contacts
     - drawio # Draw.io
     - external # External sites
     - metadata # Metadat
     - notes # Note
     - quota_warning # Quota warning
     - ransomware_protection # Ransomware protection
-    - files_retention # Retentio
-    - calendar # Calenda
+    - files_retention # Retention
+    - calendar # Calendar
+    - previewgenerator # Preview Generator (cron task to generate preview)

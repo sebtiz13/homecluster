@@ -50,7 +50,7 @@ nextcloud:
     nextcloudData:
       enabled: true
       storageClass: openebs-zfspv
-      size: 50Gi
+      size: 500Gi
 
   metrics:
     # fix token (prevent diff on ArgoCD)
