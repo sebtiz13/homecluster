@@ -3,6 +3,15 @@
     state: directory
     path: "{{ exec_dir }}"
     mode: "u=rwx,g=rx,o=rx"
+
+- name: Create folder for backup task log
+  ansible.builtin.file:
+    state: directory
+    path: /var/log/backup-cluster
+    owner: backup
+    group: backup
+    mode: "u=rwx,g=rwx,o=rx"
+
 - name: Create folder for backup script
   ansible.builtin.file:
     state: directory
@@ -11,11 +20,28 @@
     group: backup
     mode: "u=rwx,g=rx,o=rx"
 
-- name: Download CLI
-  ansible.builtin.get_url:
-    url: https://dl.min.io/client/mc/release/linux-amd64/mc
-    dest: "{{ exec_dir }}/mc"
-    mode: "u=rwx,g=rx,o=rx"
+- name: Allow snapshot and send on ZFS pool for backup user
+  ansible.builtin.command: zfs allow backup snapshot,send {{ zfs_pool.name | default('data') }}
+  register: result_allow
+  changed_when: false
+  failed_when: result_allow.stderr != ''
+
+- name: Configure mail to root for backup cron
+  community.general.cronvar:
+    user: backup
+    cron_file: backup-cluster
+    name: MAILTO
+    value: root
+
+- name: Configure cron task for backup
+  ansible.builtin.cron:
+    user: backup
+    cron_file: backup-cluster
+    name: backup cluster
+    job: '[ -x {{ exec_dir }}/backup.sh ] && {{ exec_dir }}/backup.sh > /var/log/backup-cluster/backup-$(date +\%U_\%Y-\%m-\%d_\%H-\%M-\%S).log 2>&1'
+    minute: "0"
+    hour: "2"
+    disabled: "{{ env == 'dev' }}"
 
 - name: Upload backup script
   vars:

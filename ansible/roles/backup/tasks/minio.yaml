@@ -1,3 +1,9 @@
+- name: Download MinIO client
+  ansible.builtin.get_url:
+    url: https://dl.min.io/client/mc/release/linux-amd64/mc
+    dest: "{{ exec_dir }}/mc"
+    mode: "u=rwx,g=rx,o=rx"
+
 - name: Create folder for MinIO config
   ansible.builtin.file:
     state: directory
@@ -15,27 +21,3 @@
     dest: "{{ exec_dir }}/.mc/config.json"
     src: mc_config.json.j2
     mode: "0640" # u=rw,g=r
-
-- name: Create folder for backup task log
-  ansible.builtin.file:
-    state: directory
-    path: /var/log/backup-cluster
-    owner: backup
-    group: backup
-    mode: "u=rwx,g=rwx,o=rx"
-
-- name: Configure mail to root for backup cron
-  community.general.cronvar:
-    user: backup
-    cron_file: backup-cluster
-    name: MAILTO
-    value: root
-- name: Configure cron task for backup
-  ansible.builtin.cron:
-    user: backup
-    cron_file: backup-cluster
-    name: backup cluster
-    job: '[ -x {{ exec_dir }}/backup.sh ] && {{ exec_dir }}/backup.sh > /var/log/backup-cluster/backup-$(date +\%U_\%Y-\%m-\%d_\%H-\%M-\%S).log'
-    minute: "0"
-    hour: "2"
-    disabled: "{{ env == 'dev' }}"
