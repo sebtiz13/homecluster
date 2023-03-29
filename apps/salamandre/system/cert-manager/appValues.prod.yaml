@@ -1,6 +1,6 @@
 ovhIssuers:
   - name: {{ .Values.baseDomain | replace "." "-" }}-issuer
-    kind: ClusterIssuer
+    kind: Issuer
     create: true
     namespace: {{ .Values.destination.namespace }}
     server: https://acme-v02.api.letsencrypt.org/directory
