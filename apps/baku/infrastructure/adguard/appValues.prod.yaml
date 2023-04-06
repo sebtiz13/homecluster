@@ -37,13 +37,13 @@ bootstrapConfig:
     server_name: baku.home
 
   dhcp:
-    enabled: true
+    enabled: false
     interface_name: enp2s0
     dhcpv4:
       gateway_ip: 10.0.0.1
-      subnet_mask: 255.255.0.0
-      range_start: 10.0.1.1
-      range_end: 10.0.1.254
+      subnet_mask: 255.255.255.0
+      range_start: 10.0.0.100
+      range_end: 10.0.0.199
 
   user_rules:
     - '# Spotify'
