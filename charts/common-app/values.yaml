@@ -9,6 +9,8 @@ source:
   chart: ""
   targetRevision: ""
 syncPolicy:
+  # Create an namespace with "domain" label
+  createLabeledNamespace: false
   automated:
     {}
     # prune: true
@@ -24,6 +26,10 @@ syncPolicy:
     # failOnSharedResource: true
     # respectIgnoreDifferences: true
     # createNamespace: true
+  managedNamespaceMetadata:
+    {}
+    # annotations:
+    #   abc: 123
 
 plugin: "helm"
 appValues: ""

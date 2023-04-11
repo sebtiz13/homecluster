@@ -12,6 +12,7 @@ destination:
   namespace: gitlab
 
 syncPolicy:
+  createLabeledNamespace: true
   automated:
     prune: true
     selfHeal: true

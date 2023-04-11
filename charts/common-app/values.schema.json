@@ -82,6 +82,22 @@
               "type": "boolean"
             }
           }
+        },
+        "createLabeledNamespace": {
+          "description": "Create namespace with \"domain\" label",
+          "type": "boolean"
+        },
+        "managedNamespaceMetadata": {
+          "description": "Ref: https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/#create-namespace",
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "object"
+            },
+            "annotations": {
+              "type": "object"
+            }
+          }
         }
       }
     },

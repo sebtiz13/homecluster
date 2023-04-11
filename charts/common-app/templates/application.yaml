@@ -20,15 +20,15 @@ spec:
       {{- if or .Values.helmArgs $values }}
       env:
         {{- if .Values.releaseName }}
-        - name: HELM_RELEASE_NAME
+        - name: helm_release_name
           value: {{ .Values.releaseName }}
         {{- end }}
         {{- if .Values.helmArgs }}
-        - name: HELM_ARGS
+        - name: helm_args
           value: {{ .Values.helmArgs }}
         {{- end }}
         {{- if $values }}
-        - name: HELM_VALUES
+        - name: helm_values
           value: |
             {{- $values | nindent 12 }}
         {{- end }}
@@ -54,11 +54,28 @@ spec:
     name: {{ .Values.destination.server }}
     {{- end }}
     namespace: {{ .Values.destination.namespace }}
-  {{- if and .Values.syncPolicy ( or .Values.syncPolicy.automated .Values.syncPolicy.options ) }}
+  {{- if and .Values.syncPolicy ( or .Values.syncPolicy.automated .Values.syncPolicy.createLabeledNamespace .Values.syncPolicy.managedNamespaceMetadata .Values.syncPolicy.options ) }}
   {{- with .Values.syncPolicy }}
   syncPolicy:
     {{- if .automated }}
     automated: {{ .automated | toYaml | nindent 6 }}
+    {{- end }}
+    {{- if or (and .managedNamespaceMetadata .options.createLabeledNamespace) .createLabeledNamespace }}
+    managedNamespaceMetadata:
+      {{- if or .managedNamespaceMetadata.labels .createLabeledNamespace }}
+      labels:
+        {{- if .createLabeledNamespace }}
+        domain: {{ $.Values.baseDomain | quote -}}
+        {{- end }}
+        {{- range $key, $val := .managedNamespaceMetadata.labels }}
+        {{- if ne $key "domain" }}
+        {{ $key }}: {{ $val | quote -}}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- if .managedNamespaceMetadata.annotations }}
+      annotations: {{ .managedNamespaceMetadata.annotations | toYaml | nindent 8 }}
+      {{- end }}
     {{- end }}
     {{- include "common-app.syncOptions" . | indent 4 }}
   {{- end }}

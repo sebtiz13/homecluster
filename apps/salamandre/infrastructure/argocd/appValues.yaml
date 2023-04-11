@@ -15,8 +15,8 @@ spec:
       - sh
       - -c
       - |
-        echo "$$ARGOCD_ENV_HELM_VALUES" > extra.values.yaml &&
-        helm template $${ARGOCD_ENV_HELM_RELEASE_NAME:-$${ARGOCD_APP_NAME}} --include-crds -n $$ARGOCD_APP_NAMESPACE $$ARGOCD_ENV_HELM_ARGS -f extra.values.yaml . |
+        echo "$$ARGOCD_ENV_helm_values" > extra.values.yaml &&
+        helm template $${ARGOCD_ENV_helm_release_name:-$${ARGOCD_APP_NAME}} --include-crds -n $$ARGOCD_APP_NAMESPACE $$ARGOCD_ENV_helm_args -f extra.values.yaml . |
         argocd-vault-plugin generate -
   discover:
     find:

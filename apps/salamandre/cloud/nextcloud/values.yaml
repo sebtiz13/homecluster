@@ -12,6 +12,7 @@ destination:
   namespace: nextcloud
 
 syncPolicy:
+  createLabeledNamespace: true
   automated:
     prune: true
     selfHeal: true

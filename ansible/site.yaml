@@ -4,12 +4,6 @@
   roles:
     - role: common
       become: true
-    # TODO: Until ArgoCD release https://github.com/argoproj/argo-cd/issues/7799
-    - role: labeled_namespace
-      connection: local
-      tags: kubernetes
-      vars:
-        domain: "{{ root_domain }}"
   tasks:
     - name: Load applications admin passwords
       ansible.builtin.include_vars:

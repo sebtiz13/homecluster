@@ -27,7 +27,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Sync options
 */}}
 {{- define "common-app.syncOptions" }}
-{{- if .options }}
+{{- if or .options .createLabeledNamespace }}
 syncOptions:
   {{- if .options.applyOutOfSyncOnly }}
   - ApplyOutOfSyncOnly=true
@@ -51,7 +51,7 @@ syncOptions:
   {{- if .options.respectIgnoreDifferences }}
   - RespectIgnoreDifferences=true
   {{- end }}
-  {{- if .options.createNamespace }}
+  {{- if or .options.createNamespace .createLabeledNamespace }}
   - CreateNamespace=true
   {{- end }}
 {{- end }}

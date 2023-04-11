@@ -12,6 +12,18 @@
       host: "{{ host }}"
     argocd_api_url: "{{ host }}/api/v1"
 
+- name: Create application namespace
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ apps_argocd.namespace }}"
+        labels:
+          domain: "{{ root_domain }}"
+
 - name: Add chart repo
   kubernetes.core.helm_repository:
     name: argo-cd

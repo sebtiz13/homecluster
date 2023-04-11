@@ -6,23 +6,24 @@ ingress:
 source:
   repoURL: https://argoproj.github.io/argo-helm
   chart: argo-cd
-  targetRevision: 5.16.7
+  targetRevision: 5.28.1
 
 destination:
   namespace: argocd
 
 syncPolicy:
+  createLabeledNamespace: true # Initially created by ansible
   automated:
     prune: true
     selfHeal: true
 
 # App values
-argocdVersion: 2.5.5
+argocdVersion: 2.6.7
 gitlabProjectID: '40446088'
 vaultURL: http://vault-internal.vault.svc:8200
 
 toolsVersion:
-  avp: "1.13.1"
+  avp: "1.14.0"
   vault: "1.12.2"
 
 baseOidcConfig:
