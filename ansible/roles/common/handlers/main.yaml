@@ -22,3 +22,4 @@
 
 - name: Update trusted ca
   ansible.builtin.command: update-ca-certificates
+  changed_when: true

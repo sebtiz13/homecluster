@@ -38,11 +38,11 @@
     helm repo update argo-cd > /dev/null
     helm search repo '{{ chart }}' --version '{{ version }}' -o json | jq -r '.[0].app_version'
   changed_when: false
-  register: argocd_appVersion
+  register: argocd_app_version
 
 - name: Download CRDs
   vars:
-    base_url: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_appVersion.stdout }}/manifests/crds"
+    base_url: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_app_version.stdout }}/manifests/crds"
   ansible.builtin.uri:
     url: "{{ base_url }}/{{ item }}-crd.yaml"
     method: GET

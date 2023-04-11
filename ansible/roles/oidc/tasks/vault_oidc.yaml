@@ -66,7 +66,7 @@
 
 - name: Create and configure Vault identity groups
   vars:
-    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth') }}"
+    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', url=ansible_hashi_vault_addr) }}"
     mount_accessor: "{{ auth_engines['oidc/'].accessor }}"
   block:
     - name: Create Vault identity groups
@@ -91,7 +91,7 @@
       loop_control:
         label: "{{ item.name }}"
 
-    - name: Create Vault identity group alias
+    - name: Create Vault identity group alias # noqa: no-handler
       when: item is changed
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
