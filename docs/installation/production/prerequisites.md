@@ -13,6 +13,7 @@
   - [Make](https://www.gnu.org/software/make/)
   - [Helm](https://helm.sh/)
   - [Ansible](https://www.ansible.com/)
+    - [jq](https://stedolan.github.io/jq/)
     - [yq](https://github.com/mikefarah/yq/)
 
 ### Servers
