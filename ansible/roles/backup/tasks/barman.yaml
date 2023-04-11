@@ -45,6 +45,7 @@
     mode: "0700" # u=rwx
 - name: Link MinIO config to barman
   ansible.builtin.file:
+    state: link
     src: "{{ exec_dir }}/.mc/config.json"
     dest: "{{ barman_dir }}/.mc/config.json"
     owner: barman
