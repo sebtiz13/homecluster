@@ -11,7 +11,7 @@ spec:
     customResponseHeaders:
       X-Download-Options: noopen
       X-Permitted-Cross-Domain-Policies: none
-      X-Robots-Tag: none
+      X-Robots-Tag: 'noindex, nofollow'
       X-Powered-By: ''
       Server: ''
     accessControlMaxAge: 100
@@ -19,8 +19,7 @@ spec:
       - X-Forwarded-Host
     accessControlAllowHeaders:
       - X-Forwarded-For
-    {{/* # HSTS (useless ?)
     stsPreload: true
     forceSTSHeader: true
     stsIncludeSubdomains: true
-    stsSeconds: 31536000 */}}
+    stsSeconds: 31536000

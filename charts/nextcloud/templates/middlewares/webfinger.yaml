@@ -5,5 +5,5 @@ metadata:
 spec:
   redirectRegex:
     regex: https?://([^/]*)(/.well-known[^#]*)
-    replacement: https://${1}/index.php$${2}
+    replacement: https://${1}/index.php${2}
     permanent: true
