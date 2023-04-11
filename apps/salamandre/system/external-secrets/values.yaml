@@ -3,7 +3,7 @@ plugin: helm
 source:
   repoURL: https://charts.external-secrets.io
   chart: external-secrets
-  targetRevision: 0.7.0
+  targetRevision: 0.8.1
 
 destination:
   namespace: external-secrets

@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://codecentric.github.io/helm-charts
   chart: mailhog
-  targetRevision: 5.2.2
+  targetRevision: 5.2.3
 
 destination:
   namespace: mailhog
