@@ -32,10 +32,10 @@ nextcloud_apps:
     - contacts # Contacts
     - drawio # Draw.io
     - external # External sites
-    - metadata # Metadat
+    - metadata # Metadata
     - notes # Note
     - quota_warning # Quota warning
-    - ransomware_protection # Ransomware protection
+    # - ransomware_protection # Ransomware protection # TODO: wait update for nextcloud 26
     - files_retention # Retention
     - calendar # Calendar
     - previewgenerator # Preview Generator (cron task to generate preview)
