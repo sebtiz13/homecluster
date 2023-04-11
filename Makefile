@@ -16,16 +16,16 @@ init: ## Init environment
 	cd $(ANSIBLE_DIR); ansible-galaxy install -r requirements.yaml
 	cd $(ANSIBLE_DIR); pip install -r requirements.txt
 	mkdir -p ./out/kubeconfig
-	mkdir -p ./out/credentials/{dev,prod}
+	mkdir -p ./out/credentials/{salamandre,baku}/{dev,prod}
 	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
 
 cleanup: ## Cleanup development environment
 	echo "Clean development environment..."
 	cd $(VAGRANT_DIR); vagrant destroy || true
 	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -uninstall
-	rm -r $(VAGRANT_DIR)/.vagrant/{ca,manifests}
-	rm -r ./out/kubeconfig/*.dev.yaml
-	rm -r ./out/credentials/dev
+	rm -rf $(VAGRANT_DIR)/.vagrant/{ca,manifests}
+	rm -rf ./out/kubeconfig/*.dev.yaml
+	rm -rf ./out/credentials/{salamandre,baku}/dev
 
 cluster: ## All-in-one command for cluster deployment
 ifndef DOMAIN_NAME
