@@ -49,6 +49,11 @@ postgresql:
 
 keycloakConfigCli:
   enabled: true
+  # This fix wrong "keycloak-config-cli" version
+  command:
+    - java
+    - -jar
+    - /opt/bitnami/keycloak-config-cli/keycloak-config-cli.jar
 
   configuration:
     realm1.yaml: |
