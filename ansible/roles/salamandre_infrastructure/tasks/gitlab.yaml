@@ -18,6 +18,18 @@
     username: gitlab
     password: "{{ apps_gitlab._db_passowrd }}"
 
+- name: Create application namespace
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ apps_gitlab.namespace }}"
+        labels:
+          domain: "{{ root_domain }}"
+
 - name: Store root password
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig.dest }}"
