@@ -22,7 +22,6 @@ bootstrapConfig:
       passowrd: <path:baku/data/adguard/auth#adminPassword>
 
   dns:
-    querylog_interval: 24h
     upstream_dns:
       - https://dns10.quad9.net/dns-query
       - https://dns.cloudflare.com/dns-query
@@ -33,3 +32,6 @@ bootstrapConfig:
       - 2620:fe::fe:10
       - 1.1.1.1
       - 1.0.0.1
+
+  querylog:
+    interval: 24h

@@ -173,15 +173,13 @@ bootstrapConfig:
   debug_pprof: false
   web_session_ttl: 720
 
+  statistics:
+    interval: 1
+
   dns:
     bind_hosts:
       - 0.0.0.0
     port: 53
-    statistics_interval: 1
-    querylog_enabled: true
-    querylog_file_enabled: true
-    querylog_interval: 2160h
-    querylog_size_memory: 1000
     anonymize_client_ip: false
     protection_enabled: true
     blocking_mode: default
@@ -220,7 +218,10 @@ bootstrapConfig:
     bogus_nxdomain: []
     aaaa_disabled: false
     enable_dnssec: false
-    edns_client_subnet: false
+    edns_client_subnet:
+      enabled: false
+      use_custom: false
+      custom_ip: ''
     max_goroutines: 300
     handle_ddr: true
     ipset: []
@@ -258,6 +259,12 @@ bootstrapConfig:
     certificate_path: ""
     private_key_path: ""
     strict_sni_check: false
+
+  querylog:
+    enabled: true
+    file_enabled: true
+    interval: 2160h
+    size_memory: 1000
 
   filters:
     - enabled: true
@@ -312,4 +319,4 @@ bootstrapConfig:
     user: ""
     rlimit_nofile: 0
 
-  schema_version: 14
+  schema_version: 17
