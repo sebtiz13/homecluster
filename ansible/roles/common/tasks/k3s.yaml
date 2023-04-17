@@ -24,6 +24,7 @@
 
 - name: Retrieve wanted k3s version
   when:
+    - k3s_releases is not skipped
     - k3s_releases is succeeded
     - k3s_releases.status == 200
   vars:
