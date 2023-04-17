@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://argoproj.github.io/argo-helm
   chart: argo-cd
-  targetRevision: 5.28.1
+  targetRevision: 5.29.1
 
 destination:
   namespace: argocd
@@ -24,7 +24,7 @@ vaultURL: http://vault-internal.vault.svc:8200
 
 toolsVersion:
   avp: "1.14.0"
-  vault: "1.12.2"
+  vault: "1.13.1"
 
 baseOidcConfig:
   name: Keycloak
