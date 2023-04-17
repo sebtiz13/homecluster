@@ -174,7 +174,7 @@ bootstrapConfig:
   web_session_ttl: 720
 
   statistics:
-    interval: 1
+    interval: 24h
 
   dns:
     bind_hosts:
