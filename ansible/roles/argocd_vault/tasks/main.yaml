@@ -2,10 +2,12 @@
   vars:
     ansible_hashi_vault_addr: "{{ hostvars.salamandre.ansible_hashi_vault_addr }}"
     ansible_hashi_vault_token: "{{ hostvars.salamandre.ansible_hashi_vault_token }}"
+  connection: local
   ansible.builtin.import_role:
     name: vault_secrets
 
 - name: Deploy application manifest
+  connection: local
   kubernetes.core.k8s:
     kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
     state: present
@@ -17,6 +19,7 @@
   when:
     - argocd_manifest is not changed
     - vault_secret is changed
+  connection: local
   ansible.builtin.uri:
     url: "{{ hostvars.salamandre.argocd_api_url }}/applications/{{ manifest.metadata.name }}?refresh=hard"
     headers:
@@ -30,8 +33,7 @@
   when:
     - argocd_manifest is not changed
     - vault_secret is changed
-  environment:
-    KUBECONFIG: "{{ hostvars.salamandre.kubeconfig.dest }}"
+  connection: ssh
   ansible.builtin.command: |
     kubectl rollout restart {{ item.kind }}
       --namespace '{{ manifest.spec.destination.namespace }}'
