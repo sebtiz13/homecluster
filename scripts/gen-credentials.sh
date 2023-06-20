@@ -33,12 +33,6 @@ insert_pwd "$FILE" .gitlab "$(randpw 16)"
 insert_pwd "$FILE" .nextcloud "$(randpw 16)"
 insert_pwd "$FILE" .collabora "$(randpw 16)"
 
-# GitLab runner regitration token
-FILE="./out/credentials/salamandre/${ENVIRONMENT}/gitlab-runner-token"
-if [ ! -f "$FILE" ]; then
-  randpw 64 > "$FILE"
-fi
-
 ##
 # Baku credentials
 ##

@@ -5,6 +5,7 @@
 - name: Deploy Gitlab
   tags:
     - minio # Depends on s3
+    - oidc # Require  OIDC
     - gitlab
   ansible.builtin.import_tasks: gitlab.yaml
 

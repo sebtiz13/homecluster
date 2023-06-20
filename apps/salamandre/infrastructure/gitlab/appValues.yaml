@@ -263,8 +263,6 @@ gitlab:
   gitlab-runner:
     replica: 1
     gitlabUrl: {{ printf "http://gitlab-webservice-default.%s.svc:8181" .Values.destination.namespace | quote }}
-    runnerRegistrationToken: <path:salamandre/data/gitlab/runner#registrationToken>
-    unregisterRunners: false
     runners:
       locked: false
       cache:

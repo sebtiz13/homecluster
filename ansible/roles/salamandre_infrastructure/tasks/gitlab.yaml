@@ -52,9 +52,6 @@
           database: gitlab
           user: gitlab
           password: "{{ apps_gitlab._db_passowrd }}"
-      - path: gitlab/runner
-        data:
-          registrationToken: "{{ lookup('file', credentials_folder + '/gitlab-runner-token') }}"
 
 - name: Update GitLab secrets
   when: argocd_refresh is not skipped

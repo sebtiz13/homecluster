@@ -41,10 +41,6 @@ The secrets keys need to exist for deploy the app
 - `clientID`: The client ID
 - `clientSecret`: The client secret
 
-### `gitlab/runner`
-
-- `registrationToken`: The token for auto register runner
-
 ### Dependencies
 
 #### `smtp`
