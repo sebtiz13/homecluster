@@ -28,7 +28,7 @@ step):
   - Username: `root`
   - Password: `yq .minio ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Gitlab:
-  - Username: `admin`
+  - Username: `root`
   - Password: run `yq .gitlab ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Nextcloud:
   - Username: `admin`
