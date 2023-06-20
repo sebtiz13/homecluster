@@ -92,6 +92,7 @@
     # ALways deploy oidc secrets for applications (event if oidc is disabled, this is for argocd vaukt plugin)
     - role: vault_secrets
       vars:
+        validate_certs: false # TODO: add way to wait valid TLS
         secrets:
           - path: argocd/oidc
             data:
