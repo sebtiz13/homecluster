@@ -124,7 +124,7 @@ collabora-code:
   enabled: true
 
   image:
-    tag: 22.05.12.4.1
+    tag: 23.05.0.5.1
 
 imaginary:
   enabled: true
