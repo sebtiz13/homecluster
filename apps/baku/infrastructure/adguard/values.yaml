@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
   chart: adguard
-  targetRevision: 1.1.1
+  targetRevision: 1.1.2
 
 destination:
   namespace: adguard

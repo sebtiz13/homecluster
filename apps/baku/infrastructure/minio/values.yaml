@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://charts.min.io/
   chart: minio
-  targetRevision: 5.0.8
+  targetRevision: 5.0.10
 
 destination:
   namespace: minio

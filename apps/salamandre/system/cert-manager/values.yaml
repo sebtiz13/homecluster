@@ -3,7 +3,7 @@ plugin: argocd-vault-plugin-helm
 source:
   repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
   chart: cert-manager
-  targetRevision: 1.1.0
+  targetRevision: 1.2.0
 
 destination:
   namespace: cert-manager

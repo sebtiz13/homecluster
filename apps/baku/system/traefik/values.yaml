@@ -3,7 +3,7 @@ plugin: helm
 source:
   repoURL: https://traefik.github.io/charts
   chart: traefik
-  targetRevision: 22.1.0
+  targetRevision: 23.1.0
 
 destination:
   namespace: traefik

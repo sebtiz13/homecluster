@@ -3,7 +3,7 @@ plugin: helm
 source:
   repoURL: https://openebs.github.io/zfs-localpv
   chart: zfs-localpv
-  targetRevision: 2.1.0
+  targetRevision: 2.2.0
 
 destination:
   namespace: kube-system

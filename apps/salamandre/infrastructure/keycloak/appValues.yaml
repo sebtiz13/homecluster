@@ -19,9 +19,6 @@ ingress:
       hosts:
         - {{ include "ingress.host" . }}
 
-cache:
-  enabled: true
-
 auth:
   adminUser: <path:salamandre/data/keycloak/auth#adminUser>
   adminPassword: <path:salamandre/data/keycloak/auth#adminPassword>
@@ -33,9 +30,6 @@ extraEnvVars:
     value: "true"
   - name: KEYCLOAK_HOSTNAME
     value: {{ include "ingress.host" . }}
-
-service:
-  type: ClusterIP
 
 externalDatabase:
   host: <path:salamandre/data/keycloak/database#host>
@@ -49,11 +43,6 @@ postgresql:
 
 keycloakConfigCli:
   enabled: true
-  # This fix wrong "keycloak-config-cli" version
-  command:
-    - java
-    - -jar
-    - /opt/bitnami/keycloak-config-cli/keycloak-config-cli.jar
 
   configuration:
     realm1.yaml: |
