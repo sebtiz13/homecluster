@@ -4,7 +4,6 @@ ansible_host: 0.0.0.0 # Server IP
 ansible_port: 0 # SSH port of server
 ansible_user: root # user name used for run ansible (! NEED can run `sudo`)
 ansible_sudo_pass: root # password of user for use `sudo`
-host_prefix: "192.168.1.11/24" # CIDR format with this schema: address/netmask
 
 ssh:
   port: "{{ ansible_port }}"
