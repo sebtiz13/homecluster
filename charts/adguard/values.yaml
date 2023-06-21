@@ -6,7 +6,7 @@ images:
   configurator:
     repository: alpine
     pullPolicy: IfNotPresent
-    tag: "3.17.0"
+    tag: "3.18.2"
   adguard:
     repository: adguard/adguardhome
     pullPolicy: IfNotPresent
