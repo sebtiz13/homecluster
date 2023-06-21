@@ -2,6 +2,9 @@ mode: standalone
 rootUser: <path:baku/data/minio/auth#rootUser>
 rootPassword: <path:baku/data/minio/auth#rootPassword>
 
+deploymentUpdate:
+  type: Recreate # Prevent stuck state when update due to only 1 pod can attach storage
+
 users: [] # Remove default user
 
 buckets:
