@@ -1,7 +1,7 @@
-# ArgoCD chart values
+# Keycloak chart values
 
-- [Homepage](https://argo-cd.readthedocs.io/)
-- [Source (GitHub)](https://github.com/argoproj/argo-helm)
+- [Homepage](https://www.keycloak.org/)
+- [Source (GitHub)](https://github.com/bitnami/charts/tree/main/bitnami/keycloak)
 
 ## Vault secrets
 
