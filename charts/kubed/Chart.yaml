@@ -7,4 +7,4 @@ appVersion: v0.13.2
 home: https://github.com/kubeops/config-syncer
 icon: https://cdn.appscode.com/images/products/kubed/icons/android-icon-192x192.png
 sources:
-  - https://github.com/kubeops/config-syncer
+  - https://github.com/kubeops/installer/tree/master/charts/config-syncer
