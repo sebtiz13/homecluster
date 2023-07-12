@@ -6,7 +6,7 @@ ingress:
 source:
   repoURL: https://argoproj.github.io/argo-helm
   chart: argo-cd
-  targetRevision: 5.36.5
+  targetRevision: 5.38.1
 
 destination:
   namespace: argocd
@@ -18,12 +18,12 @@ syncPolicy:
     selfHeal: true
 
 # App values
-argocdVersion: 2.7.6
+argocdVersion: 2.7.7
 gitlabProjectID: '40446088'
 vaultURL: http://vault-internal.vault.svc:8200
 
 toolsVersion:
-  avp: "1.14.0"
+  avp: "1.15.0"
   vault: "1.14.0"
 
 baseOidcConfig:
