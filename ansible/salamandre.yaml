@@ -1,6 +1,5 @@
 - name: Install sensors, database, configure coreDNS
   hosts: salamandre
-  connection: local
   roles:
     - role: salamandre_sensors
       when: motherboard_chip is defined
@@ -12,27 +11,31 @@
       become: true
       tags: database
     - role: coredns
+      delegate_to: localhost
       tags: kubernetes
 
 - name: Install prerequired applications
   hosts: salamandre
-  connection: local
   tags: kubernetes
   roles:
     - role: apps_argocd
+      delegate_to: localhost
       tags: argocd
     - role: kubed_kubeconfig
+      delegate_to: localhost
       tags: kubed
     - role: apps_system
+      delegate_to: localhost
       tags: common
     - role: apps_external-secrets
+      delegate_to: localhost
       tags: external-secret
     - role: apps_vault
+      delegate_to: localhost
       tags: vault
 
 - name: Install cert-manager , dev apps, create traefik auth
   hosts: salamandre
-  connection: local
   tags: kubernetes
   pre_tasks:
     - name: Store ArgoCD api token in facts
@@ -40,12 +43,15 @@
         argocd_api_token: "{{ argocd_admin_auth.json.token }}"
   roles:
     - role: traefik_auth
+      delegate_to: localhost
       tags: traefik
     - role: apps_cert-manager
+      delegate_to: localhost
       tags:
         - cert-manager
         - tls
     - role: vault_secrets
+      delegate_to: localhost
       tags: smtp
       vars:
         validate_certs: false
@@ -53,9 +59,11 @@
           - path: smtp
             data: "{{ smtp_auth }}"
     - role: salamandre_dev
+      delegate_to: localhost
       when: env == 'dev'
   post_tasks:
     - name: Wait until tls certificate created
+      delegate_to: localhost
       tags:
         - vault
         - cert-manager
@@ -71,7 +79,6 @@
 
 - name: Install, configure OIDC and sync ArgoCD
   hosts: salamandre
-  connection: local
   tags: kubernetes
   pre_tasks:
     - name: Retrieve keycloak informations
@@ -91,6 +98,7 @@
   roles:
     # ALways deploy oidc secrets for applications (event if oidc is disabled, this is for argocd vaukt plugin)
     - role: vault_secrets
+      delegate_to: localhost
       vars:
         validate_certs: false # TODO: add way to wait valid TLS
         secrets:
@@ -101,22 +109,24 @@
               clientID: argocd
               clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
     - role: oidc
+      delegate_to: localhost
       tags: oidc
     - role: argocd_sync
+      delegate_to: localhost
       tags: argocd
 
 - name: Install infrastructure applications
   hosts: salamandre
-  connection: local
   tags: kubernetes
   roles:
-    - salamandre_infrastructure
+    - role: salamandre_infrastructure
+      delegate_to: localhost
 
 - name: Install cloud applications
   hosts: salamandre
-  connection: local
   tags:
     - kubernetes
     - cloud
   roles:
-    - salamandre_cloud
+    - role: salamandre_cloud
+      delegate_to: localhost

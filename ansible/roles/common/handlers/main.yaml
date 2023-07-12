@@ -14,7 +14,7 @@
     state: restarted
 
 - name: Fix kubeconfig mode
-  connection: local
+  delegate_to: localhost
   become: false
   ansible.builtin.file:
     path: "{{ kubeconfig.dest }}"

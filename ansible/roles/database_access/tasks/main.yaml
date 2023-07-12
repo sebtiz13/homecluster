@@ -1,5 +1,5 @@
 - name: Create database
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   become: true
   become_user: postgres
   vars:
@@ -8,7 +8,7 @@
     name: "{{ database }}"
 
 - name: Create database user
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   become: true
   become_user: postgres
   vars:
@@ -18,7 +18,7 @@
     password: "{{ password }}"
 
 - name: Grant database access to user
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   become: true
   become_user: postgres
   vars:

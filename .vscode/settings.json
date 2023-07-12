@@ -1,4 +1,6 @@
 {
+  "ansible.python.interpreterPath": "./ansible/.venv/bin/python",
+  "ansible.validation.lint.path": "./ansible/.venv/bin/ansible-lint",
   "files.associations": {
     "appValues*.yaml": "helm",
     "*.yaml.j2": "yaml",

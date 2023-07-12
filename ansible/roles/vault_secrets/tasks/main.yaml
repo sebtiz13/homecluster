@@ -1,6 +1,6 @@
 - name: Create vault secrets
   no_log: true
-  connection: local
+  delegate_to: localhost
   become: false
   block:
     - name: Retrieve current stored secret

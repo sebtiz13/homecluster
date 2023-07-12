@@ -63,7 +63,7 @@
   register: kubeconfig
   notify: Fix kubeconfig mode
 - name: Configure host on kubeconfig
-  connection: local
+  delegate_to: localhost
   become: false
   ansible.builtin.lineinfile:
     path: "{{ kubeconfig.dest }}"
@@ -71,7 +71,7 @@
     line: '\1{{ k3s_domain | default(domain_name) }}\2'
     backrefs: true
 - name: Configure node name on kubeconfig
-  connection: local
+  delegate_to: localhost
   become: false
   ansible.builtin.replace:
     path: "{{ kubeconfig.dest }}"
@@ -79,7 +79,7 @@
     replace: "{{ inventory_hostname }}"
 
 - name: Wait node started
-  connection: local
+  delegate_to: localhost
   become: false
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig.dest }}"
@@ -88,7 +88,7 @@
     wait: true
 
 - name: Retrieve api server info
-  connection: local
+  delegate_to: localhost
   become: false
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig.dest }}"

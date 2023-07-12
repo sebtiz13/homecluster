@@ -13,8 +13,12 @@ ifndef VM_NAME
 endif
 
 init: ## Init environment
-	cd $(ANSIBLE_DIR); ansible-galaxy install -r requirements.yaml
-	cd $(ANSIBLE_DIR); pip install -r requirements.txt
+	echo "Creating python virual environment and install required packages..."
+	cd $(ANSIBLE_DIR); python -m venv .venv
+	cd $(ANSIBLE_DIR); .venv/bin/pip install -r requirements.txt
+	echo "Installing ansible modules..."
+	cd $(ANSIBLE_DIR); .venv/bin/ansible-galaxy install -r requirements.yaml
+	echo "Creating required folders..."
 	mkdir -p ./out/kubeconfig
 	mkdir -p ./out/credentials/{salamandre,baku}/{dev,prod}
 	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
@@ -26,6 +30,7 @@ cleanup: ## Cleanup development environment
 	rm -rf $(VAGRANT_DIR)/.vagrant/{ca,manifests}
 	rm -rf ./out/kubeconfig/*.dev.yaml
 	rm -rf ./out/credentials/{salamandre,baku}/dev
+	rm -rf $(ANSIBLE_DIR)/.venv
 
 cluster: ## All-in-one command for cluster deployment
 ifndef DOMAIN_NAME

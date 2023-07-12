@@ -20,7 +20,7 @@
     status_code: 200
 
 - name: Restart ArgoCD server for update oidc
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.command: |
     kubectl rollout restart deployment
       --namespace '{{ apps_argocd.namespace }}'

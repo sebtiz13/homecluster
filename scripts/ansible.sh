@@ -7,7 +7,9 @@ if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
 fi
 
 cd ansible || return
+. ./.venv/bin/activate
 if [ "$ENVIRONMENT" == "dev" ]; then
   export ANSIBLE_HOST_KEY_CHECKING=false
 fi
-ansible-playbook --inventory "inventories/$ENVIRONMENT" --extra-vars "root_domain='${DOMAIN_NAME}'" $1 site.yaml
+ansible-playbook --inventory "inventories/$ENVIRONMENT" \
+  --extra-vars "root_domain='${DOMAIN_NAME}'" $1 site.yaml

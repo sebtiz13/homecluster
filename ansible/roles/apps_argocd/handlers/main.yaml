@@ -7,7 +7,7 @@
     state: absent
 
 - name: Recreate auth token
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/session"
     method: POST

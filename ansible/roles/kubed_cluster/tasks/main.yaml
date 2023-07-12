@@ -15,7 +15,7 @@
         kubeconfig: "{{ kubed_kubeconfig.stdout | b64encode }}"
 
 - name: Restart application resources for update secrets
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   vars:
     kubed_manifest: "{{ lookup('file', manifests_folder + '/kubed.yaml') | from_yaml }}"
   ansible.builtin.command: |

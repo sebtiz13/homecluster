@@ -133,7 +133,7 @@
   register: argocd_initial_admin_password
 
 - name: Create auth token
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   vars:
     initial_password: "{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}"
   ansible.builtin.uri:
@@ -151,7 +151,7 @@
   when:
     - argocd_initial_admin_password is not skipped
     - argocd_initial_admin_password.resources | length > 0
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/account/password"
     method: PUT

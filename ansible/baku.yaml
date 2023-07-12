@@ -8,16 +8,17 @@
 
 - name: Create ArgoCD access
   hosts: baku
-  connection: local
   tags: kubernetes
   roles:
     - role: argocd_cluster
+      delegate_to: localhost
       tags: argocd
       vars:
         cluster_name: baku
         cluster_url: "https://{{ domain_name }}:6443"
   tasks:
     - name: Create kubed sync namespace
+      delegate_to: localhost
       tags: kubed
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig.dest }}"
@@ -30,12 +31,12 @@
 
 - name: Configure salamandre kubed access to baku cluster
   hosts: salamandre
-  connection: local
   tags:
     - kubernetes
     - kubed
   roles:
     - role: kubed_cluster
+      delegate_to: localhost
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       vars:
         cluster_kubeconfig: "{{ hostvars.baku.kubeconfig.dest | default('') }}"
@@ -43,12 +44,12 @@
 
 - name: Configure tls secret
   hosts: baku
-  connection: local
   tags:
     - kubernetes
     - kubed
   tasks:
     - name: Wait until secret is synced
+      delegate_to: localhost
       kubernetes.core.k8s_info:
         kubeconfig: "{{ kubeconfig.dest }}"
         kind: Secret
@@ -58,6 +59,7 @@
         wait_sleep: 10
         wait_timeout: 360
     - name: Annotate secret for sync cross namespace
+      delegate_to: localhost
       kubernetes.core.k8s:
         state: patched
         kubeconfig: "{{ kubeconfig.dest }}"
@@ -72,9 +74,10 @@
 
 - name: Install infrastructure applications
   hosts: baku
-  connection: local
   tags: kubernetes
   roles:
     - role: apps_system
+      delegate_to: localhost
       tags: common
-    - baku_infrastructure
+    - role: baku_infrastructure
+      delegate_to: localhost

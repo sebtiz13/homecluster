@@ -71,7 +71,7 @@
 
 - name: Restart application resources for update secrets
   when: argocd_refresh is not skipped
-  connection: ssh
+  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.command: |
     kubectl rollout restart deployment
       --namespace '{{ apps_gitlab.namespace }}'

@@ -23,9 +23,9 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
   - [libvirt](https://libvirt.org/)
 - [mkcert](https://github.com/FiloSottile/mkcert)
 - [Helm](https://helm.sh/)
-- [Ansible](https://www.ansible.com/)
-  - [jq](https://stedolan.github.io/jq/)
-  - [yq](https://github.com/mikefarah/yq/)
+- [python](https://www.python.org/)
+- [jq](https://stedolan.github.io/jq/)
+- [yq](https://github.com/mikefarah/yq/)
 
 ### Configuring DNS
 
