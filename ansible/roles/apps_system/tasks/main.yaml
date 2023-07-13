@@ -8,6 +8,18 @@
     src: "{{ manifests_folder }}/openebs.yaml"
     namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
 
+- name: Wait until OpenEBS is started
+  delegate_to: localhost
+  tags: vault
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    kind: DeamonSet
+    name: openebs-zfs-localpv-node
+    namespace: kube-system
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 360
+
 - name: Deploy OpenEBS storage classes
   tags:
     - openebs
