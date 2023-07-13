@@ -25,6 +25,10 @@ server:
     - -c
     - "sleep 5 && if [ -f \"/vault/keys/key1\" ]; then vault operator unseal $(cat /vault/keys/key1); fi"
 
+  dataStorage:
+    size: 10Gi
+    storageClass: openebs-zfspv
+
   volumes:
     - name: vault-keys
       secret:
