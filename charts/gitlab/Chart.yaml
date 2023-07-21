@@ -2,7 +2,7 @@ apiVersion: v2
 name: gitlab
 description: A Helm chart for Kubernetes
 type: application
-version: 1.2.1
+version: 2.0.0
 appVersion: 16.1.2 # src: https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/doc/installation/version_mappings.md
 
 icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
