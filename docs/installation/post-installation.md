@@ -42,6 +42,3 @@ step):
 - Minio:
   - Username: `root`
   - Password: `yq .minio ./out/credentials/baku/<env>/admin_passwords.yaml`
-- Adguard:
-  - Username: `admin`
-  - Password: `yq .adguard ./out/credentials/baku/<env>/admin_passwords.yaml`

@@ -63,8 +63,6 @@ Can be used in "production" (for family).
     - [x] GitLab (git server and private container registry)
     - [x] Nextcloud
     - [x] Vaultwarden
-  - **Baku**
-    - [x] Adguard
 
 ## Unplanned
 

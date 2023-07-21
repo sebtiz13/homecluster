@@ -1,8 +1,0 @@
-{{- if and .Values.traefik.tlsoptions.enabled .Values.traefik.tlsoptions.spec -}}
-apiVersion: traefik.containo.us/v1alpha1
-kind: TLSOption
-metadata:
-  name: tlsoptions
-spec:
-  {{- toYaml .Values.traefik.tlsoptions.spec | nindent 2 }}
-{{- end -}}
