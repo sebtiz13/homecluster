@@ -4,6 +4,7 @@
   community.hashi_vault.vault_read:
     url: "{{ ansible_hashi_vault_addr }}"
     token: "{{ ansible_hashi_vault_token }}"
+    ca_cert: "{{ ca.cert | default('') }}"
     path: "{{ secrets_base_path }}/backup/s3"
   register: backup_s3
 

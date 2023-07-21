@@ -6,15 +6,17 @@
     - name: Retrieve current stored secret
       vars:
         full_path: "{{ item.full_path | default(secrets_base_path + '/' + item.path | default('')) }}"
-        not_found_msg: "The path '{{ item.path }}' doesn't seem to exist."
+        not_found_msg: "The path '{{ full_path }}' doesn't seem to exist."
       community.hashi_vault.vault_read:
         url: "{{ ansible_hashi_vault_addr }}"
-        validate_certs: false # "{{ validate_certs }}" # TODO: add way to wait valid TLS
+        validate_certs: "{{ validate_certs }}"
         token: "{{ ansible_hashi_vault_token }}"
+        ca_cert: "{{ ca.cert | default('') }}"
         path: "{{ full_path }}"
-      failed_when:
-        - item.full_path is not defined and secrets_base_path == ''
-        - "'msg' in vault_check and vault_check.msg != not_found_msg"
+      failed_when: >
+        (item.full_path is not defined and secrets_base_path == '') or
+        ('msg' in vault_check and vault_check.msg != not_found_msg) or
+        ('results' in vault_check and 'msg' in vault_check.results[0] and vault_check.results[0].msg == 'MODULE FAILURE\nSee stdout/stderr for the exact error')
       register: vault_check
       loop: "{{ secrets }}"
 
@@ -22,8 +24,9 @@
       when: ('msg' in item) or (item.data.data.data != item.item.data)
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
-        validate_certs: false # "{{ validate_certs }}" # TODO: add way to wait valid TLS
+        validate_certs: "{{ validate_certs }}"
         token: "{{ ansible_hashi_vault_token }}"
+        ca_cert: "{{ ca.cert | default('') }}"
         path: "{{ item.item.full_path | default(secrets_base_path + '/' + item.item.path | default('')) }}"
         data:
           data: "{{ item.item.data }}"

@@ -84,7 +84,6 @@
     - role: vault_secrets
       delegate_to: localhost
       vars:
-        validate_certs: false # TODO: add way to wait valid TLS
         secrets:
           - path: argocd/oidc
             data:

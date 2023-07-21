@@ -5,6 +5,7 @@
     url: "{{ ansible_hashi_vault_addr }}"
     validate_certs: "{{ validate_certs }}"
     token: "{{ ansible_hashi_vault_token }}"
+    ca_cert: "{{ ca.cert | default('') }}"
     path: "sys/policy/{{ policy_name }}"
   register: vault_check
   failed_when:
@@ -16,6 +17,7 @@
     url: "{{ ansible_hashi_vault_addr }}"
     validate_certs: "{{ validate_certs }}"
     token: "{{ ansible_hashi_vault_token }}"
+    ca_cert: "{{ ca.cert | default('') }}"
     path: "sys/policy/{{ policy_name }}"
     data:
       policy: "{{ policy }}"

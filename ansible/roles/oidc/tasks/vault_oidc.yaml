@@ -42,6 +42,7 @@
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
         token: "{{ ansible_hashi_vault_token }}"
+        ca_cert: "{{ ca.cert }}"
         path: "{{ path }}"
         data:
           oidc_discovery_url: "{{ oidc_creds.data.data.issuer }}"
@@ -54,6 +55,7 @@
   community.hashi_vault.vault_write:
     url: "{{ ansible_hashi_vault_addr }}"
     token: "{{ ansible_hashi_vault_token }}"
+    ca_cert: "{{ ca.cert | default('') }}"
     path: auth/oidc/role/reader
     data:
       bound_audiences: vault
@@ -73,6 +75,7 @@
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
         token: "{{ ansible_hashi_vault_token }}"
+        ca_cert: "{{ ca.cert | default('') }}"
         path: identity/group
         data:
           name: "{{ item.name }}"
@@ -96,6 +99,7 @@
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
         token: "{{ ansible_hashi_vault_token }}"
+        ca_cert: "{{ ca.cert | default('') }}"
         path: identity/group-alias
         data:
           name: "{{ item.item.name }}"
