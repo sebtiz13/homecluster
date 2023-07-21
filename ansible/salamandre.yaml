@@ -54,12 +54,28 @@
       delegate_to: localhost
       tags: smtp
       vars:
+        validate_certs: false
         secrets:
           - path: smtp
             data: "{{ smtp_auth }}"
     - role: salamandre_dev
       delegate_to: localhost
       when: env == 'dev'
+  post_tasks:
+    - name: Wait until tls certificate created in vault
+      delegate_to: localhost
+      tags:
+        - vault
+        - cert-manager
+        - tls
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ kubeconfig.dest }}"
+        kind: Secret
+        name: "{{ root_domain | replace('.', '-') }}-tls"
+        namespace: "{{ apps_vault.namespace }}"
+        wait: true
+        wait_sleep: 10
+        wait_timeout: 360
 
 - name: Install, configure OIDC and sync ArgoCD
   hosts: salamandre
