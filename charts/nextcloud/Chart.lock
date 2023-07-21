@@ -1,9 +1,9 @@
 dependencies:
 - name: nextcloud
   repository: https://nextcloud.github.io/helm/
-  version: 3.5.13
+  version: 3.5.19
 - name: collabora-code
   repository: https://chrisingenhaag.github.io/helm
   version: 2.5.1
-digest: sha256:b2b79dc53089fc8842e0c4ed7e0cca625a1dac15e1007b188a865c83153016c1
-generated: "2023-06-21T15:04:51.677374299+02:00"
+digest: sha256:905c6244c9dcd49f441b02824edfe0864dd12509bb0c762f655ec3d4ed80c617
+generated: "2023-07-21T17:09:15.981872098+02:00"
