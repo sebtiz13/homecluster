@@ -59,7 +59,7 @@ spec:
             - name: http
               containerPort: {{ .Values.service.target_port }}
               protocol: TCP
-            {{- if .Values.vaultwarden.websocket_enabled }}
+            {{- if .Values.vaultwarden.websocket_port }}
             - name: ws
               containerPort: {{ .Values.vaultwarden.websocket_port }}
               protocol: TCP

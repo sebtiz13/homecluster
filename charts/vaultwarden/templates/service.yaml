@@ -15,7 +15,7 @@ spec:
       targetPort: {{ .Values.service.target_port }}
       protocol: TCP
       name: http
-    {{- if .Values.vaultwarden.websocket_enabled }}
+    {{- if .Values.vaultwarden.websocket_port }}
     - port: {{ .Values.vaultwarden.websocket_port }}
       targetPort: {{ .Values.vaultwarden.websocket_port }}
       protocol: TCP

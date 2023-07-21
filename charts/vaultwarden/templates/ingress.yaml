@@ -51,7 +51,7 @@ spec:
               servicePort: http
               {{- end }}
           {{- end }}
-          {{- if .Values.vaultwarden.websocket_enabled }}
+          {{- if .Values.vaultwarden.websocket_port }}
           - path: /notifications/hub
             pathType: ImplementationSpecific
             backend:

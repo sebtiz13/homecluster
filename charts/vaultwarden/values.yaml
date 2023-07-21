@@ -29,8 +29,7 @@ vaultwarden:
 
   # Websocket support for notifications
   # See: https://github.com/dani-garcia/vaultwarden/wiki/Enabling-WebSocket-notifications
-  websocket_enabled: true
-  websocket_port: 3012
+  # websocket_port: 3012
 
   # Configuration of YubiKey OTP
   # See: https://github.com/dani-garcia/vaultwarden/wiki/Enabling-Yubikey-OTP-authentication
