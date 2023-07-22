@@ -11,9 +11,15 @@ externalSecrets:
     #   dataFrom: {}
 
 victoria-metrics-k8s-stack:
-  argocdReleaseOverride: $ARGOCD_APP_NAME
+  # Use shorter names
+  fullnameOverride: vm-stack
+  prometheus-node-exporter:
+    fullnameOverride: node-exporter
+  kube-state-metrics:
+    fullnameOverride: kube-state-metrics
 
   victoria-metrics-operator:
+    fullnameOverride: victoria-metrics-operator
     operator:
       disable_prometheus_converter: false
       prometheus_converter_add_argocd_ignore_annotations: true
