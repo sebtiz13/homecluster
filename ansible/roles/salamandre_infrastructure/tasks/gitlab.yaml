@@ -78,9 +78,9 @@
       '{{ apps_gitlab.release_name }}-{{ item }}'
   changed_when: false
   loop:
-    - gitlab-toolbox
     - gitlab-exporter
     - gitlab-pages
     - gitlab-runner
+    - toolbox
     - sidekiq-all-in-1-v2
     - webservice-default
