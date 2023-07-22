@@ -2,13 +2,16 @@
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/gitlab.yaml') | from_yaml }}"
     values: "{{ manifest.spec.source.plugin.env.1.value | from_yaml }}"
+    host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
   ansible.builtin.set_fact:
     apps_gitlab:
       _manifest: "{{ manifest }}"
       _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+      _tmp_user_token: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=20) }}"
       release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
       secretNames: "{{ values.externalSecrets.secrets | map(attribute='name') }}"
+      host: "{{ host }}"
 
 - name: Create GitLab database access
   ansible.builtin.include_role:
@@ -18,7 +21,7 @@
     username: gitlab
     password: "{{ apps_gitlab._db_passowrd }}"
 
-- name: Create application namespace
+- name: Create GitLab namespace
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig.dest }}"
     state: present
@@ -30,10 +33,17 @@
         labels:
           domain: "{{ root_domain }}"
 
-- name: Store root password
+- name: Store GitLab root password
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig.dest }}"
     template: gitlab_root_pwd.yaml.j2
+    validate:
+      fail_on_error: true
+
+- name: Reserve GitLab runner secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    template: gitlab_runner.yaml.j2
     validate:
       fail_on_error: true
 
@@ -41,7 +51,6 @@
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
-    _keycloak_host: "{{ (lookup('file', manifests_folder + '/keycloak.yaml') | from_yaml).metadata.annotations['sebtiz13.fr/host'] }}"
     manifest: "{{ apps_gitlab._manifest }}"
     secrets:
       # ?REF: 'gitlab/oidc' > oidc/keycloak
@@ -69,7 +78,7 @@
           force-sync: "{{ ansible_date_time.epoch }}"
   loop: "{{ apps_gitlab.secretNames }}"
 
-- name: Restart application resources for update secrets
+- name: Restart GitLab resources for update secrets
   when: argocd_refresh is not skipped
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.command: |
@@ -80,7 +89,101 @@
   loop:
     - gitlab-exporter
     - gitlab-pages
-    - gitlab-runner
     - toolbox
     - sidekiq-all-in-1-v2
     - webservice-default
+
+- name: Wait until GitLab is available
+  when: argocd_refresh is skipped
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    kind: Deployment
+    name: "{{ apps_gitlab.release_name }}-sidekiq-all-in-1-v2"
+    namespace: "{{ apps_gitlab.namespace }}"
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 360
+
+- name: Retrieve GitLab toolbox pod informations
+  when: argocd_refresh is skipped
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    kind: pod
+    namespace: "{{ apps_gitlab.namespace }}"
+    label_selectors:
+      - app=toolbox
+      - release=gitlab
+    field_selectors:
+      - status.phase=Running
+  register: gitlab_toolbox_pod
+
+- name: Create GitLab temporary personal access token
+  when: gitlab_toolbox_pod is not skipped
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    namespace: "{{ apps_gitlab.namespace }}"
+    pod: "{{ (gitlab_toolbox_pod.resources | first).metadata.name }}"
+    command: >
+      gitlab-rails runner " \
+        user = User.find_by_username('root'); \
+        token = user.personal_access_tokens.create(scopes: [:api], name: 'Automation token', expires_at: 1.days.from_now); \
+        token.set_token('{{ apps_gitlab._tmp_user_token }}'); \
+        token.save!;"
+
+- name: Create GitLab runner token
+  when: gitlab_toolbox_pod is not skipped
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ apps_gitlab.host }}/api/v4/user/runners"
+    method: POST
+    headers:
+      private-token: "{{ apps_gitlab._tmp_user_token }}"
+    return_content: true
+    status_code: 201
+    body_format: json
+    body:
+      runner_type: "instance_type"
+      description: "Salamandre gitlab runner #1"
+      run_untagged: "true"
+  register: gitlab_runner_token
+
+- name: Delete GitLab created personal access token
+  when: gitlab_toolbox_pod is not skipped
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    namespace: "{{ apps_gitlab.namespace }}"
+    pod: "{{ (gitlab_toolbox_pod.resources | first).metadata.name }}"
+    command: gitlab-rails runner "PersonalAccessToken.find_by_token('{{ apps_gitlab._tmp_user_token }}').revoke!"
+
+- name: Store GitLab runner token
+  when: gitlab_toolbox_pod is not skipped
+  ansible.builtin.import_role:
+    name: vault_secrets
+  vars:
+    secrets:
+      - path: gitlab/runner
+        data:
+          token: "{{ gitlab_runner_token.json.token }}"
+
+- name: Update GitLab runner token secret
+  when: gitlab_toolbox_pod is not skipped
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ kubeconfig.dest }}"
+    api_version: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    name: "{{ apps_gitlab.release_name }}-runner"
+    namespace: "{{ apps_gitlab.namespace }}"
+    force: true
+    definition:
+      metadata:
+        annotations:
+          force-sync: "{{ ansible_date_time.epoch }}"
+
+- name: Restart GitLab runner for handle token
+  when: gitlab_toolbox_pod is not skipped
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.command: |
+    kubectl rollout restart deployment
+      --namespace '{{ apps_gitlab.namespace }}'
+      '{{ apps_gitlab.release_name }}-gitlab-runner'

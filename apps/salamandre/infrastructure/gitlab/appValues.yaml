@@ -16,6 +16,16 @@ externalSecrets:
             - regexp:
                 source: "password"
                 target: "smtp_password"
+    - name: runner
+      target:
+        template:
+          type: Opaque
+          data:
+            runner-registration-token: ''
+            runner-token: '{{`{{ .token }}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/gitlab/runner
     - name: storage
       target:
         template:
@@ -175,7 +185,6 @@ gitlab:
         proxy_download: true
         connection:
           secret: gitlab-storage
-
     smtp:
       enabled: true
       address: <path:salamandre/data/smtp#host>
@@ -185,6 +194,9 @@ gitlab:
       password:
         secret: gitlab-credentials
         key: smtp-password
+    runner:
+      registrationToken:
+        secret: gitlab-runner
 
   gitlab:
     gitaly:
@@ -264,7 +276,8 @@ gitlab:
     replica: 1
     gitlabUrl: {{ printf "http://gitlab-webservice-default.%s.svc:8181" .Values.destination.namespace | quote }}
     runners:
-      locked: false
+      locked: true # TODO: remove that after https://gitlab.com/gitlab-org/charts/gitlab-runner/-/issues/472 is resolved
+      secret: gitlab-runner
       cache:
         secretName: gitlab-storage
       config: |

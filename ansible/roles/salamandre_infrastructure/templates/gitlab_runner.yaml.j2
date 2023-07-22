@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ apps_gitlab.release_name }}-runner"
+  namespace: "{{ apps_gitlab.namespace }}"
+type: Opaque
+immutable: false
+data:
+  runner-registration-token: ""
+  runner-token: ""
