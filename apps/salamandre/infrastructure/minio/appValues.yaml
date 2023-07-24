@@ -52,6 +52,9 @@ metrics:
   serviceMonitor:
     enabled: true
 
+deploymentUpdate:
+  type: Recreate
+
 resources:
   requests:
       cpu: 10m
