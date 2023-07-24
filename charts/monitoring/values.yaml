@@ -25,6 +25,12 @@ victoria-metrics-k8s-stack:
       prometheus_converter_add_argocd_ignore_annotations: true
       enable_converter_ownership: true
 
+  # Disable default dashboards
+  defaultDashboardsEnabled: false
+  grafana:
+    fullnameOverride: grafana
+    dashboards: {}
+
   # disable uneeded dependencies
   kubeEtcd:
     enabled: false
