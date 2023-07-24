@@ -43,3 +43,4 @@ FILE="./out/credentials/baku/${ENVIRONMENT}/admin_passwords.yaml"
 
 touch "$FILE"
 insert_pwd "$FILE" .minio "$(randpw 16)"
+insert_pwd "$FILE" .grafana "$(randpw 16)"

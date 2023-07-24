@@ -34,9 +34,9 @@ Good enough for tinkering, personal usage and reasonably secure.
   - [x] Replace all default passwords with randomly generated ones
 - [x] Backup solution (Barman/ZFS, _Strategy: 3 copies, 2 separate devices, 1 offsite_)
 - [ ] Observability (on Baku)
-  - [ ] Monitoring
+  - [x] Monitoring
   - [ ] Logging
-  - [ ] Alerting
+  - [x] Alerting
 - [x] Core/System applications
   - **Salamandre**
     - [x] Kubed

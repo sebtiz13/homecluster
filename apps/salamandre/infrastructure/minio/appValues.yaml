@@ -48,6 +48,10 @@ persistence:
   storageClass: openebs-zfspv
   size: 200Gi
 
+metrics:
+  serviceMonitor:
+    enabled: true
+
 resources:
   requests:
       cpu: 10m

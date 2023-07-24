@@ -37,6 +37,8 @@ Create an config file with `dnsmasq` (in `/etc/NetworkManager/dnsmasq.d/<name>.c
 local=/vm/
 address=/.local.vm/192.168.12.10
 address=/baku.local.vm/192.168.12.11
+address=/metrics.local.vm/192.168.12.11
+address=/monitor.local.vm/192.168.12.11
 ```
 
 > **NOTE**: you can follow this tutorial for setup `dnsmasq` with `NetworkManager` : [Using the NetworkManager’s DNSMasq plugin - fedoramagazine.org](https://fedoramagazine.org/using-the-networkmanagers-dnsmasq-plugin/)
@@ -47,7 +49,7 @@ Add the following line in `/etc/hosts` file:
 
 ```conf
 192.168.12.10 local.vm argocd.local.vm vault-secrets.local.vm sso.local.vm s3.local.vm console.s3.local.vm git.local.vm
-192.168.12.11 baku.local.vm
+192.168.12.11 baku.local.vm metrics.local.vm monitor.local.vm
 ```
 
 ## Commands
@@ -91,6 +93,7 @@ The apps tags :
 - `nextcloud`
 - `vaultwarden`
 - `adguard` (only for proxy on `salamandre`)
+- `monitoring`
 
 _example_: `ANSIBLE_SKIP_TAGS=oidc make test-cluster`, this deploy all cluster but without oidc (keycloak) and gitlab applications
 

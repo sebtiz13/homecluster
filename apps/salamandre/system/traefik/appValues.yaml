@@ -13,6 +13,15 @@ env:
   - name: TZ
     value: Europe/Paris
 
+metrics:
+  prometheus:
+    service:
+      enabled: true
+    serviceMonitor:
+      enabled: true
+      jobLabel: traefik
+      honorLabels: true
+
 extraObjects:
   - apiVersion: traefik.containo.us/v1alpha1
     kind: Middleware

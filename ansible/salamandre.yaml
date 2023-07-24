@@ -45,6 +45,11 @@
     - role: traefik_auth
       delegate_to: localhost
       tags: traefik
+      vars:
+        namespace: traefik
+        middleware_name: admin-auth
+        secret_name: admin-users
+        users: "{{ basic_auth_users }}"
     - role: apps_cert-manager
       delegate_to: localhost
       tags:
@@ -106,6 +111,11 @@
               issuer: "{{ apps_keycloak.issuer }}"
               cliClientID: argocd-cli
               clientID: argocd
+              clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
+          - path: grafana/oidc
+            data:
+              issuer: "{{ apps_keycloak.issuer }}"
+              clientID: grafana
               clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
     - role: oidc
       delegate_to: localhost

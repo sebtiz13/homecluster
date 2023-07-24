@@ -21,6 +21,7 @@ graph LR
 
   subgraph "Baku cluster"
     b-system[system] --- b-traefik[traefik]
+    b-infrastructure[infrastructure] --- monitoring
   end
 ```
 
@@ -34,7 +35,6 @@ graph LR
     zfs --> zfs-pool[create pool] & zfs-install[install packages]
 
     zfs-pool --> postgresql[install postgresql]
-    k3s --> namespaces[create labeled namespaces]
     k3s --> coredns[configure custom dns] --> cdns-reload[reload core dns]
 
     namespaces --> argocd[deploy argocd]
@@ -51,6 +51,7 @@ graph LR
     vault --> m-vault[create minio secrets] --> minio[deploy minio]
     vault --> g-vault[create gitlab secrets] --> gitlab[deploy gitlab]
     vault --> k-vault[create keyclaok secrets] --> keycloak[deploy keycloak]
+    vault --> mg-vault[create VictoriaMetrics/Grafana secrets] --> monitoring[deploy monitoring (VictoriaMetrics, Grafana, etc)]
 
     %% Sub task
     keycloak --> v-oidc[configure vault oidc]
@@ -58,7 +59,7 @@ graph LR
     %% Deps
     postgresql -----> g-db[create gitlab database] --> g-vault
     postgresql -----> k-db[create keycloak database] --> k-vault
-    zfs-pool --> r-vault & openebs
+    zfs-pool --> r-vault & openebs & monitoring
     vault --> a-vault
     minio --> gitlab
 ```

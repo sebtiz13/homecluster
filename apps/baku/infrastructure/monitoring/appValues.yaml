@@ -1,0 +1,147 @@
+victoria-metrics-k8s-stack:
+  # victoria-metrics-operator: # TODO: fix that when have better serviceaccount stuff
+  #   watchNamespace: {{ .Values.destination.namespace | quote }}
+
+  vmsingle:
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: traefik-auth-vm@kubernetescrd # NOTE: managed by ansible
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      hosts:
+        - metrics.{{ .Values.baseDomain }}
+      tls:
+        - secretName: {{ include "ingress.tls.secretName" . }}
+          hosts:
+            - metrics.{{ .Values.baseDomain }}
+    spec:
+      storage:
+        resources:
+          requests:
+            storage: 20Gi
+
+  vmagent:
+    spec:
+      externalLabels:
+        cluster: baku
+
+  alertmanager:
+    spec:
+      externalURL: https://metrics.{{ .Values.baseDomain }}:9093/
+
+    config:
+      route:
+        receiver: noop
+        routes: []
+      receivers:
+        - name: noop
+
+    monzoTemplate:
+      enabled: false
+
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: traefik-auth-vm@kubernetescrd # NOTE: managed by ansible
+        traefik.ingress.kubernetes.io/router.entrypoints: alertmanager
+      hosts:
+        - metrics.{{ .Values.baseDomain }}
+      tls:
+        - secretName: {{ include "ingress.tls.secretName" . }}
+          hosts:
+            - metrics.{{ .Values.baseDomain }}
+
+  grafana:
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations:
+        {{ include "ingress.annotations.httpsRedirect" . | nindent 8 }}
+      hosts:
+        - monitor.{{ .Values.baseDomain }}
+      tls:
+        - secretName: {{ include "ingress.tls.secretName" . }}
+          hosts:
+            - monitor.{{ .Values.baseDomain }}
+
+    sidecar:
+      dashboards:
+        multicluster: true
+
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: "default"
+            orgId: 1
+            folder: ""
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+          - name: "kubernetes"
+            orgId: 1
+            folder: "Kubernetes"
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/kubernetes
+          - name: "victoriametrics"
+            orgId: 1
+            folder: "VictoriaMetrics"
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/victoriametrics
+    dashboards:
+      {{- $dashboard_base_url := printf "https://gitlab.com/sebtiz13-cluster/homecluster/-/raw/%s/grafana_dashboards/" .Values.grafana.dashboardsReleaseBranch }}
+      {{- range $provider, $dashboards := .Values.grafana.dashboards }}
+      {{ $provider }}:
+        {{- range $key, $value := $dashboards }}
+        {{- if $value }}
+        {{ $key }}:
+          {{- if eq $provider "default" }}
+          url: {{ printf "%s%s.json" $dashboard_base_url $key }}
+          {{- else }}
+          url: {{ printf "%s%s/%s.json" $dashboard_base_url $provider $key  }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+
+    grafana.ini:
+      server:
+        domain: monitor.{{ .Values.baseDomain }}
+        root_url: https://monitor.{{ .Values.baseDomain }}/
+
+      auth.generic_oauth:
+        enabled: true
+        name: Keycloak
+        allow_sign_up: true
+        client_id: <path:salamandre/data/grafana/oidc#clientID>
+        client_secret: <path:salamandre/data/grafana/oidc#clientSecret>
+        auth_url: <path:salamandre/data/grafana/oidc#issuer>/protocol/openid-connect/auth
+        token_url: <path:salamandre/data/grafana/oidc#issuer>/protocol/openid-connect/token
+        api_url: <path:salamandre/data/grafana/oidc#issuer>/protocol/openid-connect/userinfo
+        scopes: profile,email,roles
+        role_attribute_path: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
+
+    adminUser: <path:baku/data/grafana/auth#adminUser>
+    adminPassword: <path:baku/data/grafana/auth#adminPassword>
+
+    persistence:
+      enabled: true
+      size: 5Gi
+
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

@@ -9,6 +9,10 @@ helm repo add nextcloud https://nextcloud.github.io/helm/
 helm repo add chrisingenhaag https://chrisingenhaag.github.io/helm/
 # minio
 helm repo add minio https://charts.min.io/
+# monitoring
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add vm https://victoriametrics.github.io/helm-charts/
 
-# Updat erpo
+# Update repo
 helm repo update

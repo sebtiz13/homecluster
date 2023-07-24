@@ -193,6 +193,34 @@ realm:
         - phone
         - offline_access
         - microprofile-jwt
+    - name: grafana
+      clientId: <path:salamandre/data/grafana/oidc#clientID>
+      rootUrl: https://monitor.{{ .Values.baseDomain }}
+      baseUrl: /
+      enabled: true
+      publicClient: false
+      clientAuthenticatorType: client-secret
+      secret: <path:salamandre/data/grafana/oidc#clientSecret>
+      redirectUris:
+        - /login/generic_oauth
+      webOrigins:
+        - '*'
+      standardFlowEnabled: true
+      directAccessGrantsEnabled: true
+      protocol: openid-connect
+      attributes:
+        backchannel.logout.session.required: "true"
+      fullScopeAllowed: true
+      defaultClientScopes:
+        - web-origins
+        - profile
+        - roles
+        - email
+      optionalClientScopes:
+        - address
+        - phone
+        - offline_access
+        - microprofile-jwt
 
 
   clientScopes:

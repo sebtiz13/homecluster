@@ -1,0 +1,23 @@
+plugin: argocd-vault-plugin-helm
+
+source:
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+  chart: monitoring
+  targetRevision: 0.1.0
+
+destination:
+  namespace: monitoring
+
+syncPolicy:
+  createLabeledNamespace: true
+  automated:
+    prune: true
+    selfHeal: true
+
+basicAuth:
+  password:
+    key: password
+    name: monitoring-credentials
+  username:
+    key: user
+    name: monitoring-credentials

@@ -24,7 +24,7 @@ services in our home cluster.
 - [x] Git server
 - [x] Private container registry
 - [x] Support multiple environments (dev, prod)
-- [ ] Monitoring and alerting
+- [x] Monitoring and alerting
 - [ ] Automated offsite backups
 - [x] Single sign-on
 
@@ -39,7 +39,7 @@ services in our home cluster.
 | <img width="32" src="https://github.com/jetstack/cert-manager/raw/master/logo/logo.png">                                  | [cert-manager](https://cert-manager.io)                       | Cloud native certificate management                                       |
 | <img width="32" src="https://appscode.com/assets/images/products/kubed/icons/favicon-32x32.png">                          | [Config Syncer (kubed)](https://appscode.com/products/kubed/) | Synchronize `ConfigMaps` and `Secrets` across namespaces and/or clusters. |
 | <img width="32" src="https://raw.githubusercontent.com/external-secrets/external-secrets/main/assets/eso-round-logo.svg"> | [External Secrets](https://external-secrets.io/main)          | Kubernetes operator that integrates external secret management systems    |
-| <img width="32" src="https://about.gitlab.com/nuxt-images/ico/favicon-32x32.png?">                                        | [GitLab](https://gitlab.com/)                                 | Self-hosted DevOps Platform                                               |
+| <img width="32" src="https://about.gitlab.com/nuxt-images/ico/favicon-32x32.png">                                         | [GitLab](https://gitlab.com/)                                 | Self-hosted DevOps Platform                                               |
 | <img width="32" src="https://cncf-branding.netlify.app/img/projects/helm/icon/color/helm-icon-color.svg">                 | [Helm](https://helm.sh)                                       | The package manager for Kubernetes                                        |
 | <img width="32" src="https://cncf-branding.netlify.app/img/projects/k3s/icon/color/k3s-icon-color.svg">                   | [K3s](https://k3s.io)                                         | Lightweight distribution of Kubernetes                                    |
 | <img width="32" src="https://www.keycloak.org/resources/images/keycloak_icon_512px.svg">                                  | [Keycloak](https://www.keycloak.org/)                         | Identity and Access Management                                            |
@@ -48,6 +48,8 @@ services in our home cluster.
 | <img width="32" src="https://www.postgresql.org/media/img/about/press/elephant.png">                                      | [PostgreSQL](https://www.postgresql.org/)                     | Object-relational database                                                |
 | <img width="32" src="https://doc.traefik.io/traefik/assets/img/traefikproxy-vertical-logo-color.svg">                     | [Traefik proxy](https://doc.traefik.io/traefik/)              | Kubernetes Ingress Controller                                             |
 | <img width="32" src="https://simpleicons.org/icons/vault.svg">                                                            | [Vault](https://www.vaultproject.io)                          | Secrets and encryption management system                                  |
+| <img width="32" src="https://victoriametrics.com/icons/favicon-32x32.png">                                                | [Vicoria Metrics](https://victoriametrics.com/)               | Monitoring system (like prometheus)                                       |
+| <img width="32" src="https://grafana.com/static/assets/img/fav32.png">                                                    | [Grafana](https://grafana.com/)                               | Graph dashboard for monitoring                                            |
 
 <!-- markdownlint-restore -->
 

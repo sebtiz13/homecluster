@@ -1,0 +1,50 @@
+- name: Retrieve Monitoring & Grafana informations
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/monitoring.yaml') | from_yaml }}"
+    values: "{{ manifest.spec.source.plugin.env.1.value | from_yaml }}"
+  ansible.builtin.set_fact:
+    apps_monitoring:
+      _manifest: "{{ manifest }}"
+      _vms_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+      release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+
+- name: Deploy Monitoring & Grafana application and secrets
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    manifest: "{{ apps_monitoring._manifest }}"
+    restart_resources:
+      - kind: Deployment
+        name: "{{ apps_monitoring.release_name }}-grafana"
+    secrets:
+      - path: monitoring/auth
+        data:
+          vmsingleUser: vmsingle
+          vmsinglePassword: "{{ apps_monitoring._vms_passowrd }}"
+      # ?REF: 'grafana/oidc' > salamandre
+      - path: grafana/auth
+        data:
+          adminUser: admin
+          adminPassword: "{{ admin_passwords.grafana }}"
+
+- name: Wait monitoring namespace created
+  connection: local
+  become: false
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    kind: Namespace
+    name: "{{ apps_monitoring.namespace }}"
+    wait: true
+
+- name: Create VictoriaMetrics auth
+  tags: traefik
+  ansible.builtin.include_role:
+    name: traefik_auth
+  vars:
+    namespace: traefik
+    middleware_name: auth-vm
+    secret_name: "{{ apps_monitoring.release_name }}-vm-users"
+    users:
+      - name: vmsingle
+        password: "{{ apps_monitoring._vms_passowrd }}"

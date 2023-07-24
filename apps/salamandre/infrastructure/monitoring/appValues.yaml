@@ -1,0 +1,50 @@
+externalSecrets:
+  secrets:
+    - name: credentials
+      target:
+        template:
+          type: Opaque
+          data:
+            user: '{{`{{ .vmsingleUser }}`}}'
+            password: '{{`{{ .vmsinglePassword }}`}}'
+      dataFrom:
+        - extract:
+            key: baku/monitoring/auth
+
+victoria-metrics-k8s-stack:
+  # victoria-metrics-operator: # TODO: fix that when have better serviceaccount stuff
+  #   watchNamespace: {{ .Values.destination.namespace | quote }}
+
+  externalVM:
+    read:
+      url: https://metrics.{{ .Values.baseDomain }}/
+      basicAuth: {{ .Values.basicAuth | toYaml | nindent 8 }}
+    write:
+      url: https://metrics.{{ .Values.baseDomain }}/api/v1/write
+      basicAuth: {{ .Values.basicAuth | toYaml | nindent 8 }}
+
+  defaultRules:
+    rules:
+      vmsingle: false
+
+  vmalert:
+    spec:
+      externalLabels:
+        cluster: salamandre
+
+      notifiers:
+        - url: https://metrics.{{ .Values.baseDomain }}:9093/
+          basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
+
+  vmagent:
+    spec:
+      externalLabels:
+        cluster: salamandre
+
+  {{/* disable uneeded dependencies */}}
+  vmsingle:
+    enabled: false
+  alertmanager:
+    enabled: false
+  grafana:
+    enabled: false

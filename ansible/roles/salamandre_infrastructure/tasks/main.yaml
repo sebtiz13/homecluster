@@ -17,3 +17,7 @@
     state: present
     src: "{{ manifests_folder }}/adguard-proxy.yaml"
     namespace: "{{ apps_argocd.namespace }}"
+
+- name: Deploy Monitoring
+  tags: monitoring
+  ansible.builtin.import_tasks: monitoring.yaml

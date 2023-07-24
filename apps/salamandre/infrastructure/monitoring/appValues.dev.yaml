@@ -1,0 +1,43 @@
+victoria-metrics-k8s-stack:
+  vmalert:
+    spec:
+      datasource:
+        tlsConfig:
+          caFile: /etc/vmagent-tls/certs/monitoring_vm-ca-tls-secret_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
+          ca:
+            secret:
+              key: tls.crt
+              name: vm-ca-tls-secret
+      remoteWrite:
+        tlsConfig:
+          caFile: /etc/vmagent-tls/certs/monitoring_vm-ca-tls-secret_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
+          ca:
+            secret:
+              key: tls.crt
+              name: vm-ca-tls-secret
+      remoteRead:
+        tlsConfig:
+          caFile: /etc/vmagent-tls/certs/monitoring_vm-ca-tls-secret_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
+          ca:
+            secret:
+              key: tls.crt
+              name: vm-ca-tls-secret
+      notifiers:
+        - url: https://metrics.{{ .Values.baseDomain }}:9093/
+          basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
+          tlsConfig:
+            ca:
+              secret:
+                key: tls.crt
+                name: vm-ca-tls-secret
+
+  vmagent:
+    spec:
+      remoteWrite:
+        - url: https://metrics.{{ .Values.baseDomain }}/api/v1/write
+          basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
+          tlsConfig:
+            ca:
+              secret:
+                key: tls.crt
+                name: vm-ca-tls-secret

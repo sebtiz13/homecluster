@@ -1,0 +1,27 @@
+- name: Download prometheus CRDs
+  delegate_to: localhost
+  become: false
+  vars:
+    prometheus_version: v0.66.0
+  ansible.builtin.uri:
+    url: "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{ prometheus_version }}/example/prometheus-operator-crd/monitoring.coreos.com_{{ item }}.yaml"
+    method: GET
+    return_content: true
+    status_code: 200
+  register: prometheus_crds
+  loop:
+    - prometheusrules
+    - podmonitors
+    - servicemonitors
+    - probes
+    - alertmanagerconfigs
+- name: Deploy prometheus CRDs
+  delegate_to: localhost
+  become: false
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    state: present
+    definition: "{{ item.content | replace('- =\n', '- \"=\"\n') }}"
+  loop: "{{ prometheus_crds.results }}"
+  loop_control:
+    label: "{{ item.item }}"
