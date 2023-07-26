@@ -23,9 +23,7 @@
   ansible.builtin.import_tasks: k3s.yaml
 
 - name: Deploy requirement for monitoring
-  tags:
-    - kubernetes
-    - monitoring
+  tags: kubernetes
   ansible.builtin.import_tasks: monitoring.yaml
 
 - name: Upload CA certificate
