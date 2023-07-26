@@ -20,10 +20,11 @@
 - name: Enbable zfs module
   community.general.modprobe:
     name: zfs
+    state: present
+    persistent: present
 
 - name: Create ZFS pool
   vars:
-    zfs_pool_state: present
     zfs_pool_name: "{{ zfs_pool.name | default('data') }}"
     zfs_pool_type: "{{ zfs_pool.type | default('') }}"
     zfs_pool_disks: "{{ zfs_pool.disks | join(' ') }}"
@@ -38,12 +39,6 @@
 
     - name: Create pool
       ansible.builtin.command: zpool create {{ zfs_pool_name }} {{ zfs_pool_type }} {{ zfs_pool_disks }}
-      when:
-        - zfs_pool_state | default('present') == 'present'
-        - result_pool_list.rc == 1
-
-    - name: Destroy pool
-      ansible.builtin.command: zpool destroy {{ zfs_pool_name }}
-      when:
-        - zfs_pool_state | default('present') == 'absent'
-        - result_pool_list.rc == 0
+      when: result_pool_list.rc == 1
+      register: zfs_create
+      changed_when: zfs_create.stdout == "" and zfs_create.rc == 0
