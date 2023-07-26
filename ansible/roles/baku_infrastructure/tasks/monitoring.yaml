@@ -9,7 +9,7 @@
       release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
 
-- name: Deploy Monitoring & Grafana application and secrets
+- name: Deploy Monitoring & Grafana application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
@@ -37,7 +37,7 @@
     name: "{{ apps_monitoring.namespace }}"
     wait: true
 
-- name: Create VictoriaMetrics auth
+- name: Create VictoriaMetrics auth # noqa: var-naming[no-role-prefix]
   tags: traefik
   ansible.builtin.include_role:
     name: traefik_auth

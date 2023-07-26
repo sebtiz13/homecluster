@@ -1,4 +1,4 @@
-- name: Create Keycloak database access
+- name: Create Keycloak database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: database_access
   vars:
@@ -6,7 +6,7 @@
     username: keycloak
     password: "{{ apps_keycloak._db_passowrd }}"
 
-- name: Deploy Keycloak application and secrets
+- name: Deploy Keycloak application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: argocd_vault
   vars:

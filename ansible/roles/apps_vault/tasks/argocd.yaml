@@ -1,4 +1,4 @@
-- name: Create policy for ArgoCD
+- name: Create policy for ArgoCD # noqa: var-naming[no-role-prefix]
   ansible.builtin.import_role:
     name: vault_policy
   vars:
@@ -8,14 +8,14 @@
 
 - name: Configure kubernetes role for ArgoCD
   vars:
-    name: argocd
+    vault_role_name: argocd
     existing_roles: "{{ (vault_k8s_role.data | default({})) | community.general.json_query('data.keys') }}"
-  when: "('data' not in vault_k8s_role) or (name not in existing_roles)"
+  when: "('data' not in vault_k8s_role) or (vault_role_name not in existing_roles)"
   community.hashi_vault.vault_write:
     url: "{{ ansible_hashi_vault_addr }}"
     validate_certs: false
     token: "{{ ansible_hashi_vault_token }}"
-    path: "auth/kubernetes/role/{{ name }}"
+    path: "auth/kubernetes/role/{{ vault_role_name }}"
     data:
       bound_service_account_names: "{{ apps_argocd.release_name }}-repo-server"
       bound_service_account_namespaces: "{{ apps_argocd.namespace }}"

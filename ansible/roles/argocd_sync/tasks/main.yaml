@@ -11,9 +11,9 @@
   when:
     - argocd_manifest is not changed
   vars:
-    name: "{{ apps_argocd._manifest.metadata.name }}"
+    app_name: "{{ apps_argocd._manifest.metadata.name }}"
   ansible.builtin.uri:
-    url: "{{ argocd_api_url }}/applications/{{ name }}?refresh=hard"
+    url: "{{ argocd_api_url }}/applications/{{ app_name }}?refresh=hard"
     headers:
       Authorization: "Bearer {{ argocd_api_token }}"
     method: GET

@@ -22,7 +22,7 @@
         validate:
           fail_on_error: true
 
-- name: Write Vault secrets
+- name: Write Vault secrets # noqa: var-naming[no-role-prefix]
   when: env == 'prod'
   vars:
     secrets:

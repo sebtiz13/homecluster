@@ -8,7 +8,7 @@
       release_name: "{{ manifest.spec.source.helm.releaseName }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
 
-- name: Create Wallabag database access
+- name: Create Wallabag database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: database_access
   vars:
@@ -16,7 +16,7 @@
     username: wallabag
     password: "{{ apps_wallabag._db_passowrd }}"
 
-- name: Deploy Wallabag application and secrets
+- name: Deploy Wallabag application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: argocd_vault
   vars:

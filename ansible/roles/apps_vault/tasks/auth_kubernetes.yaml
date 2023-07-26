@@ -19,15 +19,15 @@
 - name: Configure host for kubernetes auth # noqa: no-handler
   when: vault_k8s_auth is changed
   vars:
-    ip: "{{ (k3s_apiserver.resources | first).spec.clusterIP }}"
-    port: "{{ (k3s_apiserver.resources | first).spec.ports | first }}"
+    k8s_ip: "{{ (k3s_apiserver.resources | first).spec.clusterIP }}"
+    k8s_port: "{{ (k3s_apiserver.resources | first).spec.ports | first }}"
   community.hashi_vault.vault_write:
     url: "{{ ansible_hashi_vault_addr }}"
     validate_certs: false
     token: "{{ ansible_hashi_vault_token }}"
     path: auth/kubernetes/config
     data:
-      kubernetes_host: "{{ '%s://%s:%s' | format(port.name, ip, port.port) }}"
+      kubernetes_host: "{{ '%s://%s:%s' | format(k8s_port.name, k8s_ip, k8s_port.port) }}"
 
 - name: List kubernetes roles
   community.hashi_vault.vault_read:

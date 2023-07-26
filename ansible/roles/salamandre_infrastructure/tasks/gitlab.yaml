@@ -13,7 +13,7 @@
       secretNames: "{{ values.externalSecrets.secrets | map(attribute='name') }}"
       host: "{{ host }}"
 
-- name: Create GitLab database access
+- name: Create GitLab database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: database_access
   vars:
@@ -47,7 +47,7 @@
     validate:
       fail_on_error: true
 
-- name: Deploy GitLab application and secrets
+- name: Deploy GitLab application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
@@ -155,7 +155,7 @@
     pod: "{{ (gitlab_toolbox_pod.resources | first).metadata.name }}"
     command: gitlab-rails runner "PersonalAccessToken.find_by_token('{{ apps_gitlab._tmp_user_token }}').revoke!"
 
-- name: Store GitLab runner token
+- name: Store GitLab runner token # noqa: var-naming[no-role-prefix]
   when: gitlab_toolbox_pod is not skipped
   ansible.builtin.import_role:
     name: vault_secrets
@@ -187,3 +187,4 @@
     kubectl rollout restart deployment
       --namespace '{{ apps_gitlab.namespace }}'
       '{{ apps_gitlab.release_name }}-gitlab-runner'
+  changed_when: false

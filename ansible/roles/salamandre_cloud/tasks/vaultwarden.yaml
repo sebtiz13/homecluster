@@ -3,7 +3,7 @@
     apps_vaultwarden:
       _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
 
-- name: Create Vaultwarden database access
+- name: Create Vaultwarden database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: database_access
   vars:
@@ -11,7 +11,7 @@
     username: vaultwarden
     password: "{{ apps_vaultwarden._db_passowrd }}"
 
-- name: Deploy Vaultwarden application and secrets
+- name: Deploy Vaultwarden application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: argocd_vault
   vars:

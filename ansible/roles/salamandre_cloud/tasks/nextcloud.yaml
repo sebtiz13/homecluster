@@ -11,7 +11,7 @@
       namespace: "{{ manifest.spec.destination.namespace }}"
       host: "{{ host }}"
 
-- name: Create Nextcloud database access
+- name: Create Nextcloud database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: database_access
   vars:
@@ -27,7 +27,7 @@
     namespace: "{{ apps_nextcloud.namespace }}"
   register: nextcloud_server
 
-- name: Deploy Nextcloud application and secrets
+- name: Deploy Nextcloud application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
