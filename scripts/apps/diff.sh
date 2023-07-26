@@ -9,7 +9,13 @@ matches() {
   echo "$1" | grep -q "$2"
 }
 
-for APP_PATH in $(git diff --dirstat=files,0 HEAD~1 -- apps | sed 's/^[ 0-9.]\+% //g')
+# Retrieve commits want diff
+DIFF_RANGE="HEAD~1"
+if [ -n "$CI_MERGE_REQUEST_DIFF_BASE_SHA" ]; then
+  DIFF_RANGE=$CI_MERGE_REQUEST_DIFF_BASE_SHA...HEAD
+fi
+
+for APP_PATH in $(git diff --dirstat=files,0 "$DIFF_RANGE" -- apps | sed 's/^[ 0-9.]\+% //g')
 do
   # skip dev project if prod
   if [ "$ENVIRONMENT" = "dev" ] || ! matches "$APP_PATH" ".*/dev/*"; then
