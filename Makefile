@@ -6,7 +6,8 @@ ANSIBLE_DIR := ./ansible
 VAGRANT_DIR := ./vagrant
 
 help: ## Display this help screen
-	grep -E '^[a-z.A-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
+	grep -E '^[a-z.A-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
 _validate-vm:
 ifndef VM_NAME
 	$(error VM_NAME is required for this command)
@@ -22,6 +23,11 @@ init: ## Init environment
 	mkdir -p ./out/kubeconfig
 	mkdir -p ./out/credentials/{salamandre,baku}/{dev,prod}
 	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
+	mkdir -p $(ANSIBLE_DIR)/.bin
+	echo "Download Minio client"
+	curl https://dl.min.io/client/mc/release/linux-amd64/mc \
+  	-o $(ANSIBLE_DIR)/.bin/mc
+	chmod +x $(ANSIBLE_DIR)/.bin/mc
 
 cleanup: ## Cleanup development environment
 	echo "Clean development environment..."
@@ -30,7 +36,7 @@ cleanup: ## Cleanup development environment
 	rm -rf $(VAGRANT_DIR)/.vagrant/{ca,manifests}
 	rm -rf ./out/kubeconfig/*.dev.yaml
 	rm -rf ./out/credentials/{salamandre,baku}/dev
-	rm -rf $(ANSIBLE_DIR)/.venv
+	rm -rf $(ANSIBLE_DIR)/{.venv,.bin}
 
 cluster: ## All-in-one command for cluster deployment
 ifndef DOMAIN_NAME
@@ -83,4 +89,5 @@ vagrant: ## (Re)create vagrant VM
 	make vm-create --no-print-directory
 vm-manifests: ## Build manifests for VM
 	echo "Generate applications manifests..."
-	MANIFESTS_PATH=$(VAGRANT_DIR)/.vagrant/manifests ENVIRONMENT=dev ./scripts/apps/all.sh ./scripts/apps/build.sh
+	MANIFESTS_PATH=$(VAGRANT_DIR)/.vagrant/manifests ENVIRONMENT=dev \
+		./scripts/apps/all.sh ./scripts/apps/build.sh

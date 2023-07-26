@@ -2,6 +2,7 @@
 
 timezone: Europe/Paris
 
+bin_dir: "{{ playbook_dir }}/.bin"
 out_dir: "{{ playbook_dir }}/../out"
 credentials_folder: "{{ out_dir }}/credentials/{{ inventory_hostname }}/{{ env }}"
 secrets_base_path: "{{ inventory_hostname }}/data"

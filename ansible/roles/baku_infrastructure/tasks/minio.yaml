@@ -1,11 +1,22 @@
+- name: Generate salamandre backup Minio credentials
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/minio.yaml') | from_yaml }}"
+  ansible.builtin.set_fact:
+    apps_minio:
+      _manifest: "{{ manifest }}"
+      endpoint: "{{ release_name }}.{{ namespace }}.svc.cluster.local:9000"
+      host: "{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+      svcacctSecretKeys:
+        salamandre-backup: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
+
 - name: Deploy Minio application and secrets
   ansible.builtin.include_role:
     name: argocd_vault
   vars:
-    manifest: "{{ lookup('file', manifests_folder + '/minio.yaml') | from_yaml }}"
+    manifest: "{{ apps_minio._manifest }}"
     restart_resources:
       - kind: Deployment
-        name: "{{ manifest.spec.source.plugin.env.0.value }}"
+        name: "{{ apps_minio._manifest.spec.source.plugin.env.0.value }}"
     secrets:
       - path: minio/auth
         data:
@@ -16,5 +27,29 @@
           endpoint: "https://{{ domain_name }}:3882"
           region: minio
           accessKey: salamandre-backup
-          secretKey: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
+          secretKey: "{{ apps_minio.svcacctSecretKeys['salamandre-backup'] }}"
           bucket: backup-cluster
+
+- name: Wait until Minio is available
+  ansible.builtin.uri:
+    url: "https://{{ apps_minio.host }}/minio/health/live"
+    validate_certs: false
+    method: GET
+    status_code: 200
+    return_content: true
+  register: minio_health
+  until: minio_health.status == 200
+  retries: 30 # This is for wait max 2.5min
+  delay: 5
+
+- name: Update Minio service accounts secret key
+  when: argocd_refresh is not skipped
+  vars:
+    result: "Edited service account `{{ item }}` successfully."
+  ansible.builtin.shell: >
+    MC_HOST_minio=https://admin:{{ admin_passwords.minio }}@{{ apps_minio.host }}
+    {{ bin_dir }}/mc --debug admin user svcacct edit --secret-key="{{ apps_minio.svcacctSecretKeys[item] }}" minio {{ item }}
+  register: minio_svcacct
+  changed_when: result in minio_svcacct.stdout
+  loop:
+    - salamandre-backup

@@ -9,6 +9,8 @@
       endpoint: "{{ release_name }}.{{ namespace }}.svc.cluster.local:9000"
       host: "{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
       region: "minio"
+      svcacctSecretKeys:
+        gitlab: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
 
 - name: Deploy Minio application and secrets
   ansible.builtin.include_role:
@@ -29,7 +31,7 @@
           endpoint: "{{ apps_minio.endpoint }}"
           region: "{{ apps_minio.region }}"
           accessKey: gitlab
-          secretKey: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
+          secretKey: "{{ apps_minio.svcacctSecretKeys.gitlab }}"
           # Buckets
           bucket_artifacts: gitlab-artifacts
           bucket_backups: gitlab-backups
@@ -41,3 +43,27 @@
           bucket_tfState: gitlab-terraform-state
           bucket_uploads: gitlab-uploads
           bucket_lfs: git-lfs
+
+- name: Wait until Minio is available
+  ansible.builtin.uri:
+    url: "https://{{ apps_minio.host }}/minio/health/live"
+    validate_certs: false
+    method: GET
+    status_code: 200
+    return_content: true
+  register: minio_health
+  until: minio_health.status == 200
+  retries: 30 # This is for wait max 2.5min
+  delay: 5
+
+- name: Update Minio service accounts secret key
+  when: argocd_refresh is not skipped
+  vars:
+    result: "Edited service account `{{ item }}` successfully."
+  ansible.builtin.shell: >
+    MC_HOST_minio=https://admin:{{ admin_passwords.minio }}@{{ apps_minio.host }}
+    {{ bin_dir }}/mc --debug admin user svcacct edit --secret-key="{{ apps_minio.svcacctSecretKeys[item] }}" minio {{ item }}
+  register: minio_svcacct
+  changed_when: result in minio_svcacct.stdout
+  loop:
+    - gitlab

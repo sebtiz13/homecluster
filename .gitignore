@@ -1,5 +1,6 @@
 .vagrant/
-.venv/
+ansible/.venv/
+ansible/.bin
 ansible/inventories/prod/host_vars/*.yaml
 out/
 
