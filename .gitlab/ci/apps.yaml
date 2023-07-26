@@ -35,7 +35,7 @@ apps:deploy:
   stage: deploy
   needs: [apps:build]
   image:
-    name: alpine/git:2.36.3
+    name: alpine/git:2.40.1
     entrypoint: [""]
   before_script:
     - git config user.email "${CI_EMAIL}"

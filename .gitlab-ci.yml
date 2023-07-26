@@ -12,7 +12,7 @@ variables:
   SKIP_APP: .*wallabag/
 
 image:
-  name: alpine/helm:3.10.1
+  name: alpine/helm:3.12.2
   entrypoint: [""]
 
 stages:
