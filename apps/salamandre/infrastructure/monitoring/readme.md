@@ -5,26 +5,5 @@
 
 ## Dependencies
 
-- [Grafana](https://grafana.com/)
 - [kube-state-metrics (KSM)](https://github.com/kubernetes/kube-state-metrics/)
 - [Node exporter](https://github.com/prometheus/node_exporter)
-
-## Vault secrets
-
-The secrets keys need to exist for deploy the app
-
-> **Mount path:** `baku`
-
-### grafana/auth
-
-Admin user informations
-
-- `adminUser`: The username
-- `adminPassword`: The password
-
-### grafana/oidc
-
-- `issuer`: The issuer URL (eg. `https://sso.local.vm/realm/developer`)
-- `cliClientID`: The client ID for cli
-- `clientID`: The client ID
-- `clientSecret`: The client secret
