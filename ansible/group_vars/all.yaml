@@ -6,11 +6,3 @@ bin_dir: "{{ playbook_dir }}/.bin"
 out_dir: "{{ playbook_dir }}/../out"
 credentials_folder: "{{ out_dir }}/credentials/{{ inventory_hostname }}/{{ env }}"
 secrets_base_path: "{{ inventory_hostname }}/data"
-
-# TODO: fix to kubernetes 1.26 due to OpenEBS zfs-localpv issue in 1.27 (https://github.com/openebs/zfs-localpv/pull/457)
-k3s:
-  # The versions channel
-  channel: v1.26
-  # Specific version
-  # version: ""
-  flags: []
