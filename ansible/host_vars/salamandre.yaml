@@ -35,7 +35,6 @@ nextcloud_apps:
     - metadata # Metadata
     - notes # Note
     - quota_warning # Quota warning
-    # - ransomware_protection # Ransomware protection # TODO: wait update for nextcloud 26
     - files_retention # Retention
     - calendar # Calendar
     - previewgenerator # Preview Generator (cron task to generate preview)
