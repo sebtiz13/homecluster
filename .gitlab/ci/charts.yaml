@@ -7,7 +7,7 @@ charts:lint:
   script:
     - ./scripts/charts/${SCRIPT:-diff}.sh ./scripts/charts/lint.sh
   artifacts:
-    expire_in: 2 minutes
+    expire_in: 1 hours
     paths:
       - charts/**/charts/
       - out/helm/
