@@ -15,7 +15,7 @@ metadata:
   labels:
     {{ $.Values.grafana.sidecar.datasources.label }}: "1"
     app: {{ include "monitoring.name" $ }}-grafana
-    {{- include "monitoring.labels" . | nindent 4 }}
+    {{- include "monitoring.labels" $ | nindent 4 }}
 data:
 {{- if or $VM.vmsingle.enabled  .Values.grafana.additionalDataSources }}
   datasource.yaml: |-
@@ -24,7 +24,7 @@ data:
   {{- if $VM.vmsingle.enabled }}
     - name: VictoriaMetrics
       type: prometheus
-      {{- $readEndpoint:= (include "victoria-metrics-k8s-stack.vmReadEndpoint" $VM | fromYaml) }}
+      {{- $readEndpoint:= (include "monitoring.vmReadEndpoint" (dict "VM" $VM "Namespace" $.Release.Namespace)) | fromYaml }}
       url: {{ $readEndpoint.url }}
       access: proxy
       isDefault: true
@@ -34,7 +34,7 @@ data:
   {{- range until (int $VM.vmsingle.spec.replicaCount) }}
     - name: VictoriaMetrics-{{ . }}
       type: prometheus
-      url: "http://{{ include "victoria-metrics-k8s-stack.vmsingleName" $VM }}-{{ . }}.{{ $.Release.Namespace }}.svc:{{ $VM.vmsingle.spec.port | default 8428 }}"
+      url: "http://{{ $VM.vmsingle.name }}-{{ . }}.{{ $.Release.Namespace }}.svc:{{ $VM.vmsingle.spec.port | default 8428 }}"
       access: proxy
       isDefault: false
       jsonData: {{ toYaml .Values.grafana.sidecar.datasources.jsonData | nindent 8 }}

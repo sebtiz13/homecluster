@@ -49,3 +49,11 @@ Selector labels
 app.kubernetes.io/name: {{ include "monitoring.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{- define "monitoring.vmReadEndpoint" -}}
+{{- if .VM.vmsingle.enabled -}}
+url: {{ printf "http://%s.%s.svc:%s%s" .VM.vmsingle.name .Namespace (.VM.vmsingle.spec.port | default "8429") (index .VM.vmsingle.spec "extraArgs" "http.pathPrefix" | default "/") }}
+{{- else if .VM.externalVM.read.url -}}
+{{ .VM.externalVM.read | toYaml }}
+{{- end }}
+{{- end }}
