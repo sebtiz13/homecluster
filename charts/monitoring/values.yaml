@@ -25,12 +25,138 @@ victoria-metrics-k8s-stack:
       prometheus_converter_add_argocd_ignore_annotations: true
       enable_converter_ownership: true
 
-  # Disable default dashboards
-  defaultDashboardsEnabled: false
-  grafana:
-    fullnameOverride: grafana
-    dashboards: {}
+  vmagent:
+    name: vmagent
+  vmalert:
+    name: vmalert
+  vmsingle:
+    name: vmsingle
 
-  # disable uneeded dependencies
+  alertmanager:
+    name: alertmanager
+
+    # Remove slack things
+    config:
+      route:
+        receiver: noop
+        routes: []
+      receivers:
+        - name: noop
+
+    monzoTemplate:
+      enabled: false
+
+  # Disable default grafana dashboards
+  defaultDashboardsEnabled: false
+
+  # Disable unneeded alert rules
+  defaultRules:
+    rules:
+      etcd: false
+      vmcluster: false
+
+  # disable unneeded dependencies
+  grafana:
+    enabled: false # Deploy own grafana
   kubeEtcd:
     enabled: false
+
+# Grafana dependency chart configuration. For possible values refer to https://github.com/grafana/helm-charts/tree/main/charts/grafana#configuration
+grafana:
+  enabled: true
+  fullname: grafana
+
+  ## all values for grafana helm chart can be specified here
+  sidecar:
+    datasources:
+      enabled: true
+      createVMReplicasDatasources: false
+      # JSON options for VM datasources
+      # See https://grafana.com/docs/grafana/latest/administration/provisioning/#json-data
+      jsonData: {}
+      #  timeInterval: "1m"
+    dashboards:
+      additionalDashboardLabels: {}
+      additionalDashboardAnnotations: {}
+      enabled: true
+      multicluster: true
+
+  ## ForceDeployDatasource Create datasource configmap even if grafana deployment has been disabled
+  forceDeployDatasource: false
+
+  ## Configure additional grafana datasources (passed through tpl)
+  ## ref: http://docs.grafana.org/administration/provisioning/#datasources
+  additionalDataSources: []
+  # - name: prometheus-sample
+  #   access: proxy
+  #   basicAuth: true
+  #   basicAuthPassword: pass
+  #   basicAuthUser: daco
+  #   editable: false
+  #   jsonData:
+  #       tlsSkipVerify: true
+  #   orgId: 1
+  #   type: prometheus
+  #   url: https://{{ printf "%s-prometheus.svc" .Release.Name }}:9090
+  #   version: 1
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  dashboards:
+    default:
+      nodeexporter:
+        gnetId: 1860
+        revision: 22
+        datasource: VictoriaMetrics
+
+  defaultDashboardsEnabled: true
+
+  defaultDashboardsTimezone: utc
+
+  ingress:
+    enabled: false
+    ingressClassName: nginx
+    # Values can be templated
+    annotations:
+      {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    labels: {}
+    path: /
+    # pathType is only for k8s > 1.19
+    pathType: Prefix
+
+    hosts:
+      - grafana.domain.com
+    ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
+    extraPaths: []
+    # - path: /*
+    #   pathType: Prefix
+    #   backend:
+    #     service:
+    #       name: ssl-redirect
+    #       port:
+    #         name: service
+    tls: []
+    #  - secretName: grafana-ingress-tls
+    #    hosts:
+    #      - grafana.domain.com
+
+  vmServiceScrape:
+    # wheter we should create a service scrape resource for grafana
+    enabled: true
+
+    # spec for VMServiceScrape crd
+    # https://docs.victoriametrics.com/operator/api.html#vmservicescrapespec
+    spec: {}
