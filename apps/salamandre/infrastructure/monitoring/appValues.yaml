@@ -46,5 +46,7 @@ victoria-metrics-k8s-stack:
     enabled: false
   alertmanager:
     enabled: false
-  grafana:
-    enabled: false
+
+{{/* disable uneeded dependencies */}}
+grafana:
+  enabled: false
