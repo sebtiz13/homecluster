@@ -52,7 +52,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "monitoring.vmReadEndpoint" -}}
 {{- if .VM.vmsingle.enabled -}}
-url: {{ printf "http://%s.%s.svc:%s%s" .VM.vmsingle.name .Namespace (.VM.vmsingle.spec.port | default "8429") (index .VM.vmsingle.spec "extraArgs" "http.pathPrefix" | default "/") }}
+{{- $svcName := printf "vmsingle-%s" .VM.fullnameOverride }}
+url: {{ printf "http://%s.%s.svc:%s%s" $svcName .Namespace (.VM.vmsingle.spec.port | default "8429") (index .VM.vmsingle.spec "extraArgs" "http.pathPrefix" | default "/") }}
 {{- else if .VM.externalVM.read.url -}}
 {{ .VM.externalVM.read | toYaml }}
 {{- end }}

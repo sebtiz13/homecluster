@@ -25,17 +25,8 @@ victoria-metrics-k8s-stack:
       prometheus_converter_add_argocd_ignore_annotations: true
       enable_converter_ownership: true
 
-  vmagent:
-    name: vmagent
-  vmalert:
-    name: vmalert
-  vmsingle:
-    name: vmsingle
-
+  # Remove slack things
   alertmanager:
-    name: alertmanager
-
-    # Remove slack things
     config:
       route:
         receiver: noop
