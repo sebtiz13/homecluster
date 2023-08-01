@@ -5,6 +5,10 @@
 ANSIBLE_DIR := ./ansible
 VAGRANT_DIR := ./vagrant
 
+ifndef VERBOSE
+MAKEFLAGS += --no-print-directory
+endif
+
 help: ## Display this help screen
 	grep -E '^[a-z.A-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -42,21 +46,21 @@ cluster: ## All-in-one command for cluster deployment
 ifndef DOMAIN_NAME
 	$(error DOMAIN_NAME is required for this command)
 endif
-	make init --no-print-directory
+	$(MAKE) init
 	echo "Create credentials..."
 	./scripts/gen-credentials.sh
-	make provision --no-print-directory
+	$(MAKE) provision
 provision: ## Provisioning machines
 	echo "Provisioning cluster(s)"
 	./scripts/ansible.sh
 
 test-cluster: ## [DEV] All-in-one command for cluster deployment
-	make init --no-print-directory
+	$(MAKE) init
 	echo "Create credentials..."
 	ENVIRONMENT=dev ./scripts/gen-credentials.sh
-	make vm-manifests --no-print-directory
-	make vm-create --no-print-directory
-	make test-provision --no-print-directory
+	$(MAKE) vm-manifests
+	$(MAKE) vm-create
+	$(MAKE) test-provision
 test-provision: ## [DEV] Provisioning machines
 	echo "Provisioning VM(s)"
 ifndef VM_NAME
@@ -79,14 +83,14 @@ else
 	cd $(VAGRANT_DIR); vagrant destroy -f $(VM_NAME) || true
 endif
 vm-ssh: ## Accessing to VM
-	make _validate-vm --no-print-directory
+	$(MAKE) _validate-vm
 	cd $(VAGRANT_DIR); vagrant ssh $(VM_NAME)
 vm-reload: ## Reload vagrant VM
 	echo "Reload VM(s)..."
 	cd $(VAGRANT_DIR); vagrant reload $(VM_NAME)
 vagrant: ## (Re)create vagrant VM
-	make vm-destroy --no-print-directory
-	make vm-create --no-print-directory
+	$(MAKE) vm-destroy
+	$(MAKE) vm-create
 vm-manifests: ## Build manifests for VM
 	echo "Generate applications manifests..."
 	MANIFESTS_PATH=$(VAGRANT_DIR)/.vagrant/manifests ENVIRONMENT=dev \
