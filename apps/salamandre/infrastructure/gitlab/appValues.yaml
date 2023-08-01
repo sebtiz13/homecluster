@@ -60,6 +60,7 @@ externalSecrets:
           data:
             config: |-
               {{`host_base = {{ .endpoint }}
+              use_https = false
               host_bucket = {{ .endpoint }}
               bucket_location = {{ .region }}
               access_key = {{ .accessKey }}
