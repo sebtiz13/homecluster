@@ -62,7 +62,7 @@
     result: "Edited service account `{{ item.key }}` successfully."
   ansible.builtin.shell: >
     MC_HOST_minio=https://admin:{{ admin_passwords.minio }}@{{ apps_minio.host }}
-    {{ bin_dir }}/mc --debug admin user svcacct edit --secret-key="{{ item.value }}" minio {{ item.key }}
+    {{ bin_dir }}/mc admin user svcacct edit --secret-key="{{ item.value }}" minio {{ item.key }}
   register: minio_svcacct
   changed_when: result in minio_svcacct.stdout
   loop: "{{ apps_minio.svcacctSecretKeys | dict2items }}"
