@@ -1,7 +1,6 @@
 - name: Generate Nextcloud database password
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
-    values: "{{ manifest.spec.source.plugin.env.1.value }}"
     host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
   ansible.builtin.set_fact:
     apps_nextcloud:

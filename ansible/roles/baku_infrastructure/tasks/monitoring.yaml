@@ -1,7 +1,6 @@
 - name: Retrieve Monitoring & Grafana informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/monitoring.yaml') | from_yaml }}"
-    values: "{{ manifest.spec.source.plugin.env.1.value | from_yaml }}"
   ansible.builtin.set_fact:
     apps_monitoring:
       _manifest: "{{ manifest }}"
