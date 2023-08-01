@@ -58,6 +58,7 @@
 
 - name: Update Minio service accounts secret key
   when: argocd_refresh is not skipped
+  no_log: true
   vars:
     result: "Edited service account `{{ item.key }}` successfully."
   ansible.builtin.shell: >
@@ -66,3 +67,5 @@
   register: minio_svcacct
   changed_when: result in minio_svcacct.stdout
   loop: "{{ apps_minio.svcacctSecretKeys | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"

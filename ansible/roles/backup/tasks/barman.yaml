@@ -35,6 +35,8 @@
     - name: "{{ barman.streaming_user }}"
       password: "{{ barman.streaming_password }}"
       flags: REPLICATION
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: Create folder for MinIO config
   ansible.builtin.file:

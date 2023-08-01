@@ -19,16 +19,22 @@
         ('results' in vault_check and 'msg' in vault_check.results[0] and vault_check.results[0].msg == 'MODULE FAILURE\nSee stdout/stderr for the exact error')
       register: vault_check
       loop: "{{ secrets }}"
+      loop_control:
+        label: "{{ full_path }}"
 
     - name: Write new secret
       when: ('msg' in item) or (item.data.data.data != item.item.data)
+      vars:
+        full_path: "{{ item.item.full_path | default(secrets_base_path + '/' + item.item.path | default('')) }}"
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
         validate_certs: "{{ validate_certs }}"
         token: "{{ ansible_hashi_vault_token }}"
         ca_cert: "{{ ca.cert | default('') }}"
-        path: "{{ item.item.full_path | default(secrets_base_path + '/' + item.item.path | default('')) }}"
+        path: "{{ full_path }}"
         data:
           data: "{{ item.item.data }}"
       register: vault_secret
       loop: "{{ vault_check.results }}"
+      loop_control:
+        label: "{{ full_path }}"

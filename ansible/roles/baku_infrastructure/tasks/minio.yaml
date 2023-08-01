@@ -48,9 +48,12 @@
   when: argocd_refresh is not skipped
   vars:
     result: "Edited service account `{{ item.key }}` successfully."
+  no_log: true
   ansible.builtin.shell: >
     MC_HOST_minio=https://admin:{{ admin_passwords.minio }}@{{ apps_minio.apiUrl }}
     {{ bin_dir }}/mc admin user svcacct edit --secret-key="{{ item.value }}" minio {{ item.key }}
   register: minio_svcacct
   changed_when: result in minio_svcacct.stdout
   loop: "{{ apps_minio.svcacctSecretKeys | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
