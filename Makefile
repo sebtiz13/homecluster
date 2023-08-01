@@ -4,6 +4,7 @@
 
 ANSIBLE_DIR := ./ansible
 VAGRANT_DIR := ./vagrant
+ENVIRONMENT := prod
 
 ifndef VERBOSE
 MAKEFLAGS += --no-print-directory
@@ -24,13 +25,17 @@ init: ## Init environment
 	echo "Installing ansible modules..."
 	cd $(ANSIBLE_DIR); .venv/bin/ansible-galaxy install -r requirements.yaml
 	echo "Creating required folders..."
-	mkdir -p ./out/kubeconfig
-	mkdir -p ./out/credentials/{salamandre,baku}/{dev,prod}
-	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
 	mkdir -p $(ANSIBLE_DIR)/.bin
+	mkdir -p ./out/kubeconfig
+ifeq ($(ENVIRONMENT), dev)
+	echo mkdir -p ./out/credentials/{salamandre,baku}/dev
+	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
+else
+	echo mkdir -p ./out/credentials/{salamandre,baku}/prod
+endif
 	echo "Download Minio client"
 	curl https://dl.min.io/client/mc/release/linux-amd64/mc \
-  	-o $(ANSIBLE_DIR)/.bin/mc
+		-o $(ANSIBLE_DIR)/.bin/mc
 	chmod +x $(ANSIBLE_DIR)/.bin/mc
 
 cleanup: ## Cleanup development environment
@@ -55,7 +60,7 @@ provision: ## Provisioning machines
 	./scripts/ansible.sh
 
 test-cluster: ## [DEV] All-in-one command for cluster deployment
-	$(MAKE) init
+	$(MAKE) init ENVIRONMENT=dev
 	echo "Create credentials..."
 	ENVIRONMENT=dev ./scripts/gen-credentials.sh
 	$(MAKE) vm-manifests
