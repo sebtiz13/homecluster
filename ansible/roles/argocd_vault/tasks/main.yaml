@@ -30,14 +30,27 @@
     timeout: 300
   register: argocd_refresh
 
-- name: Restart application resources for update secrets
+- name: Check existing application resources
   when:
     - argocd_manifest is not changed
     - vault_secret is changed
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig.dest }}"
+    kind: "{{ item.kind }}"
+    name: "{{ item.name }}"
+    namespace: "{{ manifest.spec.destination.namespace }}"
+  register: app_resource
+  loop: "{{ restart_resources }}"
+
+- name: Restart application resources for update secrets
+  when: item.resources | length > 0 # This prevent restart resources if not exist
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.command: |
-    kubectl rollout restart {{ item.kind }}
+    kubectl rollout restart {{ item.item.kind }}
       --namespace '{{ manifest.spec.destination.namespace }}'
-      '{{ item.name }}'
+      '{{ item.item.name }}'
   changed_when: false
-  loop: "{{ restart_resources }}"
+  loop: "{{ app_resource.results }}"
+  loop_control:
+    label: "{{ item.item }}"
