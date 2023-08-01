@@ -1,10 +1,13 @@
 - name: Generate salamandre backup Minio credentials
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/minio.yaml') | from_yaml }}"
+    values: "{{ manifest.spec.source.plugin.env.1.value | from_yaml }}"
+    host: "{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
   ansible.builtin.set_fact:
     apps_minio:
       _manifest: "{{ manifest }}"
-      host: "{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+      host: "{{ host }}"
+      apiUrl: "{{ host }}:3882" # Port form "apps/baku/system/traefik"
       svcacctSecretKeys:
         salamandre-backup: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
 
@@ -23,7 +26,7 @@
           rootPassword: "{{ admin_passwords.minio }}"
       - full_path: salamandre/data/backup/s3
         data:
-          endpoint: "https://{{ domain_name }}:3882"
+          endpoint: "https://{{ apps_minio.apiUrl }}"
           region: minio
           accessKey: salamandre-backup
           secretKey: "{{ apps_minio.svcacctSecretKeys['salamandre-backup'] }}"
@@ -46,7 +49,7 @@
   vars:
     result: "Edited service account `{{ item.key }}` successfully."
   ansible.builtin.shell: >
-    MC_HOST_minio=https://admin:{{ admin_passwords.minio }}@{{ apps_minio.host }}
+    MC_HOST_minio=https://admin:{{ admin_passwords.minio }}@{{ apps_minio.apiUrl }}
     {{ bin_dir }}/mc admin user svcacct edit --secret-key="{{ item.value }}" minio {{ item.key }}
   register: minio_svcacct
   changed_when: result in minio_svcacct.stdout
