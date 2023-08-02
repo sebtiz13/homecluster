@@ -19,6 +19,7 @@ grafana:
   dashboards:
     kubernetes:
       views_global: true
+      views_namespaces: true
       views_pods: true
       volumes_cluster: true
     victoriametrics:
