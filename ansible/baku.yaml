@@ -48,7 +48,32 @@
     - kubernetes
     - kubed
   tasks:
-    - name: Wait until secret is synced
+    - name: Wait CA until secret is synced
+      when: env == 'dev'
+      delegate_to: localhost
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ kubeconfig.dest }}"
+        kind: Secret
+        name: vm-ca-tls-secret
+        namespace: kubed-sync
+        wait: true
+        wait_sleep: 10
+        wait_timeout: 360
+    - name: Annotate CA secret for sync cross namespace
+      when: env == 'dev'
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        state: patched
+        kubeconfig: "{{ kubeconfig.dest }}"
+        kind: Secret
+        name: vm-ca-tls-secret
+        namespace: kubed-sync
+        force: true
+        definition:
+          metadata:
+            annotations:
+              kubed.appscode.com/sync: "domain={{ root_domain }}"
+    - name: Wait until tls secret is synced
       delegate_to: localhost
       kubernetes.core.k8s_info:
         kubeconfig: "{{ kubeconfig.dest }}"
@@ -58,7 +83,7 @@
         wait: true
         wait_sleep: 10
         wait_timeout: 360
-    - name: Annotate secret for sync cross namespace
+    - name: Annotate tls secret for sync cross namespace
       delegate_to: localhost
       kubernetes.core.k8s:
         state: patched

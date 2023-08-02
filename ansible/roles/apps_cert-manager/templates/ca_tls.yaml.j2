@@ -4,6 +4,7 @@ metadata:
   name: vm-ca-tls-secret
   annotations:
     kubed.appscode.com/sync: "domain={{ root_domain }}"
+    kubed.appscode.com/sync-contexts: baku
 type: kubernetes.io/tls
 data:
   tls.crt: "{{ lookup('file', ca.cert) | b64encode }}"

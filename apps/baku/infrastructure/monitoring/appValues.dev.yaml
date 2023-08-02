@@ -5,3 +5,12 @@ victoria-metrics-k8s-stack:
         resources:
           requests:
             storage: 5Gi
+
+grafana:
+  extraSecretMounts:
+    - name: certificate
+      mountPath: /etc/ssl/certs/ca.crt
+      secretName: vm-ca-tls-secret
+      subPath: tls.crt
+      readOnly: true
+      defaultMode: 420
