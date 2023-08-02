@@ -17,10 +17,10 @@ victoria-metrics-k8s-stack:
 
   externalVM:
     read:
-      url: https://metrics.{{ .Values.baseDomain }}/
+      url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/
       basicAuth: {{ .Values.basicAuth | toYaml | nindent 8 }}
     write:
-      url: https://metrics.{{ .Values.baseDomain }}/api/v1/write
+      url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/api/v1/write
       basicAuth: {{ .Values.basicAuth | toYaml | nindent 8 }}
 
   defaultRules:
@@ -33,7 +33,7 @@ victoria-metrics-k8s-stack:
         cluster: salamandre
 
       notifiers:
-        - url: https://metrics.{{ .Values.baseDomain }}:9093/
+        - url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/alertmanager/
           basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
 
   vmagent:

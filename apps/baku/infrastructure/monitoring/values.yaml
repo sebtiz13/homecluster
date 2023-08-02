@@ -1,5 +1,9 @@
 plugin: argocd-vault-plugin-helm
 
+ingress:
+  subdomain: monitor
+  port: 53639
+
 source:
   repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
   chart: monitoring

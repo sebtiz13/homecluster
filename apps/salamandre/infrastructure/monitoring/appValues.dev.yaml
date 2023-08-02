@@ -23,7 +23,7 @@ victoria-metrics-k8s-stack:
               key: tls.crt
               name: vm-ca-tls-secret
       notifiers:
-        - url: https://metrics.{{ .Values.baseDomain }}:9093/
+        - url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/alertmanager/
           basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
           tlsConfig:
             ca:
@@ -34,7 +34,7 @@ victoria-metrics-k8s-stack:
   vmagent:
     spec:
       remoteWrite:
-        - url: https://metrics.{{ .Values.baseDomain }}/api/v1/write
+        - url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/api/v1/write
           basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
           tlsConfig:
             ca:

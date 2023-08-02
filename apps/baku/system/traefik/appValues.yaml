@@ -21,10 +21,10 @@ ports:
     protocol: TCP
     tls:
       enabled: true
-  alertmanager:
-    port: 9093
+  metrics:
+    port: 53639
     expose: true
-    exposedPort: 9093
+    exposedPort: 53639
     protocol: TCP
     tls:
       enabled: true
