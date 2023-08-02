@@ -21,7 +21,7 @@ ports:
     protocol: TCP
     tls:
       enabled: true
-  metrics:
+  monitoring:
     port: 53639
     expose: true
     exposedPort: 53639

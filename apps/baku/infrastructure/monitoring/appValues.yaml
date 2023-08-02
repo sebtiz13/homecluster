@@ -8,7 +8,7 @@ victoria-metrics-k8s-stack:
       ingressClassName: traefik
       annotations:
         traefik.ingress.kubernetes.io/router.middlewares: traefik-auth-vm@kubernetescrd # NOTE: managed by ansible
-        traefik.ingress.kubernetes.io/router.entrypoints: metrics
+        traefik.ingress.kubernetes.io/router.entrypoints: monitoring
       hosts:
         - {{ include "ingress.host" . }}
       tls:
@@ -36,7 +36,7 @@ victoria-metrics-k8s-stack:
       ingressClassName: traefik
       annotations:
         traefik.ingress.kubernetes.io/router.middlewares: traefik-auth-vm@kubernetescrd # NOTE: managed by ansible
-        traefik.ingress.kubernetes.io/router.entrypoints: metrics
+        traefik.ingress.kubernetes.io/router.entrypoints: monitoring
       hosts:
         - {{ include "ingress.host" . }}
       path: /alertmanager/
