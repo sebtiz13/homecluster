@@ -28,10 +28,10 @@ init: ## Init environment
 	mkdir -p $(ANSIBLE_DIR)/.bin
 	mkdir -p ./out/kubeconfig
 ifeq ($(ENVIRONMENT), dev)
-	echo mkdir -p ./out/credentials/{salamandre,baku}/dev
+	mkdir -p ./out/credentials/{salamandre,baku}/dev
 	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
 else
-	echo mkdir -p ./out/credentials/{salamandre,baku}/prod
+	mkdir -p ./out/credentials/{salamandre,baku}/prod
 endif
 	echo "Download Minio client"
 	curl https://dl.min.io/client/mc/release/linux-amd64/mc \
