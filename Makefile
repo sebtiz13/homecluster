@@ -33,8 +33,8 @@ ifeq ($(ENVIRONMENT), dev)
 else
 	mkdir -p ./out/credentials/{salamandre,baku}/prod
 endif
-	echo "Download Minio client"
-	curl https://dl.min.io/client/mc/release/linux-amd64/mc \
+	echo "Download Minio client..."
+	curl --progress-bar https://dl.min.io/client/mc/release/linux-amd64/mc \
 		-o $(ANSIBLE_DIR)/.bin/mc
 	chmod +x $(ANSIBLE_DIR)/.bin/mc
 
