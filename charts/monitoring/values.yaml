@@ -55,7 +55,7 @@ victoria-metrics-k8s-stack:
 # Grafana dependency chart configuration. For possible values refer to https://github.com/grafana/helm-charts/tree/main/charts/grafana#configuration
 grafana:
   enabled: true
-  fullname: grafana
+  fullnameOverride: grafana
 
   ## all values for grafana helm chart can be specified here
   sidecar:
