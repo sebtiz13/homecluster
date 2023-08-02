@@ -50,7 +50,6 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 10229,
   "graphTooltip": 0,
-  "id": 19,
   "links": [
     {
       "icon": "doc",
@@ -4956,7 +4955,7 @@
       "type": "row"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 37,
   "style": "dark",
   "tags": ["victoriametrics", "vmsingle"],

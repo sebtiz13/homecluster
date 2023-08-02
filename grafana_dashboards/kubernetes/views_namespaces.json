@@ -26,7 +26,6 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 15758,
   "graphTooltip": 1,
-  "id": 12,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -1885,18 +1884,13 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "30s",
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": ["Kubernetes", "Prometheus"],
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
         "hide": 2,
         "includeAll": false,
         "multi": false,
@@ -1932,11 +1926,6 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": true,
-          "text": ["monitoring"],
-          "value": ["monitoring"]
-        },
         "datasource": {
           "type": "prometheus",
           "uid": "$ds"

@@ -26,7 +26,6 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 11454,
   "graphTooltip": 1,
-  "id": 35,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -113,9 +112,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -195,9 +192,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -325,9 +320,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -407,9 +400,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -596,9 +587,7 @@
           "options": {
             "footer": {
               "fields": "",
-              "reducer": [
-                "sum"
-              ],
+              "reducer": ["sum"],
               "show": false
             },
             "showHeader": true
@@ -646,20 +635,14 @@
             "conditions": [
               {
                 "evaluator": {
-                  "params": [
-                    0
-                  ],
+                  "params": [0],
                   "type": "gt"
                 },
                 "operator": {
                   "type": "and"
                 },
                 "query": {
-                  "params": [
-                    "A",
-                    "1h",
-                    "now"
-                  ]
+                  "params": ["A", "1h", "now"]
                 },
                 "reducer": {
                   "params": [],
@@ -1025,9 +1008,7 @@
           "options": {
             "footer": {
               "fields": "",
-              "reducer": [
-                "sum"
-              ],
+              "reducer": ["sum"],
               "show": false
             },
             "showHeader": true
@@ -1085,20 +1066,14 @@
             "conditions": [
               {
                 "evaluator": {
-                  "params": [
-                    0
-                  ],
+                  "params": [0],
                   "type": "gt"
                 },
                 "operator": {
                   "type": "and"
                 },
                 "query": {
-                  "params": [
-                    "A",
-                    "1h",
-                    "now"
-                  ]
+                  "params": ["A", "1h", "now"]
                 },
                 "reducer": {
                   "params": [],
@@ -1505,9 +1480,7 @@
           "options": {
             "footer": {
               "fields": "",
-              "reducer": [
-                "sum"
-              ],
+              "reducer": ["sum"],
               "show": false
             },
             "showHeader": true
@@ -1786,9 +1759,7 @@
         "justifyMode": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2191,9 +2162,7 @@
       "options": {
         "footer": {
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -2610,9 +2579,7 @@
           "id": 17,
           "options": {
             "legend": {
-              "calcs": [
-                "lastNotNull"
-              ],
+              "calcs": ["lastNotNull"],
               "displayMode": "table",
               "placement": "right",
               "showLegend": true
@@ -2709,9 +2676,7 @@
           "id": 18,
           "options": {
             "legend": {
-              "calcs": [
-                "lastNotNull"
-              ],
+              "calcs": ["lastNotNull"],
               "displayMode": "table",
               "placement": "right",
               "showLegend": true
@@ -2810,9 +2775,7 @@
           "interval": "",
           "options": {
             "legend": {
-              "calcs": [
-                "lastNotNull"
-              ],
+              "calcs": ["lastNotNull"],
               "displayMode": "table",
               "placement": "right",
               "showLegend": true
@@ -2853,14 +2816,10 @@
       "type": "row"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 37,
   "style": "dark",
-  "tags": [
-    "openshift",
-    "k8s",
-    "storage"
-  ],
+  "tags": ["openshift", "k8s", "storage"],
   "templating": {
     "list": [
       {
