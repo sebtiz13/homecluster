@@ -133,9 +133,7 @@ grafana:
     size: 5Gi
 
   resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 750Mi
