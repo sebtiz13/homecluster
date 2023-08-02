@@ -44,7 +44,10 @@
   loop: "{{ restart_resources }}"
 
 - name: Restart application resources for update secrets
-  when: item.resources | length > 0 # This prevent restart resources if not exist
+  when: # This bellow conditions prevent restart resources if not exist
+    - item is not skipped
+    - item is succeeded
+    - item.resources | length > 0
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.command: |
     kubectl rollout restart {{ item.item.kind }}
