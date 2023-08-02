@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
       :hostname => "salamandre.vm",
       :domain => "local.vm",
       :ip => "192.168.12.10",
-      :cpus => 6,
+      :cpus => 5,
       :memory => 10 * 1024
     },
     {
@@ -29,8 +29,8 @@ Vagrant.configure("2") do |config|
       :hostname => "baku.vm",
       :domain => "baku.local.vm",
       :ip => "192.168.12.11",
-      :cpus => 2,
-      :memory => 3 * 1024
+      :cpus => 3,
+      :memory => 4 * 1024
     }
   ]
 
