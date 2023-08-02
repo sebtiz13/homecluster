@@ -27,15 +27,6 @@
           adminUser: admin
           adminPassword: "{{ admin_passwords.grafana }}"
 
-- name: Wait monitoring namespace created
-  connection: local
-  become: false
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
-    kind: Namespace
-    name: "{{ apps_monitoring.namespace }}"
-    wait: true
-
 - name: Create VictoriaMetrics auth # noqa: var-naming[no-role-prefix]
   tags: traefik
   ansible.builtin.include_role:
