@@ -14034,12 +14034,12 @@
         "definition": "label_values(node_uname_info{job=\"$job\"}, cluster)",
         "hide": 0,
         "includeAll": false,
-        "label": "Host",
+        "label": "Cluster",
         "multi": false,
         "name": "cluster",
         "options": [],
         "query": {
-          "query": "label_values(node_uname_info{job=\"$job\"}, nodename)",
+          "query": "label_values(node_uname_info{job=\"$job\"}, cluster)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
