@@ -210,17 +210,15 @@ realm:
       protocol: openid-connect
       attributes:
         backchannel.logout.session.required: "true"
+        post.logout.redirect.uris: /login
       fullScopeAllowed: true
       defaultClientScopes:
         - web-origins
         - profile
-        - roles
+        - groups
         - email
       optionalClientScopes:
-        - address
-        - phone
         - offline_access
-        - microprofile-jwt
 
 
   clientScopes:
