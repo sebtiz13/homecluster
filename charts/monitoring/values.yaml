@@ -45,12 +45,34 @@ victoria-metrics-k8s-stack:
     rules:
       etcd: false
       vmcluster: false
+      # Disabled because tweaked
+      general: false
+      kubeApiserverSlos: false
+      kubeStateMetrics: false
+      kubernetesResources: false
+      kubernetesSystem: false
+      vmhealth: false
+      vmagent: false
 
   # disable unneeded dependencies
   grafana:
     enabled: false # Deploy own grafana
   kubeEtcd:
     enabled: false
+
+defaultRules:
+  create: true
+  additionalRuleLabels: {}
+  rules:
+    # Tweaked rules from "victoria-metrics-k8s-stack"
+    victoriametrics:
+      general: true
+      kubeApiserverSlos: true
+      kubeStateMetrics: true
+      kubernetesResources: true
+      kubernetesSystem: true
+      vmhealth: true
+      vmagent: true
 
 # Grafana dependency chart configuration. For possible values refer to https://github.com/grafana/helm-charts/tree/main/charts/grafana#configuration
 grafana:
