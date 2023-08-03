@@ -2816,7 +2816,7 @@
       "type": "row"
     }
   ],
-  "refresh": "",
+  "refresh": "30s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": ["openshift", "k8s", "storage"],
