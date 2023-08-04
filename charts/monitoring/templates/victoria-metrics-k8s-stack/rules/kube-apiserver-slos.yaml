@@ -2,7 +2,7 @@
 Twak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kube-apiserver-slos.yaml
 */ -}}
 {{- $VM := index .Values "victoria-metrics-k8s-stack" }}
-{{- if and .Values.defaultRules.create $VM.kubeApiServer.enabled .Values.defaultRules.rules.victoriametrics.kubeApiserverSlos }}
+{{- if and .Values.defaultRules.create .Values.defaultRules.rules.victoriametrics.kubeApiserverSlos }}
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
 metadata:

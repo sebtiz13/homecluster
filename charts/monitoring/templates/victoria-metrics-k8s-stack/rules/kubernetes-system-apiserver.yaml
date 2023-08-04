@@ -1,5 +1,6 @@
 {{- /*
 Tweak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kubernetes-system-apiserver.yaml
+Note: in k3s job "apiserver" is combined in "kubelet".
 */ -}}
 {{- $VM := index .Values "victoria-metrics-k8s-stack" }}
 {{- if and .Values.defaultRules.create .Values.defaultRules.rules.victoriametrics.kubernetesSystem }}
@@ -18,7 +19,7 @@ spec:
         description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 7.0 days.
         runbook_url: {{ $VM.defaultRules.runbookUrl }}/kubernetes/kubeclientcertificateexpiration
         summary: Client certificate is about to expire.
-      expr: apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and on(cluster, job) histogram_quantile(0.01, sum by (cluster, job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 604800
+      expr: apiserver_client_certificate_expiration_seconds_count{job="kubelet"} > 0 and on(cluster, job) histogram_quantile(0.01, sum by (cluster, job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="kubelet"}[5m]))) < 604800
       for: 5m
       labels:
         severity: warning
@@ -30,7 +31,7 @@ spec:
         description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 24.0 hours.
         runbook_url: {{ $VM.defaultRules.runbookUrl }}/kubernetes/kubeclientcertificateexpiration
         summary: Client certificate is about to expire.
-      expr: apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and on(cluster, job) histogram_quantile(0.01, sum by (cluster, job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="apiserver"}[5m]))) < 86400
+      expr: apiserver_client_certificate_expiration_seconds_count{job="kubelet"} > 0 and on(cluster, job) histogram_quantile(0.01, sum by (cluster, job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{job="kubelet"}[5m]))) < 86400
       for: 5m
       labels:
         severity: critical
@@ -66,7 +67,7 @@ spec:
         description: KubeAPI has disappeared from Prometheus target discovery.
         runbook_url: {{ .Values.defaultRules.runbookUrl }}/kubernetes/kubeapidown
         summary: Target disappeared from Prometheus target discovery.
-      expr: absent(up{job="apiserver"} == 1)
+      expr: absent(up{job="kubelet"} == 1)
       for: 15m
       labels:
         severity: critical
@@ -79,7 +80,7 @@ spec:
         description: The kubernetes apiserver has terminated {{`{{`}} $value | humanizePercentage {{`}}`}} of its incoming requests.
         runbook_url: {{ $VM.defaultRules.runbookUrl }}/kubernetes/kubeapiterminatedrequests
         summary: The kubernetes apiserver has terminated {{`{{`}} $value | humanizePercentage {{`}}`}} of its incoming requests.
-      expr: sum(rate(apiserver_request_terminations_total{job="apiserver"}[10m])) by (cluster) / (sum(rate(apiserver_request_total{job="apiserver"}[10m])) by (cluster) + sum(rate(apiserver_request_terminations_total{job="apiserver"}[10m])) by (cluster)) > 0.20
+      expr: sum(rate(apiserver_request_terminations_total{job="kubelet"}[10m])) by (cluster) / (sum(rate(apiserver_request_total{job="kubelet"}[10m])) by (cluster) + sum(rate(apiserver_request_terminations_total{job="kubelet"}[10m])) by (cluster)) > 0.20
       for: 5m
       labels:
         severity: warning

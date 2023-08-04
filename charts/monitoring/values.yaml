@@ -37,9 +37,6 @@ victoria-metrics-k8s-stack:
     monzoTemplate:
       enabled: false
 
-  # Disable default grafana dashboards
-  defaultDashboardsEnabled: false
-
   # Disable unneeded alert rules
   defaultRules:
     rules:
@@ -47,32 +44,55 @@ victoria-metrics-k8s-stack:
       vmcluster: false
       # Disabled because tweaked
       general: false
+      kubeApiserverAvailability: false
+      kubeApiserverBurnrate: false
+      kubeApiserverHistogram: false
       kubeApiserverSlos: false
+      kubePrometheusNodeRecording: false
+      kubeScheduler: false
       kubeStateMetrics: false
       kubernetesResources: false
       kubernetesSystem: false
       vmhealth: false
       vmagent: false
 
-  # disable unneeded dependencies
-  grafana:
-    enabled: false # Deploy own grafana
+  ## In k3s alls bellow components is combined in "kubelet"
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeProxy:
+    enabled: false
+  kubeApiServer:
+    enabled: false
   kubeEtcd:
+    enabled: false
+
+  # Disable default grafana dashboards
+  defaultDashboardsEnabled: false
+  ## Disable embedded grafana for deploy own
+  grafana:
     enabled: false
 
 defaultRules:
   create: true
   additionalRuleLabels: {}
   rules:
-    # Tweaked rules from "victoria-metrics-k8s-stack"
+    # Tweaked rules from "victoria-metrics-k8s-stack" for fully support cluster split and k3s
     victoriametrics:
       general: true
+      kubeApiserverAvailability: true
+      kubeApiserverBurnrate: true
+      kubeApiserverHistogram: true
       kubeApiserverSlos: true
+      kubePrometheusNodeRecording: true
+      kubeScheduler: true
       kubeStateMetrics: true
       kubernetesResources: true
       kubernetesSystem: true
       vmhealth: true
       vmagent: true
+
 
 # Grafana dependency chart configuration. For possible values refer to https://github.com/grafana/helm-charts/tree/main/charts/grafana#configuration
 grafana:
