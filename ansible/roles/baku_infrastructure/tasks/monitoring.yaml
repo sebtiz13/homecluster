@@ -21,6 +21,9 @@
         data:
           vmsingleUser: vmsingle
           vmsinglePassword: "{{ apps_monitoring._vms_passowrd }}"
+      - path: monitoring/alertmanager
+        data:
+          discord: "{{ monitoring.alertmanager.discord.webhook_url }}"
       # ?REF: 'grafana/oidc' > salamandre
       - path: grafana/auth
         data:

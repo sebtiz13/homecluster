@@ -1,6 +1,7 @@
 .vagrant/
 ansible/.venv/
 ansible/.bin
+ansible/inventories/dev/host_vars/baku.yaml
 ansible/inventories/prod/host_vars/*.yaml
 out/
 

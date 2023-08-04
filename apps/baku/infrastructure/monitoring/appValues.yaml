@@ -26,6 +26,30 @@ victoria-metrics-k8s-stack:
       externalLabels:
         cluster: baku
 
+  alertmanager:
+    config:
+      route:
+        receiver: noop
+        routes:
+          - match:
+              alertname: 'CPUThrottlingHigh'
+            receiver: noop
+          - matchers:
+            - severity=~"info|warning|critical"
+            group_by: ["alertgroup", "job", "cluster"]
+            receiver: discord
+      receivers:
+        - name: noop
+        - name: discord
+          discord_configs:
+            - webhook_url: <path:baku/data/monitoring/alertmanager#discord>
+              title: '{{`{{ template "homecluster.discord.title" .  }}`}}'
+              message: '{{`{{ template "homecluster.discord.message" .  }}`}}'
+
+    templateFiles:
+      discord.tmpl: |-
+        {{- .Values.alertmanager.discordTemplate | replace "$" "$$" | nindent 8 }}
+
 grafana:
   ingress:
     enabled: true

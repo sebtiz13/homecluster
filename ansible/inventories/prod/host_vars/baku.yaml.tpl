@@ -24,3 +24,9 @@ dyndns:
   username: ""
   password: ""
   domain: "{{ domain_name }}"
+
+monitoring:
+  alertmanager:
+    discord:
+      # Webhook url for send discord notifications
+      webhook_url: ""
