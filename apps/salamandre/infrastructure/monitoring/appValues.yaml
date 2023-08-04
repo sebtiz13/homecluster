@@ -23,30 +23,23 @@ victoria-metrics-k8s-stack:
       url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/api/v1/write
       basicAuth: {{ .Values.basicAuth | toYaml | nindent 8 }}
 
-  defaultRules:
-    rules:
-      vmsingle: false
-
-  vmalert:
-    spec:
-      externalLabels:
-        cluster: salamandre
-
-      notifiers:
-        - url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/alertmanager/
-          basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
-
   vmagent:
     spec:
       externalLabels:
         cluster: salamandre
 
   {{/* disable uneeded dependencies */}}
+  defaultRules:
+    create: false
+  vmalert:
+    enabled: false
   vmsingle:
     enabled: false
   alertmanager:
     enabled: false
 
 {{/* disable uneeded dependencies */}}
+defaultRules:
+  create: false
 grafana:
   enabled: false

@@ -26,25 +26,6 @@ victoria-metrics-k8s-stack:
       externalLabels:
         cluster: baku
 
-  alertmanager:
-    spec:
-      externalURL: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/alertmanager/
-      routePrefix: /alertmanager/
-
-    ingress:
-      enabled: true
-      ingressClassName: traefik
-      annotations:
-        traefik.ingress.kubernetes.io/router.middlewares: traefik-auth-vm@kubernetescrd # NOTE: managed by ansible
-        traefik.ingress.kubernetes.io/router.entrypoints: monitoring
-      hosts:
-        - {{ include "ingress.host" . }}
-      path: /alertmanager/
-      tls:
-        - secretName: {{ include "ingress.tls.secretName" . }}
-          hosts:
-            - {{ include "ingress.host" . }}
-
 grafana:
   ingress:
     enabled: true
