@@ -21,7 +21,7 @@
       delegate_to: localhost
       tags: kubed
       kubernetes.core.k8s:
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         state: present
         resource_definition:
           apiVersion: v1
@@ -39,7 +39,7 @@
       delegate_to: localhost
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       vars:
-        cluster_kubeconfig: "{{ hostvars.baku.kubeconfig.dest | default('') }}"
+        cluster_kubeconfig: "{{ hostvars.baku.local_kubeconfig | default('') }}"
         cluster_namespace: "kubed-sync"
 
 - name: Configure tls secret
@@ -52,7 +52,7 @@
       when: env == 'dev'
       delegate_to: localhost
       kubernetes.core.k8s_info:
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         kind: Secret
         name: vm-ca-tls-secret
         namespace: kubed-sync
@@ -64,7 +64,7 @@
       delegate_to: localhost
       kubernetes.core.k8s:
         state: patched
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         kind: Secret
         name: vm-ca-tls-secret
         namespace: kubed-sync
@@ -76,7 +76,7 @@
     - name: Wait until tls secret is synced
       delegate_to: localhost
       kubernetes.core.k8s_info:
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
         namespace: kubed-sync
@@ -87,7 +87,7 @@
       delegate_to: localhost
       kubernetes.core.k8s:
         state: patched
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         kind: Secret
         name: "{{ root_domain | replace('.', '-') }}-tls"
         namespace: kubed-sync

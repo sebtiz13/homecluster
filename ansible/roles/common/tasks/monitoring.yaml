@@ -19,7 +19,7 @@
   delegate_to: localhost
   become: false
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     definition: "{{ item.content | replace('- =\n', '- \"=\"\n') }}"
   loop: "{{ prometheus_crds.results }}"

@@ -3,7 +3,7 @@
     - openebs
     - zfs
   kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
+    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/openebs.yaml"
     namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
@@ -12,7 +12,7 @@
   delegate_to: localhost
   tags: vault
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: DeamonSet
     name: openebs-zfs-localpv-node
     namespace: kube-system
@@ -27,7 +27,7 @@
   vars:
     pool_name: "{{ zfs_pool.name | default('data') }}"
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     template: "{{ item }}.yaml.j2"
   loop:
@@ -39,14 +39,14 @@
     - openebs
     - zfs
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     src: zfspv-snapclass.yaml
 
 - name: Deploy Kubed application manifest
   tags: kubed
   kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
+    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/kubed.yaml"
     namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
@@ -54,7 +54,7 @@
 - name: Deploy Treafik application manifest
   tags: traefik
   kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
+    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/traefik.yaml"
     namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"

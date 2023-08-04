@@ -6,7 +6,7 @@
       loc: "{{ lookup('ansible.builtin.template', 'loc.j2') }}"
       domain: "{{ lookup('ansible.builtin.template', 'domain.j2') }}"
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     template: config_map.yaml.j2
     validate:

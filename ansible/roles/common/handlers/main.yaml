@@ -13,13 +13,6 @@
     name: sshd
     state: restarted
 
-- name: Fix kubeconfig mode
-  delegate_to: localhost
-  become: false
-  ansible.builtin.file:
-    path: "{{ kubeconfig.dest }}"
-    mode: "0600"
-
 - name: Update trusted ca
   ansible.builtin.command: update-ca-certificates
   changed_when: true

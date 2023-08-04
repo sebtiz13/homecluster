@@ -1,7 +1,7 @@
 - name: Sync ArgoCD application
   # ?REF: 'gitlab/oidc' > salamandre
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     resource_definition: "{{ apps_argocd._manifest }}"
     namespace: "{{ apps_argocd.namespace }}"
@@ -29,7 +29,7 @@
 
 - name: Wait until application is available
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Deployment
     name: "{{ apps_argocd.release_name }}-server"
     namespace: "{{ apps_argocd.namespace }}"

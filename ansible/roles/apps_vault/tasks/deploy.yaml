@@ -14,7 +14,7 @@
 
 - name: Deploy application manifest
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/vault.yaml"
     namespace: "{{ apps_argocd.namespace }}"

@@ -34,7 +34,7 @@
   when: argocd_refresh is not skipped
   kubernetes.core.k8s:
     state: patched
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     api_version: external-secrets.io/v1beta1
     kind: ExternalSecret
     name: "{{ apps_wallabag.release_name }}"

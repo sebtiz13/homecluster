@@ -1,0 +1,6 @@
+node-name: "{{ inventory_hostname }}"
+write-kubeconfig-mode: "0644"
+disable:
+  - traefik
+tls-san:
+  - "{{ k3s_domain | default(domain_name) }}"

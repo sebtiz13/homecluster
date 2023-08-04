@@ -27,7 +27,7 @@
     mounts: "{{ lookup('community.hashi_vault.vault_read', 'sys/mounts', validate_certs=false) }}"
   when: "(item + '/') is not in mounts.data"
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_vault.namespace }}"
     pod: "{{ apps_vault.pod_name }}"
     command: vault secrets enable -path={{ item }} kv-v2

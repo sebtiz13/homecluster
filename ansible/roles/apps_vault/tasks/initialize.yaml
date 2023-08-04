@@ -9,7 +9,7 @@
 - name: Initialize application
   when: not vault_health.json.initialized
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_vault.namespace }}"
     pod: "{{ apps_vault.pod_name }}"
     command: |
@@ -23,7 +23,7 @@
     - vault_init is changed
   no_log: true
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_vault.namespace }}"
     pod: "{{ apps_vault.pod_name }}"
     command: "vault operator unseal {{ item }}"

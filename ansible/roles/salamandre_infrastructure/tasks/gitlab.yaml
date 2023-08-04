@@ -23,7 +23,7 @@
 
 - name: Create GitLab namespace
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     resource_definition:
       apiVersion: v1
@@ -35,14 +35,14 @@
 
 - name: Store GitLab root password
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     template: gitlab_root_pwd.yaml.j2
     validate:
       fail_on_error: true
 
 - name: Reserve GitLab runner secret
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     template: gitlab_runner.yaml.j2
     validate:
       fail_on_error: true
@@ -66,7 +66,7 @@
   when: argocd_refresh is not skipped
   kubernetes.core.k8s:
     state: patched
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     api_version: external-secrets.io/v1beta1
     kind: ExternalSecret
     name: "{{ apps_gitlab.release_name }}-{{ item }}"
@@ -96,7 +96,7 @@
 - name: Wait until GitLab is available
   when: argocd_refresh is skipped
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Deployment
     name: "{{ apps_gitlab.release_name }}-sidekiq-all-in-1-v2"
     namespace: "{{ apps_gitlab.namespace }}"
@@ -107,7 +107,7 @@
 - name: Retrieve GitLab toolbox pod informations
   when: argocd_refresh is skipped
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: pod
     namespace: "{{ apps_gitlab.namespace }}"
     label_selectors:
@@ -120,7 +120,7 @@
 - name: Create GitLab temporary personal access token
   when: gitlab_toolbox_pod is not skipped
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_gitlab.namespace }}"
     pod: "{{ (gitlab_toolbox_pod.resources | first).metadata.name }}"
     command: >
@@ -150,7 +150,7 @@
 - name: Delete GitLab created personal access token
   when: gitlab_toolbox_pod is not skipped
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_gitlab.namespace }}"
     pod: "{{ (gitlab_toolbox_pod.resources | first).metadata.name }}"
     command: gitlab-rails runner "PersonalAccessToken.find_by_token('{{ apps_gitlab._tmp_user_token }}').revoke!"
@@ -169,7 +169,7 @@
   when: gitlab_toolbox_pod is not skipped
   kubernetes.core.k8s:
     state: patched
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     api_version: external-secrets.io/v1beta1
     kind: ExternalSecret
     name: "{{ apps_gitlab.release_name }}-runner"

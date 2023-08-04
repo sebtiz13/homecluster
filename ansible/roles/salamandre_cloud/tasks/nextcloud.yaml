@@ -20,7 +20,7 @@
 
 - name: Check if Nextcloud is already deploy
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Service
     name: "{{ apps_nextcloud.release_name }}"
     namespace: "{{ apps_nextcloud.namespace }}"
@@ -64,7 +64,7 @@
 - name: Retrieve Nexcloud pod informations
   when: nextcloud_server.resources | length == 0 # This is for run only on first install
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Pod
     namespace: "{{ apps_nextcloud.namespace }}"
     label_selectors:
@@ -78,7 +78,7 @@
 - name: Remove unused Nexcloud apps
   when: nextcloud_pod is not skipped # This is for run only on first install
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_nextcloud.namespace }}"
     pod: "{{ (nextcloud_pod.resources | first).metadata.name }}"
     command: su -m www-data -s /bin/sh -c 'php occ app:disable {{ item }}'
@@ -87,7 +87,7 @@
 - name: Install wanted Nexcloud apps
   when: nextcloud_pod is not skipped # This is for run only on first install
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_nextcloud.namespace }}"
     pod: "{{ (nextcloud_pod.resources | first).metadata.name }}"
     command: su -m www-data -s /bin/sh -c 'php occ app:enable {{ item }}'
@@ -127,7 +127,7 @@
           - extension_additions --value "[\"^(?<!otp_accounts.*\\\\.json)\\\\.aes$\"]"
           - extension_exclusions --value "[\".aes\"]"
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_nextcloud.namespace }}"
     pod: "{{ (nextcloud_pod.resources | first).metadata.name }}"
     command: su -m www-data -s /bin/sh -c '{{ base }}{{ item.commands | join(' && ' + base) }}'
@@ -138,7 +138,7 @@
 - name: Retrieve Nexcloud instance id
   when: nextcloud_pod is not skipped # This is for run only on first install
   kubernetes.core.k8s_exec:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_nextcloud.namespace }}"
     pod: "{{ (nextcloud_pod.resources | first).metadata.name }}"
     command: su -m www-data -s /bin/sh -c 'php occ config:system:get instanceid'
@@ -154,7 +154,7 @@
   block:
     - name: Upload external apps icons to Nexcloud
       kubernetes.core.k8s_cp:
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         state: to_pod
         namespace: "{{ apps_nextcloud.namespace }}"
         pod: "{{ (nextcloud_pod.resources | first).metadata.name }}"
@@ -166,7 +166,7 @@
 
     - name: Fix permission of external apps icons in Nexcloud
       kubernetes.core.k8s_exec:
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         namespace: "{{ apps_nextcloud.namespace }}"
         pod: "{{ (nextcloud_pod.resources | first).metadata.name }}"
         command: chown www-data:www-data {{ base_path }}/{{ item }}

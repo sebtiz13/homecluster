@@ -10,7 +10,7 @@
 - name: Deploy application manifest
   delegate_to: localhost
   kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.kubeconfig.dest }}"
+    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
     state: present
     resource_definition: "{{ manifest }}"
     namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
@@ -36,7 +36,7 @@
     - vault_secret is changed
   delegate_to: localhost
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: "{{ item.kind }}"
     name: "{{ item.name }}"
     namespace: "{{ manifest.spec.destination.namespace }}"

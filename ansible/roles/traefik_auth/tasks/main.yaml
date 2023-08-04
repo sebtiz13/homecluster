@@ -2,12 +2,12 @@
   vars:
     htpasswd: "{{ lookup('ansible.builtin.template', 'htpasswd.j2') }}"
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     template: "secret.yaml.j2"
 
 - name: Deploy middleware manifest
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     template: "middleware.yaml.j2"

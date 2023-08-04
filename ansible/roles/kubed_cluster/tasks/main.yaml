@@ -6,7 +6,7 @@
 - name: Store cluster kubeconfig
   kubernetes.core.k8s:
     state: patched
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Secret
     name: "{{ apps_kubed.secret_name }}"
     namespace: "{{ apps_kubed.namespace }}"

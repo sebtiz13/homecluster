@@ -10,7 +10,7 @@
 
 - name: Create application namespace
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     resource_definition:
       apiVersion: v1
@@ -20,6 +20,6 @@
 
 - name: Create application config secret
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     template: secret.yaml.j2

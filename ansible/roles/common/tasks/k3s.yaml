@@ -12,6 +12,17 @@
   when: ansible_swaptotal_mb > 0
   changed_when: ansible_swaptotal_mb > 0
 
+- name: Retrieve installed k3s version
+  delegate_to: localhost
+  become: false
+  environment:
+    KUBECONFIG: "{{ local_kubeconfig }}"
+  kubernetes.core.k8s_cluster_info: {}
+  register: k3s_installed_version
+  failed_when:
+    - "'msg' in k3s_installed_version"
+    - "'Failed to load kubeconfig due to Invalid kube-config file. No configuration found.' not in k3s_installed_version.msg"
+
 - name: Get k3s releases
   when: k3s.version is undefined
   ansible.builtin.uri:
@@ -29,60 +40,92 @@
     - k3s_releases.status == 200
   vars:
     k3s_release_query: "data[?name == '{{ k3s.channel | default('stable') }}'].latest"
-  ansible.builtin.set_fact:
     k3s_default_version: "{{ k3s_releases.json | community.general.json_query(k3s_release_query) | first }}"
+  ansible.builtin.set_fact:
+    k3s_versions:
+      installed: "{{ k3s_installed_version.version.server.kubernetes.gitVersion | default('') }}"
+      wanted: "{{ k3s.version | default(k3s_default_version) }}"
+
+- name: Create k3s config directory
+  when: k3s_versions.installed == ""
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "u=rwx,g=rx,o=rx"
+    recurse: true
+- name: Configure k3s
+  vars:
+    default: "{{ lookup('ansible.builtin.template', './k3s_config.j2.yaml') | from_yaml }}"
+    config: "{{ default | combine(k3s.config) }}"
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/config.yaml
+    content: "{{ config | to_yaml(indent=2) }}"
+    owner: root
+    group: root
+    mode: "{{ config['write-kubeconfig-mode'] }}"
 
 - name: Download k3s installer
-  vars:
-    k3s_version: "{{ k3s.version | default(k3s_default_version) }}"
+  when: k3s_versions.wanted != k3s_versions.installed
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_version }}/install.sh
-    dest: ~/k3s-install.sh
-    mode: "0540"
+    url: https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_versions.wanted }}/install.sh
+    dest: /tmp/k3s_install.sh
+    mode: "0500"
+    force: true
   register: k3s_install_file
-
 - name: Install k3s # noqa: no-handler
   when: k3s_install_file is changed
   changed_when: true
-  vars:
-    default_flags:
-      - --node-name='{{ inventory_hostname }}'
-      - --write-kubeconfig-mode=644
-      - --disable=traefik
-      - --tls-san='{{ k3s_domain | default(domain_name) }}'
-    flags: '{{ (default_flags + (k3s.flags | default([]))) | join(" ") }}'
   environment:
-    INSTALL_K3S_VERSION: "{{ k3s.version | default(k3s_default_version) }}"
-  ansible.builtin.command: sh {{ k3s_install_file.dest }} server {{ flags }}
+    INSTALL_K3S_VERSION: "{{ k3s_versions.wanted }}"
+  ansible.builtin.command: sh {{ k3s_install_file.dest }} server {{ (k3s.flags | default([])) | join(" ") }}
+  register: k3s_install
 
-- name: Store kubeconfig
-  ansible.builtin.fetch:
-    src: /etc/rancher/k3s/k3s.yaml
-    dest: "{{ out_dir }}/kubeconfig/{{ inventory_hostname }}.{{ env }}.yaml"
-    flat: true
-  register: kubeconfig
-  notify: Fix kubeconfig mode
-- name: Configure host on kubeconfig
-  delegate_to: localhost
-  become: false
-  ansible.builtin.lineinfile:
-    path: "{{ kubeconfig.dest }}"
-    regexp: '^(.*server: https:\/\/)127\.0\.0\.1(:6443)$'
-    line: '\1{{ k3s_domain | default(domain_name) }}\2'
-    backrefs: true
-- name: Configure node name on kubeconfig
-  delegate_to: localhost
-  become: false
-  ansible.builtin.replace:
-    path: "{{ kubeconfig.dest }}"
-    regexp: "default$"
-    replace: "{{ inventory_hostname }}"
+- name: Save kubeconfig locally # noqa: no-handler
+  when: k3s_install is changed
+  block:
+    - name: Download kubeconfig
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ local_kubeconfig }}"
+        flat: true
+
+    - name: Configure host on local kubeconfig
+      delegate_to: localhost
+      become: false
+      ansible.builtin.lineinfile:
+        path: "{{ local_kubeconfig }}"
+        regexp: '^(.*server: https:\/\/)127\.0\.0\.1(:6443)$'
+        line: '\1{{ k3s_domain | default(domain_name) }}\2'
+        backrefs: true
+
+    - name: Configure node name on local kubeconfig
+      delegate_to: localhost
+      become: false
+      ansible.builtin.replace:
+        path: "{{ local_kubeconfig }}"
+        regexp: "default$"
+        replace: "{{ inventory_hostname }}"
+
+    - name: Fix kubeconfig mode
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ local_kubeconfig }}"
+        mode: "0600"
+
+- name: Restart k3s # noqa: no-handler
+  when: k3s_install is changed
+  ansible.builtin.service:
+    name: k3s
+    state: restarted
 
 - name: Wait node started
   delegate_to: localhost
   become: false
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Node
     name: "{{ inventory_hostname }}"
     wait: true
@@ -91,7 +134,7 @@
   delegate_to: localhost
   become: false
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Service
     name: kubernetes
     namespace: default

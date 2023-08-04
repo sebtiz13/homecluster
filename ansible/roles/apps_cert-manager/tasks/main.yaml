@@ -6,7 +6,7 @@
   block:
     - name: Create namespace
       kubernetes.core.k8s:
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         state: present
         resource_definition:
           apiVersion: v1
@@ -16,7 +16,7 @@
 
     - name: Store CA in cluster
       kubernetes.core.k8s:
-        kubeconfig: "{{ kubeconfig.dest }}"
+        kubeconfig: "{{ local_kubeconfig }}"
         template: ca_tls.yaml.j2
         namespace: "{{ namespace }}"
         validate:
@@ -36,7 +36,7 @@
 
 - name: Deploy application manifest
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/cert-manager.yaml"
     namespace: "{{ apps_argocd.namespace }}"

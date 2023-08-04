@@ -1,6 +1,6 @@
 - name: Delete initial admin password secret
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Secret
     name: "{{ argocd_initial_admin_password.resources.0.metadata.name }}"
     namespace: "{{ argocd_initial_admin_password.resources.0.metadata.namespace }}"

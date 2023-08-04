@@ -8,14 +8,14 @@
 
 - name: Deploy application manifest
   kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/external-secrets.yaml"
     namespace: "{{ apps_argocd.namespace }}"
 
 - name: Wait until application is available
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig.dest }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     kind: Deployment
     name: "{{ apps_external_secrets.release_name }}-webhook"
     namespace: "{{ apps_external_secrets.namespace }}"
