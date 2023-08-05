@@ -459,8 +459,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -502,8 +501,7 @@
                       "mode": "absolute",
                       "steps": [
                         {
-                          "color": "rgba(50, 172, 45, 0.97)",
-                          "value": null
+                          "color": "rgba(50, 172, 45, 0.97)"
                         },
                         {
                           "color": "rgba(237, 129, 40, 0.89)",
@@ -714,8 +712,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "transparent",
-                    "value": null
+                    "color": "transparent"
                   },
                   {
                     "color": "red",
@@ -812,8 +809,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -2143,7 +2139,7 @@
             "uid": "$ds"
           },
           "editorMode": "code",
-          "expr": "(1-max by (persistentvolumeclaim, namespace) (kube_persistentvolumeclaim_info{cluster=~\"$cluster\"}) ) unless (max by (namespace, persistentvolumeclaim) (kubelet_volume_stats_used_bytes )) or ((max by (persistentvolumeclaim, namespace) (kube_persistentvolumeclaim_info{cluster=~\"$cluster\"}) ) and (max by (namespace, persistentvolumeclaim) (kubelet_volume_stats_used_bytes{cluster=~\"$cluster\"})))",
+          "expr": "(1-max by (persistentvolumeclaim, namespace, cluster) (kube_persistentvolumeclaim_info{cluster=~\"$cluster\"}) ) unless (max by (namespace, persistentvolumeclaim, cluster) (kubelet_volume_stats_used_bytes )) or ((max by (persistentvolumeclaim, namespace, cluster) (kube_persistentvolumeclaim_info{cluster=~\"$cluster\"}) ) and (max by (namespace, persistentvolumeclaim, cluster) (kubelet_volume_stats_used_bytes{cluster=~\"$cluster\"})))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2154,7 +2150,7 @@
             "uid": "$ds"
           },
           "editorMode": "code",
-          "expr": "max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{cluster=~\"$cluster\",job=\"kubelet\"})",
+          "expr": "max by (persistentvolumeclaim,namespace, cluster) (kubelet_volume_stats_used_bytes{cluster=~\"$cluster\",job=\"kubelet\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2166,7 +2162,7 @@
             "uid": "$ds"
           },
           "editorMode": "code",
-          "expr": "max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_capacity_bytes{cluster=~\"$cluster\",job=\"kubelet\"})",
+          "expr": "max by (persistentvolumeclaim,namespace, cluster) (kubelet_volume_stats_capacity_bytes{cluster=~\"$cluster\",job=\"kubelet\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2177,7 +2173,7 @@
             "uid": "$ds"
           },
           "editorMode": "code",
-          "expr": "max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_available_bytes{cluster=~\"$cluster\",job=\"kubelet\"})",
+          "expr": "max by (persistentvolumeclaim,namespace, cluster) (kubelet_volume_stats_available_bytes{cluster=~\"$cluster\",job=\"kubelet\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2188,7 +2184,7 @@
             "uid": "$ds"
           },
           "editorMode": "code",
-          "expr": "(max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{cluster=~\"$cluster\",job=\"kubelet\"})) / (max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_capacity_bytes{cluster=~\"$cluster\",job=\"kubelet\"}))",
+          "expr": "(max by (persistentvolumeclaim,namespace, cluster) (kubelet_volume_stats_used_bytes{cluster=~\"$cluster\",job=\"kubelet\"})) / (max by (persistentvolumeclaim,namespace, cluster) (kubelet_volume_stats_capacity_bytes{cluster=~\"$cluster\",job=\"kubelet\"}))",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2290,8 +2286,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -2388,8 +2383,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -2798,9 +2792,9 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "baku",
-          "value": "baku"
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
         },
         "definition": "label_values(kubelet_node_name, cluster)",
         "hide": 0,
@@ -2869,6 +2863,6 @@
   "timezone": "",
   "title": "Volumes / Cluster",
   "uid": "homecluster_k8s_volumes_cluster",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
