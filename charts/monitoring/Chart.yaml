@@ -2,7 +2,7 @@ apiVersion: v2
 name: monitoring
 description: A Helm chart for Kubernetes
 type: application
-version: 1.0.3
+version: 1.0.4
 
 annotations:
   charts.sebtiz13.fr/vm_version: v1.92.1
