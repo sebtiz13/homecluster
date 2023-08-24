@@ -1898,7 +1898,7 @@
               {
                 "id": "thresholds",
                 "value": {
-                  "mode": "percentage",
+                  "mode": "absolute",
                   "steps": [
                     {
                       "color": "transparent",
@@ -1910,7 +1910,7 @@
                     },
                     {
                       "color": "#EAB839",
-                      "value": 80
+                      "value": 0.8
                     }
                   ]
                 }
@@ -2863,6 +2863,6 @@
   "timezone": "",
   "title": "Volumes / Cluster",
   "uid": "homecluster_k8s_volumes_cluster",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
