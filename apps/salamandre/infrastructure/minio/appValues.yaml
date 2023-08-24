@@ -46,7 +46,7 @@ consoleIngress:
 
 persistence:
   storageClass: openebs-zfspv
-  size: 200Gi
+  size: 220Gi
 
 metrics:
   serviceMonitor:
