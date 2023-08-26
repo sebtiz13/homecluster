@@ -50,9 +50,6 @@
     state: link
     src: "{{ exec_dir }}/.mc/config.json"
     dest: "{{ barman_dir }}/.mc/config.json"
-    owner: barman
-    group: barman
-    mode: "0600" # u=rw
 
 - name: Store postgresql credentials
   ansible.builtin.template:
