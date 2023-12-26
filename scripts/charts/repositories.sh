@@ -14,7 +14,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add vm https://victoriametrics.github.io/helm-charts/
 # zitadel
-helm repo add minio https://charts.zitadel.com/
+helm repo add zitadel https://charts.zitadel.com/
 
 # Update repo
 helm repo update
