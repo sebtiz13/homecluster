@@ -1,0 +1,183 @@
+{{- if .Values.initJob.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "zitadel-sebtiz13.fullname" . }}-init"
+  labels:
+    {{- include "zitadel-sebtiz13.labels" . | nindent 4 }}
+    app.kubernetes.io/component: init
+  {{- with .Values.initJob.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  backoffLimit: {{ .Values.initJob.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.initJob.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        {{- include "zitadel.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: init
+      {{- with .Values.initJob.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.zitadel.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "zitadel-sebtiz13.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.zitadel.podSecurityContext | nindent 8 }}
+      enableServiceLinks: false
+      restartPolicy: OnFailure
+      containers:
+        - name: "{{ .Chart.Name }}-init"
+          securityContext:
+            {{- toYaml .Values.zitadel.securityContext | nindent 14 }}
+          image: "{{ .Values.zitadel.image.repository }}:{{ .Values.zitadel.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.zitadel.image.pullPolicy }}
+          args:
+            - init
+            - zitadel
+            - --config
+            - /config/zitadel-config-yaml
+            {{- if .Values.zitadel.zitadel.secretConfig }}
+            - --config
+            - /.secrets/zitadel-secrets-yaml/zitadel-secrets-yaml
+            {{- end }}
+            {{- if and .Values.zitadel.zitadel.configSecretName .Values.zitadel.zitadel.configSecretKey }}
+            - --config
+            - /.secrets/zitadel-secret-config-yaml/{{ .Values.zitadel.configSecretKey }}
+            {{- end }}
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            {{- $dbEnv := get (include "zitadel.dbkey.json" . | fromJson) "env" }}
+            {{- if (or .Values.zitadel.zitadel.dbSslCaCrt .Values.zitadel.zitadel.dbSslCaCrtSecret) }}
+            - name: ZITADEL_DATABASE_{{ $dbEnv }}_USER_SSL_ROOTCERT
+              value: /.secrets/db-ssl-ca-crt/ca.crt
+            - name: ZITADEL_DATABASE_{{ $dbEnv }}_ADMIN_SSL_ROOTCERT
+              value: /.secrets/db-ssl-ca-crt/ca.crt
+            {{- end}}
+            {{- if .Values.zitadel.zitadel.dbSslAdminCrtSecret }}
+            - name: ZITADEL_DATABASE_{{ $dbEnv }}_ADMIN_SSL_CERT
+              value: /.secrets/db-ssl-admin-crt/tls.crt
+            - name: ZITADEL_DATABASE_{{ $dbEnv }}_ADMIN_SSL_KEY
+              value: /.secrets/db-ssl-admin-crt/tls.key
+            {{- end}}
+            {{- if .Values.zitadel.zitadel.dbSslUserCrtSecret }}
+            - name: ZITADEL_DATABASE_{{ $dbEnv }}_USER_SSL_CERT
+              value: /.secrets/db-ssl-user-crt/tls.crt
+            - name: ZITADEL_DATABASE_{{ $dbEnv }}_USER_SSL_KEY
+              value: /.secrets/db-ssl-user-crt/tls.key
+            {{- end}}
+            {{- with .Values.zitadel.env }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+          - name: zitadel-config-yaml
+            mountPath: /config
+          - name: chowned-secrets
+            mountPath: /.secrets
+          resources:
+            {{- toYaml .Values.initJob.resources | nindent 14 }}
+        {{- if .Values.initJob.extraContainers }}
+        {{- toYaml .Values.initJob.extraContainers | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.zitadel.zitadel.secretConfig .Values.zitadel.zitadel.dbSslCaCrt .Values.zitadel.zitadel.dbSslCaCrtSecret .Values.zitadel.zitadel.dbSslAdminCrtSecret .Values.zitadel.zitadel.dbSslUserCrtSecret .Values.zitadel.zitadel.configSecretName }}
+      initContainers:
+        - args:
+          - "{{ include "zitadel.joincpcommands" (dict "commands" (list
+            (include "zitadel.makecpcommand" (dict "value" .Values.zitadel.zitadel.secretConfig "path" "/zitadel-secrets-yaml/" ))
+            (include "zitadel.makecpcommand" (dict "value" (or .Values.zitadel.zitadel.dbSslCaCrt .Values.zitadel.zitadel.dbSslCaCrtSecret) "path" "/db-ssl-ca-crt/" ))
+            (include "zitadel.makecpcommand" (dict "value" .Values.zitadel.zitadel.dbSslAdminCrtSecret "path" "/db-ssl-admin-crt/" ))
+            (include "zitadel.makecpcommand" (dict "value" .Values.zitadel.zitadel.dbSslUserCrtSecret "path" "/db-ssl-user-crt/" ))
+            (include "zitadel.makecpcommand" (dict "value" .Values.zitadel.zitadel.configSecretName "path" "/zitadel-secret-config-yaml/" ))
+          )) }} chown -R 1000:1000 /chowned-secrets/ && find /chowned-secrets/ -type f -exec chmod 400 -- {} + "
+          command:
+          - sh
+          - -c
+          image: "{{ .Values.zitadel.chownImage.repository }}:{{ .Values.zitadel.chownImage.tag }}"
+          imagePullPolicy: {{ .Values.zitadel.chownImage.pullPolicy }}
+          name: chown
+          volumeMounts:
+          - name: chowned-secrets
+            mountPath: /chowned-secrets
+          {{- if .Values.zitadel.zitadel.secretConfig }}
+          - name: zitadel-secrets-yaml
+            mountPath: /zitadel-secrets-yaml
+          {{- end }}
+          {{- if .Values.zitadel.zitadel.configSecretName }}
+          - name: zitadel-secret-config-yaml
+            mountPath: /zitadel-secret-config-yaml
+          {{- end }}
+          {{- if (or .Values.zitadel.zitadel.dbSslCaCrt .Values.zitadel.zitadel.dbSslCaCrtSecret) }}
+          - name: db-ssl-ca-crt
+            mountPath: /db-ssl-ca-crt
+          {{- end }}
+          {{- if .Values.zitadel.zitadel.dbSslAdminCrtSecret }}
+          - name: db-ssl-admin-crt
+            mountPath: /db-ssl-admin-crt
+          {{- end }}
+          {{- if .Values.zitadel.zitadel.dbSslUserCrtSecret }}
+          - name: db-ssl-user-crt
+            mountPath: /db-ssl-user-crt
+          {{- end }}
+          securityContext:
+            runAsNonRoot: false
+            runAsUser: 0
+      {{- end}}
+      volumes:
+      - name: zitadel-config-yaml
+        configMap:
+          name: zitadel-config-yaml
+      {{- if .Values.zitadel.zitadel.secretConfig }}
+      - name: zitadel-secrets-yaml
+        secret:
+          secretName: zitadel-secrets-yaml
+      {{- end }}
+      {{- if .Values.zitadel.zitadel.configSecretName }}
+      - name: zitadel-secret-config-yaml
+        secret:
+          secretName: {{ .Values.zitadel.zitadel.configSecretName }}
+      {{- end }}
+      {{- if .Values.zitadel.zitadel.dbSslCaCrt }}
+      - name: db-ssl-ca-crt
+        secret:
+          secretName: db-ssl-ca-crt
+      {{- end }}
+      {{- if .Values.zitadel.zitadel.dbSslCaCrtSecret }}
+      - name: db-ssl-ca-crt
+        secret:
+          secretName: {{ .Values.zitadel.zitadel.dbSslCaCrtSecret }}
+      {{- end }}
+      {{- if .Values.zitadel.zitadel.dbSslAdminCrtSecret }}
+      - name: db-ssl-admin-crt
+        secret:
+          secretName: {{ .Values.zitadel.zitadel.dbSslAdminCrtSecret }}
+      {{- end }}
+      {{- if .Values.zitadel.zitadel.dbSslUserCrtSecret }}
+      - name: db-ssl-user-crt
+        secret:
+          secretName: {{ .Values.zitadel.zitadel.dbSslUserCrtSecret }}
+      {{- end }}
+      - name: chowned-secrets
+        emptyDir: {}
+      {{- with .Values.zitadel.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zitadel.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zitadel.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{ end }}
