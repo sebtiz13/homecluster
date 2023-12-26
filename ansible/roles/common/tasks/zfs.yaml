@@ -1,6 +1,6 @@
-- name: Add backport repository into sources list
+- name: Add contrib repository into sources list
   ansible.builtin.apt_repository:
-    repo: deb https://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib
+    repo: deb https://deb.debian.org/debian {{ ansible_distribution_release }} main contrib
     state: present
     update_cache: true
 

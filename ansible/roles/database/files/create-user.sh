@@ -8,7 +8,7 @@ createDb() {
   sudo -u postgres psql -c "\set AUTOCOMMIT on\n
 CREATE DATABASE $1;
 CREATE USER $1 WITH ENCRYPTED PASSWORD '$2';
-GRANT ALL PRIVILEGES ON DATABASE $1 TO $1;"
+ALTER DATABASE $1 OWNER TO $1;"
 }
 
 password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd "a-zA-Z0-9" | head -c 16)
