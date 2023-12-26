@@ -20,6 +20,7 @@
     append: true
 
 - name: Create barman databasse users
+  become: true
   become_user: postgres
   vars:
     ansible_ssh_pipelining: true
@@ -60,6 +61,7 @@
     mode: "0600" # u=rw
 
 - name: Check permissions
+  become: true
   become_user: barman
   vars:
     ansible_ssh_pipelining: true

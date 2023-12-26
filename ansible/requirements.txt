@@ -1,10 +1,10 @@
-ansible>=8.1,<8.2
-ansible-lint>=6.17,<6.18
+ansible>=9.1,<9.2
+ansible-lint>=6.22,<6.23
 
 jmespath>=1.0,<1.1
 kubernetes>=28,<29
-netaddr>=0.8,<0.9
+netaddr>=0.9,<0.10
 kubernetes-validate>=1.28,<1.29
-hvac>=1.1,<1.2
+hvac>=1.2,<1.3
 psycopg2>=2.9,<2.10
 passlib>=1.7,<1.8
