@@ -19,5 +19,6 @@
     namespace: "{{ apps_argocd.namespace }}"
 
 - name: Deploy Monitoring
+  when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
   tags: monitoring
   ansible.builtin.import_tasks: monitoring.yaml
