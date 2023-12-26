@@ -12,7 +12,15 @@
   when: ansible_swaptotal_mb > 0
   changed_when: ansible_swaptotal_mb > 0
 
+- name: Check if kubernetes is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/kubectl
+  register: k3s_installed
+
 - name: Retrieve installed k3s version
+  when:
+    - k3s_installed is not skipped
+    - k3s_installed.stat.exists
   delegate_to: localhost
   become: false
   environment:
@@ -24,7 +32,6 @@
     - "'Failed to load kubeconfig due to Invalid kube-config file. No configuration found.' not in k3s_installed_version.msg"
 
 - name: Get k3s releases
-  when: k3s.version is undefined
   ansible.builtin.uri:
     url: https://update.k3s.io/v1-release/channels
     method: GET
