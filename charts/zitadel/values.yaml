@@ -22,6 +22,7 @@ externalSecrets:
     # - name: secret-name # The name of resource (prefixed by fullname)
     #   target: {}
     #   dataFrom: {}
+    #   annotations: {}
 
 zitadel:
   fullnameOverride: zitadel
