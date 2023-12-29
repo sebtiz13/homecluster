@@ -1,7 +1,7 @@
-# Keycloak chart values
+# Zitadel chart values
 
-- [Homepage](https://www.keycloak.org/)
-- [Source (GitHub)](https://github.com/bitnami/charts/tree/main/bitnami/keycloak)
+- [Homepage](https://zitadel.com/)
+- [Source (GitHub)](https://github.com/zitadel/zitadel-charts)
 
 ## Vault secrets
 
@@ -9,14 +9,13 @@ The secrets keys need to exist for deploy the app
 
 > **Mount path:** `salamandre`
 
-### keycloak/auth
+### zitadel/masterkey
 
-Admin user informations
+Master key value
 
-- `adminUser`: The username
-- `adminPassword`: The password
+- `value`: The master key
 
-### keycloak/database
+### zitadel/database
 
 Database informations
 
@@ -36,14 +35,3 @@ SMTP configuration
 - `port`: The server port
 - `username`: The auth username (and from email)
 - `username`: The auth password
-
-#### argocd/oidc
-
-- `cliClientID`: The client ID for cli
-- `clientID`: The client ID
-- `clientSecret`: The client secret
-
-#### vault/oidc
-
-- `clientID`: The client ID
-- `clientSecret`: The client secret

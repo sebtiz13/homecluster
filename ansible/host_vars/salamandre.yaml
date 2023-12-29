@@ -3,7 +3,7 @@ domain_name: "{{ root_domain }}"
 domains:
   - argocd.{{ root_domain }}
   - vault-secrets.{{ root_domain }} # Vault
-  - sso.{{ root_domain }} # Keycloak
+  - sso.{{ root_domain }} # Zitadel
   - s3.{{ root_domain }} # Minio
   - git.{{ root_domain }} # GitLab
   - kas.{{ root_domain }} # GitLab

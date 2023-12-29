@@ -37,6 +37,12 @@ endif
 	curl --progress-bar https://dl.min.io/client/mc/release/linux-amd64/mc \
 		-o $(ANSIBLE_DIR)/.bin/mc
 	chmod +x $(ANSIBLE_DIR)/.bin/mc
+	echo "Download JWT tool..."
+	curl -L --progress-bar https://github.com/mike-engel/jwt-cli/releases/download/6.0.0/jwt-linux.tar.gz \
+		-o $(ANSIBLE_DIR)/.bin/jwt-linux.tar.gz \
+		&& tar -xf $(ANSIBLE_DIR)/.bin/jwt-linux.tar.gz -C $(ANSIBLE_DIR)/.bin \
+		&& chmod +x $(ANSIBLE_DIR)/.bin/jwt \
+		&& rm $(ANSIBLE_DIR)/.bin/jwt-linux.tar.gz
 
 cleanup: ## Cleanup development environment
 	echo "Clean development environment..."

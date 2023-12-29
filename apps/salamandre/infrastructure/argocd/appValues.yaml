@@ -169,7 +169,7 @@ repoServer:
 configs:
   secret:
     extra:
-      oidc.keycloak.clientSecret: <path:salamandre/data/argocd/oidc#clientSecret>
+      oidc.zitadel.clientSecret: <path:salamandre/data/argocd/oidc#clientSecret>
 
   params:
     server.insecure: true

@@ -1,0 +1,130 @@
+- name: Retrieve Zitadel informations
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/zitadel.yaml') | from_yaml }}"
+    values: "{{ manifest.spec.source.plugin.env.1.value | from_yaml }}"
+  ansible.builtin.set_fact:
+    apps_zitadel:
+      _manifest: "{{ manifest }}"
+      _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
+      release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+      secretNames: "{{ values.externalSecrets.secrets | map(attribute='name') }}"
+      host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+
+- name: Create Zitadel database access # noqa: var-naming[no-role-prefix]
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: zitadel
+    username: zitadel
+    password: "{{ apps_zitadel._db_passowrd }}"
+
+- name: Check if Zitadel is already deploy
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Service
+    name: "{{ apps_zitadel.release_name }}"
+    namespace: "{{ apps_zitadel.namespace }}"
+  register: zitadel_svc
+
+- name: Deploy Zitadel application and secrets # noqa: var-naming[no-role-prefix]
+  ansible.builtin.include_role:
+    name: argocd_vault
+  vars:
+    manifest: "{{ apps_zitadel._manifest }}"
+    restart_resources:
+      - kind: StatefulSet
+        name: "{{ apps_zitadel._manifest.spec.source.plugin.env.0.value }}"
+    secrets:
+      - path: zitadel/masterkey
+        data:
+          value: "{{ lookup('file', credentials_folder + '/zitadel_masterkey') }}"
+      - path: zitadel/database
+        data:
+          host: postgresql.loc
+          port: "5432"
+          database: zitadel
+          user: zitadel
+          password: "{{ apps_zitadel._db_passowrd }}"
+
+# TODO: merge 2 below steps in argocd_vault
+- name: Update Zitadel secrets
+  when: argocd_refresh is not skipped
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ local_kubeconfig }}"
+    api_version: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    name: "{{ apps_zitadel.release_name }}-{{ item }}"
+    namespace: "{{ apps_zitadel.namespace }}"
+    force: true
+    definition:
+      metadata:
+        annotations:
+          force-sync: "{{ ansible_date_time.epoch }}"
+  loop: "{{ apps_zitadel.secretNames }}"
+- name: Restart Zitadel resources for update secrets # TODO: preventing use old pod when restart
+  when: argocd_refresh is not skipped
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Deployment
+    name: "{{ apps_zitadel.release_name }}"
+    namespace: "{{ apps_zitadel.namespace }}"
+    definition:
+      spec:
+        template:
+          metadata:
+            annotations:
+              kubectl.kubernetes.io/restartedAt: "{{ now(fmt='%Y-%m-%dT%H:%M:%SZ') }}"
+
+- name: Wait until application is available
+  ansible.builtin.uri:
+    url: "{{ apps_zitadel.host }}/debug/ready"
+    method: GET
+    status_code: 200
+    return_content: true
+  register: zitadel_health
+  until: zitadel_health.status == 200
+  retries: 60 # This is for wait max 5min
+  delay: 5
+
+##
+# Retrieve console token
+##
+- name: Retrieve console key
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Secret
+    name: "{{ apps_zitadel.release_name }}-admin-sa"
+    namespace: "{{ apps_zitadel.namespace }}"
+  register: zitadel_admin_key
+- name: Generate console JWT token
+  vars:
+    key: "{{ zitadel_admin_key.resources.0.data[apps_zitadel.release_name + '-admin-sa.json'] | b64decode }}"
+    payload:
+      iss: "{{ key.userId }}"
+      sub: "{{ key.userId }}"
+      aud: "{{ apps_zitadel.host }}"
+    expire: 1hr
+  ansible.builtin.shell: |-
+    echo "{{ key.key }}" > /tmp/zitadel.pem
+    {{ bin_dir }}/jwt encode --no-typ --alg=RS256 --kid={{ key.keyId }} \
+      --exp="{{ expire }}" --secret=@/tmp/zitadel.pem -- '{{ payload | to_json }}'
+    rm /tmp/zitadel.pem &> /dev/null
+  register: zitadel_console_jwt
+  changed_when: false
+  failed_when: zitadel_console_jwt.stderr != ''
+- name: Retrieve console token
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ apps_zitadel.host }}/oauth/v2/token"
+    method: POST
+    return_content: true
+    status_code: 200
+    body_format: form-urlencoded
+    body:
+      grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
+      scope: "openid urn:zitadel:iam:org:project:id:zitadel:aud"
+      assertion: "{{ zitadel_console_jwt.stdout }}"
+  register: zitadel_console_token

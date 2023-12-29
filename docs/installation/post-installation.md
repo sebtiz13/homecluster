@@ -21,9 +21,9 @@ step):
   - Password: run `yq .argocd ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Vault:
   - Root token: run `jq -r .root_token ./out/credentials/salamandre/<env>/vault.json`
-- Keycloak:
+- Zitadel:
   - Username: `admin`
-  - Password: run `yq .keycloak ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+  - Password: run `yq .zitadel ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Minio:
   - Username: `root`
   - Password: `yq .minio ./out/credentials/salamandre/<env>/admin_passwords.yaml`

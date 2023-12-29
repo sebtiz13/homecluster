@@ -26,11 +26,18 @@ FILE="./out/credentials/salamandre/${ENVIRONMENT}/admin_passwords.yaml"
 
 touch "$FILE"
 insert_pwd "$FILE" .argocd "$(randpw 16)"
-insert_pwd "$FILE" .keycloak "$(randpw 16)"
+insert_pwd "$FILE" .zitadel "$(randpw 16)"
 insert_pwd "$FILE" .minio "$(randpw 16)"
 insert_pwd "$FILE" .gitlab "$(randpw 16)"
 insert_pwd "$FILE" .nextcloud "$(randpw 16)"
 insert_pwd "$FILE" .collabora "$(randpw 16)"
+
+# Zitadel masterkey
+FILE="./out/credentials/salamandre/${ENVIRONMENT}/zitadel_masterkey"
+
+if [ ! -e "$FILE" ]; then
+  pwgen -cn 32 1 > "$FILE"
+fi
 
 ##
 # Baku credentials

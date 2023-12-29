@@ -85,41 +85,27 @@
 - name: Install, configure OIDC and sync ArgoCD
   hosts: salamandre
   tags: kubernetes
-  pre_tasks:
-    - name: Retrieve keycloak informations
-      vars:
-        manifest: "{{ lookup('file', manifests_folder + '/keycloak.yaml') | from_yaml }}"
-        base_url: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
-        realm: developer
-      ansible.builtin.set_fact:
-        apps_keycloak:
-          _manifest: "{{ manifest }}"
-          _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
-          release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
-          namespace: "{{ manifest.spec.destination.namespace }}"
-          base_url: "{{ base_url }}"
-          issuer: "{{ base_url }}/realms/{{ realm }}"
-          realm: "{{ realm }}"
   roles:
-    # ALways deploy oidc secrets for applications (event if oidc is disabled, this is for argocd vaukt plugin)
-    - role: vault_secrets
+    - role: oidc
+      delegate_to: localhost
+      tags: oidc
+    - name: Fake Grafana and argoCD OIDC
+      role: vault_secrets
+      when: "'oidc' in ansible_skip_tags"
       delegate_to: localhost
       vars:
         secrets: # noqa: var-naming[no-role-prefix]
           - path: argocd/oidc
             data:
-              issuer: "{{ apps_keycloak.issuer }}"
-              cliClientID: argocd-cli
-              clientID: argocd
-              clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
+              issuer: "http://localhost"
+              clientID: "fake"
+              clientSecret: "fake"
           - path: grafana/oidc
             data:
-              issuer: "{{ apps_keycloak.issuer }}"
-              clientID: grafana
-              clientSecret: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
-    - role: oidc
-      delegate_to: localhost
-      tags: oidc
+              issuer: "http://localhost"
+              clientID: "fake"
+              clientSecret: "fake"
+
     - role: argocd_sync
       delegate_to: localhost
       tags: argocd

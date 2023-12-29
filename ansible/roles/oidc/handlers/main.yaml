@@ -1,0 +1,89 @@
+##
+# Handlers for actions
+##
+- name: Set Zitadel groupsClaim action triggers
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ apps_zitadel.host }}/management/v1/flows/{{ item.flow }}/trigger/{{ item.trigger }}"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+    status_code: 200
+    body_format: json
+    body:
+      actionIds:
+        - "{{ zitadel_groupsclaim_action.json.id }}"
+  loop_control:
+    label: "{{ item.name }}"
+  loop:
+    - name: Pre Userinfo creation
+      flow: 2 # Complement token
+      trigger: 4
+    - name: Pre access token creation
+      flow: 2 # Complement token
+      trigger: 5
+
+##
+# Handlers for projects
+##
+- name: Create Zitadel developer roles
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ apps_zitadel.host }}/management/v1/projects/{{ zitadel_dev_project_id }}/roles/_bulk"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+    status_code: 200
+    body_format: json
+    body:
+      roles:
+        - key: Operator
+          displayName: Operator
+          group: Operator
+        - key: Admin
+          displayName: Administrator
+          group: Admin
+
+##
+# Handlers for users
+##
+- name: Add organization permission to admin user
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ apps_zitadel.host }}/management/v1/orgs/me/members"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+    status_code: 200
+    body_format: json
+    body:
+      userId: "{{ zitadel_admin_user.json.userId }}"
+      roles:
+        - ORG_OWNER
+- name: Add developer project permission to admin user
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ apps_zitadel.host }}/management/v1/users/{{ zitadel_admin_user.json.userId }}/grants"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+    status_code: 200
+    body_format: json
+    body:
+      projectId: "{{ zitadel_dev_project_id }}"
+      roleKeys:
+        - Admin
+
+- name: Add developer project permission to test user
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ apps_zitadel.host }}/management/v1/users/{{ zitadel_test_user.json.userId }}/grants"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+    status_code: 200
+    body_format: json
+    body:
+      projectId: "{{ zitadel_dev_project_id }}"
+      roleKeys:
+        - Operator

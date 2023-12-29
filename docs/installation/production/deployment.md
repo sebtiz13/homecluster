@@ -21,7 +21,7 @@ DOMAIN_NAME=<domain> make provision
 You can disable some applications by specify environment variable `ANSIBLE_SKIP_TAGS` with one or more next tags.
 The apps tags :
 
-- `oidc` (for disable keycloak)
+- `oidc` (for disable zitadel)
 - `gitlab`
 
 _example_: `ANSIBLE_SKIP_TAGS=oidc,gitlab make test-cluster`, this deploy all cluster but without oidc and gitlab applications

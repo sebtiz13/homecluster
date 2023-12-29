@@ -1,5 +1,0 @@
-# App Values
-realm:
-  smtpServer:
-    ssl: true
-    starttls: true

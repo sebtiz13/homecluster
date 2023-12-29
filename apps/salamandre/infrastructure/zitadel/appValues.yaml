@@ -1,0 +1,118 @@
+externalSecrets:
+  secrets:
+    - name: credentials
+      annotations:
+        helm.sh/hook: pre-install,pre-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation
+        helm.sh/hook-weight: "0"
+      target:
+        template:
+          type: Opaque
+          data:
+            masterkey: '{{`{{ .masterkey }}`}}'
+            postgresql-password: '{{`{{ .password }}`}}'
+            smtp-password: '{{`{{ .smtp_password }}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/zitadel/database
+        - extract:
+            key: salamandre/smtp
+          rewrite:
+            - regexp:
+                source: "password"
+                target: "smtp_password"
+        - extract:
+            key: salamandre/zitadel/masterkey
+          rewrite:
+            - regexp:
+                source: "value"
+                target: "masterkey"
+
+zitadel:
+  image:
+    tag: v2.42.3
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      {{ include "ingress.annotations.httpsRedirect" . | nindent 6 }}
+    hosts:
+      - host: {{ include "ingress.host" . }}
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: {{ include "ingress.tls.secretName" . }}
+        hosts:
+          - {{ include "ingress.host" . }}
+  service:
+    annotations:
+      traefik.ingress.kubernetes.io/service.serversscheme: h2c
+
+  env:
+    - name: TZ
+      value: Europe/Paris
+    - name: ZITADEL_DATABASE_POSTGRES_USER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: zitadel-credentials
+          key: postgresql-password
+    - name: ZITADEL_DEFAULTINSTANCE_SMTPCONFIGURATION_SMTP_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: zitadel-credentials
+          key: smtp-password
+
+  zitadel:
+    masterkeySecretName: zitadel-credentials
+    configSecretName: zitadel-credentials
+
+    configmapConfig:
+      ExternalSecure: true
+      ExternalDomain: {{ include "ingress.host" . }}
+      ExternalPort: 443
+      TLS:
+        Enabled: false
+      Database:
+        Postgres:
+          Host: <path:salamandre/data/zitadel/database#host>
+          Port: <path:salamandre/data/zitadel/database#port>
+          Database: <path:salamandre/data/zitadel/database#database>
+          MaxOpenConns: 20
+          MaxIdleConns: 10
+          MaxConnLifetime: 30m
+          MaxConnIdleTime: 5m
+          User:
+            Username: <path:salamandre/data/zitadel/database#user>
+            SSL:
+              Mode: disable
+      FirstInstance:
+        Org:
+          Machine:
+            Machine:
+              Username: zitadel-admin-sa
+              Name: Admin
+            MachineKey:
+              Type: 1
+      DefaultInstance:
+        SMTPConfiguration:
+          SMTP:
+            Host: "<path:salamandre/data/smtp#host>:<path:salamandre/data/smtp#port>"
+            User: <path:salamandre/data/smtp#username>
+          From: <path:salamandre/data/smtp#username>
+          FromName: Zitadel
+        LoginPolicy:
+          AllowRegister: false
+        LabelPolicy:
+          PrimaryColor: "#8FBCBB"
+          BackgroundColor: "#D8DEE9"
+          WarnColor: "#BF616A"
+          FontColor: "#2E3440"
+          PrimaryColorDark: "#8FBCBB"
+          BackgroundColorDark: "#2E3440"
+          WarnColorDark: "#BF616A"
+          FontColorDark: "#ECEFF4"
+          HideLoginNameSuffix: true
+          ErrorMsgPopup: true
+          DisableWatermark: true

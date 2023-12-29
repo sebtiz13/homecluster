@@ -88,7 +88,7 @@ If you want create only one virtual machine you can specify `VM_NAME` argument (
 You can disable some applications by specify environment variable `ANSIBLE_SKIP_TAGS` with one or more next tags.
 The apps tags :
 
-- `oidc` (for disable `keycloak`, `gitlab`)
+- `oidc` (for disable `zitadel`, `gitlab`)
 - `gitlab`
 - `cloud` (for disable `nextcloud`, `vaultwarden` and `wallabag`)
 - `nextcloud`
@@ -96,7 +96,7 @@ The apps tags :
 - `adguard` (only for proxy on `salamandre`)
 - `monitoring`
 
-_example_: `ANSIBLE_SKIP_TAGS=oidc make test-cluster`, this deploy all cluster but without oidc (keycloak) and gitlab applications
+_example_: `ANSIBLE_SKIP_TAGS=oidc make test-cluster`, this deploy all cluster but without oidc (zitadel) and gitlab applications
 
 ### (Re)Create virtual machines
 

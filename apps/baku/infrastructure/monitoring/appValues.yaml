@@ -115,18 +115,18 @@ grafana:
       root_url: https://{{ include "ingress.host" . }}/
 
     auth:
-      signout_redirect_url: '{{ printf "<path:salamandre/data/grafana/oidc#issuer>/protocol/openid-connect/logout?client_id=<path:salamandre/data/grafana/oidc#clientID>&post_logout_redirect_uri=https://%s/login" (include "ingress.host" .) }}'
+      signout_redirect_url: '{{ printf "<path:baku/data/grafana/oidc#issuer>/oidc/v1/end_session?client_id=<path:baku/data/grafana/oidc#clientID>&post_logout_redirect_uri=https://%s/login" (include "ingress.host" .) }}'
     auth.generic_oauth:
       enabled: true
-      name: Keycloak
+      name: Zitadel
       allow_sign_up: true
-      client_id: <path:salamandre/data/grafana/oidc#clientID>
-      client_secret: <path:salamandre/data/grafana/oidc#clientSecret>
-      auth_url: <path:salamandre/data/grafana/oidc#issuer>/protocol/openid-connect/auth
-      token_url: <path:salamandre/data/grafana/oidc#issuer>/protocol/openid-connect/token
-      api_url: <path:salamandre/data/grafana/oidc#issuer>/protocol/openid-connect/userinfo
+      client_id: <path:baku/data/grafana/oidc#clientID>
+      client_secret: <path:baku/data/grafana/oidc#clientSecret>
+      auth_url: <path:baku/data/grafana/oidc#issuer>/oauth/v2/authorize
+      token_url: <path:baku/data/grafana/oidc#issuer>/oauth/v2/token
+      api_url: <path:baku/data/grafana/oidc#issuer>/oidc/v1/userinfo
       scopes: openid email profile offline_access groups
-      login_attribute_path: preferred_username
+      login_attribute_path: email
       name_attribute_path: preferred_username
       role_attribute_path: "contains(groups[*], 'Admin') && 'Admin' || contains(groups[*], 'Operator') && 'Editor' || 'Viewer'"
 

@@ -1,0 +1,67 @@
+- name: Check if Zitadel application exist
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ hostvars.salamandre.apps_zitadel.host }}/management/v1/projects/{{ project_id }}/apps/_search"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ hostvars.salamandre.zitadel_console_token.json.access_token }}"
+    status_code: 200
+    return_content: true
+    body_format: json
+    body:
+      query:
+        limit: 1
+      queries:
+        - nameQuery:
+            name: "{{ app_name }}"
+            method: TEXT_QUERY_METHOD_EQUALS
+  register: zitadel_app
+
+- name: Create Zitadel application
+  when: zitadel_app.json.result is not defined
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ hostvars.salamandre.apps_zitadel.host }}/management/v1/projects/{{ project_id }}/apps/oidc"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ hostvars.salamandre.zitadel_console_token.json.access_token }}"
+    status_code: 200
+    return_content: true
+    body_format: json
+    body:
+      name: "{{ app_name }}"
+      redirectUris: "{{ redirect_uris | default([]) }}"
+      responseTypes: "{{ response_types | default([]) }}"
+      grantTypes: "{{ grant_types | default([]) }}"
+      authMethodType: "{{ auth_method_type | default('OIDC_AUTH_METHOD_TYPE_BASIC') }}"
+      postLogoutRedirectUris: "{{ post_logout_redirect_uris | default([]) }}"
+      additionalOrigins: "{{ additional_origins | default([]) }}"
+      idTokenRoleAssertion: true
+      idTokenUserinfoAssertion: true
+  register: zitadel_app_n
+  changed_when: zitadel_app_n.status == 200
+- name: Refresh Zitadel OIDC client secret
+  when: zitadel_app.json.result is defined
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ hostvars.salamandre.apps_zitadel.host }}/management/v1/projects/{{ project_id }}/apps/{{ zitadel_app.json.result.0.id }}/oidc_config/_generate_client_secret"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ hostvars.salamandre.zitadel_console_token.json.access_token }}"
+    status_code: 200
+    return_content: true
+    body_format: json
+    body: {}
+  register: zitadel_app_r
+  changed_when: zitadel_app_r.status == 200
+
+- name: Store OIDC credentials # noqa: var-naming[no-role-prefix]
+  ansible.builtin.import_role:
+    name: vault_secrets
+  vars:
+    secrets:
+      - path: "{{ secret_path }}"
+        data:
+          issuer: "{{ hostvars.salamandre.apps_zitadel.host }}"
+          clientID: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n.json, zitadel_app.json.result.0.oidcConfig)).clientId }}"
+          clientSecret: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n, zitadel_app_r)).json.clientSecret }}"

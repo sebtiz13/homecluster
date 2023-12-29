@@ -1,6 +1,10 @@
-- name: Deploy Keycloak
-  tags: keycloak
-  ansible.builtin.import_tasks: keycloak.yaml
+- name: Deploy Zitadel
+  tags: zitadel
+  ansible.builtin.import_tasks: zitadel.yaml
+
+- name: Configure Zitadel resources
+  tags: zitadel
+  ansible.builtin.import_tasks: zitadel_setup.yaml
 
 - name: Configure Vault OIDC
   tags: vault

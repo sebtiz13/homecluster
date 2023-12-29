@@ -27,7 +27,7 @@ Good enough for tinkering, personal usage and reasonably secure.
 
 - [x] Automated application sync (GitLab Agent and ArgoCD, on Salamandre)
 - [ ] Automated DNS management (update DNS records, on Salamandre)
-- [x] Single Sign-On (keycloak, on Salamandre)
+- [x] Single Sign-On (Zitadel, on Salamandre)
 - [x] Reasonably secure
   - [x] Automated certificate management (cert-manager, on Salamandre)
   - [x] Declarative secret management (vault and external-secrets, on Salamandre)

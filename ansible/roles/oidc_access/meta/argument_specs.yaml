@@ -1,0 +1,34 @@
+argument_specs:
+  main:
+    short_description: The main entry point for the database access.
+    options:
+      secret_path:
+        type: str
+        required: true
+      project_id:
+        type: str
+        required: true
+      app_name:
+        type: str
+        required: true
+      redirect_uris:
+        type: list
+        default: []
+      response_types:
+        type: list
+        # Possible values: [OIDC_RESPONSE_TYPE_CODE, OIDC_RESPONSE_TYPE_ID_TOKEN, OIDC_RESPONSE_TYPE_ID_TOKEN_TOKEN]
+        default: []
+      grant_types:
+        type: list
+        # Possible values: [OIDC_GRANT_TYPE_AUTHORIZATION_CODE, OIDC_GRANT_TYPE_IMPLICIT, OIDC_GRANT_TYPE_REFRESH_TOKEN, OIDC_GRANT_TYPE_DEVICE_CODE]
+        default: []
+      auth_method_type:
+        type: str
+        # Possible values: [OIDC_AUTH_METHOD_TYPE_BASIC, OIDC_AUTH_METHOD_TYPE_POST, OIDC_AUTH_METHOD_TYPE_NONE, OIDC_AUTH_METHOD_TYPE_PRIVATE_KEY_JWT]
+        default: "OIDC_AUTH_METHOD_TYPE_BASIC"
+      post_logout_redirect_uris:
+        type: list
+        default: []
+      additional_origins:
+        type: list
+        default: []

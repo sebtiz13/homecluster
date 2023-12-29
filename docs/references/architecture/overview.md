@@ -14,7 +14,7 @@ graph LR
     s-infrastructure[infrastructure] --- argocd
     s-infrastructure --- gitlab
     s-infrastructure --- gitlab-agent
-    s-infrastructure --- keycloak
+    s-infrastructure --- zitadel
     s-infrastructure --- minio
     s-infrastructure --- vault
   end
@@ -50,15 +50,15 @@ graph LR
 
     vault --> m-vault[create minio secrets] --> minio[deploy minio]
     vault --> g-vault[create gitlab secrets] --> gitlab[deploy gitlab]
-    vault --> k-vault[create keyclaok secrets] --> keycloak[deploy keycloak]
+    vault --> k-vault[create zitadel secrets] --> zitadel[deploy zitadel]
     vault --> mg-vault[create VictoriaMetrics/Grafana secrets] --> monitoring[deploy monitoring (VictoriaMetrics, Grafana, etc)]
 
     %% Sub task
-    keycloak --> v-oidc[configure vault oidc]
+    zitadel --> v-oidc[configure vault oidc]
 
     %% Deps
     postgresql -----> g-db[create gitlab database] --> g-vault
-    postgresql -----> k-db[create keycloak database] --> k-vault
+    postgresql -----> k-db[create zitadel database] --> k-vault
     zfs-pool --> r-vault & openebs & monitoring
     vault --> a-vault
     minio --> gitlab
