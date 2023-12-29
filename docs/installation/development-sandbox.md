@@ -26,6 +26,7 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 - [python](https://www.python.org/)
 - [jq](https://stedolan.github.io/jq/)
 - [yq](https://github.com/mikefarah/yq/)
+- [pwgen](https://sourceforge.net/projects/pwgen/)
 
 ### Configuring DNS
 

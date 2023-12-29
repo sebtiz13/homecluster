@@ -15,6 +15,7 @@
   - [Ansible](https://www.ansible.com/)
     - [jq](https://stedolan.github.io/jq/)
     - [yq](https://github.com/mikefarah/yq/)
+  - [pwgen](https://sourceforge.net/projects/pwgen/)
 
 ### Servers
 

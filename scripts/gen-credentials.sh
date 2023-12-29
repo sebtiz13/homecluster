@@ -6,9 +6,8 @@ if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
 fi
 
 DEFAULT_LENGTH=32
-DEFAULT_CHARS='a-zA-Z0-9'
 randpw () {
-  head -c 512 /dev/urandom | LC_CTYPE=C tr -cd "${2:-$DEFAULT_CHARS}" | head -c "${1:-$DEFAULT_LENGTH}"
+  pwgen -cnysB -r "'\"\`" "${1:-$DEFAULT_LENGTH}" 1
 }
 
 insert_pwd() {
