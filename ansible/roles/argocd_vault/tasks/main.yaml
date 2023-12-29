@@ -1,8 +1,5 @@
 - name: Write Vault secrets # noqa: var-naming[no-role-prefix]
-  vars:
-    ansible_hashi_vault_addr: "{{ hostvars.salamandre.ansible_hashi_vault_addr }}"
-    ansible_hashi_vault_token: "{{ hostvars.salamandre.ansible_hashi_vault_token }}"
-    # secrets: "{{ secrets }}"
+  #? secrets passed from role
   delegate_to: localhost
   ansible.builtin.import_role:
     name: vault_secrets
