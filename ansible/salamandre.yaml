@@ -46,10 +46,10 @@
       delegate_to: localhost
       tags: traefik
       vars:
-        namespace: traefik
-        middleware_name: admin-auth
-        secret_name: admin-users
-        users: "{{ basic_auth_users }}"
+        namespace: traefik # noqa: var-naming[no-role-prefix]
+        middleware_name: admin-auth # noqa: var-naming[no-role-prefix]
+        secret_name: admin-users # noqa: var-naming[no-role-prefix]
+        users: "{{ basic_auth_users }}" # noqa: var-naming[no-role-prefix]
     - role: apps_cert-manager
       delegate_to: localhost
       tags:
@@ -59,8 +59,8 @@
       delegate_to: localhost
       tags: smtp
       vars:
-        validate_certs: false
-        secrets:
+        validate_certs: false # noqa: var-naming[no-role-prefix]
+        secrets: # noqa: var-naming[no-role-prefix]
           - path: smtp
             data: "{{ smtp_auth }}"
     - role: salamandre_dev
@@ -105,7 +105,7 @@
     - role: vault_secrets
       delegate_to: localhost
       vars:
-        secrets:
+        secrets: # noqa: var-naming[no-role-prefix]
           - path: argocd/oidc
             data:
               issuer: "{{ apps_keycloak.issuer }}"
