@@ -1,9 +1,12 @@
 dependencies:
+- name: external-secrets
+  repository: file://../_dependencies/external-secrets
+  version: 1.0.0
 - name: victoria-metrics-k8s-stack
   repository: https://victoriametrics.github.io/helm-charts/
   version: 0.17.3
 - name: grafana
   repository: https://grafana.github.io/helm-charts
   version: 6.58.6
-digest: sha256:af6362f3318f8f17667c7661e1c75d1a76a7f4e80c8407a082c932cb4a8165df
-generated: "2023-07-31T18:33:17.135863087+02:00"
+digest: sha256:69e5f41259a4d719a866396c53f793ff14d803a1e865e67268ecfb06a9e43e91
+generated: "2023-12-30T23:49:01.848392019+01:00"

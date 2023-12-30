@@ -11,19 +11,6 @@ initJob:
   extraContainers: []
   podAnnotations: {}
 
-externalSecrets:
-  secretStoreRef:
-    name: vault-argocd
-    kind: ClusterSecretStore
-  refreshInterval: 1h
-
-  secrets:
-    # Create an external secret (doc: https://external-secrets.io/v0.6.0/api/externalsecret/#example)
-    # - name: secret-name # The name of resource (prefixed by fullname)
-    #   target: {}
-    #   dataFrom: {}
-    #   annotations: {}
-
 zitadel:
   fullnameOverride: zitadel
 
@@ -32,3 +19,23 @@ zitadel:
   # Disable old init job
   initJob:
     enabled: false
+
+external-secrets:
+  fullnameOverride: zitadel
+
+  secrets:
+    - name: credentials
+      annotations:
+        helm.sh/hook: pre-install,pre-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation
+        helm.sh/hook-weight: "0"
+      target:
+        template:
+          type: Opaque
+          data:
+            masterkey: '{{`{{ .masterkey }}`}}'
+            postgresql-password: '{{`{{ .password }}`}}'
+            smtp-password: '{{`{{ .smtp_password }}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/zitadel/database

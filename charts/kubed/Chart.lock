@@ -1,0 +1,6 @@
+dependencies:
+- name: external-secrets
+  repository: file://../_dependencies/external-secrets
+  version: 1.0.0
+digest: sha256:92a6e8b6ff1dbcbcfc9028ba4bc0a326080c94279f9f4aaba6dda5c8894b9a8b
+generated: "2023-12-30T23:52:43.970297759+01:00"

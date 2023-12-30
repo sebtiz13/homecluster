@@ -3,17 +3,8 @@ nameOverride: ""
 # Overrides fullname template
 fullnameOverride: ""
 
-externalSecrets:
-  secretStoreRef:
-    name: vault-argocd
-    kind: ClusterSecretStore
-  refreshInterval: 1h
-
-  secrets:
-    # Create an external secret (doc: https://external-secrets.io/v0.6.0/api/externalsecret/#example)
-    # - name: secret-name # The name of resource (prefixed by fullname)
-    #   target: {}
-    #   dataFrom: {}
+external-secrets:
+  fullnameOverride: kubed
 
 kubed:
   # Number of Config Syncer operator replicas to create (only 1 is supported)

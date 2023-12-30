@@ -1,10 +1,14 @@
 apiVersion: v2
 description: 'Config Syncer by AppsCode - Kubernetes daemon'
 name: kubed
-version: 1.0.0
+version: 1.0.1
 appVersion: v0.13.2
 
 home: https://github.com/kubeops/config-syncer
 icon: https://cdn.appscode.com/images/products/kubed/icons/android-icon-192x192.png
 sources:
   - https://github.com/kubeops/installer/tree/master/charts/config-syncer
+dependencies:
+  - name: external-secrets
+    version: 1.0.0
+    repository: file://../_dependencies/external-secrets

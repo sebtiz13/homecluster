@@ -1,4 +1,4 @@
-externalSecrets:
+external-secrets:
   secrets:
     - name: credentials
       annotations:

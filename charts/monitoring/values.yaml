@@ -1,14 +1,5 @@
-externalSecrets:
-  secretStoreRef:
-    name: vault-argocd
-    kind: ClusterSecretStore
-  refreshInterval: 1h
-
-  secrets: []
-    # Create an external secret (doc: https://external-secrets.io/v0.6.0/api/externalsecret/#example)
-    # - name: secret-name # The name of resource (prefixed by fullname)
-    #   target: {}
-    #   dataFrom: {}
+external-secrets:
+  fullnameOverride: vm-stack
 
 victoria-metrics-k8s-stack:
   # Use shorter names

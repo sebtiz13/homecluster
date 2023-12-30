@@ -1,6 +1,9 @@
 dependencies:
+- name: external-secrets
+  repository: file://../_dependencies/external-secrets
+  version: 1.0.0
 - name: zitadel
   repository: https://charts.zitadel.com
   version: 7.3.2
-digest: sha256:798455ae502e84c85eadca379ba4d33b2615e7097b763d60b0c9871cbf5a076f
-generated: "2023-12-26T20:01:01.635938884+01:00"
+digest: sha256:3a10f77cc64448eda31780481e66457da9312d671eeb9858bd4811de30904733
+generated: "2023-12-30T23:38:05.408089565+01:00"
