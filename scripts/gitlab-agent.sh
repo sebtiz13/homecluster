@@ -1,4 +1,13 @@
 #!/bin/sh
+if ! command -v kubectl  &> /dev/null; then
+  echo "You should install kubectl to generate credentials"
+  exit 1
+fi
+if ! command -v jq  &> /dev/null; then
+  echo "You should install jq to generate credentials"
+  exit 1
+fi
+
 ENVIRONMENT=${ENVIRONMENT:-prod}
 if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Usage: ./gitlab-agent.sh <local/homecluster> <token>"

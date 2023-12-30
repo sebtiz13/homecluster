@@ -1,4 +1,9 @@
 #!/bin/bash
+if ! command -v ansible  &> /dev/null; then
+  echo "You should install ansible to generate credentials"
+  exit 1
+fi
+
 ENVIRONMENT=${ENVIRONMENT:-prod}
 DOMAIN_NAME=${DOMAIN_NAME:-local.vm}
 if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then

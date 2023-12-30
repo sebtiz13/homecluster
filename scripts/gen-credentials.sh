@@ -1,4 +1,13 @@
 #!/bin/bash
+if ! command -v pwgen  &> /dev/null; then
+  echo "You should install pwgen to generate credentials"
+  exit 1
+fi
+if ! command -v yq  &> /dev/null; then
+  echo "You should install yq to generate credentials"
+  exit 1
+fi
+
 ENVIRONMENT=${ENVIRONMENT:-prod}
 if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
   echo "Incorrect environment. Valid value : 'dev' or 'prod'"
