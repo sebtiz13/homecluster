@@ -5,6 +5,8 @@ metadata:
   annotations:
     kubed.appscode.com/sync: "domain={{ root_domain }}"
     kubed.appscode.com/sync-contexts: baku
+  labels:
+    app.kubernetes.io/part-of: argocd
 type: kubernetes.io/tls
 data:
   tls.crt: "{{ lookup('file', ca.cert) | b64encode }}"
