@@ -49,7 +49,7 @@ spec:
             {{- end }}
             {{- if and .Values.zitadel.zitadel.configSecretName .Values.zitadel.zitadel.configSecretKey }}
             - --config
-            - /.secrets/zitadel-secret-config-yaml/{{ .Values.zitadel.configSecretKey }}
+            - /.secrets/zitadel-secret-config-yaml/{{ .Values.zitadel.zitadel.configSecretKey }}
             {{- end }}
           env:
             - name: POD_IP
