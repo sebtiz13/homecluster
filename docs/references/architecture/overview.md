@@ -7,7 +7,7 @@ graph LR
   subgraph "Salamandre cluster"
     s-system[system] --- cert-manager
     s-system --- external-secrets
-    s-system --- kubed
+    s-system --- config-syncer
     s-system --- openebs
     s-system --- s-traefik[traefik]
 
@@ -41,7 +41,7 @@ graph LR
     argocd --> a-vault[create argocd secrets] --> a-sync[sync manifest]
 
     argocd --> cert-manager[deploy cert-manager]
-    argocd --> kubed[deploy kubed]
+    argocd --> config-syncer[deploy config-syncer]
     argocd --> traefik[deploy traefik]
     argocd --> external-secret[deploy external-secrets]
     argocd --> openebs[deploy openebs] --> sc[create storage class]

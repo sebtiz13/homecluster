@@ -43,12 +43,12 @@
     state: present
     src: zfspv-snapclass.yaml
 
-- name: Deploy Kubed application manifest
-  tags: kubed
+- name: Deploy Config Syncer application manifest
+  tags: config-syncer
   kubernetes.core.k8s:
     kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
     state: present
-    src: "{{ manifests_folder }}/kubed.yaml"
+    src: "{{ manifests_folder }}/config-syncer.yaml"
     namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
 
 - name: Deploy Treafik application manifest

@@ -1,0 +1,16 @@
+config-syncer:
+  enableAnalytics: false
+
+  config:
+    clusterName: salamandre
+    existingSecret: config-syncer-config
+    existingSecretKubeconfigKey: kubeconfig
+
+  operator:
+    resources:
+      requests:
+        cpu: 4m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi

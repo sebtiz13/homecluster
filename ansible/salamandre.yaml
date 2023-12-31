@@ -21,9 +21,9 @@
     - role: apps_argocd
       delegate_to: localhost
       tags: argocd
-    - role: kubed_kubeconfig
+    - role: cs_kubeconfig
       delegate_to: localhost
-      tags: kubed
+      tags: config-syncer
     - role: apps_system
       delegate_to: localhost
       tags: common

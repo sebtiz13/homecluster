@@ -39,10 +39,10 @@ Good enough for tinkering, personal usage and reasonably secure.
   - [x] Alerting
 - [x] Core/System applications
   - **Salamandre**
-    - [x] Kubed
+    - [x] Config Syncer
     - [x] Minio
   - **Baku**
-    - [x] Kubed
+    - [x] Config Syncer
     - [x] Minio
 
 ## Stable requirement

@@ -1,0 +1,10 @@
+argument_specs:
+  main:
+    short_description: The main entry point for the Config Syncer cluster role.
+    options:
+      cluster_kubeconfig:
+        type: str
+        required: true
+      cluster_namespace:
+        type: str
+        required: true

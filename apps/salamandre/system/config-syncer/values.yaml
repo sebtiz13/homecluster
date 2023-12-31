@@ -1,0 +1,14 @@
+plugin: helm
+
+source:
+  repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
+  chart: config-syncer
+  targetRevision: 1.0.0
+
+destination:
+  namespace: kube-system
+
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
