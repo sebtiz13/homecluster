@@ -81,10 +81,11 @@
 - name: Restart GitLab resources for update secrets
   when: argocd_refresh is not skipped
   delegate_to: "{{ inventory_hostname }}"
-  ansible.builtin.command: |
-    kubectl rollout restart deployment
-      --namespace '{{ apps_gitlab.namespace }}'
-      '{{ apps_gitlab.release_name }}-{{ item }}'
+  vars:
+    cmd_args: "-n '{{ apps_gitlab.namespace }}' 'deployment/{{ apps_gitlab.release_name }}-{{ item }}'"
+  ansible.builtin.shell: >-
+    kubectl rollout restart {{ cmd_args }} >/dev/null &&
+    kubectl rollout status {{ cmd_args }} >/dev/null
   changed_when: false
   loop:
     - gitlab-exporter
@@ -183,8 +184,9 @@
 - name: Restart GitLab runner for handle token
   when: gitlab_toolbox_pod is not skipped
   delegate_to: "{{ inventory_hostname }}"
-  ansible.builtin.command: |
-    kubectl rollout restart deployment
-      --namespace '{{ apps_gitlab.namespace }}'
-      '{{ apps_gitlab.release_name }}-gitlab-runner'
+  vars:
+    cmd_args: "-n '{{ apps_gitlab.namespace }}' 'deployment/{{ apps_gitlab.release_name }}-gitlab-runner'"
+  ansible.builtin.shell: >-
+    kubectl rollout restart {{ cmd_args }} >/dev/null &&
+    kubectl rollout status {{ cmd_args }} >/dev/null
   changed_when: false

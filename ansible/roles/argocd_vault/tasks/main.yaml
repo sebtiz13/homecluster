@@ -46,10 +46,11 @@
     - item is succeeded
     - item.resources | length > 0
   delegate_to: "{{ inventory_hostname }}"
-  ansible.builtin.command: |
-    kubectl rollout restart {{ item.item.kind }}
-      --namespace '{{ manifest.spec.destination.namespace }}'
-      '{{ item.item.name }}'
+  vars:
+    cmd_args: "-n '{{ manifest.spec.destination.namespace }}' '{{ item.item.kind }}/{{ item.item.name }}'"
+  ansible.builtin.shell: >-
+    kubectl rollout restart {{ cmd_args }} >/dev/null &&
+    kubectl rollout status {{ cmd_args }} >/dev/null
   changed_when: false
   loop: "{{ app_resource.results }}"
   loop_control:

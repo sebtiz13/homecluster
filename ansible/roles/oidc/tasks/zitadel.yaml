@@ -63,20 +63,15 @@
         annotations:
           force-sync: "{{ ansible_date_time.epoch }}"
   loop: "{{ apps_zitadel.secretNames }}"
-- name: Restart Zitadel resources for update secrets # TODO: preventing use old pod when restart
+- name: Restart Zitadel resources for update secrets
   when: argocd_refresh is not skipped
-  kubernetes.core.k8s:
-    state: patched
-    kubeconfig: "{{ local_kubeconfig }}"
-    kind: Deployment
-    name: "{{ apps_zitadel.release_name }}"
-    namespace: "{{ apps_zitadel.namespace }}"
-    definition:
-      spec:
-        template:
-          metadata:
-            annotations:
-              kubectl.kubernetes.io/restartedAt: "{{ now(fmt='%Y-%m-%dT%H:%M:%SZ') }}"
+  delegate_to: "{{ inventory_hostname }}"
+  vars:
+    cmd_args: "-n '{{ apps_zitadel.namespace }}' 'deployment/{{ apps_zitadel.release_name }}'"
+  ansible.builtin.shell: >-
+    kubectl rollout restart {{ cmd_args }} >/dev/null &&
+    kubectl rollout status {{ cmd_args }} >/dev/null
+  changed_when: false
 
 - name: Wait until application is available
   ansible.builtin.uri:

@@ -18,8 +18,8 @@
   delegate_to: "{{ inventory_hostname }}"
   vars:
     kubed_manifest: "{{ lookup('file', manifests_folder + '/kubed.yaml') | from_yaml }}"
-  ansible.builtin.command: |
-    kubectl rollout restart deployment
-      --namespace '{{ apps_kubed.namespace }}'
-      '{{ apps_kubed.release_name }}'
+    cmd_args: "-n '{{ apps_kubed.namespace }}' 'deployment/{{ apps_kubed.release_name }}'"
+  ansible.builtin.shell: >-
+    kubectl rollout restart {{ cmd_args }} >/dev/null &&
+    kubectl rollout status {{ cmd_args }} >/dev/null
   changed_when: false
