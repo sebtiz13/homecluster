@@ -27,10 +27,6 @@ vaultwarden:
   # See: https://github.com/dani-garcia/vaultwarden/wiki/Disable-invitations
   # invitations_allowed: true
 
-  # Websocket support for notifications
-  # See: https://github.com/dani-garcia/vaultwarden/wiki/Enabling-WebSocket-notifications
-  # websocket_port: 3012
-
   # Configuration of YubiKey OTP
   # See: https://github.com/dani-garcia/vaultwarden/wiki/Enabling-Yubikey-OTP-authentication
   # yubico_client_id: YUBICO_CLIENT_ID

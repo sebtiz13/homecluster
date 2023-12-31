@@ -46,14 +46,12 @@ victoria-metrics-k8s-stack:
       etcd: false
       vmcluster: false
       # Disabled because tweaked
-      general: false
       kubeApiserverAvailability: false
       kubeApiserverBurnrate: false
       kubeApiserverHistogram: false
       kubeApiserverSlos: false
       kubePrometheusNodeRecording: false
       kubeScheduler: false
-      kubeStateMetrics: false
       kubernetesResources: false
       kubernetesSystem: false
       vmhealth: false
@@ -83,14 +81,12 @@ defaultRules:
   rules:
     # Tweaked rules from "victoria-metrics-k8s-stack" for fully support cluster split and k3s
     victoriametrics:
-      general: true
       kubeApiserverAvailability: true
       kubeApiserverBurnrate: true
       kubeApiserverHistogram: true
       kubeApiserverSlos: true
       kubePrometheusNodeRecording: true
       kubeScheduler: true
-      kubeStateMetrics: true
       kubernetesResources: true
       kubernetesSystem: true
       vmhealth: true

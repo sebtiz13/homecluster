@@ -1,6 +1,8 @@
 {{- /*
 Tweak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kube-prometheus-node-recording.rules.yaml
+Changes: added cluster in rules
 */ -}}
+{{- $VM := index .Values "victoria-metrics-k8s-stack" }}
 {{- if and .Values.defaultRules.create .Values.defaultRules.rules.victoriametrics.kubePrometheusNodeRecording }}
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
@@ -10,7 +12,11 @@ metadata:
   labels: {{ include "monitoring.labels" . | nindent 4 }}
 spec:
   groups:
-  - name: kube-prometheus-node-recording.rules
+  {{- if $VM.defaultRules.params }}
+  - params:
+      {{ toYaml $VM.defaultRules.params | nindent 6 }}
+  {{- else }}
+  - {{ end }}name: kube-prometheus-node-recording.rules
     rules:
     - expr: sum(rate(node_cpu_seconds_total{mode!="idle",mode!="iowait",mode!="steal"}[3m])) BY (instance, cluster)
       record: instance:node_cpu:rate:sum

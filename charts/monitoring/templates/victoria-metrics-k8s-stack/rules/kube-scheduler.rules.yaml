@@ -2,6 +2,7 @@
 Tweaked from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kube-scheduler.rules.yaml
 Note: in k3s job "kube-scheduler" is combined in "kubelet".
 */ -}}
+{{- $VM := index .Values "victoria-metrics-k8s-stack" }}
 {{- if and .Values.defaultRules.create .Values.defaultRules.rules.kubeScheduler }}
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
@@ -11,7 +12,11 @@ metadata:
   labels: {{ include "monitoring.labels" . | nindent 4 }}
 spec:
   groups:
-  - name: kube-scheduler.rules
+  {{- if $VM.defaultRules.params }}
+  - params:
+      {{ toYaml $VM.defaultRules.params | nindent 6 }}
+  {{- else }}
+  - {{ end }}name: kube-scheduler.rules
     rules:
     - expr: histogram_quantile(0.99, sum(rate(scheduler_e2e_scheduling_duration_seconds_bucket{job="kubelet"}[5m])) without(instance, pod))
       labels:

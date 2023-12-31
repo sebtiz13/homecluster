@@ -6,6 +6,10 @@ cert-manager-webhook-ovh:
 cert-manager:
   fullnameOverride: cert-manager
 
+  ## Disable used injector
+  cainjector:
+    enabled: false
+
 # Same as https://github.com/aureq/cert-manager-webhook-ovh/blob/main/charts/cert-manager-webhook-ovh/values.yaml#L15 but with additional `preferredChain` props
 ovhIssuers: []
 

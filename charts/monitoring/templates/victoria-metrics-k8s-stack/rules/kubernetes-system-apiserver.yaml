@@ -1,6 +1,7 @@
 {{- /*
 Tweak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kubernetes-system-apiserver.yaml
 Note: in k3s job "apiserver" is combined in "kubelet".
+Changes: added cluster in KubeClientCertificateExpiration, KubeAPITerminatedRequests
 */ -}}
 {{- $VM := index .Values "victoria-metrics-k8s-stack" }}
 {{- if and .Values.defaultRules.create .Values.defaultRules.rules.victoriametrics.kubernetesSystem }}
@@ -12,8 +13,13 @@ metadata:
   labels: {{ include "monitoring.labels" . | nindent 4 }}
 spec:
   groups:
-  - name: kubernetes-system-apiserver
+  {{- if $VM.defaultRules.params }}
+  - params:
+      {{ toYaml $VM.defaultRules.params | nindent 6 }}
+  {{- else }}
+  - {{ end }}name: kubernetes-system-apiserver
     rules:
+    {{- if not ($VM.defaultRules.disabled.KubeClientCertificateExpiration | default false) }}
     - alert: KubeClientCertificateExpiration
       annotations:
         description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 7.0 days.
@@ -26,6 +32,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.KubeClientCertificateExpiration | default false) }}
     - alert: KubeClientCertificateExpiration
       annotations:
         description: A client certificate used to authenticate to kubernetes apiserver is expiring in less than 24.0 hours.
@@ -38,30 +46,35 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.KubeAggregatedAPIErrors | default false) }}
     - alert: KubeAggregatedAPIErrors
       annotations:
         description: Kubernetes aggregated API {{`{{`}} $labels.name {{`}}`}}/{{`{{`}} $labels.namespace {{`}}`}} has reported errors. It has appeared unavailable {{`{{`}} $value | humanize {{`}}`}} times averaged over the past 10m.
         runbook_url: {{ $VM.defaultRules.runbookUrl }}/kubernetes/kubeaggregatedapierrors
         summary: Kubernetes aggregated API has reported errors.
-      expr: sum by(name, namespace, cluster)(increase(aggregator_unavailable_apiservice_total[10m])) > 4
+      expr: sum by(name, namespace, cluster)(increase(aggregator_unavailable_apiservice_total{job="kubelet"}[10m])) > 4
       labels:
         severity: warning
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.KubeAggregatedAPIDown | default false) }}
     - alert: KubeAggregatedAPIDown
       annotations:
         description: Kubernetes aggregated API {{`{{`}} $labels.name {{`}}`}}/{{`{{`}} $labels.namespace {{`}}`}} has been only {{`{{`}} $value | humanize {{`}}`}}% available over the last 10m.
         runbook_url: {{ $VM.defaultRules.runbookUrl }}/kubernetes/kubeaggregatedapidown
         summary: Kubernetes aggregated API is down.
-      expr: (1 - max by(name, namespace, cluster)(avg_over_time(aggregator_unavailable_apiservice[10m]))) * 100 < 85
+      expr: (1 - max by(name, namespace, cluster)(avg_over_time(aggregator_unavailable_apiservice{job="kubelet"}[10m]))) * 100 < 85
       for: 5m
       labels:
         severity: warning
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
-{{- if $VM.kubeApiServer.enabled }}
+    {{- end }}
+    {{- if or $VM.kubeApiServer.enabled (not ($VM.defaultRules.disabled.KubeAPIDown | default false)) }}
     - alert: KubeAPIDown
       annotations:
         description: KubeAPI has disappeared from Prometheus target discovery.
@@ -74,7 +87,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
-{{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.KubeAPITerminatedRequests | default false) }}
     - alert: KubeAPITerminatedRequests
       annotations:
         description: The kubernetes apiserver has terminated {{`{{`}} $value | humanizePercentage {{`}}`}} of its incoming requests.
@@ -87,4 +101,5 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
 {{- end }}

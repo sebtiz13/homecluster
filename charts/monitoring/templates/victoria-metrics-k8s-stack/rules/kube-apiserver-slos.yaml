@@ -1,8 +1,9 @@
 {{- /*
 Twak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kube-apiserver-slos.yaml
+Changes: added cluster in KubeAPIErrorBudgetBurn
 */ -}}
 {{- $VM := index .Values "victoria-metrics-k8s-stack" }}
-{{- if and .Values.defaultRules.create .Values.defaultRules.rules.victoriametrics.kubeApiserverSlos }}
+{{- if and .Values.defaultRules.create .Values.defaultRules.rules.victoriametrics.kubeApiserverSlos (not ($VM.defaultRules.disabled.KubeAPIErrorBudgetBurn | default false)) }}
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
 metadata:
@@ -11,7 +12,11 @@ metadata:
   labels: {{ include "monitoring.labels" . | nindent 4 }}
 spec:
   groups:
-  - name: kube-apiserver-slos
+  {{- if $VM.defaultRules.params }}
+  - params:
+      {{ toYaml $VM.defaultRules.params | nindent 6 }}
+  {{- else }}
+  - {{ end }}name: kube-apiserver-slos
     rules:
     - alert: KubeAPIErrorBudgetBurn
       annotations:

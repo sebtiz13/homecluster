@@ -1,5 +1,8 @@
 {{- /*
 Tweak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/vmagent.yaml
+Changes:
+  - add cluster to PersistentQueueIsDroppingData,
+  - remove dashboard annotation
 */ -}}
 {{- $VM := index .Values "victoria-metrics-k8s-stack" }}
 {{- if and .Values.defaultRules.create $VM.vmagent.enabled .Values.defaultRules.rules.victoriametrics.vmagent }}
@@ -11,10 +14,15 @@ metadata:
   labels: {{ include "monitoring.labels" . | nindent 4 }}
 spec:
   groups:
-  - concurrency: 2
+  {{- if $VM.defaultRules.params }}
+  - params:
+      {{ toYaml $VM.defaultRules.params | nindent 6 }}
+  {{- else }}
+  - {{ end }}concurrency: 2
     interval: 30s
     name: vmagent
     rules:
+    {{- if not ($VM.defaultRules.disabled.PersistentQueueIsDroppingData | default false) }}
     - alert: PersistentQueueIsDroppingData
       annotations:
         description: Vmagent dropped {{`{{`}} $value | humanize1024 {{`}}`}} from persistent queue on instance {{`{{`}} $labels.instance {{`}}`}} for the last 10m.
@@ -26,6 +34,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.RejectedRemoteWriteDataBlocksAreDropped | default false) }}
     - alert: RejectedRemoteWriteDataBlocksAreDropped
       annotations:
         summary: Job "{{`{{`}} $labels.job {{`}}`}}" on instance {{`{{`}} $labels.instance {{`}}`}} drops the rejected by remote-write server data blocks. Check the logs to find the reason for rejects.
@@ -36,6 +46,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.TooManyScrapeErrors | default false) }}
     - alert: TooManyScrapeErrors
       annotations:
         summary: Job "{{`{{`}} $labels.job {{`}}`}}" on instance {{`{{`}} $labels.instance {{`}}`}} fails to scrape targets for last 15m
@@ -46,6 +58,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.TooManyWriteErrors | default false) }}
     - alert: TooManyWriteErrors
       annotations:
         dashboard: {{ index .Values.grafana.ingress.hosts 0 }}/d/G7Z9GzMGz?viewPanel=77&var-instance={{`{{`}} $labels.instance {{`}}`}}
@@ -60,6 +74,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.TooManyRemoteWriteErrors | default false) }}
     - alert: TooManyRemoteWriteErrors
       annotations:
         description: "Vmagent fails to push data via remote write protocol to destination \"{{`{{`}} $labels.url {{`}}`}}\"\n Ensure that destination is up and reachable."
@@ -71,6 +87,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.RemoteWriteConnectionIsSaturated | default false) }}
     - alert: RemoteWriteConnectionIsSaturated
       annotations:
         description: "The remote write connection between vmagent \"{{`{{`}} $labels.job {{`}}`}}\" (instance {{`{{`}} $labels.instance {{`}}`}}) and destination \"{{`{{`}} $labels.url {{`}}`}}\" is saturated by more than 90% and vmagent won't be able to keep up.\n This usually means that `-remoteWrite.queues` command-line flag must be increased in order to increase the number of connections per each remote storage."
@@ -82,6 +100,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.PersistentQueueForWritesIsSaturated | default false) }}
     - alert: PersistentQueueForWritesIsSaturated
       annotations:
         description: Persistent queue writes for vmagent "{{`{{`}} $labels.job {{`}}`}}" (instance {{`{{`}} $labels.instance {{`}}`}}) are saturated by more than 90% and vmagent won't be able to keep up with flushing data on disk. In this case, consider to decrease load on the vmagent or improve the disk throughput.
@@ -93,6 +113,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | indent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.PersistentQueueForReadsIsSaturated | default false) }}
     - alert: PersistentQueueForReadsIsSaturated
       annotations:
         description: Persistent queue reads for vmagent "{{`{{`}} $labels.job {{`}}`}}" (instance {{`{{`}} $labels.instance {{`}}`}}) are saturated by more than 90% and vmagent won't be able to keep up with reading data from the disk. In this case, consider to decrease load on the vmagent or improve the disk throughput.
@@ -104,6 +126,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.SeriesLimitHourReached | default false) }}
     - alert: SeriesLimitHourReached
       annotations:
         description: Max series limit set via -remoteWrite.maxHourlySeries flag is close to reaching the max value. Then samples for new time series will be dropped instead of sending them to remote storage systems.
@@ -114,6 +138,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.SeriesLimitDayReached | default false) }}
     - alert: SeriesLimitDayReached
       annotations:
         description: Max series limit set via -remoteWrite.maxDailySeries flag is close to reaching the max value. Then samples for new time series will be dropped instead of sending them to remote storage systems.
@@ -124,6 +150,8 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if not ($VM.defaultRules.disabled.ConfigurationReloadFailure | default false) }}
     - alert: ConfigurationReloadFailure
       annotations:
         description: Configuration hot-reload failed for vmagent on instance {{`{{`}} $labels.instance {{`}}`}}. Check vmagent's logs for detailed error message.
@@ -137,4 +165,5 @@ spec:
         {{- if .Values.defaultRules.additionalRuleLabels }}
         {{ toYaml .Values.defaultRules.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
 {{- end }}

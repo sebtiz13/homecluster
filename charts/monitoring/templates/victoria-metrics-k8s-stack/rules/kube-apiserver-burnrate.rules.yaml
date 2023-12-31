@@ -2,6 +2,7 @@
 Tweak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kube-apiserver-burnrate.rules.yaml
 Note: in k3s job "apiserver" is combined in "kubelet".
 */ -}}
+{{- $VM := index .Values "victoria-metrics-k8s-stack" }}
 {{- if and .Values.defaultRules.create .Values.defaultRules.rules.kubeApiserverBurnrate }}
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
@@ -11,24 +12,28 @@ metadata:
   labels: {{ include "monitoring.labels" . | nindent 4 }}
 spec:
   groups:
-  - name: kube-apiserver-burnrate.rules
+  {{- if $VM.defaultRules.params }}
+  - params:
+      {{ toYaml $VM.defaultRules.params | nindent 6 }}
+  {{- else }}
+  - {{ end }}name: kube-apiserver-burnrate.rules
     rules:
     - expr: |-
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[1d]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[1d]))
             -
             (
               (
-                sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[1d]))
+                sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[1d]))
                 or
                 vector(0)
               )
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[1d]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[1d]))
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[1d]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[1d]))
             )
           )
           +
@@ -44,18 +49,18 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[1h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[1h]))
             -
             (
               (
-                sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[1h]))
+                sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[1h]))
                 or
                 vector(0)
               )
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[1h]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[1h]))
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[1h]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[1h]))
             )
           )
           +
@@ -71,18 +76,18 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[2h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[2h]))
             -
             (
               (
-                sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[2h]))
+                sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[2h]))
                 or
                 vector(0)
               )
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[2h]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[2h]))
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[2h]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[2h]))
             )
           )
           +
@@ -98,18 +103,18 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[30m]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[30m]))
             -
             (
               (
-                sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[30m]))
+                sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[30m]))
                 or
                 vector(0)
               )
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[30m]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[30m]))
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[30m]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[30m]))
             )
           )
           +
@@ -125,18 +130,18 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[3d]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[3d]))
             -
             (
               (
-                sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[3d]))
+                sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[3d]))
                 or
                 vector(0)
               )
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[3d]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[3d]))
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[3d]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[3d]))
             )
           )
           +
@@ -152,18 +157,18 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[5m]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[5m]))
             -
             (
               (
-                sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[5m]))
+                sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[5m]))
                 or
                 vector(0)
               )
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[5m]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[5m]))
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[5m]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[5m]))
             )
           )
           +
@@ -179,18 +184,18 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[6h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[6h]))
             -
             (
               (
-                sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[6h]))
+                sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope=~"resource|",le="1"}[6h]))
                 or
                 vector(0)
               )
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[6h]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="namespace",le="5"}[6h]))
               +
-              sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[6h]))
+              sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward",scope="cluster",le="30"}[6h]))
             )
           )
           +
@@ -206,9 +211,9 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[1d]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[1d]))
             -
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[1d]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[1d]))
           )
           +
           sum by (cluster) (rate(apiserver_request_total{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",code=~"5.."}[1d]))
@@ -222,9 +227,9 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[1h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[1h]))
             -
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[1h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[1h]))
           )
           +
           sum by (cluster) (rate(apiserver_request_total{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",code=~"5.."}[1h]))
@@ -238,9 +243,9 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[2h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[2h]))
             -
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[2h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[2h]))
           )
           +
           sum by (cluster) (rate(apiserver_request_total{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",code=~"5.."}[2h]))
@@ -254,9 +259,9 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[30m]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[30m]))
             -
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[30m]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[30m]))
           )
           +
           sum by (cluster) (rate(apiserver_request_total{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",code=~"5.."}[30m]))
@@ -270,9 +275,9 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[3d]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[3d]))
             -
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[3d]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[3d]))
           )
           +
           sum by (cluster) (rate(apiserver_request_total{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",code=~"5.."}[3d]))
@@ -286,9 +291,9 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[5m]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[5m]))
             -
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[5m]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[5m]))
           )
           +
           sum by (cluster) (rate(apiserver_request_total{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",code=~"5.."}[5m]))
@@ -302,9 +307,9 @@ spec:
         (
           (
             # too slow
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[6h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_count{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[6h]))
             -
-            sum by (cluster) (rate(apiserver_request_slo_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[6h]))
+            sum by (cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward",le="1"}[6h]))
           )
           +
           sum by (cluster) (rate(apiserver_request_total{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",code=~"5.."}[6h]))
