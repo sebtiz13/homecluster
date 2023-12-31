@@ -1,3 +1,12 @@
+- name: Restart server application
+  delegate_to: "{{ inventory_hostname }}"
+  vars:
+    cmd_args: "-n '{{ apps_argocd.namespace }}' 'deployment/{{ apps_argocd.release_name }}-server'"
+  ansible.builtin.shell: >-
+    kubectl rollout restart {{ cmd_args }} >/dev/null &&
+    kubectl rollout status {{ cmd_args }} >/dev/null
+  changed_when: false
+
 - name: Delete initial admin password secret
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"

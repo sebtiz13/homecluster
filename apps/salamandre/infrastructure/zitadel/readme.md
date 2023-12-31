@@ -34,4 +34,4 @@ SMTP configuration
 - `host`: The server host
 - `port`: The server port
 - `username`: The auth username (and from email)
-- `username`: The auth password
+- `password`: The auth password

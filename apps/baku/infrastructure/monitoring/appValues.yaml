@@ -144,3 +144,5 @@ grafana:
     limits:
       cpu: 500m
       memory: 1500Mi
+
+  extraObjects:

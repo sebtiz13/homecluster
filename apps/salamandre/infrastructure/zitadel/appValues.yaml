@@ -1,33 +1,3 @@
-external-secrets:
-  secrets:
-    - name: credentials
-      annotations:
-        helm.sh/hook: pre-install,pre-upgrade
-        helm.sh/hook-delete-policy: before-hook-creation
-        helm.sh/hook-weight: "0"
-      target:
-        template:
-          type: Opaque
-          data:
-            masterkey: '{{`{{ .masterkey }}`}}'
-            postgresql-password: '{{`{{ .password }}`}}'
-            smtp-password: '{{`{{ .smtp_password }}`}}'
-      dataFrom:
-        - extract:
-            key: salamandre/zitadel/database
-        - extract:
-            key: salamandre/smtp
-          rewrite:
-            - regexp:
-                source: "password"
-                target: "smtp_password"
-        - extract:
-            key: salamandre/zitadel/masterkey
-          rewrite:
-            - regexp:
-                source: "value"
-                target: "masterkey"
-
 zitadel:
   image:
     tag: v2.42.3
@@ -53,20 +23,11 @@ zitadel:
   env:
     - name: TZ
       value: Europe/Paris
-    - name: ZITADEL_DATABASE_POSTGRES_USER_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: zitadel-credentials
-          key: postgresql-password
-    - name: ZITADEL_DEFAULTINSTANCE_SMTPCONFIGURATION_SMTP_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: zitadel-credentials
-          key: smtp-password
 
   zitadel:
-    masterkeySecretName: zitadel-credentials
+    masterkeySecretName: zitadel-masterkey
     configSecretName: zitadel-credentials
+    configSecretKey: config-yaml
 
     configmapConfig:
       ExternalSecure: true
@@ -76,15 +37,11 @@ zitadel:
         Enabled: false
       Database:
         Postgres:
-          Host: <path:salamandre/data/zitadel/database#host>
-          Port: <path:salamandre/data/zitadel/database#port>
-          Database: <path:salamandre/data/zitadel/database#database>
           MaxOpenConns: 20
           MaxIdleConns: 10
           MaxConnLifetime: 30m
           MaxConnIdleTime: 5m
           User:
-            Username: <path:salamandre/data/zitadel/database#user>
             SSL:
               Mode: disable
       FirstInstance:
@@ -97,10 +54,6 @@ zitadel:
               Type: 1
       DefaultInstance:
         SMTPConfiguration:
-          SMTP:
-            Host: "<path:salamandre/data/smtp#host>:<path:salamandre/data/smtp#port>"
-            User: <path:salamandre/data/smtp#username>
-          From: <path:salamandre/data/smtp#username>
           FromName: Zitadel
         LoginPolicy:
           AllowRegister: false
@@ -116,3 +69,56 @@ zitadel:
           HideLoginNameSuffix: true
           ErrorMsgPopup: true
           DisableWatermark: true
+
+external-secrets:
+  secrets:
+    - name: masterkey
+      annotations:
+        helm.sh/hook: pre-install,pre-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation
+        helm.sh/hook-weight: "0"
+      dataFrom:
+        - extract:
+            key: salamandre/zitadel/masterkey
+          rewrite:
+            - regexp:
+                source: "value"
+                target: "masterkey"
+    - name: credentials
+      annotations:
+        helm.sh/hook: pre-install,pre-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation
+        helm.sh/hook-weight: "0"
+      target:
+        template:
+          type: Opaque
+          data:
+            config-yaml: |-
+              {{`Database:
+                Postgres:
+                  Host: {{ .db_host }}
+                  Port: {{ .db_port }}
+                  Database: {{ .db_database }}
+                  User:
+                    Username: {{ .db_user }}
+                    Password: {{ .db_password }}
+              DefaultInstance:
+                SMTPConfiguration:
+                  SMTP:
+                    Host: "{{ .smtp_host }}:{{ .smtp_port }}"
+                    User: {{ .smtp_username }}
+                    Password: {{ .smtp_password }}
+                  From: {{ .smtp_username }}`}}
+      dataFrom:
+        - extract:
+            key: salamandre/zitadel/database
+          rewrite:
+            - regexp:
+                source: "(.*)"
+                target: "db_$1"
+        - extract:
+            key: salamandre/smtp
+          rewrite:
+            - regexp:
+                source: "(.*)"
+                target: "smtp_$1"

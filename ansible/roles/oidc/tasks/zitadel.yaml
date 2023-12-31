@@ -1,12 +1,12 @@
 - name: Retrieve Zitadel informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/zitadel.yaml') | from_yaml }}"
-    values: "{{ manifest.spec.source.plugin.env.1.value | from_yaml }}"
+    values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
   ansible.builtin.set_fact:
     apps_zitadel:
       _manifest: "{{ manifest }}"
       _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
-      release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
+      release_name: "{{ manifest.spec.source.helm.releaseName }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
       secretNames: "{{ values['external-secrets'].secrets | map(attribute='name') }}"
       host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
@@ -34,7 +34,7 @@
     manifest: "{{ apps_zitadel._manifest }}"
     restart_resources:
       - kind: StatefulSet
-        name: "{{ apps_zitadel._manifest.spec.source.plugin.env.0.value }}"
+        name: "{{ apps_zitadel.release_name }}"
     secrets:
       - path: zitadel/masterkey
         data:

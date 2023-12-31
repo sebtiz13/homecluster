@@ -1,0 +1,55 @@
+- name: Retrieve server service
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Service
+    name: "{{ apps_argocd.release_name }}-server"
+    namespace: "{{ apps_argocd.namespace }}"
+  register: argocd_server
+
+- name: Retrieve initial admin password # noqa: no-handler
+  when: argocd_deploy is changed
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Secret
+    name: "{{ apps_argocd.release_name }}-initial-admin-secret"
+    namespace: "{{ apps_argocd.namespace }}"
+  register: argocd_initial_admin_password
+
+- name: Create auth token
+  delegate_to: "{{ inventory_hostname }}"
+  vars:
+    initial_password: "{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}"
+  ansible.builtin.uri:
+    url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/session"
+    method: POST
+    return_content: true
+    status_code: 200
+    body_format: json
+    body:
+      username: admin
+      password: "{{ initial_password | default(admin_passwords.argocd) }}"
+  register: argocd_admin_auth
+
+- name: Update admin password
+  when:
+    - argocd_initial_admin_password is not skipped
+    - argocd_initial_admin_password.resources | length > 0
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/account/password"
+    method: PUT
+    headers:
+      Authorization: "Bearer {{ argocd_admin_auth.json.token }}"
+    return_content: true
+    status_code: 200
+    body_format: json
+    body:
+      name: admin
+      currentPassword: "{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}"
+      newPassword: "{{ admin_passwords.argocd }}"
+  register: argocd_admin_update_password
+  changed_when: argocd_admin_update_password.status == 200
+  notify:
+    - Delete initial admin password secret
+    - Recreate auth token
+    - Store api token in facts

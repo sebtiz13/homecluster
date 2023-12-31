@@ -35,10 +35,8 @@
       tags: vault
   post_tasks:
     - name: Flush handlers
-      tags: always
       ansible.builtin.meta: flush_handlers
     - name: Store ArgoCD api token in facts
-      tags: always
       ansible.builtin.set_fact:
         argocd_api_token: "{{ argocd_admin_auth.json.token }}"
 
@@ -93,26 +91,17 @@
     - role: oidc
       delegate_to: localhost
       tags: oidc
-    - name: Fake Grafana and argoCD OIDC
+    - name: Fake Grafana OIDC
       role: vault_secrets
       when: "'oidc' in ansible_skip_tags"
       delegate_to: localhost
       vars:
         secrets: # noqa: var-naming[no-role-prefix]
-          - path: argocd/oidc
-            data:
-              issuer: "http://localhost"
-              clientID: "fake"
-              clientSecret: "fake"
           - path: grafana/oidc
             data:
               issuer: "http://localhost"
               clientID: "fake"
               clientSecret: "fake"
-
-    - role: argocd_sync
-      delegate_to: localhost
-      tags: argocd
 
 - name: Install infrastructure applications
   hosts: salamandre

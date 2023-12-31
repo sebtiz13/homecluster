@@ -1,4 +1,4 @@
-plugin: argocd-vault-plugin-helm
+plugin: helm
 
 ingress:
   subdomain: argocd
@@ -28,10 +28,10 @@ toolsVersion:
 
 baseOidcConfig:
   name: Zitadel
-  issuer: <path:salamandre/data/argocd/oidc#issuer>
-  clientID: <path:salamandre/data/argocd/oidc#clientID>
-  clientSecret: $$oidc.zitadel.clientSecret
-  logoutURL: '{{ print "<path:salamandre/data/argocd/oidc#issuer>/oidc/v1/end_session?client_id=<path:salamandre/data/argocd/oidc#clientID>&post_logout_redirect_uri={{logoutRedirectURL}}" }}'
+  issuer: $oidc-credentials:issuer
+  clientID: $oidc-credentials:clientID
+  clientSecret: $oidc-credentials:clientSecret
+  logoutURL: $oidc-credentials:logoutUrl
   requestedIDTokenClaims:
     groups:
       essential: true

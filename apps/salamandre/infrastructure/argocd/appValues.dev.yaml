@@ -2,7 +2,7 @@ server:
   config:
     oidc.config: |
       {{ tpl (.Values.baseOidcConfig | toYaml) . | nindent 6  }}
-      rootCA: $$vm-ca-tls-secret:tls.crt
+      rootCA: $vm-ca-tls-secret:tls.crt
 
   volumeMounts:
     - name: certificate

@@ -1,4 +1,4 @@
-plugin: argocd-vault-plugin-helm
+plugin: helm
 
 ingress:
   subdomain: sso

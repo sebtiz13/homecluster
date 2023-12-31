@@ -1,6 +1,5 @@
 cert-manager-webhook-ovh:
   enabled: false
-  issuers: null
 
 extraObjects:
   - apiVersion: cert-manager.io/v1

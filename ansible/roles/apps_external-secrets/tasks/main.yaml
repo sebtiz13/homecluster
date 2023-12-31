@@ -1,11 +1,3 @@
-- name: Retrieve application informations
-  vars:
-    manifest: "{{ lookup('file', manifests_folder + '/external-secrets.yaml') | from_yaml }}"
-  ansible.builtin.set_fact:
-    apps_external_secrets:
-      release_name: "{{ manifest.spec.source.helm.releaseName }}"
-      namespace: "{{ manifest.spec.destination.namespace }}"
-
 - name: Deploy application manifest
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"
