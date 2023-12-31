@@ -6,7 +6,7 @@
     apps_config_syncer:
       release_name: "{{ manifest.spec.source.helm.releaseName }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
-      secret_name: "{{ values['config-syncer'].config.existingSecret }}"
+      secret_name: "{{ values['kubed'].config.existingSecret }}"
 
 - name: Create application namespace
   kubernetes.core.k8s:

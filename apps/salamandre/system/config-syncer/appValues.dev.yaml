@@ -1,4 +1,4 @@
-config-syncer:
+kubed:
   operator:
     resources:
       requests:
