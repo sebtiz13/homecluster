@@ -1,19 +1,4 @@
-- name: Nextcloud | Retrieve pod informations
-  when: nextcloud_server.resources | length == 0 # This is for run only on first install
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ local_kubeconfig }}"
-    kind: Pod
-    namespace: "{{ apps_nextcloud.namespace }}"
-    label_selectors:
-      - app.kubernetes.io/component=app
-      - "app.kubernetes.io/instance={{ apps_nextcloud.release_name }}"
-      - "app.kubernetes.io/name={{ apps_nextcloud.release_name }}"
-    field_selectors:
-      - status.phase=Running
-  register: nextcloud_pod
-
 - name: Nextcloud | Remove unused apps
-  when: nextcloud_pod is not skipped # This is for run only on first install
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_nextcloud.namespace }}"
@@ -22,7 +7,6 @@
   loop: "{{ nextcloud_apps.disable }}"
 
 - name: Nextcloud | Install wanted apps
-  when: nextcloud_pod is not skipped # This is for run only on first install
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_nextcloud.namespace }}"
@@ -31,7 +15,6 @@
   loop: "{{ nextcloud_apps.enable }}"
 
 - name: Nextcloud | Configure apps
-  when: nextcloud_pod is not skipped # This is for run only on first install
   vars:
     base: "php occ config:app:set {{ item.id }} "
     commands:
@@ -67,7 +50,6 @@
     label: "{{ item.id }}"
 
 - name: Nextcloud | Retrieve instance id
-  when: nextcloud_pod is not skipped # This is for run only on first install
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_nextcloud.namespace }}"
@@ -76,7 +58,6 @@
   register: nextcloud_instanceid
 
 - name: Nextcloud | Upload external apps icons
-  when: nextcloud_pod is not skipped # This is for run only on first install
   vars:
     base_path: /var/www/html/data/appdata_{{ nextcloud_instanceid.stdout_lines.0 }}/external/icons
     icons:

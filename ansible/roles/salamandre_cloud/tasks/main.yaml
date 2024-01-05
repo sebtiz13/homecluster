@@ -3,6 +3,9 @@
   ansible.builtin.import_tasks: nextcloud.yaml
 
 - name: Deploy Nextcloud apps
+  when: # This is for run only on first install
+    - not nextcloud_pod is skipped
+    - nextcloud_server.resources | length == 0
   tags: nextcloud
   ansible.builtin.import_tasks: nextcloud_apps.yaml
 

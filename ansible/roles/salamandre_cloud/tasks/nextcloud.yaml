@@ -51,3 +51,25 @@
           database: nextcloud
           user: nextcloud
           password: "{{ apps_nextcloud._db_passowrd }}"
+
+- name: Nextcloud | Retrieve pod informations # noqa: no-handler
+  when: argocd_manifest is changed # This is for run only when app changed
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Pod
+    namespace: "{{ apps_nextcloud.namespace }}"
+    label_selectors:
+      - app.kubernetes.io/component=app
+      - "app.kubernetes.io/instance={{ apps_nextcloud.release_name }}"
+      - "app.kubernetes.io/name={{ apps_nextcloud.release_name }}"
+    field_selectors:
+      - status.phase=Running
+  register: nextcloud_pod
+
+- name: Nextcloud | Add missing indices
+  when: not nextcloud_pod is skipped # This is for run only when app changed
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ local_kubeconfig }}"
+    namespace: "{{ apps_nextcloud.namespace }}"
+    pod: "{{ (nextcloud_pod.resources | first).metadata.name }}"
+    command: su -m www-data -s /bin/sh -c 'php occ db:add-missing-indices'
