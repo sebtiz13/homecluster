@@ -183,3 +183,6 @@ imaginary:
     port: 8088
     loadBalancerIP: nil
     nodePort: nil
+
+external-secrets:
+  fullnameOverride: nextcloud
