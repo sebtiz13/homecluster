@@ -1,11 +1,3 @@
-{{- define "vaultwarden.database-uri" }}
-{{- $host := "<path:salamandre/data/vaultwarden/database#host>:<path:salamandre/data/vaultwarden/database#port>" }}
-{{- $user := "<path:salamandre/data/vaultwarden/database#user>" }}
-{{- $password := "<path:salamandre/data/vaultwarden/database#password>" }}
-{{- $database := "<path:salamandre/data/vaultwarden/database#database>" }}
-{{- printf "postgresql://%s:%s@%s/%s" $user $password $host $database }}
-{{- end -}}
-
 vaultwarden:
   tz: Europe/Paris
 
@@ -42,15 +34,37 @@ ingress:
 
 database:
   type: postgresql
-  url: {{ include "vaultwarden.database-uri" . | quote }}
+  existingSecret: vaultwarden-db-credentials
 
 smtp:
   enabled: true
-  host: <path:salamandre/data/smtp#host>
-  port: <path:salamandre/data/smtp#port>
-  from: <path:salamandre/data/smtp#username>
-  username: <path:salamandre/data/smtp#username>
-  password: <path:salamandre/data/smtp#password>
+  existingSecret: vaultwarden-smtp
 
 securityContext:
   enabled: true
+
+external-secrets:
+  secrets:
+    - name: smtp
+      target:
+        template:
+          type: Opaque
+          data:
+            SMTP_HOST: '{{`{{ .host }}`}}'
+            SMTP_PORT: '{{`{{ .port }}`}}'
+            SMTP_FROM: '{{`{{ .username }}`}}'
+            SMTP_SECURITY: starttls
+            SMTP_USERNAME: '{{`{{ .username }}`}}'
+            SMTP_PASSWORD: '{{`{{ .password }}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/smtp
+    - name: db-credentials
+      target:
+        template:
+          type: Opaque
+          data:
+            DATABASE_URL: '{{`postgresql://{{ .user }}:{{ .password }}@{{ .host }}:{{ .port }}/{{ .database }}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/nextcloud/database

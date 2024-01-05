@@ -3,8 +3,7 @@ nextcloud:
     mail:
       smtp:
         secure: ""
-        name: ""
-        password: ""
+        port: 1025
 
   persistence:
     nextcloudData:

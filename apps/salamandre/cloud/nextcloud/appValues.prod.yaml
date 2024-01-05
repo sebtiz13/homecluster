@@ -1,6 +1,0 @@
-nextcloud:
-  nextcloud:
-    mail:
-      smtp:
-        name: <path:salamandre/data/smtp#username>
-        password: <path:salamandre/data/smtp#password>

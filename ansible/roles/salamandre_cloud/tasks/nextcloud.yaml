@@ -1,14 +1,15 @@
 - name: Nextcloud | Retrieve application informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/nextcloud.yaml') | from_yaml }}"
-    host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+    values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
   ansible.builtin.set_fact:
     apps_nextcloud:
       _manifest: "{{ manifest }}"
       _db_passowrd: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
-      release_name: "{{ manifest.spec.source.plugin.env.0.value }}"
+      release_name: "{{ manifest.spec.source.helm.releaseName }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
-      host: "{{ host }}"
+      secretNames: "{{ values['external-secrets'].secrets | map(attribute='name') }}"
+      host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
 
 - name: Nextcloud | Create database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
@@ -37,6 +38,7 @@
     wait_resources:
       - kind: Deployment
         name: "{{ apps_nextcloud.release_name }}"
+    refresh_es: "{{ [apps_nextcloud.release_name + '-'] | product(apps_nextcloud.secretNames) | map('join') | list }}"
     secrets:
       - path: nextcloud/auth
         data:

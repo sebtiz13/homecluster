@@ -11,13 +11,15 @@ nextcloud:
 
   nextcloud:
     host: {{ include "ingress.host" . }}
-    username: <path:salamandre/data/nextcloud/auth#adminUser>
-    password: <path:salamandre/data/nextcloud/auth#adminPassword>
+
+    existingSecret:
+      enabled: true
+      secretName: nextcloud-credentials
 
     configs:
       custom.config.php: |-
         <?php
-        $$CONFIG = array (
+        $CONFIG = array (
           'default_phone_region' => 'FR'
         );
 
@@ -25,9 +27,6 @@ nextcloud:
       enabled: true
       fromAddress: contact
       domain: {{ .Values.baseDomain }}
-      smtp:
-        host: <path:salamandre/data/smtp#host>
-        port: <path:salamandre/data/smtp#port>
 
   resources:
     requests:
@@ -40,10 +39,11 @@ nextcloud:
   externalDatabase:
     enabled: true
     type: postgresql
-    host: <path:salamandre/data/nextcloud/database#host>:<path:salamandre/data/nextcloud/database#port>
-    database: <path:salamandre/data/nextcloud/database#database>
-    user: <path:salamandre/data/nextcloud/database#user>
-    password: <path:salamandre/data/nextcloud/database#password>
+    existingSecret:
+      enabled: true
+      secretName: nextcloud-db-credentials
+      hostKey: db-host
+      databaseKey: db-name
 
   persistence:
     enabled: true
@@ -51,10 +51,6 @@ nextcloud:
       enabled: true
       storageClass: openebs-zfspv
       size: 500Gi
-
-  metrics:
-    # fix token (prevent diff on ArgoCD)
-    token: nextcloud-token
 
 collabora-code:
   collabora:
@@ -64,5 +60,59 @@ collabora-code:
 
     dictionaries: en_GB en_US fr_FR
 
-    username: <path:salamandre/data/nextcloud/auth#collaboraAdminUser>
-    password: <path:salamandre/data/nextcloud/auth#collaboraAdminPassword>
+    existingSecret:
+      enabled: true
+      secretName: nextcloud-collabora-credentials
+
+external-secrets:
+  secrets:
+    - name: credentials
+      target:
+        template:
+          type: Opaque
+          data:
+            nextcloud-username: '{{`{{ .auth_adminUser }}`}}'
+            nextcloud-password: '{{`{{ .auth_adminPassword }}`}}'
+            smtp-host: '{{`{{ .smtp_host }}`}}'
+            {{- if eq .Values.environment "prod" }}
+            smtp-username: '{{`{{ .smtp_username }}`}}'
+            smtp-password: '{{`{{ .smtp_password }}`}}'
+            {{- else }}
+            smtp-username: ''
+            smtp-password: ''
+            {{- end }}
+      dataFrom:
+        - extract:
+            key: salamandre/nextcloud/auth
+          rewrite:
+            - regexp:
+                source: "(.*)"
+                target: "auth_$1"
+        - extract:
+            key: salamandre/smtp
+          rewrite:
+            - regexp:
+                source: "(.*)"
+                target: "smtp_$1"
+    - name: db-credentials
+      target:
+        template:
+          type: Opaque
+          data:
+            db-host: '{{`{{ .host }}:{{ .port }}`}}'
+            db-username: '{{`{{ .user }}`}}'
+            db-password: '{{`{{ .password }}`}}'
+            db-name: '{{`{{ .database }}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/nextcloud/database
+    - name: collabora-credentials
+      target:
+        template:
+          type: Opaque
+          data:
+            username: '{{`{{ .collaboraAdminUser }}`}}'
+            password: '{{`{{ .collaboraAdminPassword }}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/nextcloud/auth

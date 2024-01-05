@@ -26,9 +26,11 @@
     name: argocd_app
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/vaultwarden.yaml') | from_yaml }}"
+    _secret_names: "{{ (manifest.spec.source.helm['values'] | from_yaml)['external-secrets'].secrets | map(attribute='name') }}"
     restart_resources:
       - kind: Deployment
-        name: "{{ manifest.spec.source.plugin.env.0.value }}"
+        name: "{{ manifest.spec.source.helm.releaseName }}"
+    refresh_es: "{{ [manifest.spec.source.helm.releaseName + '-'] | product(_secret_names) | map('join') | list }}"
     secrets:
       - path: vaultwarden/database
         data:
