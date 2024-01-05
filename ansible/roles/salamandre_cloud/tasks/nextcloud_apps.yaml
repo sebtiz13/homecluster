@@ -43,7 +43,7 @@
           - logfile --value /var/www/html/data/audit.log
       - id: richdocuments # Collabora
         commands:
-          - disable_certificate_verification --value true
+          - disable_certificate_verification --value yes
           - wopi_allowlist --value 10.42.0.0/16
           - wopi_url --value {{ apps_nextcloud.host }}
       - id: bookmarks # Bookmarks
