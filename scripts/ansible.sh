@@ -6,6 +6,7 @@ fi
 
 ENVIRONMENT=${ENVIRONMENT:-prod}
 DOMAIN_NAME=${DOMAIN_NAME:-local.vm}
+STEP=${STEP:-site}
 if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
   echo "Incorrect environment. Valid value : 'dev' or 'prod'"
   exit 1
@@ -18,4 +19,4 @@ if [ "$ENVIRONMENT" == "dev" ]; then
   export ANSIBLE_HASHI_VAULT_CA_CERT=$(realpath ../vagrant/.vagrant/ca/rootCA.pem)
 fi
 ansible-playbook --inventory "inventories/$ENVIRONMENT" \
-  --extra-vars "root_domain='${DOMAIN_NAME}'" $1 site.yaml
+  --extra-vars "root_domain='${DOMAIN_NAME}'" $1 "$STEP.yaml"

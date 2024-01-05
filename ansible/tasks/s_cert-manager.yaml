@@ -1,0 +1,53 @@
+- name: Cert Manager | Store CA in cluster (dev)
+  when: env == 'dev'
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/cert-manager.yaml') | from_yaml }}"
+    namespace: "{{ manifest.spec.destination.namespace }}"
+  block:
+    - name: Cert Manager | Create namespace
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        state: present
+        resource_definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ namespace }}"
+    - name: Cert Manager | Store CA in cluster
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        template: s_cm_ca_tls.yaml.j2
+        namespace: "{{ namespace }}"
+        validate:
+          fail_on_error: true
+
+- name: Cert Manager | Write secrets (prod) # noqa: var-naming[no-role-prefix]
+  when: env == 'prod'
+  vars:
+    secrets:
+      - path: cert-manager/ovh
+        data:
+          applicationKey: "{{ cert_manager_ovh_auth.application_key }}"
+          applicationSecret: "{{ cert_manager_ovh_auth.application_secret }}"
+          consumerKey: "{{ cert_manager_ovh_auth.consumer_key }}"
+  ansible.builtin.import_role:
+    name: vault_secrets
+
+- name: Cert Manager | Deploy manifest
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    state: present
+    src: "{{ manifests_folder }}/cert-manager.yaml"
+    namespace: "{{ argocd_namespace }}"
+
+- name: Cert Manager | Wait until tls certificate created in vault NS
+  delegate_to: localhost
+  tags: vault
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Secret
+    name: "{{ root_domain | replace('.', '-') }}-tls"
+    namespace: "{{ apps_vault.namespace }}"
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 360

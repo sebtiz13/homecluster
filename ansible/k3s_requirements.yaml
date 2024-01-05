@@ -1,0 +1,45 @@
+- name: Load informations, configure CoreDNS and deploy argoCD
+  hosts: salamandre
+  tags: kubernetes
+  pre_tasks:
+    - name: Load applications admin passwords # TODO: use ansible vault ?
+      ansible.builtin.include_vars:
+        file: "{{ credentials_folder }}/admin_passwords.yaml"
+        name: admin_passwords
+
+    - name: CoreDNS | Configure custom DNS
+      delegate_to: localhost
+      vars:
+        server_ip: "{{ (host_cidr | default(ansible_host)) | ansible.utils.ipaddr('address') }}"
+        base_domain: "{{ domain_name }}"
+        server:
+          loc: "{{ lookup('ansible.builtin.template', 's_coredns/loc.j2') }}"
+          domain: "{{ lookup('ansible.builtin.template', 's_coredns/domain.j2') }}"
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        state: present
+        template: s_coredns/config_map.yaml.j2
+        validate:
+          fail_on_error: true
+  roles:
+    - role: apps_argocd
+      delegate_to: localhost
+      tags: argocd
+  post_tasks:
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+    - name: Store api token in facts
+      ansible.builtin.set_fact:
+        argocd_api_token: "{{ argocd_admin_auth.json.token }}"
+
+- name: Create ArgoCD access to baku
+  hosts: baku
+  tags: kubernetes
+  tasks:
+    - name: ArgoCD | Configure access
+      delegate_to: localhost
+      tags: argocd
+      vars:
+        cluster_name: baku # noqa: var-naming[no-role-prefix]
+        cluster_url: "https://{{ domain_name }}:6443" # noqa: var-naming[no-role-prefix]
+      ansible.builtin.import_tasks: tasks/b_argocd.yaml

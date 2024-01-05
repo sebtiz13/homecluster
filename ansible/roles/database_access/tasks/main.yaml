@@ -1,4 +1,4 @@
-- name: Create database user
+- name: DB access | Create user
   delegate_to: "{{ inventory_hostname }}"
   become: true
   become_user: postgres
@@ -8,7 +8,7 @@
     name: "{{ username }}"
     password: "{{ password }}"
 
-- name: Create database
+- name: DB access | Create database
   delegate_to: "{{ inventory_hostname }}"
   become: true
   become_user: postgres

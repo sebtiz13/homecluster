@@ -1,7 +1,8 @@
 ##
 # Handlers for actions
 ##
-- name: Set Zitadel groupsClaim action triggers
+- name: Zitadel | Set groupsClaim action triggers
+  listen: groupsClaim action triggers
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/management/v1/flows/{{ item.flow }}/trigger/{{ item.trigger }}"
@@ -26,7 +27,8 @@
 ##
 # Handlers for projects
 ##
-- name: Create Zitadel developer roles
+- name: Zitadel | Create developer roles
+  listen: Create developer roles
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/management/v1/projects/{{ zitadel_dev_project_id }}/roles/_bulk"
@@ -47,7 +49,8 @@
 ##
 # Handlers for users
 ##
-- name: Add organization permission to admin user
+- name: Zitadel | Add organization permission to admin user
+  listen: Add organization permission to admin user
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/management/v1/orgs/me/members"
@@ -60,7 +63,8 @@
       userId: "{{ zitadel_admin_user.json.userId }}"
       roles:
         - ORG_OWNER
-- name: Add developer project permission to admin user
+- name: Zitadel | Add developer project permission to admin user
+  listen: Add developer project permission to admin user
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/management/v1/users/{{ zitadel_admin_user.json.userId }}/grants"
@@ -74,7 +78,8 @@
       roleKeys:
         - Admin
 
-- name: Add developer project permission to test user
+- name: Zitadel | Add developer project permission to test user
+  listen: Add developer project permission to test user
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/management/v1/users/{{ zitadel_test_user.json.userId }}/grants"

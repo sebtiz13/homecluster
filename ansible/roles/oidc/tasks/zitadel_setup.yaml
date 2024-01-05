@@ -1,4 +1,4 @@
-- name: Create Zitadel groupsClaim action
+- name: Zitadel | Create groupsClaim action
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/management/v1/actions"
@@ -16,57 +16,55 @@
       script: "{{ lookup('ansible.builtin.file', './zitadel-actions/groupsClaim.js') }}"
   register: zitadel_groupsclaim_action
   changed_when: zitadel_groupsclaim_action.status == 200
-  notify: Set Zitadel groupsClaim action triggers
+  notify: groupsClaim action triggers
 
-##
-# Create developer project
-##
-- name: Check if Zitadel developer project exist
-  delegate_to: "{{ inventory_hostname }}"
-  ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/projects/_search"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
-    status_code: 200
-    return_content: true
-    body_format: json
-    body:
-      query:
-        limit: 1
-      queries:
-        - nameQuery:
-            name: developer
-            method: TEXT_QUERY_METHOD_EQUALS
-  register: zitadel_project
+- name: Zitadel | Create developer project
+  block:
+    - name: Zitadel | dev project | Check if exist
+      delegate_to: "{{ inventory_hostname }}"
+      ansible.builtin.uri:
+        url: "{{ apps_zitadel.host }}/management/v1/projects/_search"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+        status_code: 200
+        return_content: true
+        body_format: json
+        body:
+          query:
+            limit: 1
+          queries:
+            - nameQuery:
+                name: developer
+                method: TEXT_QUERY_METHOD_EQUALS
+      register: zitadel_project
 
-- name: Create Zitadel developer project
-  when: zitadel_project.json.result is not defined
-  delegate_to: "{{ inventory_hostname }}"
-  ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/projects"
-    method: POST
-    headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
-    status_code: 200
-    return_content: true
-    body_format: json
-    body:
-      name: developer
-      projectRoleAssertion: true
-      projectRoleCheck: true
-  register: zitadel_project_n
-  changed_when: zitadel_project_n.status == 200
-  notify: Create Zitadel developer roles
-
-- name: Store Zitadel developer project id
-  ansible.builtin.set_fact:
-    zitadel_dev_project_id: "{{ ((zitadel_project_n is changed) | ternary(zitadel_project_n.json, zitadel_project.json.result.0)).id }}"
+    - name: Zitadel | dev project | Create it
+      when: zitadel_project.json.result is not defined
+      delegate_to: "{{ inventory_hostname }}"
+      ansible.builtin.uri:
+        url: "{{ apps_zitadel.host }}/management/v1/projects"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+        status_code: 200
+        return_content: true
+        body_format: json
+        body:
+          name: developer
+          projectRoleAssertion: true
+          projectRoleCheck: true
+      register: zitadel_project_n
+      changed_when: zitadel_project_n.status == 200
+      notify: Create developer roles
+    - name: Zitadel | dev project | Store the id
+      ansible.builtin.set_fact:
+        zitadel_dev_project_id: "{{ ((zitadel_project_n is changed) | ternary(zitadel_project_n.json, zitadel_project.json.result.0)).id }}"
 
 ##
 # Create users
 ##
-- name: Create admin user
+- name: Zitadel | Create admin user
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/management/v1/users/human/_import"
@@ -93,7 +91,7 @@
     - Add organization permission to admin user
     - Add developer project permission to admin user
 
-- name: Create test user
+- name: Zitadel | Create test user
   when: env == 'dev'
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:

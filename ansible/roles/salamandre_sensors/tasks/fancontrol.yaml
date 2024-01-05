@@ -1,9 +1,9 @@
-- name: Install fancontrol package
+- name: fancontrol | Install package
   ansible.builtin.apt:
     pkg:
       - fancontrol
 
-- name: Configure fanspeed
+- name: fancontrol | Configure it
   ansible.builtin.copy:
     dest: /etc/fancontrol
     src: fancontrol/it{{ motherboard_chip }}

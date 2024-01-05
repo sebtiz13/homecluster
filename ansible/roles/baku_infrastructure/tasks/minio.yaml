@@ -1,4 +1,4 @@
-- name: Generate salamandre backup Minio credentials
+- name: Minio | Generate salamandre backup Minio credentials
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/minio.yaml') | from_yaml }}"
     values: "{{ manifest.spec.source.plugin.env.1.value | from_yaml }}"
@@ -11,9 +11,9 @@
       svcacctSecretKeys:
         salamandre-backup: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
 
-- name: Deploy Minio application and secrets # noqa: var-naming[no-role-prefix]
+- name: Minio | Deploy application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
-    name: argocd_vault
+    name: argocd_app
   vars:
     manifest: "{{ apps_minio._manifest }}"
     restart_resources:
@@ -32,7 +32,7 @@
           secretKey: "{{ apps_minio.svcacctSecretKeys['salamandre-backup'] }}"
           bucket: backup-cluster
 
-- name: Wait until Minio is available
+- name: Minio | Wait until is available
   ansible.builtin.uri:
     url: "https://{{ apps_minio.host }}/minio/health/live"
     validate_certs: false
@@ -44,7 +44,7 @@
   retries: 30 # This is for wait max 2.5min
   delay: 5
 
-- name: Update Minio service accounts secret key
+- name: Minio | Update service accounts secret key
   when: argocd_refresh is not skipped
   vars:
     result: "Edited service account `{{ item.key }}` successfully."

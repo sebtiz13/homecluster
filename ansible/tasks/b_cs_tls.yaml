@@ -1,0 +1,41 @@
+- name: Config Syncer | Create Config Syncer sync namespace
+  tags: config-syncer
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "config-syncer-sync"
+
+- name: Config Syncer | Store CA in cluster (dev)
+  when: env == 'dev'
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    template: b_cs_ca_tls.yaml.j2
+    namespace: config-syncer-sync
+    validate:
+      fail_on_error: true
+
+- name: Config Syncer | Wait until tls secret is synced
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Secret
+    name: "{{ root_domain | replace('.', '-') }}-tls"
+    namespace: config-syncer-sync
+    wait: true
+    wait_sleep: 10
+    wait_timeout: 360
+# - name: Config Syncer | Annotate tls secret for sync cross namespace
+#   kubernetes.core.k8s:
+#     state: patched
+#     kubeconfig: "{{ local_kubeconfig }}"
+#     kind: Secret
+#     name: "{{ root_domain | replace('.', '-') }}-tls"
+#     namespace: config-syncer-sync
+#     force: true
+#     definition:
+#       metadata:
+#         annotations:
+#           kubed.appscode.com/sync: "domain={{ root_domain }}"

@@ -1,0 +1,46 @@
+- name: Install common requirement and create namespaces
+  hosts: all
+  tags: common
+  roles:
+    - role: common
+      become: true
+  tasks:
+    - name: Load applications admin passwords
+      ansible.builtin.include_vars:
+        file: "{{ credentials_folder }}/admin_passwords.yaml"
+        name: admin_passwords
+
+- name: Install sensors and database
+  hosts: salamandre
+  roles:
+    - role: salamandre_sensors
+      when: motherboard_chip is defined
+      connection: ssh
+      become: true
+      tags: sensors
+    - role: database
+      connection: ssh
+      become: true
+
+- name: Install and Configure DynDNS
+  hosts: baku
+  become: true
+  tags: dyndns
+  tasks:
+    - name: DynDNS | Install client package
+      when: env == 'prod'
+      ansible.builtin.apt:
+        pkg:
+          - ddclient
+
+    - name: DynDNS | Configure it
+      when: env == 'prod'
+      vars:
+        username: "{{ dyndns.username }}"
+        password: "{{ dyndns.password }}"
+        domain: "{{ dyndns.domain }}"
+      ansible.builtin.template:
+        dest: /etc/ddclient.conf
+        src: b_ddclient.conf.j2
+        mode: "u=rwx,g=rx,o=rx"
+        backup: true

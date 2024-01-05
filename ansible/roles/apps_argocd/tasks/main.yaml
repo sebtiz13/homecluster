@@ -1,15 +1,12 @@
 - name: Retrieve application informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/argocd.yaml') | from_yaml }}"
-    host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
   ansible.builtin.set_fact:
     apps_argocd:
       _manifest: "{{ manifest }}"
       _values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
       release_name: "{{ manifest.spec.source.helm.releaseName }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
-      host: "{{ host }}"
-    argocd_api_url: "{{ host }}/api/v1"
 
 - name: Retrieve External Secrets informations
   vars:
@@ -43,13 +40,24 @@
     wait: true
   register: argocd_deploy
 
-- name: Deploy ArgoCD application manifest
+- name: Deploy application manifest
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"
     state: present
     resource_definition: "{{ apps_argocd._manifest }}"
     namespace: "{{ apps_argocd.namespace }}"
   notify: Restart server application
+
+- name: Retrieve application server
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Service
+    name: "{{ apps_argocd.release_name }}-server"
+    namespace: "{{ apps_argocd.namespace }}"
+  register: argocd_server
+- name: Store api url in facts
+  ansible.builtin.set_fact:
+    argocd_api_url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1"
 
 - name: Create admin access
   ansible.builtin.import_tasks: admin.yaml

@@ -20,7 +20,7 @@
   vars:
     initial_password: "{{ argocd_initial_admin_password.resources.0.data.password | b64decode }}"
   ansible.builtin.uri:
-    url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/session"
+    url: "{{ argocd_api_url }}/session"
     method: POST
     return_content: true
     status_code: 200
@@ -36,7 +36,7 @@
     - argocd_initial_admin_password.resources | length > 0
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "http://{{ argocd_server.resources.0.spec.clusterIP }}/api/v1/account/password"
+    url: "{{ argocd_api_url }}/account/password"
     method: PUT
     headers:
       Authorization: "Bearer {{ argocd_admin_auth.json.token }}"
@@ -49,7 +49,4 @@
       newPassword: "{{ admin_passwords.argocd }}"
   register: argocd_admin_update_password
   changed_when: argocd_admin_update_password.status == 200
-  notify:
-    - Delete initial admin password secret
-    - Recreate auth token
-    - Store api token in facts
+  notify: Delete initial admin password secret

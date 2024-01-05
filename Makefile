@@ -63,7 +63,7 @@ endif
 	$(MAKE) provision
 provision: ## Provisioning machines
 	echo "Provisioning cluster(s)"
-	./scripts/ansible.sh
+	./scripts/ansible.sh "" "$(STEP)"
 
 test-cluster: ## [DEV] All-in-one command for cluster deployment
 	$(MAKE) init ENVIRONMENT=dev
@@ -75,9 +75,9 @@ test-cluster: ## [DEV] All-in-one command for cluster deployment
 test-provision: ## [DEV] Provisioning machines
 	echo "Provisioning VM(s)"
 ifndef VM_NAME
-	ENVIRONMENT=dev ./scripts/ansible.sh
+	ENVIRONMENT=dev ./scripts/ansible.sh "" "$(STEP)"
 else
-	ENVIRONMENT=dev ./scripts/ansible.sh "--limit $(VM_NAME)"
+	ENVIRONMENT=dev ./scripts/ansible.sh "--limit $(VM_NAME)" "$(STEP)"
 endif
 
 vm-create: ## Create vagrant VM

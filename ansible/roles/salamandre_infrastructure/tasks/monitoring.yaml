@@ -1,7 +1,0 @@
-- name: Deploy Monitoring application manifest
-  tags: monitoring
-  kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
-    state: present
-    src: "{{ manifests_folder }}/monitoring.yaml"
-    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"

@@ -1,8 +1,0 @@
-# Secrets needed for app
-secrets: []
-# - path: app/auth
-#   data:
-#     username: admin
-#     password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
-
-restart_resources: []

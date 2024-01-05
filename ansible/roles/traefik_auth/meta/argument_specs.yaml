@@ -14,4 +14,12 @@ argument_specs:
       users:
         description: List of users
         type: list
+        elements: dict
         required: true
+        options:
+          name:
+            type: str
+            required: true
+          password:
+            type: str
+            required: true

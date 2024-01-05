@@ -1,4 +1,4 @@
-- name: Retrieve Zitadel informations
+- name: Zitadel | Retrieve application informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/zitadel.yaml') | from_yaml }}"
     values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
@@ -11,7 +11,7 @@
       secretNames: "{{ values['external-secrets'].secrets | map(attribute='name') }}"
       host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
 
-- name: Create Zitadel database access # noqa: var-naming[no-role-prefix]
+- name: Zitadel | Create database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: database_access
   vars:
@@ -19,7 +19,7 @@
     username: zitadel
     password: "{{ apps_zitadel._db_passowrd }}"
 
-- name: Check if Zitadel is already deploy
+- name: Zitadel | Check if is already deploy
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
     kind: Service
@@ -27,12 +27,15 @@
     namespace: "{{ apps_zitadel.namespace }}"
   register: zitadel_svc
 
-- name: Deploy Zitadel application and secrets # noqa: var-naming[no-role-prefix]
+- name: Zitadel | Deploy application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
-    name: argocd_vault
+    name: argocd_app
   vars:
     manifest: "{{ apps_zitadel._manifest }}"
     restart_resources:
+      - kind: Deployment
+        name: "{{ apps_zitadel.release_name }}"
+    wait_resources:
       - kind: Deployment
         name: "{{ apps_zitadel.release_name }}"
     refresh_es: "{{ [apps_zitadel.release_name + '-'] | product(apps_zitadel.secretNames) | map('join') | list }}"
@@ -48,54 +51,17 @@
           user: zitadel
           password: "{{ apps_zitadel._db_passowrd }}"
 
-# TODO: merge 2 below steps in argocd_vault
-- name: Update Zitadel secrets
-  when: argocd_refresh is not skipped
-  kubernetes.core.k8s:
-    state: patched
-    kubeconfig: "{{ local_kubeconfig }}"
-    api_version: external-secrets.io/v1beta1
-    kind: ExternalSecret
-    name: "{{ apps_zitadel.release_name }}-{{ item }}"
-    namespace: "{{ apps_zitadel.namespace }}"
-    force: true
-    definition:
-      metadata:
-        annotations:
-          force-sync: "{{ ansible_date_time.epoch }}"
-  loop: "{{ apps_zitadel.secretNames }}"
-- name: Restart Zitadel resources for update secrets
-  when: argocd_refresh is not skipped
-  delegate_to: "{{ inventory_hostname }}"
-  vars:
-    cmd_args: "-n '{{ apps_zitadel.namespace }}' 'deployment/{{ apps_zitadel.release_name }}'"
-  ansible.builtin.shell: >-
-    kubectl rollout restart {{ cmd_args }} >/dev/null &&
-    kubectl rollout status {{ cmd_args }} >/dev/null
-  changed_when: false
-
-- name: Wait until application is available
-  ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/debug/ready"
-    method: GET
-    status_code: 200
-    return_content: true
-  register: zitadel_health
-  until: zitadel_health.status == 200
-  retries: 60 # This is for wait max 5min
-  delay: 5
-
 ##
 # Retrieve console token
 ##
-- name: Retrieve console key
+- name: Zitadel | Retrieve console key
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
     kind: Secret
     name: "{{ apps_zitadel.release_name }}-admin-sa"
     namespace: "{{ apps_zitadel.namespace }}"
   register: zitadel_admin_key
-- name: Generate console JWT token
+- name: Zitadel | Generate console JWT token
   vars:
     key: "{{ zitadel_admin_key.resources.0.data[apps_zitadel.release_name + '-admin-sa.json'] | b64decode }}"
     payload:
@@ -111,7 +77,7 @@
   register: zitadel_console_jwt
   changed_when: false
   failed_when: zitadel_console_jwt.stderr != ''
-- name: Retrieve console token
+- name: Zitadel | Retrieve console token
   delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
     url: "{{ apps_zitadel.host }}/oauth/v2/token"

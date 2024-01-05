@@ -1,4 +1,4 @@
-- name: Retrieve Monitoring & Grafana informations
+- name: Monitoring | Retrieve application informations
   vars:
     manifest: "{{ lookup('file', manifests_folder + '/monitoring.yaml') | from_yaml }}"
   ansible.builtin.set_fact:
@@ -9,7 +9,18 @@
       namespace: "{{ manifest.spec.destination.namespace }}"
       host: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
 
-- name: Create Grafana OIDC access # noqa: var-naming[no-role-prefix]
+- name: Monitoring | Fake Grafana OIDC
+  when: "'oidc' in ansible_skip_tags"
+  ansible.builtin.include_role:
+    name: vault_secrets
+  vars:
+    secrets: # noqa: var-naming[no-role-prefix]
+      - path: grafana/oidc
+        data:
+          issuer: "http://localhost"
+          clientID: "fake"
+          clientSecret: "fake"
+- name: Monitoring | Create Grafana OIDC access # noqa: var-naming[no-role-prefix]
   tags: oidc
   ansible.builtin.include_role:
     name: oidc_access
@@ -28,9 +39,9 @@
       - OIDC_GRANT_TYPE_REFRESH_TOKEN
     auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
 
-- name: Deploy Monitoring & Grafana application and secrets # noqa: var-naming[no-role-prefix]
+- name: Monitoring | Deploy application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
-    name: argocd_vault
+    name: argocd_app
   vars:
     manifest: "{{ apps_monitoring._manifest }}"
     restart_resources:
@@ -49,7 +60,7 @@
           adminUser: admin
           adminPassword: "{{ admin_passwords.grafana }}"
 
-- name: Create VictoriaMetrics auth # noqa: var-naming[no-role-prefix]
+- name: Monitoring | Create VictoriaMetrics auth # noqa: var-naming[no-role-prefix]
   tags: traefik
   ansible.builtin.include_role:
     name: traefik_auth

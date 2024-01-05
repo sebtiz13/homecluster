@@ -1,0 +1,33 @@
+- name: Config Syncer | Retrieve informations
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/config-syncer.yaml') | from_yaml }}"
+    values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
+  ansible.builtin.set_fact:
+    apps_config_syncer:
+      release_name: "{{ manifest.spec.source.helm.releaseName }}-kubed"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+      secret_name: "{{ values['kubed'].config.existingSecret | default('') }}"
+
+- name: Config Syncer | Create namespace
+  when: apps_config_syncer.secret_name != ""
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    state: present
+    resource_definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ apps_config_syncer.namespace }}"
+- name: Config Syncer | Create kubeconfig secret
+  when: apps_config_syncer.secret_name != ""
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    state: present
+    template: cs_secret.yaml.j2
+
+- name: Config Syncer | Deploy manifest
+  kubernetes.core.k8s:
+    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
+    state: present
+    src: "{{ manifests_folder }}/config-syncer.yaml"
+    namespace: "{{ hostvars.salamandre.argocd_namespace }}"

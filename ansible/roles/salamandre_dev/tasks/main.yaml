@@ -1,7 +1,7 @@
 - name: Deploy Mailhog application manifest
   tags: mailhog
   kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
+    kubeconfig: "{{ local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/mailhog.yaml"
-    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
+    namespace: "{{ argocd_namespace }}"

@@ -1,5 +1,9 @@
-domain_name: "{{ root_domain }}"
+argocd_host: https://argocd.{{ root_domain }}
+argocd_namespace: argocd
 
+vault_host: https://vault-secrets.{{ root_domain }}
+
+domain_name: "{{ root_domain }}"
 domains:
   - argocd.{{ root_domain }}
   - vault-secrets.{{ root_domain }} # Vault
@@ -32,9 +36,9 @@ nextcloud_apps:
     - contacts # Contacts
     - drawio # Draw.io
     - external # External sites
-    - metadata # Metadata
+    # - metadata # Metadata # TODO: currently unavailable on 28.x
     - notes # Note
     - quota_warning # Quota warning
-    - files_retention # Retention
+    # - files_retention # File retention  # TODO: currently unavailable on 28.x
     - calendar # Calendar
     - previewgenerator # Preview Generator (cron task to generate preview)

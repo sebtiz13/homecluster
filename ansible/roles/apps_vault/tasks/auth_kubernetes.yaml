@@ -1,10 +1,3 @@
-- name: Login inside pod
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ local_kubeconfig }}"
-    namespace: "{{ apps_vault.namespace }}"
-    pod: "{{ apps_vault.pod_name }}"
-    command: "vault login {{ vault_token.login.auth.client_token }}"
-
 - name: Setup kubernetes auth
   vars:
     auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', validate_certs=false) }}"
@@ -13,7 +6,9 @@
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_vault.namespace }}"
     pod: "{{ apps_vault.pod_name }}"
-    command: "vault auth enable kubernetes"
+    command: >-
+      /bin/sh -c 'VAULT_TOKEN="{{ ansible_hashi_vault_token }}"
+      vault auth enable kubernetes'
   register: vault_k8s_auth
 
 - name: Configure host for kubernetes auth # noqa: no-handler

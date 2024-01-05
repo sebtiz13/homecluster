@@ -1,60 +1,17 @@
-- name: Deploy OpenEBS application manifest
+- name: OpenEBS
   tags:
     - openebs
     - zfs
-  kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
-    state: present
-    src: "{{ manifests_folder }}/openebs.yaml"
-    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
+  ansible.builtin.import_tasks: openebs.yaml
 
-- name: Wait until OpenEBS is started
-  delegate_to: localhost
-  tags: vault
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ local_kubeconfig }}"
-    kind: DeamonSet
-    name: openebs-zfs-localpv-node
-    namespace: kube-system
-    wait: true
-    wait_sleep: 10
-    wait_timeout: 360
-
-- name: Deploy OpenEBS storage classes
-  tags:
-    - openebs
-    - zfs
-  vars:
-    pool_name: "{{ zfs_pool.name | default('data') }}"
-  kubernetes.core.k8s:
-    kubeconfig: "{{ local_kubeconfig }}"
-    state: present
-    template: "{{ item }}.yaml.j2"
-  loop:
-    - openebs-zfspv
-    - zfspv-block
-
-- name: Deploy OpenEBS snapshot class
-  tags:
-    - openebs
-    - zfs
-  kubernetes.core.k8s:
-    kubeconfig: "{{ local_kubeconfig }}"
-    state: present
-    src: zfspv-snapclass.yaml
-
-- name: Deploy Config Syncer application manifest
+- name: Config Syncer
   tags: config-syncer
-  kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
-    state: present
-    src: "{{ manifests_folder }}/config-syncer.yaml"
-    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
+  ansible.builtin.import_tasks: config-syncer.yaml
 
-- name: Deploy Treafik application manifest
+- name: Treafik | Deploy manifest
   tags: traefik
   kubernetes.core.k8s:
     kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/traefik.yaml"
-    namespace: "{{ hostvars.salamandre.apps_argocd.namespace }}"
+    namespace: "{{ hostvars.salamandre.argocd_namespace }}"

@@ -1,20 +1,8 @@
-- name: Install common requirement and create namespaces
-  hosts: all
-  tags: common
-  roles:
-    - role: common
-      become: true
-  tasks:
-    - name: Load applications admin passwords
-      ansible.builtin.include_vars:
-        file: "{{ credentials_folder }}/admin_passwords.yaml"
-        name: admin_passwords
-
-- name: Deploy salamandre
-  ansible.builtin.import_playbook: salamandre.yaml
-
-- name: Deploy Baku
-  ansible.builtin.import_playbook: baku.yaml
+- ansible.builtin.import_playbook: setup.yaml
+- ansible.builtin.import_playbook: k3s_requirements.yaml
+- ansible.builtin.import_playbook: k3s_system.yaml
+- ansible.builtin.import_playbook: k3s_infrastructure.yaml
+- ansible.builtin.import_playbook: k3s_cloud.yaml
 
 - name: Configure backup
   hosts: salamandre

@@ -17,18 +17,7 @@
     token: "{{ ansible_hashi_vault_token }}"
     path: "auth/kubernetes/role/{{ vault_role_name }}"
     data:
-      bound_service_account_names: "{{ apps_argocd.release_name }}-repo-server"
-      bound_service_account_namespaces: "{{ apps_argocd.namespace }}"
+      bound_service_account_names: "argocd-repo-server"
+      bound_service_account_namespaces: "{{ argocd_namespace }}"
       policies: argocd
       ttl: 1h
-
-- name: Enable static secrets engine for each cluster
-  vars:
-    mounts: "{{ lookup('community.hashi_vault.vault_read', 'sys/mounts', validate_certs=false) }}"
-  when: "(item + '/') is not in mounts.data"
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ local_kubeconfig }}"
-    namespace: "{{ apps_vault.namespace }}"
-    pod: "{{ apps_vault.pod_name }}"
-    command: vault secrets enable -path={{ item }} kv-v2
-  loop: "{{ hostvars.keys() | list }}"

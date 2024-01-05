@@ -1,3 +1,16 @@
+- name: Retrieve application informations
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/vault.yaml') | from_yaml }}"
+    values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
+    release_name: "{{ manifest.spec.source.helm.releaseName }}"
+  ansible.builtin.set_fact:
+    apps_vault:
+      release_name: "{{ release_name }}"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+      pod_name: "{{ release_name }}-0"
+      keys_secret_name: "{{ (values.server.volumes | first).secret.secretName }}"
+    ansible_hashi_vault_addr: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+
 - name: Deploy application
   ansible.builtin.import_tasks: deploy.yaml
 
@@ -13,16 +26,26 @@
     token: "{{ vault_file.root_token }}"
     ttl: 1h
   register: vault_token
-
 - name: Store child token
   ansible.builtin.set_fact:
     ansible_hashi_vault_token: "{{ vault_token.login.auth.client_token }}"
+
+- name: Enable static secrets engine for each cluster
+  vars:
+    mounts: "{{ lookup('community.hashi_vault.vault_read', 'sys/mounts', validate_certs=false) }}"
+  when: "(item + '/') is not in mounts.data"
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ local_kubeconfig }}"
+    namespace: "{{ apps_vault.namespace }}"
+    pod: "{{ apps_vault.pod_name }}"
+    command: >-
+      /bin/sh -c 'VAULT_TOKEN="{{ ansible_hashi_vault_token }}"
+      vault secrets enable -path={{ item }} kv-v2'
+  loop: "{{ hostvars.keys() | list }}"
+  changed_when: true
 
 - name: Configure Vault kubernetes auth
   ansible.builtin.import_tasks: auth_kubernetes.yaml
 
 - name: Configure Vault for ArgoCD Vault Plugin (AVP)
   ansible.builtin.import_tasks: argocd.yaml
-
-- name: Configure Vault for External-secrets
-  ansible.builtin.import_tasks: external-secrets.yaml

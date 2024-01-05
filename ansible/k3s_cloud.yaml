@@ -1,0 +1,16 @@
+- name: Deploy cloud applications
+  hosts: salamandre
+  tags:
+    - kubernetes
+    - cloud
+  pre_tasks:
+    - name: Load applications admin passwords # TODO: use ansible vault ?
+      ansible.builtin.include_vars:
+        file: "{{ credentials_folder }}/admin_passwords.yaml"
+        name: admin_passwords
+    - name: Create vault access
+      delegate_to: localhost
+      ansible.builtin.import_tasks: tasks/s_vault_access.yaml
+  roles:
+    - role: salamandre_cloud
+      delegate_to: localhost

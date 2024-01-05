@@ -5,7 +5,7 @@
 - name: Deploy Gitlab
   tags:
     - minio # Depends on s3
-    - oidc # Require  OIDC
+    - oidc # Require OIDC
     - gitlab
   ansible.builtin.import_tasks: gitlab.yaml
 
@@ -16,9 +16,13 @@
     kubeconfig: "{{ local_kubeconfig }}"
     state: present
     src: "{{ manifests_folder }}/adguard-proxy.yaml"
-    namespace: "{{ apps_argocd.namespace }}"
+    namespace: "{{ argocd_namespace }}"
 
-- name: Deploy Monitoring
+- name: Deploy monitoring stack
   when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
   tags: monitoring
-  ansible.builtin.import_tasks: monitoring.yaml
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    state: present
+    src: "{{ manifests_folder }}/monitoring.yaml"
+    namespace: "{{ argocd_namespace }}"

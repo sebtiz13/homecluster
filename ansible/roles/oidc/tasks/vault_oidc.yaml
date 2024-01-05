@@ -1,4 +1,4 @@
-- name: Create Vault OIDC access # noqa: var-naming[no-role-prefix]
+- name: Vault | Create OIDC access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: oidc_access
   vars:
@@ -18,17 +18,19 @@
       - OIDC_GRANT_TYPE_REFRESH_TOKEN
     auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
 
-- name: Setup Vault OIDC auth
+- name: Vault | Setup OIDC auth
   vars:
     auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth') }}"
   when: "'oidc/' not in auth_engines.data"
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
-    namespace: "{{ apps_vault.namespace }}"
-    pod: "{{ apps_vault.pod_name }}"
-    command: "vault auth enable oidc"
+    namespace: vault
+    pod: vault-0
+    command: >-
+      /bin/sh -c 'VAULT_TOKEN="{{ ansible_hashi_vault_token }}"
+      vault auth enable oidc'
 
-- name: Create Vault policies for OIDC # noqa: var-naming[no-role-prefix]
+- name: Vault | Create policies for OIDC # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: vault_policy
   vars:
@@ -39,12 +41,12 @@
     - admin
     - operator
 
-- name: Configure access for Vault OIDC auth
+- name: Vault | Configure access for OIDC auth
   vars:
     path: auth/oidc/config
     oidc_creds: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/vault/oidc') }}"
   block:
-    - name: Configure access for Vault OIDC auth (prod)
+    - name: Vault | Configure access for OIDC auth (prod)
       when: env == 'prod'
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
@@ -55,7 +57,7 @@
           oidc_client_id: "{{ oidc_creds.data.data.clientID }}"
           oidc_client_secret: "{{ oidc_creds.data.data.clientSecret }}"
           default_role: reader
-    - name: Configure access for Vault OIDC auth (dev)
+    - name: Vault | Configure access for OIDC auth (dev)
       when: env == 'dev'
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
@@ -69,7 +71,7 @@
           oidc_client_secret: "{{ oidc_creds.data.data.clientSecret }}"
           default_role: reader
 
-- name: Configure Vault OIDC role reader
+- name: Vault | Configure OIDC role reader
   vars:
     oidc_creds: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/vault/oidc') }}"
   community.hashi_vault.vault_write:
@@ -86,12 +88,12 @@
       groups_claim: groups
       policies: default,reader
 
-- name: Create and configure Vault identity groups
+- name: Vault | Create and configure identity groups
   vars:
     auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', url=ansible_hashi_vault_addr) }}"
     mount_accessor: "{{ auth_engines['oidc/'].accessor }}"
   block:
-    - name: Create Vault identity groups
+    - name: Vault | Create identity groups
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
         token: "{{ ansible_hashi_vault_token }}"
@@ -114,7 +116,7 @@
       loop_control:
         label: "{{ item.name }}"
 
-    - name: Create Vault identity group alias # noqa: no-handler
+    - name: Vault | Create identity group alias # noqa: no-handler
       when: item is changed
       community.hashi_vault.vault_write:
         url: "{{ ansible_hashi_vault_addr }}"
