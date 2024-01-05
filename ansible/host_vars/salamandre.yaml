@@ -42,3 +42,4 @@ nextcloud_apps:
     # - files_retention # File retention  # TODO: currently unavailable on 28.x
     - calendar # Calendar
     - previewgenerator # Preview Generator (cron task to generate preview)
+    - deck # Desk (Trello/Kanban like)
