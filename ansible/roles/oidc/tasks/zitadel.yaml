@@ -33,8 +33,9 @@
   vars:
     manifest: "{{ apps_zitadel._manifest }}"
     restart_resources:
-      - kind: StatefulSet
+      - kind: Deployment
         name: "{{ apps_zitadel.release_name }}"
+    refresh_es: "{{ [apps_zitadel.release_name + '-'] | product(apps_zitadel.secretNames) | map('join') | list }}"
     secrets:
       - path: zitadel/masterkey
         data:
