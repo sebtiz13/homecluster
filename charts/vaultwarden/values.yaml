@@ -154,3 +154,6 @@ ingress:
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
       # kubernetes.io/ssl-redirect: "true"
+
+external-secrets:
+  fullnameOverride: vaultwarden
