@@ -1,13 +1,3 @@
-- name: OpenEBS | Deploy manifest
-  tags:
-    - openebs
-    - zfs
-  kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
-    state: present
-    src: "{{ manifests_folder }}/openebs.yaml"
-    namespace: "{{ hostvars.salamandre.argocd_namespace }}"
-
 - name: OpenEBS | Wait until is started
   delegate_to: localhost
   tags: vault
@@ -21,23 +11,17 @@
     wait_timeout: 360
 
 - name: OpenEBS | Deploy storage classes
-  tags:
-    - openebs
-    - zfs
   vars:
     pool_name: "{{ zfs_pool.name | default('data') }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"
     state: present
-    template: "openebs_{{ item }}.yaml.j2"
+    template: "openebs/{{ item }}.yaml.j2"
   loop:
     - zfspv
     - zfspv-block
 
 - name: OpenEBS | Deploy snapshot class
-  tags:
-    - openebs
-    - zfs
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"
     state: present

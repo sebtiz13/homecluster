@@ -8,26 +8,16 @@
       namespace: "{{ manifest.spec.destination.namespace }}"
       secret_name: "{{ values['kubed'].config.existingSecret | default('') }}"
 
-- name: Config Syncer | Create namespace
+- name: Config Syncer | Wait until namespace is created
   when: apps_config_syncer.secret_name != ""
-  kubernetes.core.k8s:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
-    state: present
-    resource_definition:
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: "{{ apps_config_syncer.namespace }}"
+    kind: Namespace
+    name: "{{ apps_config_syncer.namespace }}"
+    wait: true
 - name: Config Syncer | Create kubeconfig secret
   when: apps_config_syncer.secret_name != ""
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"
     state: present
     template: cs_secret.yaml.j2
-
-- name: Config Syncer | Deploy manifest
-  kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
-    state: present
-    src: "{{ manifests_folder }}/config-syncer.yaml"
-    namespace: "{{ hostvars.salamandre.argocd_namespace }}"

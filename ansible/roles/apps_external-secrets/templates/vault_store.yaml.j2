@@ -1,0 +1,22 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: vault-eso
+spec:
+  provider:
+    vault:
+      server: "{{ eso_vault_host }}"
+      auth:
+        kubernetes:
+          mountPath: "{{ eso_vault_mount_path }}"
+          role: external-secrets
+          serviceAccountRef:
+            name: "{{ apps_external_secrets.release_name }}"
+            namespace: "{{ apps_external_secrets.namespace }}"
+      {% if use_ca -%}
+      caProvider:
+        type: Secret
+        namespace: config-syncer-sync
+        name: vm-ca-tls-secret
+        key: tls.crt
+      {% endif -%}

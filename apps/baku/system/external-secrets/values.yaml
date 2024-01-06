@@ -1,0 +1,16 @@
+plugin: helm
+
+source:
+  repoURL: https://charts.external-secrets.io
+  chart: external-secrets
+  targetRevision: 0.9.11
+
+destination:
+  namespace: external-secrets
+
+syncPolicy:
+  options:
+    createNamespace: true
+  automated:
+    prune: true
+    selfHeal: true

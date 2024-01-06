@@ -1,0 +1,43 @@
+- name: Kubernetes | Deploy Vault RBAC
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    template: b_vault_rbac.yaml.j2
+
+- name: Kubernetes | Retrieve service account JWT
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Secret
+    name: vault-auth-secret
+    namespace: default
+    wait: true
+  register: vault_jwt
+
+- name: Vault | Enable kubernetes auth for baku
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
+    namespace: "{{ hostvars.salamandre.apps_vault.namespace }}"
+    pod: "{{ hostvars.salamandre.apps_vault.pod_name }}"
+    command: >-
+      /bin/sh -c 'VAULT_TOKEN={{ hostvars.salamandre.vault_root_token | quote }}
+      vault auth enable --path=baku-cluster kubernetes'
+  register: vault_cmd
+  changed_when: vault_cmd.rc == 0
+  failed_when:
+    - vault_cmd.rc != 0
+    - not "path is already in use at" in vault_cmd.stderr
+
+- name: Vault | Configure kubernetes auth for baku
+  delegate_to: salamandre
+  vars:
+    kubeconfig: "{{ lookup('file', local_kubeconfig) | from_yaml }}"
+  ansible.builtin.uri:
+    url: "{{ hostvars.salamandre.vault_api_url }}/auth/baku-cluster/config"
+    method: POST
+    status_code: 204
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ hostvars.salamandre.vault_root_token }}"
+    body:
+      token_reviewer_jwt: "{{ vault_jwt.resources.0.data.token | b64decode }}"
+      kubernetes_host: "{{ kubeconfig.clusters.0.cluster.server }}"
+      kubernetes_ca_cert: "{{ vault_jwt.resources.0.data['ca.crt'] | b64decode }}\n"

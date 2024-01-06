@@ -1,4 +1,4 @@
-- name: Deploy system applications
+- name: Deploy common system applications
   hosts: all
   tags: kubernetes
   roles:
@@ -6,7 +6,7 @@
       delegate_to: localhost
       tags: common
 
-- name: Deploy external-secret, vault and cert-manager in salamandre
+- name: Deploy salamandre applications
   hosts: salamandre
   tags: kubernetes
   roles:
@@ -14,36 +14,39 @@
       delegate_to: localhost
       tags: vault
   post_tasks:
-    - name: Deploy External secrets
-      delegate_to: localhost
-      tags: external-secret
-      ansible.builtin.import_tasks: tasks/s_external-secrets.yaml
     - name: Setup Cert Manager
       delegate_to: localhost
       tags:
         - cert-manager
         - tls
       ansible.builtin.import_tasks: tasks/s_cert-manager.yaml
-
-- name: Configure salamandre Config Syncer access to baku cluster
-  hosts: salamandre
-  tags:
-    - kubernetes
-    - config-syncer
-  tasks:
     - name: Config Syncer | Connect salamandre to baku
       delegate_to: localhost
+      tags: config-syncer
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       vars:
         cluster_kubeconfig: "{{ hostvars.baku.local_kubeconfig | default('') }}"
         cluster_namespace: "config-syncer-sync"
       ansible.builtin.import_tasks: tasks/s_cs_cluster.yaml
-- name: Setup TLS synchronization
+
+- name: Deploy baku applications
   hosts: baku
-  tags:
-    - kubernetes
-    - config-syncer
+  tags: kubernetes
   tasks:
     - name: Config Syncer | Sync TLS
       delegate_to: localhost
+      tags: config-syncer
       ansible.builtin.import_tasks: tasks/b_cs_tls.yaml
+    - name: Vault | Configure access
+      delegate_to: localhost
+      tags: vault
+      ansible.builtin.import_tasks: tasks/b_vault.yaml
+
+- name: Configure external-secrets
+  hosts: all
+  tags:
+    - kubernetes
+    - external-secrets
+  roles:
+    - role: apps_external-secrets
+      delegate_to: localhost

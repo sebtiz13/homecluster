@@ -1,1 +1,4 @@
 domain_name: "baku.{{ root_domain }}"
+
+eso_vault_host: https://vault-secrets.{{ root_domain }}
+eso_vault_mount_path: baku-cluster

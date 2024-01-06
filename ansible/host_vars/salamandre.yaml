@@ -2,6 +2,8 @@ argocd_host: https://argocd.{{ root_domain }}
 argocd_namespace: argocd
 
 vault_host: https://vault-secrets.{{ root_domain }}
+eso_vault_host: http://vault-internal.vault.svc:8200
+eso_vault_mount_path: kubernetes
 
 domain_name: "{{ root_domain }}"
 domains:

@@ -1,17 +1,30 @@
-- name: OpenEBS
+- name: Deploy applications
+  tags: "{{ item.tags | default([]) }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
+    state: present
+    src: "{{ manifests_folder }}/{{ item.name }}.yaml"
+    namespace: "{{ hostvars.salamandre.argocd_namespace }}"
+  loop_control:
+    label: "{{ item.name }}"
+  loop:
+    - name: traefik
+      tags: traefik
+    - name: openebs
+      tags:
+        - openebs
+        - zfs
+    - name: external-secrets
+      tags: external-secrets
+    - name: config-syncer
+      tags: config-syncer
+
+- name: Configure Config Syncer
+  tags: config-syncer
+  ansible.builtin.import_tasks: config-syncer.yaml
+
+- name: Configure OpenEBS
   tags:
     - openebs
     - zfs
   ansible.builtin.import_tasks: openebs.yaml
-
-- name: Config Syncer
-  tags: config-syncer
-  ansible.builtin.import_tasks: config-syncer.yaml
-
-- name: Treafik | Deploy manifest
-  tags: traefik
-  kubernetes.core.k8s:
-    kubeconfig: "{{ hostvars.salamandre.local_kubeconfig }}"
-    state: present
-    src: "{{ manifests_folder }}/traefik.yaml"
-    namespace: "{{ hostvars.salamandre.argocd_namespace }}"
