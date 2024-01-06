@@ -1,35 +1,17 @@
-- name: Setup kubernetes auth
-  vars:
-    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', validate_certs=false) }}"
-  when: "'kubernetes/' not in auth_engines.data"
+- name: Enable and configure kubernetes auth
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_vault.namespace }}"
     pod: "{{ apps_vault.pod_name }}"
-    command: >-
-      /bin/sh -c 'VAULT_TOKEN="{{ ansible_hashi_vault_token }}"
-      vault auth enable kubernetes'
-  register: vault_k8s_auth
-
-- name: Configure host for kubernetes auth # noqa: no-handler
-  when: vault_k8s_auth is changed
-  vars:
-    k8s_ip: "{{ (k3s_apiserver.resources | first).spec.clusterIP }}"
-    k8s_port: "{{ (k3s_apiserver.resources | first).spec.ports | first }}"
-  community.hashi_vault.vault_write:
-    url: "{{ ansible_hashi_vault_addr }}"
-    validate_certs: false
-    token: "{{ ansible_hashi_vault_token }}"
-    path: auth/kubernetes/config
-    data:
-      kubernetes_host: "{{ '%s://%s:%s' | format(k8s_port.name, k8s_ip, k8s_port.port) }}"
-
-- name: List kubernetes roles
-  community.hashi_vault.vault_read:
-    url: "{{ ansible_hashi_vault_addr }}"
-    validate_certs: false
-    token: "{{ ansible_hashi_vault_token }}"
-    path: auth/kubernetes/role?list=true
-  register: vault_k8s_role
+    command: |-
+      /bin/sh -c 'export VAULT_TOKEN={{ vault_root_token | quote }}
+      vault auth enable kubernetes && \
+      vault write auth/kubernetes/config \
+        token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+        kubernetes_host=https://${KUBERNETES_PORT_443_TCP_ADDR}:443 \
+        kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+  register: vault_cmd
+  changed_when: vault_cmd.rc == 0
   failed_when:
-    - '''msg'' in vault_k8s_role and vault_k8s_role.msg != "The path ''auth/kubernetes/role?list=true'' doesn''t seem to exist."'
+    - vault_cmd.rc != 0
+    - not "path is already in use at" in vault_cmd.stderr

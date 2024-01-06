@@ -1,22 +1,25 @@
-- name: Create policy for ArgoCD # noqa: var-naming[no-role-prefix]
-  ansible.builtin.import_role:
-    name: vault_policy
-  vars:
-    validate_certs: false
-    policy_name: argocd
-    policy: "{{ lookup('ansible.builtin.file', './argocd.hcl') }}"
+- name: ArgoCD | Create policy
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/sys/policy/argocd"
+    method: POST
+    status_code: 204
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      policy: "{{ lookup('ansible.builtin.file', './argocd.hcl') }}"
 
-- name: Configure kubernetes role for ArgoCD
-  vars:
-    vault_role_name: argocd
-    existing_roles: "{{ (vault_k8s_role.data | default({})) | community.general.json_query('data.keys') }}"
-  when: "('data' not in vault_k8s_role) or (vault_role_name not in existing_roles)"
-  community.hashi_vault.vault_write:
-    url: "{{ ansible_hashi_vault_addr }}"
-    validate_certs: false
-    token: "{{ ansible_hashi_vault_token }}"
-    path: "auth/kubernetes/role/{{ vault_role_name }}"
-    data:
+- name: ArgoCD | Configure kubernetes auth role for AVP
+  delegate_to: "{{ inventory_hostname }}"
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/auth/kubernetes/role/argocd"
+    method: POST
+    status_code: 204
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
       bound_service_account_names: "argocd-repo-server"
       bound_service_account_namespaces: "{{ argocd_namespace }}"
       policies: argocd

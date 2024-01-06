@@ -136,13 +136,3 @@
     kind: Node
     name: "{{ inventory_hostname }}"
     wait: true
-
-- name: Retrieve api server info
-  delegate_to: localhost
-  become: false
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ local_kubeconfig }}"
-    kind: Service
-    name: kubernetes
-    namespace: default
-  register: k3s_apiserver

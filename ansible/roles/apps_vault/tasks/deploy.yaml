@@ -5,10 +5,22 @@
     src: "{{ manifests_folder }}/vault.yaml"
     namespace: "{{ argocd_namespace }}"
 
+- name: Retrieve server service
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Service
+    name: vault
+    namespace: vault
+    wait: true
+  register: vault_server
+- name: Store server url
+  ansible.builtin.set_fact:
+    vault_api_url: "http://{{ vault_server.resources.0.spec.clusterIP }}:{{ vault_server.resources.0.spec.ports.0.port }}/v1"
+
 - name: Wait until application is available
+  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ ansible_hashi_vault_addr }}/v1/sys/health"
-    validate_certs: false
+    url: "{{ vault_api_url }}/sys/health"
     method: GET
     status_code:
       - 501 # if not initialized

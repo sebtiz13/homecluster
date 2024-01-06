@@ -1,4 +1,4 @@
-- name: Deploy requirements applications
+- name: Deploy system applications
   hosts: all
   tags: kubernetes
   roles:
@@ -13,14 +13,6 @@
     - role: apps_vault
       delegate_to: localhost
       tags: vault
-    - role: vault_secrets
-      delegate_to: localhost
-      tags: smtp
-      vars:
-        validate_certs: false # noqa: var-naming[no-role-prefix]
-        secrets: # noqa: var-naming[no-role-prefix]
-          - path: smtp
-            data: "{{ smtp_auth }}"
   post_tasks:
     - name: Deploy External secrets
       delegate_to: localhost

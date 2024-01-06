@@ -15,6 +15,14 @@
       delegate_to: localhost
       ansible.builtin.import_tasks: tasks/s_vault_access.yaml
   roles:
+    - role: vault_secrets
+      delegate_to: localhost
+      tags: smtp
+      vars:
+        validate_certs: false # noqa: var-naming[no-role-prefix]
+        secrets: # noqa: var-naming[no-role-prefix]
+          - path: smtp
+            data: "{{ smtp_auth }}"
     - role: salamandre_dev
       delegate_to: localhost
       when: env == 'dev'

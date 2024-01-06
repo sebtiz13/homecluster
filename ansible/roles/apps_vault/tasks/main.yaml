@@ -18,31 +18,39 @@
   ansible.builtin.import_tasks: initialize.yaml
 
 - name: Generate child token
+  delegate_to: "{{ inventory_hostname }}"
   vars:
     vault_file: "{{ lookup('ansible.builtin.file', credentials_folder + '/vault.json') }}"
-  community.hashi_vault.vault_token_create:
-    url: "{{ ansible_hashi_vault_addr }}"
-    validate_certs: false
-    token: "{{ vault_file.root_token }}"
-    ttl: 1h
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/auth/token/create"
+    method: POST
+    status_code: 200
+    return_content: true
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_file.root_token }}"
+    body:
+      renewable: false
+      ttl: 1h
   register: vault_token
 - name: Store child token
   ansible.builtin.set_fact:
-    ansible_hashi_vault_token: "{{ vault_token.login.auth.client_token }}"
+    vault_root_token: "{{ vault_token.json.auth.client_token }}"
 
 - name: Enable static secrets engine for each cluster
-  vars:
-    mounts: "{{ lookup('community.hashi_vault.vault_read', 'sys/mounts', validate_certs=false) }}"
-  when: "(item + '/') is not in mounts.data"
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_vault.namespace }}"
     pod: "{{ apps_vault.pod_name }}"
     command: >-
-      /bin/sh -c 'VAULT_TOKEN="{{ ansible_hashi_vault_token }}"
-      vault secrets enable -path={{ item }} kv-v2'
+      /bin/sh -c 'VAULT_TOKEN={{ vault_root_token | quote }}
+      vault secrets enable -path={{ item | quote }} kv-v2'
+  register: vault_cmd
+  changed_when: vault_cmd.rc == 0
+  failed_when:
+    - vault_cmd.rc != 0
+    - not "path is already in use at" in vault_cmd.stderr
   loop: "{{ hostvars.keys() | list }}"
-  changed_when: true
 
 - name: Configure Vault kubernetes auth
   ansible.builtin.import_tasks: auth_kubernetes.yaml
