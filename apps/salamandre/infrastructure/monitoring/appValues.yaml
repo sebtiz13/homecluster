@@ -10,6 +10,18 @@ external-secrets:
       dataFrom:
         - extract:
             key: baku/monitoring/auth
+    {{- if eq .Values.environment "dev" }}
+    - name: vm-ca-tls
+      target:
+        template:
+          type: kubernetes.io/tls
+          data:
+            tls.crt: '{{`{{"{{ .crt }}"}}`}}'
+            tls.key: '{{`{{"{{ .key }}"}}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/tls/vm-ca
+    {{ end -}}
 
 victoria-metrics-k8s-stack:
   # victoria-metrics-operator: # TODO: fix that when have better serviceaccount stuff

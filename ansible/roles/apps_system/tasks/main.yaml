@@ -16,12 +16,6 @@
         - zfs
     - name: external-secrets
       tags: external-secrets
-    - name: config-syncer
-      tags: config-syncer
-
-- name: Configure Config Syncer
-  tags: config-syncer
-  ansible.builtin.import_tasks: config-syncer.yaml
 
 - name: Configure OpenEBS
   tags:

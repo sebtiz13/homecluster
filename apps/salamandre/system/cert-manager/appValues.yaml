@@ -30,7 +30,5 @@ certificates:
       - "pages.{{ .Values.baseDomain }}"
       - "*.pages.{{ .Values.baseDomain }}"
     secretTemplate:
-      annotations:
-        kubed.appscode.com/sync: "kubernetes.io/metadata.name=gitlab"
       labels:
         domain: "pages-{{ $domainName }}"

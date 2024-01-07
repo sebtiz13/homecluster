@@ -55,3 +55,21 @@ extraObjects:
     spec:
       defaultCertificate:
         secretName: {{ $domainName }}-tls
+  - apiVersion: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    metadata:
+      name: {{ $domainName }}-tls
+    spec:
+      secretStoreRef:
+        name: vault-eso
+        kind: ClusterSecretStore
+      refreshInterval: 1h
+      target:
+        template:
+          type: kubernetes.io/tls
+          data:
+            tls.crt: '{{`{{"{{ .crt }}"}}`}}'
+            tls.key: '{{`{{"{{ .key }}"}}`}}'
+      dataFrom:
+        - extract:
+            key: "salamandre/tls/{{ $domainName }}"

@@ -8,12 +8,24 @@
 
 - name: Configure cluster vault store
   vars:
-    use_ca: "{{ (inventory_hostname == 'baku') and (env == 'dev') }} "
+    use_ca: "{{ (inventory_hostname == 'baku') and (env == 'dev') }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"
     state: present
-    namespace: "{{ apps_external_secrets.namespace }}"
+    namespace: default
     template: "vault_store.yaml.j2"
+
+- name: Vault | Create policy
+  delegate_to: salamandre
+  ansible.builtin.uri:
+    url: "{{ hostvars.salamandre.vault_api_url }}/sys/policy/external-secrets"
+    method: POST
+    status_code: 204
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ hostvars.salamandre.vault_root_token }}"
+    body:
+      policy: "{{ lookup('ansible.builtin.file', './vault-policy.hcl') }}"
 
 - name: Vault | Configure kubernetes auth role
   delegate_to: salamandre
@@ -27,5 +39,5 @@
     body:
       bound_service_account_names: "{{ apps_external_secrets.release_name }}"
       bound_service_account_namespaces: "{{ apps_external_secrets.namespace }}"
-      policies: argocd
+      policies: external-secrets
       ttl: 1h

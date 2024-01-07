@@ -10,7 +10,20 @@ grafana:
   extraSecretMounts:
     - name: certificate
       mountPath: /etc/ssl/certs/ca.crt
-      secretName: vm-ca-tls-secret
+      secretName: monitoring-vm-ca-tls
       subPath: tls.crt
       readOnly: true
       defaultMode: 420
+
+external-secrets:
+  secrets:
+    - name: vm-ca-tls
+      target:
+        template:
+          type: kubernetes.io/tls
+          data:
+            tls.crt: '{{`{{"{{ .crt }}"}}`}}'
+            tls.key: '{{`{{"{{ .key }}"}}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/tls/vm-ca

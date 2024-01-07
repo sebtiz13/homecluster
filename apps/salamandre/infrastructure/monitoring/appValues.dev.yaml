@@ -3,25 +3,25 @@ victoria-metrics-k8s-stack:
     spec:
       datasource:
         tlsConfig:
-          caFile: /etc/vmagent-tls/certs/monitoring_vm-ca-tls-secret_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
+          caFile: /etc/vmagent-tls/certs/monitoring_monitoring-vm-ca-tls_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
           ca:
             secret:
               key: tls.crt
-              name: vm-ca-tls-secret
+              name: monitoring-vm-ca-tls
       remoteWrite:
         tlsConfig:
-          caFile: /etc/vmagent-tls/certs/monitoring_vm-ca-tls-secret_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
+          caFile: /etc/vmagent-tls/certs/monitoring_vm-monitoring-vm-ca-tls_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
           ca:
             secret:
               key: tls.crt
-              name: vm-ca-tls-secret
+              name: monitoring-vm-ca-tls
       remoteRead:
         tlsConfig:
-          caFile: /etc/vmagent-tls/certs/monitoring_vm-ca-tls-secret_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
+          caFile: /etc/vmagent-tls/certs/monitoring_monitoring-vm-ca-tls_tls.crt # TODO: remove this when https://github.com/VictoriaMetrics/operator/issues/699 is resolved
           ca:
             secret:
               key: tls.crt
-              name: vm-ca-tls-secret
+              name: monitoring-vm-ca-tls
       notifiers:
         - url: https://{{ include "ingress.host" . }}:{{ .Values.ingress.port }}/alertmanager/
           basicAuth: {{ .Values.basicAuth | toYaml | nindent 12 }}
@@ -29,7 +29,7 @@ victoria-metrics-k8s-stack:
             ca:
               secret:
                 key: tls.crt
-                name: vm-ca-tls-secret
+                name: monitoring-vm-ca-tls
 
   vmagent:
     spec:
@@ -40,4 +40,4 @@ victoria-metrics-k8s-stack:
             ca:
               secret:
                 key: tls.crt
-                name: vm-ca-tls-secret
+                name: monitoring-vm-ca-tls

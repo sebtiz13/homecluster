@@ -13,10 +13,19 @@ spec:
           serviceAccountRef:
             name: "{{ apps_external_secrets.release_name }}"
             namespace: "{{ apps_external_secrets.namespace }}"
-      {% if use_ca -%}
+{% if use_ca %}
       caProvider:
         type: Secret
-        namespace: config-syncer-sync
-        name: vm-ca-tls-secret
+        namespace: default
+        name: vm-ca-tls
         key: tls.crt
-      {% endif -%}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vm-ca-tls
+type: kubernetes.io/tls
+data:
+  tls.crt: "{{ lookup('file', ca.cert) | b64encode }}"
+  tls.key: "{{ lookup('file', ca.key) | b64encode }}"
+{% endif %}

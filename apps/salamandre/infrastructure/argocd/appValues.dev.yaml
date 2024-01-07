@@ -1,8 +1,9 @@
 server:
   config:
+    {{/* "vm-ca-tls" if defined in "appValues.yaml" */}}
     oidc.config: |
       {{ tpl (.Values.baseOidcConfig | toYaml) . | nindent 6  }}
-      rootCA: $vm-ca-tls-secret:tls.crt
+      rootCA: $vm-ca-tls:tls.crt
 
   volumeMounts:
     - name: certificate
@@ -11,6 +12,6 @@ server:
   volumes:
     - name: certificate
       secret:
-        secretName: vm-ca-tls-secret
+        secretName: vm-ca-tls
         defaultMode: 420
         optional: true
