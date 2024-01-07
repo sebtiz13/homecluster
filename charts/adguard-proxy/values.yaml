@@ -42,3 +42,26 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+certificate:
+  enabled: false
+  name: adguard
+  secretName: adguard-tls
+  # Shortcut to define namespace issuer name
+  # issuerName: ""
+  # To use more specific issuer like ClusterIssuers (issuerName must not be defined to use this)
+  # issuerRef:
+  #   name: example-issuer
+  #   kind: ClusterIssuer
+  # Use secretTemplate to apply annotations and labels on generated tls secret
+  secretTemplate:
+    {}
+    # annotations:
+    #   kubed.appscode.com/sync: ""
+    # labels:
+    #   domain: example
+  # DNS name to request the certificate
+  dnsNames:
+    []
+    # - "example.com"
+    # - "*.example.com"

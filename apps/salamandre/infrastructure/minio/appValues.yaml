@@ -30,8 +30,7 @@ ingress:
   hosts:
     - {{ include "ingress.host" . }}
   tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
+    - hosts:
         - {{ include "ingress.host" . }}
 consoleIngress:
   enabled: true
@@ -40,8 +39,7 @@ consoleIngress:
   hosts:
     - console.{{ include "ingress.host" . }}
   tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
+    - hosts:
         - console.{{ include "ingress.host" . }}
 
 persistence:

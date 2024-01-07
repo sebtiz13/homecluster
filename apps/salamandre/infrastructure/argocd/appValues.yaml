@@ -48,8 +48,7 @@ server:
     hosts:
       - {{ include "ingress.host" . }}
     tls:
-      - secretName: {{ include "ingress.tls.secretName" . }}
-        hosts:
+      - hosts:
           - {{ include "ingress.host" . }}
 
   config:

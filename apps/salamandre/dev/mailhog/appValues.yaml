@@ -10,6 +10,5 @@ ingress:
         - path: "/"
           pathType: Prefix
   tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
+    - hosts:
         - {{ include "ingress.host" . }}

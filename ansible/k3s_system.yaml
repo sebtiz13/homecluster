@@ -9,17 +9,28 @@
 - name: Deploy salamandre applications
   hosts: salamandre
   tags: kubernetes
-  roles:
-    - role: apps_vault
-      delegate_to: localhost
-      tags: vault
-  post_tasks:
+  pre_tasks:
     - name: Setup Cert Manager
       delegate_to: localhost
       tags:
         - cert-manager
         - tls
       ansible.builtin.import_tasks: tasks/s_cert-manager.yaml
+  roles:
+    - role: apps_vault
+      delegate_to: localhost
+      tags: vault
+    - name: Cert Manager | Write secrets (prod)
+      role: vault_secrets
+      when: env == 'prod'
+      vars:
+        secrets: # noqa: var-naming[no-role-prefix]
+          - path: cert-manager/ovh
+            data:
+              applicationKey: "{{ cert_manager_ovh_auth.application_key }}"
+              applicationSecret: "{{ cert_manager_ovh_auth.application_secret }}"
+              consumerKey: "{{ cert_manager_ovh_auth.consumer_key }}"
+  post_tasks:
     - name: Config Syncer | Connect salamandre to baku
       delegate_to: localhost
       tags: config-syncer

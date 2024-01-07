@@ -22,20 +22,10 @@ cert-manager-webhook-ovh:
 
 {{ $domainName := .Values.baseDomain | replace "." "-" }}
 certificates:
-  - name: {{ $domainName }}
-    issuerName: {{ $domainName }}-issuer
-    dnsNames:
-      - "{{ .Values.baseDomain }}"
-      - "*.{{ .Values.baseDomain }}"
-      - "console.s3.{{ .Values.baseDomain }}"
-    secretTemplate:
-      annotations:
-        kubed.appscode.com/sync: "domain={{ .Values.baseDomain }}"
-        kubed.appscode.com/sync-contexts: baku
-      labels:
-        domain: {{ $domainName }}
   - name: "pages-{{ $domainName }}"
-    issuerName: {{ $domainName }}-issuer
+    issuerRef:
+      name: {{ $domainName }}-issuer
+      kind: ClusterIssuer
     dnsNames:
       - "pages.{{ .Values.baseDomain }}"
       - "*.pages.{{ .Values.baseDomain }}"
@@ -44,13 +34,3 @@ certificates:
         kubed.appscode.com/sync: "kubernetes.io/metadata.name=gitlab"
       labels:
         domain: "pages-{{ $domainName }}"
-  - name: "dns-{{ $domainName }}"
-    issuerName: {{ $domainName }}-issuer
-    dnsNames:
-      - "dns.{{ .Values.baseDomain }}"
-      - "*.dns.{{ .Values.baseDomain }}"
-    secretTemplate:
-      annotations:
-        kubed.appscode.com/sync: "kubernetes.io/metadata.name=adguard"
-      labels:
-        domain: "dns-{{ $domainName }}"

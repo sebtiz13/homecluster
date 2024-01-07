@@ -21,8 +21,7 @@ ingress:
     {{ include "ingress.annotations.httpsRedirect" . | nindent 4 }}
 
   tls:
-    - secretName: {{ include "ingress.tls.secretName" . }}
-      hosts:
+    - hosts:
         - {{ include "ingress.host" . }}
 
   admin:

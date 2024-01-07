@@ -1,4 +1,5 @@
 {{- $wildcard := printf "*.%s" (include "ingress.host" .) | quote -}}
+{{- $domainName := .Values.baseDomain | replace "." "-" -}}
 
 ingress:
   enabled: true
@@ -15,7 +16,18 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls:
-    - secretName: dns-{{ include "ingress.tls.secretName" . }}
+    - secretName: "dns-{{ $domainName }}-tls"
       hosts:
         - {{ include "ingress.host" . }}
         - {{ $wildcard }}
+
+certificate:
+  enabled: true
+  name: "dns-{{ $domainName }}"
+  secretName: "dns-{{ $domainName }}-tls"
+  issuerRef:
+    name: {{ $domainName }}-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "dns.{{ .Values.baseDomain }}"
+    - "*.dns.{{ .Values.baseDomain }}"

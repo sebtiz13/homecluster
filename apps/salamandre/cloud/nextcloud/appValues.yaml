@@ -5,8 +5,7 @@ nextcloud:
       traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd,nextcloud-chained-middlewares@kubernetescrd
       traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     tls:
-      - secretName: {{ include "ingress.tls.secretName" . }}
-        hosts:
+      - hosts:
           - {{ include "ingress.host" . }}
 
   nextcloud:
