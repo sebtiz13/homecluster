@@ -26,24 +26,8 @@ victoria-metrics-k8s-stack:
         cluster: baku
 
   alertmanager:
-    config:
-      route:
-        receiver: noop
-        routes:
-          - match:
-              alertname: 'CPUThrottlingHigh'
-            receiver: noop
-          - matchers:
-            - severity=~"info|warning|critical"
-            group_by: ["alertgroup", "job", "cluster"]
-            receiver: discord
-      receivers:
-        - name: noop
-        - name: discord
-          discord_configs:
-            - webhook_url: <path:baku/data/monitoring/alertmanager#discord>
-              title: '{{`{{ template "homecluster.discord.title" .  }}`}}'
-              message: '{{`{{ template "homecluster.discord.message" .  }}`}}'
+    spec:
+      configSecret: monitoring.alertmanager
 
     templateFiles:
       discord.tmpl: |-
@@ -105,6 +89,11 @@ grafana:
       {{- end }}
     {{- end }}
 
+  admin:
+    existingSecret: monitoring-credentials
+    userKey: admin-user
+    passwordKey: admin-password
+
   grafana.ini:
     feature_toggles:
       accessTokenExpirationCheck: true
@@ -113,23 +102,27 @@ grafana:
       root_url: https://{{ include "ingress.host" . }}/
 
     auth:
-      signout_redirect_url: '{{ printf "<path:baku/data/grafana/oidc#issuer>/oidc/v1/end_session?client_id=<path:baku/data/grafana/oidc#clientID>&post_logout_redirect_uri=https://%s/login" (include "ingress.host" .) }}'
+      signout_redirect_url: '{{ printf "$__file{/etc/secrets/auth_generic_oauth/issuer}/oidc/v1/end_session?client_id=$__file{/etc/secrets/auth_generic_oauth/clientID}&post_logout_redirect_uri=https://%s/login" (include "ingress.host" .) }}'
     auth.generic_oauth:
       enabled: true
       name: Zitadel
       allow_sign_up: true
-      client_id: <path:baku/data/grafana/oidc#clientID>
-      client_secret: <path:baku/data/grafana/oidc#clientSecret>
-      auth_url: <path:baku/data/grafana/oidc#issuer>/oauth/v2/authorize
-      token_url: <path:baku/data/grafana/oidc#issuer>/oauth/v2/token
-      api_url: <path:baku/data/grafana/oidc#issuer>/oidc/v1/userinfo
+      client_id: $__file{/etc/secrets/auth_generic_oauth/clientID}
+      client_secret: $__file{/etc/secrets/auth_generic_oauth/clientSecret}
+      auth_url: $__file{/etc/secrets/auth_generic_oauth/issuer}/oauth/v2/authorize
+      token_url: $__file{/etc/secrets/auth_generic_oauth/issuer}/oauth/v2/token
+      api_url: $__file{/etc/secrets/auth_generic_oauth/issuer}/oidc/v1/userinfo
       scopes: openid email profile offline_access groups
       login_attribute_path: email
       name_attribute_path: preferred_username
       role_attribute_path: "contains(groups[*], 'Admin') && 'Admin' || contains(groups[*], 'Operator') && 'Editor' || 'Viewer'"
 
-  adminUser: <path:baku/data/grafana/auth#adminUser>
-  adminPassword: <path:baku/data/grafana/auth#adminPassword>
+  extraSecretMounts:
+    - name: auth-generic-oauth-secret-mount
+      secretName: monitoring-oidc-credentials
+      defaultMode: 0440
+      mountPath: /etc/secrets/auth_generic_oauth
+      readOnly: true
 
   persistence:
     enabled: true
@@ -143,4 +136,57 @@ grafana:
       cpu: 500m
       memory: 1500Mi
 
-  extraObjects:
+external-secrets:
+  secrets:
+    - name: credentials
+      target:
+        template:
+          type: Opaque
+          data:
+            admin-user: '{{`{{ .adminUser }}`}}'
+            admin-password: '{{`{{ .adminPassword }}`}}'
+      dataFrom:
+        - extract:
+            key: baku/grafana/auth
+    - name: oidc-credentials
+      dataFrom:
+        - extract:
+            key: baku/grafana/oidc
+    - name: alertmanager
+      target:
+        template:
+          type: Opaque
+          data:
+            alertmanager.yaml: |
+              route:
+                receiver: noop
+                routes:
+                  - match:
+                      alertname: 'CPUThrottlingHigh'
+                    receiver: noop
+                  - matchers:
+                    - severity=~"info|warning|critical"
+                    group_by: ["alertgroup", "job", "cluster"]
+                    receiver: discord
+              receivers:
+                - name: noop
+                - name: discord
+                  discord_configs:
+                    - webhook_url: '{{`{{"{{ .discord }}"}}`}}'
+                      title: '{{`{{"{{ printf ''{{ template \"homecluster.discord.title\" . }}'' }}"}}'
+                      message: '{{`{{"{{ printf ''{{ template \"homecluster.discord.message\" . }}'' }}`}}'
+      dataFrom:
+        - extract:
+            key: baku/monitoring/alertmanager
+    {{- if eq .Values.environment "dev" }}
+    - name: vm-ca-tls
+      target:
+        template:
+          type: kubernetes.io/tls
+          data:
+            tls.crt: '{{`{{"{{ .crt }}"}}`}}'
+            tls.key: '{{`{{"{{ .key }}"}}`}}'
+      dataFrom:
+        - extract:
+            key: salamandre/tls/vm-ca
+    {{ end -}}

@@ -25,6 +25,5 @@ Admin user informations
 ### grafana/oidc
 
 - `issuer`: The issuer URL (eg. `https://sso.local.vm/realm/developer`)
-- `cliClientID`: The client ID for cli
 - `clientID`: The client ID
 - `clientSecret`: The client secret

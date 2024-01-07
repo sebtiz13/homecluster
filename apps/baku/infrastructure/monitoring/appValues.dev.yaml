@@ -14,16 +14,3 @@ grafana:
       subPath: tls.crt
       readOnly: true
       defaultMode: 420
-
-external-secrets:
-  secrets:
-    - name: vm-ca-tls
-      target:
-        template:
-          type: kubernetes.io/tls
-          data:
-            tls.crt: '{{`{{"{{ .crt }}"}}`}}'
-            tls.key: '{{`{{"{{ .key }}"}}`}}'
-      dataFrom:
-        - extract:
-            key: salamandre/tls/vm-ca
