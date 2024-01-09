@@ -1,6 +1,6 @@
 env: dev
+git_branch: develop
 _vagrant_dir: "{{ playbook_dir }}/../vagrant/.vagrant"
-manifests_folder: "{{ _vagrant_dir }}/manifests/{{ inventory_hostname }}"
 
 ansible_port: 22
 ansible_user: vagrant
@@ -23,3 +23,6 @@ zfs_pool:
 ca:
   cert: "{{ _vagrant_dir }}/ca/rootCA.pem"
   key: "{{ _vagrant_dir }}/ca/rootCA-key.pem"
+
+# Webhook url for send discord notifications
+alerts_discord_webhook_url: "" # TODO: secret it

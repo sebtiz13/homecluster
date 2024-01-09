@@ -1,0 +1,72 @@
+- name: Load informations
+  hosts: salamandre
+  tags: kubernetes
+  tasks:
+    - name: Load applications admin passwords # TODO: use ansible vault ?
+      ansible.builtin.include_vars:
+        file: "{{ credentials_folder }}/admin_passwords.yaml"
+        name: admin_passwords
+
+- name: Deploy flux
+  hosts: all
+  tags:
+    - kubernetes
+    - flux
+  tasks:
+    - name: Flux | Deploy application manifest
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        resource_definition: "{{ lookup('file', flux.manifest) }}"
+        wait: true
+
+    - name: Flux | Store variables
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        template: flux_vars.yaml.j2
+
+    - name: Flux | Deploy bootstrap manifests
+      delegate_to: localhost
+      vars:
+        raw_definition: "{{ lookup('kubernetes.core.kustomize', dir=flux.bootstrap_folder) }}"
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        resource_definition: "{{ raw_definition | replace('${GIT_BRANCH:=main}', git_branch) | replace('${GIT_REPO_URL}', git_repo_url) }}"
+        wait: true
+
+- name: Deploy VM CA (dev)
+  hosts: salamandre
+  tags:
+    - kubernetes
+    - cert-manager
+  vars:
+    namespace: cert-manager
+  tasks:
+    - name: Cert-manager | Create namespace
+      when: env == 'dev'
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        kind: Namespace
+        name: "{{ namespace }}"
+
+    - name: Cert-manager | Deploy VM CA
+      when: env == 'dev'
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        template: ca_tls.yaml.j2
+        namespace: "{{ namespace }}"
+
+- name: Deploy VM CA (dev)
+  hosts: baku
+  tags: kubernetes
+  tasks:
+    - name: External-secrets | Deploy VM CA
+      when: env == 'dev'
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        template: ca_tls.yaml.j2
+        namespace: default

@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &name vaultwarden
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *name
+  annotations: # TODO: make redirect default ?
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: &host vault.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - *host
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden-admin
+  labels:
+    app.kubernetes.io/name: &name vaultwarden
+    app.kubernetes.io/instance: *name
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: vaultwarden-admin-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: &host vault.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - *host

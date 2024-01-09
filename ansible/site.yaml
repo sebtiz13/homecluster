@@ -1,8 +1,6 @@
 - ansible.builtin.import_playbook: setup.yaml
-- ansible.builtin.import_playbook: k3s_requirements.yaml
-- ansible.builtin.import_playbook: k3s_system.yaml
-- ansible.builtin.import_playbook: k3s_infrastructure.yaml
-- ansible.builtin.import_playbook: k3s_cloud.yaml
+- ansible.builtin.import_playbook: k3s_bootstrap.yaml
+- ansible.builtin.import_playbook: k3s_configure.yaml
 
 - name: Configure backup
   hosts: salamandre

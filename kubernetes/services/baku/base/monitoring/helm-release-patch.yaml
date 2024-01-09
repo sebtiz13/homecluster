@@ -1,0 +1,46 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: victoria-metrics-k8s-stack
+spec:
+  values:
+    vmsingle:
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: monitoring-vm-auth@kubernetescrd
+          traefik.ingress.kubernetes.io/router.entrypoints: monitoring
+        hosts:
+          - &host monitor.${DOMAIN_NAME}
+        tls:
+          - hosts:
+              - *host
+      spec:
+        storage:
+          resources:
+            requests:
+              storage: 20Gi
+
+    vmagent:
+      spec:
+        externalLabels:
+          cluster: baku
+
+    alertmanager:
+      spec:
+        configSecret: monitoring.alertmanager
+
+    # Disable tweaked alert rules
+    defaultRules:
+      rules:
+        kubeApiserverAvailability: false
+        kubeApiserverBurnrate: false
+        kubeApiserverHistogram: false
+        kubeApiserverSlos: false
+        kubePrometheusNodeRecording: false
+        kubeScheduler: false
+        kubernetesResources: false
+        kubernetesSystem: false
+        vmhealth: false
+        vmagent: false

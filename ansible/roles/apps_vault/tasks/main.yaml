@@ -1,24 +1,36 @@
-- name: Retrieve application informations
-  vars:
-    manifest: "{{ lookup('file', manifests_folder + '/vault.yaml') | from_yaml }}"
-    values: "{{ manifest.spec.source.helm['values'] | from_yaml }}"
-    release_name: "{{ manifest.spec.source.helm.releaseName }}"
+- name: Retrieve server service
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Service
+    name: "{{ apps_vault.release_name }}"
+    namespace: "{{ apps_vault.namespace }}"
+    wait: true
+    wait_timeout: 300
+  register: vault_server
+- name: Store server url
   ansible.builtin.set_fact:
-    apps_vault:
-      release_name: "{{ release_name }}"
-      namespace: "{{ manifest.spec.destination.namespace }}"
-      pod_name: "{{ release_name }}-0"
-      keys_secret_name: "{{ (values.server.volumes | first).secret.secretName }}"
-    ansible_hashi_vault_addr: "https://{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
+    vault_api_url: "http://{{ vault_server.resources.0.spec.clusterIP }}:{{ vault_server.resources.0.spec.ports.0.port }}/v1"
 
-- name: Deploy application
-  ansible.builtin.import_tasks: deploy.yaml
+- name: Wait until application is available
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/sys/health"
+    method: GET
+    status_code:
+      - 501 # if not initialized
+      - 503 # if sealed
+      - 200 # if initialized, unsealed, and active
+    return_content: true
+  register: vault_health
+  until: vault_health.status == 501 or vault_health.status == 503 or vault_health.status == 200
+  retries: 60 # This is for wait max 10min (this is for support slow connection)
+  delay: 10
 
 - name: Initialize application
+  delegate_to: localhost
   ansible.builtin.import_tasks: initialize.yaml
 
 - name: Generate child token
-  delegate_to: "{{ inventory_hostname }}"
   vars:
     vault_file: "{{ lookup('ansible.builtin.file', credentials_folder + '/vault.json') }}"
   ansible.builtin.uri:
@@ -38,6 +50,7 @@
     vault_root_token: "{{ vault_token.json.auth.client_token }}"
 
 - name: Enable static secrets engine for each cluster
+  delegate_to: localhost
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_vault.namespace }}"
@@ -53,7 +66,23 @@
   loop: "{{ hostvars.keys() | list }}"
 
 - name: Configure Vault kubernetes auth
+  delegate_to: localhost
   ansible.builtin.import_tasks: auth_kubernetes.yaml
 
-- name: Configure Vault for ArgoCD Vault Plugin (AVP)
-  ansible.builtin.import_tasks: argocd.yaml
+- name: Configure external-secrets access
+  ansible.builtin.import_tasks: eso_access.yaml
+
+- name: Fill applications secrets
+  ansible.builtin.import_tasks: apps_secrets.yaml
+
+- name: External-secrets | Wait cluster store ready
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: ClusterSecretStore
+    name: "{{ apps_vault.store_name }}"
+    namespace: "{{ apps_vault.namespace }}"
+    wait: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

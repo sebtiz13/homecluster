@@ -15,3 +15,17 @@
   failed_when:
     - vault_cmd.rc != 0
     - not "path is already in use at" in vault_cmd.stderr
+
+- name: Enable baku kubernetes auth
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ local_kubeconfig }}"
+    namespace: "{{ apps_vault.namespace }}"
+    pod: "{{ apps_vault.pod_name }}"
+    command: |-
+      /bin/sh -c 'export VAULT_TOKEN={{ vault_root_token | quote }}
+      vault auth enable --path=baku-cluster kubernetes'
+  register: vault_cmd
+  changed_when: vault_cmd.rc == 0
+  failed_when:
+    - vault_cmd.rc != 0
+    - not "path is already in use at" in vault_cmd.stderr

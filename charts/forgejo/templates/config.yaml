@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: forgejo-runner-config
-  labels:
-    {{- include "gitea.actions.runner.labels" . | nindent 4 }}
-data:
-  config.yaml: |-
-    {{- toYaml .Values.actions.runner.config | nindent 4 }}

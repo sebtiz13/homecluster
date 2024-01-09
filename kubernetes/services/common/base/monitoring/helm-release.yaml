@@ -1,0 +1,87 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: victoria-metrics-k8s-stack
+spec:
+  releaseName: vm-stack
+  interval: 30m
+  chart:
+    spec:
+      chart: victoria-metrics-k8s-stack
+      version: "0.18.11"
+      sourceRef:
+        kind: HelmRepository
+        name: victoriametrics
+        namespace: flux-system
+      interval: 12h
+  install:
+    createNamespace: true
+    crds: Skip
+  upgrade:
+    crds: Skip
+  values:
+    # Remove slack things
+    alertmanager:
+      config:
+        route:
+          receiver: noop
+          routes: []
+        receivers:
+          - name: noop
+
+      monzoTemplate:
+        enabled: false
+
+    kubelet:
+      spec:
+        # drop high cardinality label and useless metrics for cadvisor and kubelet
+        metricRelabelConfigs:
+          - action: labeldrop
+            regex: (uid)
+          # - action: labeldrop # Keep this
+          #   regex: (id|name)
+          - action: drop
+            source_labels: [__name__]
+            regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+
+    victoria-metrics-operator:
+      fullnameOverride: victoria-metrics-operator
+      operator:
+        disable_prometheus_converter: false
+        prometheus_converter_add_argocd_ignore_annotations: true
+        enable_converter_ownership: true
+
+    # Disable unneeded alert rules
+    defaultRules:
+      rules:
+        etcd: false
+        vmcluster: false
+
+    ## In k3s alls bellow components is combined in "kubelet"
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeProxy:
+      enabled: false
+    kubeApiServer:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+
+    # Disable default grafana dashboards
+    defaultDashboardsEnabled: false
+    ## Disable embedded grafana for deploy own
+    grafana:
+      enabled: false
+    # Disable CRDs
+    crds:
+      enabled: false
+
+    fullnameOverride: vm-stack
+    prometheus-node-exporter:
+      fullnameOverride: node-exporter
+    kube-state-metrics:
+      fullnameOverride: kube-state-metrics

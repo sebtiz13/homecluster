@@ -28,10 +28,6 @@ zfs_pool:
     []
     # - /dev/by-uuid/5e3051da-d345-4a1c-be59-e987678c005e
 
-basic_auth_users:
-  # - name: user
-  #   password: password
-
 smtp_auth:
   host: host
   port: "465"
@@ -42,3 +38,6 @@ cert_manager_ovh_auth:
   application_key: ""
   application_secret: ""
   consumer_key: ""
+
+# Webhook url for send discord notifications
+alerts_discord_webhook_url: ""

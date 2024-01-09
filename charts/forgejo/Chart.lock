@@ -1,9 +1,0 @@
-dependencies:
-- name: external-secrets
-  repository: file://../_dependencies/external-secrets
-  version: 1.0.0
-- name: forgejo
-  repository: oci://codeberg.org/forgejo-contrib
-  version: 1.0.4
-digest: sha256:e8c708cc62fb61a6e3f48dd1ecfa41073f2a0f5a429dffb419b46d9ad0269c3f
-generated: "2024-01-15T03:31:46.118686049+01:00"

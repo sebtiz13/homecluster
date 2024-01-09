@@ -1,0 +1,13 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: grafana
+spec:
+  values:
+    extraSecretMounts:
+      - name: certificate
+        mountPath: /etc/ssl/certs/ca.crt
+        secretName: monitoring-vm-ca-tls
+        subPath: tls.crt
+        readOnly: true
+        defaultMode: 420

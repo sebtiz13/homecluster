@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &name collabora-code
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd,nextcloud-chained-middlewares@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: &host cloud.${DOMAIN_NAME}
+      http:
+        paths:
+          # static html, js, images, etc. served from coolwsd
+          # browser is the client part of LibreOffice Online
+          - backend: &backend
+              service:
+                name: *name
+                port:
+                  name: http
+            path: /browser
+            pathType: Prefix
+          # WOPI discovery URL
+          - backend:
+              <<: *backend
+            path: /hosting/discovery
+            pathType: Prefix
+          # Capabilities
+          - backend:
+              <<: *backend
+            path: /hosting/capabilities
+            pathType: Prefix
+          # Main websocket, Admin Console websocket and
+          # Download as, Fullscreen presentation and Image upload operations
+          - backend:
+              <<: *backend
+            path: /cool
+            pathType: Prefix
+          # Compatibility with integrations that use the /lool/convert-to endpoint
+          - backend:
+              <<: *backend
+            path: /lool
+            pathType: Prefix
+  tls:
+    - hosts:
+        - *host

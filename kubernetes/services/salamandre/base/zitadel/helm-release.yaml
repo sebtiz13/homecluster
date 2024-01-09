@@ -1,0 +1,95 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name zitadel
+spec:
+  releaseName: *name
+  interval: 1h
+  chart:
+    spec:
+      chart: *name
+      version: "7.4.0"
+      sourceRef:
+        kind: HelmRepository
+        name: *name
+        namespace: flux-system
+  values:
+    replicaCount: 1
+
+    image:
+      tag: v2.42.3
+
+    env:
+      - name: TZ
+        value: ${TIMEZONE}
+
+    zitadel:
+      masterkeySecretName: zitadel-masterkey
+      configSecretName: zitadel-credentials
+      configSecretKey: config-yaml
+
+      configmapConfig:
+        ExternalSecure: true
+        ExternalDomain: &host ${OIDC_ISSUER_HOST}
+        ExternalPort: 443
+        TLS:
+          Enabled: false
+        Database:
+          Postgres:
+            MaxOpenConns: 20
+            MaxIdleConns: 10
+            MaxConnLifetime: 30m
+            MaxConnIdleTime: 5m
+            User:
+              SSL:
+                Mode: disable
+        FirstInstance:
+          Org:
+            Machine:
+              Machine:
+                Username: zitadel-admin-sa
+                Name: Admin
+              MachineKey:
+                Type: 1
+        DefaultInstance:
+          SMTPConfiguration:
+            FromName: Zitadel
+          LoginPolicy:
+            AllowRegister: false
+          LabelPolicy:
+            HideLoginNameSuffix: true
+            ErrorMsgPopup: true
+            DisableWatermark: true
+            # Use Nord theme (https://www.nordtheme.com/)
+            PrimaryColor: "#8FBCBB"
+            BackgroundColor: "#D8DEE9"
+            WarnColor: "#BF616A"
+            FontColor: "#2E3440"
+            PrimaryColorDark: "#8FBCBB"
+            BackgroundColorDark: "#2E3440"
+            WarnColorDark: "#BF616A"
+            FontColorDark: "#ECEFF4"
+
+    initJob:
+      command: zitadel
+
+    ingress:
+      enabled: true
+      className: traefik
+      annotations: # TODO: make redirect default ?
+        traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
+        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      hosts:
+        - host: *host
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - hosts:
+            - *host
+
+    service:
+      annotations:
+        traefik.ingress.kubernetes.io/service.serversscheme: h2c

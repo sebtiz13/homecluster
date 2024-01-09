@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: &name wallabag
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: *name
+      app.kubernetes.io/instance: *name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: *name
+        app.kubernetes.io/instance: *name
+    spec:
+      serviceAccountName: wallabag
+      containers:
+        - name: *name
+          image: wallabag/wallabag:2.5.2
+          imagePullPolicy: IfNotPresent
+          command: ["/etc/wallabag/entrypoint.sh"]
+          envFrom:
+            - configMapRef:
+                name: wallabag-config
+            - secretRef:
+                name: wallabag-db-credentials
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 30
+          volumeMounts:
+            - mountPath: /etc/wallabag/entrypoint.sh
+              name: entrypoint
+              subPath: entrypoint.sh
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 600m
+              memory: 384Mi
+      volumes:
+        - name: entrypoint
+          configMap:
+            name: wallabag-script
+            defaultMode: 0740

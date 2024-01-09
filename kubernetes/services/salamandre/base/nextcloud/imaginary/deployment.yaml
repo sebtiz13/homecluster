@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: &name nextcloud-imaginary
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: &instance nextcloud
+    app.kubernetes.io/component: imaginary
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: *name
+      app.kubernetes.io/instance: *instance
+      app.kubernetes.io/component: imaginary
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: *name
+        app.kubernetes.io/instance: *instance
+        app.kubernetes.io/component: imaginary
+    spec:
+      containers:
+        - name: imaginary
+          image: nextcloud/aio-imaginary # TODO: add tag
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+          # volumeMounts:
+          #   - name: images
+          #     mountPath: /mnt/data
+          #     subPath: data

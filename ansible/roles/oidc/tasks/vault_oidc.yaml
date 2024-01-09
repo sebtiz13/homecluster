@@ -1,16 +1,15 @@
-- name: Vault | Create OIDC access # noqa: var-naming[no-role-prefix]
+- name: Vault | Create oidc access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: oidc_access
   vars:
-    secret_path: vault/oidc
+    secret_path: salamandre/data/vault/oidc
     project_id: "{{ zitadel_dev_project_id }}"
     app_name: Vault
     redirect_uris:
-      - "{{ ansible_hashi_vault_addr }}/oidc/callback"
-      - "{{ ansible_hashi_vault_addr }}/ui/vault/auth/oidc/oidc/callback"
-      - http://localhost:8250/oidc/callback
+      - "{{ external_urls.vault }}/oidc/callback"
+      - "{{ external_urls.vault }}/ui/vault/auth/oidc/oidc/callback"
     post_logout_redirect_uris:
-      - "{{ ansible_hashi_vault_addr }}"
+      - "{{ external_urls.vault }}"
     response_types:
       - OIDC_RESPONSE_TYPE_CODE
     grant_types:
@@ -18,115 +17,128 @@
       - OIDC_GRANT_TYPE_REFRESH_TOKEN
     auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
 
-- name: Vault | Setup OIDC auth
-  vars:
-    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth') }}"
-  when: "'oidc/' not in auth_engines.data"
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ local_kubeconfig }}"
-    namespace: vault
-    pod: vault-0
-    command: >-
-      /bin/sh -c 'VAULT_TOKEN="{{ ansible_hashi_vault_token }}"
-      vault auth enable oidc'
-
-- name: Vault | Create policies for OIDC # noqa: var-naming[no-role-prefix]
-  ansible.builtin.include_role:
-    name: vault_policy
-  vars:
-    policy_name: "{{ item }}"
-    policy: "{{ lookup('ansible.builtin.file', './vault-policies/' + item + '.hcl') }}"
+- name: Vault | Create policies for oidc
+  ansible.builtin.uri:
+    url: "{{ hostvars.salamandre.vault_api_url }}/sys/policy/{{ item }}"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ hostvars.salamandre.vault_root_token }}"
+    body:
+      policy: "{{ lookup('ansible.builtin.file', './vault-policies/' + item + '.hcl') }}"
   loop:
     - reader
     - admin
     - operator
 
-- name: Vault | Configure access for OIDC auth
-  vars:
-    path: auth/oidc/config
-    oidc_creds: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/vault/oidc') }}"
-  block:
-    - name: Vault | Configure access for OIDC auth (prod)
-      when: env == 'prod'
-      community.hashi_vault.vault_write:
-        url: "{{ ansible_hashi_vault_addr }}"
-        token: "{{ ansible_hashi_vault_token }}"
-        path: "{{ path }}"
-        data:
-          oidc_discovery_url: "{{ oidc_creds.data.data.issuer }}"
-          oidc_client_id: "{{ oidc_creds.data.data.clientID }}"
-          oidc_client_secret: "{{ oidc_creds.data.data.clientSecret }}"
-          default_role: reader
-    - name: Vault | Configure access for OIDC auth (dev)
-      when: env == 'dev'
-      community.hashi_vault.vault_write:
-        url: "{{ ansible_hashi_vault_addr }}"
-        token: "{{ ansible_hashi_vault_token }}"
-        ca_cert: "{{ ca.cert }}"
-        path: "{{ path }}"
-        data:
-          oidc_discovery_url: "{{ oidc_creds.data.data.issuer }}"
-          oidc_discovery_ca_pem: "{{ lookup('file', ca.cert) }}"
-          oidc_client_id: "{{ oidc_creds.data.data.clientID }}"
-          oidc_client_secret: "{{ oidc_creds.data.data.clientSecret }}"
-          default_role: reader
+- name: Vault | Enable oidc auth
+  delegate_to: localhost
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ local_kubeconfig }}"
+    namespace: "{{ apps_vault.namespace }}"
+    pod: "{{ apps_vault.pod_name }}"
+    command: |-
+      /bin/sh -c 'export VAULT_TOKEN={{ vault_root_token | quote }}
+      vault auth enable oidc'
+  register: vault_cmd
+  changed_when: vault_cmd.rc == 0
+  failed_when:
+    - vault_cmd.rc != 0
+    - not "path is already in use at" in vault_cmd.stderr
 
-- name: Vault | Configure OIDC role reader
-  vars:
-    oidc_creds: "{{ lookup('community.hashi_vault.vault_read', secrets_base_path + '/vault/oidc') }}"
-  community.hashi_vault.vault_write:
-    url: "{{ ansible_hashi_vault_addr }}"
-    token: "{{ ansible_hashi_vault_token }}"
-    ca_cert: "{{ ca.cert | default('') }}"
-    path: auth/oidc/role/reader
-    data:
-      bound_audiences: "{{ oidc_creds.data.data.clientID }}"
+- name: Vault | Configure access for oidc auth
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/auth/oidc/config"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      oidc_discovery_url: "{{ external_urls.zitadel }}"
+      oidc_discovery_ca_pem: "{{ lookup('file', ca.cert) }}"
+      oidc_client_id: "{{ oidc.client_id }}"
+      oidc_client_secret: "{{ oidc.client_secret }}"
+      default_role: reader
+
+- name: Vault | Create reader oidc role
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/auth/oidc/role/reader"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      bound_audiences: "{{ oidc.client_id }}"
       allowed_redirect_uris:
-        - "{{ ansible_hashi_vault_addr }}/ui/vault/auth/oidc/oidc/callback"
+        - "{{ external_urls.vault }}/ui/vault/auth/oidc/oidc/callback"
         - http://localhost:8200/oidc/callback
       user_claim: sub
       groups_claim: groups
-      policies: default,reader
+      token_policies:
+        - default
+        - reader
 
-- name: Vault | Create and configure identity groups
-  vars:
-    auth_engines: "{{ lookup('community.hashi_vault.vault_read', 'sys/auth', url=ansible_hashi_vault_addr) }}"
-    mount_accessor: "{{ auth_engines['oidc/'].accessor }}"
-  block:
-    - name: Vault | Create identity groups
-      community.hashi_vault.vault_write:
-        url: "{{ ansible_hashi_vault_addr }}"
-        token: "{{ ansible_hashi_vault_token }}"
-        ca_cert: "{{ ca.cert | default('') }}"
-        path: identity/group
-        data:
-          name: "{{ item.name }}"
-          policies: "{{ item.policies | join(',') }}"
-          type: external
-      register: vault_identity
-      changed_when: "'data' in vault_identity.data"
-      loop:
-        - name: Operator
-          policies:
-            - operator
-        - name: Admin
-          policies:
-            - operator
-            - admin
-      loop_control:
-        label: "{{ item.name }}"
+- name: Vault | Create identity groups
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/identity/group"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      name: "{{ item.name }}"
+      policies: "{{ item.policies }}"
+      type: external
+  register: vault_identity
+  changed_when: "'data' in vault_identity.json"
+  loop_control:
+    label: "{{ item.name }}"
+  loop:
+    - name: Operator
+      policies:
+        - operator
+    - name: Admin
+      policies:
+        - operator
+        - admin
 
-    - name: Vault | Create identity group alias # noqa: no-handler
-      when: item is changed
-      community.hashi_vault.vault_write:
-        url: "{{ ansible_hashi_vault_addr }}"
-        token: "{{ ansible_hashi_vault_token }}"
-        ca_cert: "{{ ca.cert | default('') }}"
-        path: identity/group-alias
-        data:
-          name: "{{ item.item.name }}"
-          mount_accessor: "{{ mount_accessor }}"
-          canonical_id: "{{ item.data.data.id }}"
-      loop: "{{ vault_identity.results }}"
-      loop_control:
-        label: "{{ item.item.name }}"
+- name: Vault | Retrieve auth methods
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/sys/auth"
+    method: GET
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+  register: vault_auths
+
+- name: Vault | Create identity group alias # noqa: no-handler
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/identity/group-alias"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      name: "{{ item.item.name }}"
+      mount_accessor: "{{ vault_auths.json.data['oidc/'].accessor }}"
+      canonical_id: "{{ item.json.data.id }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  loop: "{{ vault_identity.results }}"

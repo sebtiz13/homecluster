@@ -2,6 +2,9 @@ argument_specs:
   main:
     short_description: The main entry point for the database access.
     options:
+      host:
+        type: str
+        default: postgresql.loc
       database:
         type: str
         required: true
@@ -9,5 +12,8 @@ argument_specs:
         type: str
         required: true
       password:
+        type: str
+        required: true
+      secret_path:
         type: str
         required: true

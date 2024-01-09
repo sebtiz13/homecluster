@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: victoria-metrics-k8s-stack
+spec:
+  values:
+    externalVM:
+      read: &tlsConfig
+        tlsConfig:
+          ca:
+            secret:
+              key: tls.crt
+              name: vm-ca-tls
+      write:
+        <<: *tlsConfig

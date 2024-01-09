@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-settings
+data:
+  ##
+  # Application references
+  ##
+  TIMEZONE: Europe/Paris
+  ZFS_POOL_NAME: data

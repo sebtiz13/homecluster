@@ -1,0 +1,15 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: vault-eso
+spec:
+  provider:
+    vault:
+      server: https://vault-secrets.${DOMAIN_NAME}
+      auth:
+        kubernetes:
+          mountPath: baku-cluster
+          role: external-secrets
+          serviceAccountRef:
+            name: external-secrets
+            namespace: external-secrets

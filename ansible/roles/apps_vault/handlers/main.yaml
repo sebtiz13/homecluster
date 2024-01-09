@@ -1,4 +1,5 @@
 - name: Store Vault unseal keys
+  delegate_to: localhost
   vars:
     unseal_keys_b64: "{{ (vault_init.stdout | from_json).unseal_keys_b64 }}"
   kubernetes.core.k8s:

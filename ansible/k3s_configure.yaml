@@ -1,0 +1,50 @@
+- name: Configure salamandre applications
+  hosts: salamandre
+  tags: kubernetes
+  pre_tasks:
+    - name: Load applications admin passwords # TODO: use ansible vault ?
+      ansible.builtin.include_vars:
+        file: "{{ credentials_folder }}/admin_passwords.yaml"
+        name: admin_passwords
+
+    - name: Store applications informations
+      ansible.builtin.set_fact:
+        # vault_api_url: "" # Defined in roles/apps_vault/tasks/main.yaml
+        # vault_root_token: "" # Defined in roles/apps_vault/tasks/main.yaml
+        # zitadel_internal_url: "" # Defined in roles/oidc/tasks/zitadel.yaml
+        # zitadel_console_token: "" # Defined in roles/oidc/tasks/zitadel.yaml
+        apps_vault:
+          release_name: vault
+          namespace: vault
+          pod_name: vault-0
+          keys_secret_name: vault-keys
+          store_name: vault-eso
+        apps_zitadel:
+          release_name: zitadel
+          namespace: zitadel
+          domain_name: "{{ external_urls.zitadel | replace('https://', '') }}"
+  roles:
+    - role: apps_vault
+      tags: vault
+    - role: oidc
+      tags: oidc
+  post_tasks:
+    - name: Vault | Fill applications secrets
+      tags: vault
+      ansible.builtin.import_tasks: tasks/s_apps_secrets.yaml
+    - name: Create database accesses
+      tags: vault
+      ansible.builtin.import_tasks: tasks/s_apps_db_access.yaml
+    - name: Register forgejo runner
+      delegate_to: localhost
+      tags: forgejo
+      ansible.builtin.import_tasks: tasks/s_forgejo_runner.yaml
+
+- name: Configure baku applications
+  hosts: baku
+  tags: kubernetes
+  tasks:
+    - name: Vault | Configure access
+      delegate_to: localhost
+      tags: vault
+      ansible.builtin.import_tasks: tasks/b_vault.yaml

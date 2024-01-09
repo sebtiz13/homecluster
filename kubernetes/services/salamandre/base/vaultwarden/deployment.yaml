@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: &name vaultwarden
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: *name
+      app.kubernetes.io/instance: *name
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: *name
+        app.kubernetes.io/instance: *name
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: *name
+          image: &image vaultwarden/server:1.30.1-alpine
+          imagePullPolicy: &imagePolicy IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: &configName vaultwarden-config
+            - secretRef:
+                name: &dbSecretName vaultwarden-db-credentials
+            - secretRef:
+                name: &smtpSecretName vaultwarden-smtp
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /vw-data
+              name: data-storage
+      initContainers:
+        - name: update-config
+          image: *image
+          imagePullPolicy: *imagePolicy
+          command:
+            - sh
+            - /scripts/update-config.sh
+          envFrom:
+            - configMapRef:
+                name: *configName
+            - secretRef:
+                name: *dbSecretName
+            - secretRef:
+                name: *smtpSecretName
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /scripts
+              name: config-scripts
+            - mountPath: /vw-data
+              name: data-storage
+      volumes:
+        - name: config-scripts
+          configMap:
+            defaultMode: 493
+            name: vaultwarden-scripts
+        - name: data-storage
+          persistentVolumeClaim:
+            claimName: vaultwarden

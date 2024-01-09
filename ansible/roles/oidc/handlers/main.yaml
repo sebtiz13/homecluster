@@ -3,12 +3,12 @@
 ##
 - name: Zitadel | Set groupsClaim action triggers
   listen: groupsClaim action triggers
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/flows/{{ item.flow }}/trigger/{{ item.trigger }}"
+    url: "{{ zitadel_internal_url }}/management/v1/flows/{{ item.flow }}/trigger/{{ item.trigger }}"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     body_format: json
     body:
@@ -29,12 +29,12 @@
 ##
 - name: Zitadel | Create developer roles
   listen: Create developer roles
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/projects/{{ zitadel_dev_project_id }}/roles/_bulk"
+    url: "{{ zitadel_internal_url }}/management/v1/projects/{{ zitadel_dev_project_id }}/roles/_bulk"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     body_format: json
     body:
@@ -51,12 +51,12 @@
 ##
 - name: Zitadel | Add organization permission to admin user
   listen: Add organization permission to admin user
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/orgs/me/members"
+    url: "{{ zitadel_internal_url }}/management/v1/orgs/me/members"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     body_format: json
     body:
@@ -65,12 +65,12 @@
         - ORG_OWNER
 - name: Zitadel | Add developer project permission to admin user
   listen: Add developer project permission to admin user
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/users/{{ zitadel_admin_user.json.userId }}/grants"
+    url: "{{ zitadel_internal_url }}/management/v1/users/{{ zitadel_admin_user.json.userId }}/grants"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     body_format: json
     body:
@@ -80,12 +80,12 @@
 
 - name: Zitadel | Add developer project permission to test user
   listen: Add developer project permission to test user
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/users/{{ zitadel_test_user.json.userId }}/grants"
+    url: "{{ zitadel_internal_url }}/management/v1/users/{{ zitadel_test_user.json.userId }}/grants"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     body_format: json
     body:

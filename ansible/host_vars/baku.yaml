@@ -1,4 +1,3 @@
 domain_name: "baku.{{ root_domain }}"
 
-eso_vault_host: https://vault-secrets.{{ root_domain }}
-eso_vault_mount_path: baku-cluster
+grafana_dashboards_url: "{{ git_repo_url }}/-/raw/{{ git_branch }}/grafana_dashboards"

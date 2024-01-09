@@ -1,0 +1,2 @@
+dev/host_vars/baku.yaml
+prod/host_vars/*.yaml

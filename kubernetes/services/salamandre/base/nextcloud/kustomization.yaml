@@ -1,0 +1,19 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: nextcloud
+resources:
+  - namespace.yaml
+  - helm-release.yaml
+  - secrets.yaml
+  - traefik-middlewares/cardav.yaml
+  - traefik-middlewares/headers.yaml
+  - traefik-middlewares/webfinger.yaml
+  - traefik-middlewares/chained.yaml
+  - imaginary
+  - collabora
+configMapGenerator:
+  - name: extra-icons
+    files:
+      - _icons/wallabag.svg
+      - _icons/wallabag-dark.svg

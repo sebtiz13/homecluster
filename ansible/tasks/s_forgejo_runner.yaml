@@ -1,0 +1,46 @@
+- name: Forgejo | Retrieve application informations
+  ansible.builtin.set_fact:
+    apps_forgejo:
+      release_name: forgejo
+      namespace: forgejo
+
+- name: External-secrets | Force sync secrets
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ local_kubeconfig }}"
+    api_version: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    name: "{{ item }}"
+    namespace: "{{ apps_forgejo.namespace }}"
+    definition:
+      metadata:
+        annotations:
+          force-sync: "{{ ansible_date_time.epoch }}"
+  loop:
+    - forgejo-admin-credentials
+    - forgejo-app-ini-database
+    - forgejo-oidc-credentials
+    - forgejo-runner-token
+    - forgejo-app-ini-mail
+
+- name: Forgejo | Retrieve pod informations
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: pod
+    namespace: "{{ apps_forgejo.namespace }}"
+    label_selectors:
+      - app=forgejo
+    field_selectors:
+      - status.phase=Running
+    wait: true
+  register: forgejo_pod
+
+- name: Forgejo | Register runner
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ local_kubeconfig }}"
+    namespace: "{{ apps_forgejo.namespace }}"
+    pod: "{{ (forgejo_pod.resources | first).metadata.name }}"
+    command: >-
+      forgejo forgejo-cli actions register
+      --name 'default'
+      --secret '{{ lookup('file', credentials_folder + '/forgejo_runner_token') }}'

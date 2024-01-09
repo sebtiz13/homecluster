@@ -1,0 +1,12 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: victoria-metrics-k8s-stack
+spec:
+  values:
+    vmsingle:
+      spec:
+        storage:
+          resources:
+            requests:
+              storage: 5Gi

@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaultwarden-config
+  labels:
+    app.kubernetes.io/name: &name vaultwarden
+    app.kubernetes.io/instance: *name
+# Vaultwarden configuration.
+# For details about the options, see: https://github.com/dani-garcia/vaultwarden/wiki/Configuration-overviewhttps://github.com/dani-garcia/vaultwarden/wiki/Configuration-overview
+#
+# Besides the options listed below, Rocket can be further configured (though it shouldn't be required).
+# See: https://rocket.rs/v0.5-rc/guide/configuration/#environment-variables
+data:
+  DOMAIN: https://vault.${DOMAIN_NAME}
+  TZ: ${TIMEZONE}
+  # Show password hint instead of sending it via email
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Password-hint-display
+  SHOW_PASSWORD_HINTS: "false"
+  # Enable Vault interface, when disabled, only API is served
+  # See: https://github.com/dani-garcia/vaultwarden/wiki/Disabling-or-overriding-the-Vault-interface-hosting
+  WEB_VAULT_ENABLED: "true"
+  SENDS_ALLOWED: "true"
+  USER_ATTACHMENT_LIMIT: "-1"
+  ORG_ATTACHMENT_LIMIT: "-1"
+  TRASH_AUTO_DELETE_DAYS: "30"
+  SIGNUPS_ALLOWED: "false"
+  DISABLE_ADMIN_TOKEN: "true"
+  DATA_FOLDER: /vw-data
+  ROCKET_PORT: "8080"
+  # NOTE: SMTP_* cannot be set here
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaultwarden-scripts
+  labels:
+    app.kubernetes.io/name: &name vaultwarden
+    app.kubernetes.io/instance: *name
+data:
+  update-config.sh: |-
+    #!/bin/sh
+    CONFIG_FILE="${DATA_FOLDER}/config.json"
+    if [ ! -f "${CONFIG_FILE}" ]; then
+      echo "File \"${CONFIG_FILE}\" doesn't exist"
+      exit
+    fi
+    JSON_KEYS=$(cat "${CONFIG_FILE}" | sed -e 's/[{}]/''/g' | awk '{gsub("\"","");gsub(":",""); print $1}')
+    for KEY in ${JSON_KEYS}; do
+      VAR=$(echo "${KEY}" | tr 'a-z' 'A-Z')
+      VALUE="$(eval "echo \"\$${VAR}\"")"
+      if [ -n "${VALUE}" ]; then
+        echo "${VAR}: ${VALUE}"
+        sed -i "s|\"${KEY}\": \(true\|false\),|\"${KEY}\": ${VALUE},|g" "${CONFIG_FILE}"
+        sed -i "s|\"${KEY}\": [0-9]*,|\"${KEY}\": ${VALUE},|g" "${CONFIG_FILE}"
+        sed -i "s|\"${KEY}\": \"\(.*\)\",|\"${KEY}\": \"${VALUE}\",|g" "${CONFIG_FILE}"
+      fi
+    done

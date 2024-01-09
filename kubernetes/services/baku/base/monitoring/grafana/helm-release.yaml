@@ -1,0 +1,142 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name grafana
+spec:
+  releaseName: *name
+  interval: 1h
+  chart:
+    spec:
+      chart: *name
+      version: "7.0.19"
+      sourceRef:
+        kind: HelmRepository
+        name: *name
+        namespace: flux-system
+  values:
+    admin:
+      existingSecret: monitoring-credentials
+      userKey: admin-user
+      passwordKey: admin-password
+
+    defaultDashboardsEnabled: true
+    defaultDashboardsTimezone: utc
+    dashboards:
+      # TODO: Generate ConfigMap instead urls
+      kubernetes:
+        views_global:
+          url: ${GRAFANA_DASHBOARDS}/kubernetes/views_global.json
+        views_namespaces:
+          url: ${GRAFANA_DASHBOARDS}/kubernetes/views_namespaces.json
+        views_pods:
+          url: ${GRAFANA_DASHBOARDS}/kubernetes/views_pods.json
+        volumes_cluster:
+          url: ${GRAFANA_DASHBOARDS}/kubernetes/volumes_cluster.json
+      victoriametrics:
+        global:
+          url: ${GRAFANA_DASHBOARDS}/victoriametrics/global.json
+        vmagent:
+          url: ${GRAFANA_DASHBOARDS}/victoriametrics/vmagent.json
+        vmalert:
+          url: ${GRAFANA_DASHBOARDS}/victoriametrics/vmalert.json
+      default:
+        minio:
+          url: ${GRAFANA_DASHBOARDS}/minio.json
+        nodeexporter:
+          url: ${GRAFANA_DASHBOARDS}/nodeexporter.json
+        traefik:
+          url: ${GRAFANA_DASHBOARDS}/traefik.json
+
+    sidecar:
+      datasources:
+        enabled: true
+      dashboards:
+        additionalDashboardLabels: {}
+        additionalDashboardAnnotations: {}
+        enabled: true
+        multicluster: true
+
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: "default"
+            orgId: 1
+            folder: ""
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+          - name: "kubernetes"
+            orgId: 1
+            folder: "Kubernetes"
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/kubernetes
+          - name: "victoriametrics"
+            orgId: 1
+            folder: "VictoriaMetrics"
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/victoriametrics
+
+    grafana.ini:
+      feature_toggles:
+        accessTokenExpirationCheck: true
+      server:
+        domain: monitor.${DOMAIN_NAME}
+        root_url: https://monitor.${DOMAIN_NAME}/
+
+      auth:
+        signout_redirect_url: 'https://${OIDC_ISSUER_HOST}/oidc/v1/end_session?client_id=$__file{/etc/secrets/auth_generic_oauth/clientID}&post_logout_redirect_uri=https://monitor.${DOMAIN_NAME}/login'
+      auth.generic_oauth:
+        enabled: true
+        name: Zitadel
+        allow_sign_up: true
+        client_id: $__file{/etc/secrets/auth_generic_oauth/clientID}
+        client_secret: $__file{/etc/secrets/auth_generic_oauth/clientSecret}
+        auth_url: https://${OIDC_ISSUER_HOST}/oauth/v2/authorize
+        token_url: https://${OIDC_ISSUER_HOST}/oauth/v2/token
+        api_url: https://${OIDC_ISSUER_HOST}/oidc/v1/userinfo
+        scopes: openid email profile offline_access groups
+        login_attribute_path: email
+        name_attribute_path: preferred_username
+        role_attribute_path: "contains(groups[*], 'Admin') && 'Admin' || contains(groups[*], 'Operator') && 'Editor' || 'Viewer'"
+
+    extraSecretMounts:
+      - name: auth-generic-oauth-secret-mount
+        secretName: monitoring-oidc-credentials
+        defaultMode: 0440
+        mountPath: /etc/secrets/auth_generic_oauth
+        readOnly: true
+
+    persistence:
+      enabled: true
+      size: 5Gi
+
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations: # TODO: make redirect default ?
+        traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
+        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      hosts:
+        - &host monitor.${DOMAIN_NAME}
+      tls:
+        - hosts:
+            - *host
+
+    resources:
+      requests:
+        cpu: 250m
+        memory: 750Mi
+      limits:
+        cpu: 500m
+        memory: 1500Mi

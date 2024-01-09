@@ -1,0 +1,58 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: minio
+spec:
+  values:
+    buckets:
+      - name: backup-cluster-barman
+        policy: none
+        purge: false
+      - name: backup-cluster-pvc
+        policy: none
+        purge: false
+    svcaccts:
+      - accessKey: salamandre-backup
+        existingSecret: minio-svcaccts-credentials
+        existingSecretKey: salamandre-backup
+        user: admin
+        policy:
+          statements:
+            - actions:
+                - s3:GetBucketLocation
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+              resources:
+                - arn:aws:s3:::backup-cluster-barman
+                - arn:aws:s3:::backup-cluster-pvc
+            - actions:
+                - s3:AbortMultipartUpload
+                - s3:GetObject
+                - s3:DeleteObject
+                - s3:PutObject
+                - s3:ListMultipartUploadParts
+              resources:
+                - arn:aws:s3:::backup-cluster-barman/*
+                - arn:aws:s3:::backup-cluster-pvc/*
+
+    persistence:
+      size: 500Gi
+
+    environment:
+      MINIO_BROWSER_REDIRECT_URL: https://baku.${DOMAIN_NAME}
+    ingress:
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: minio
+      hosts:
+        - &host baku.${DOMAIN_NAME}
+      tls:
+        - hosts:
+            - *host
+    consoleIngress:
+      hosts:
+        - *host
+      tls:
+        - hosts:
+            - *host

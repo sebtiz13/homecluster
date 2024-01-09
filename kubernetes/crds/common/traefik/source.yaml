@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/gitrepository-source-v1.json
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: traefik-source
+spec:
+  url: https://github.com/traefik/traefik-helm-chart
+  ref:
+    tag: v26.0.0
+  interval: 15m
+  ignore: |
+    # exclude all
+    /*
+    # include crds directory
+    !/traefik/crds

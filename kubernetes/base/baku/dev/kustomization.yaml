@@ -1,0 +1,49 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../common
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/base/baku/dev
+    target:
+      kind: Kustomization
+      name: flux-system
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/config/baku
+    target:
+      kind: Kustomization
+      name: config
+
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/charts/baku
+    target:
+      kind: Kustomization
+      name: charts
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/crds/baku
+    target:
+      kind: Kustomization
+      name: crds
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/core/baku/dev
+    target:
+      kind: Kustomization
+      name: core
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/services/baku/dev
+    target:
+      kind: Kustomization
+      name: services

@@ -1,9 +1,0 @@
-dependencies:
-- name: cert-manager
-  repository: https://charts.jetstack.io
-  version: v1.13.3
-- name: cert-manager-webhook-ovh
-  repository: https://aureq.github.io/cert-manager-webhook-ovh/
-  version: 0.5.2
-digest: sha256:a35eb8b21c46ec1afb5bd79a8a065fd8377014837aef1bcd6c272bf541c0f48d
-generated: "2023-12-31T08:26:09.966632772+01:00"

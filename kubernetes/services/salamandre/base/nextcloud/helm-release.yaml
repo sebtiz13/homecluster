@@ -1,0 +1,250 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name nextcloud
+spec:
+  releaseName: *name
+  interval: 1h
+  chart:
+    spec:
+      chart: *name
+      version: "4.5.10"
+      sourceRef:
+        kind: HelmRepository
+        name: *name
+        namespace: flux-system
+  values:
+    # lifecycle:
+    #   postStartCommand:
+    #     # php occ db:add-missing-indices
+    #     - su
+    #     - -s
+    #     - /bin/sh
+    #     - www-data
+    #     - -c
+    #     - |-
+    #       echo "Disable unneeded Nextcloud Apps"
+    #       php occ app:disable activity
+    #       php occ app:disable circles
+    #       php occ app:disable systemtags
+    #       php occ app:disable federation
+    #       php occ app:disable privacy
+    #       php occ app:disable nextcloud_announcements
+    #       php occ app:disable support
+    #       php occ app:disable survey_client
+    #       php occ app:disable user_status
+    #       php occ app:disable weather_status
+
+    #       echo "Configuring Nextcloud Apps"
+    #       php occ config:app:set jpeg_quality --value 60
+
+    #       php occ app:enable admin_audit
+    #       php occ config:app:set logfile --value /var/www/html/data/audit.log
+
+    #       php occ app:enable richdocuments
+    #       php occ config:app:set wopi_allowlist --value 10.42.0.0/16
+    #       php occ config:app:set wopi_url --value http://nextcloud/
+    #       php occ config:app:set public_wopi_url --value https://cloud.${DOMAIN_NAME}/
+
+    #       php occ app:enable bookmarks
+    #       php occ config:app:set privacy.enableScraping --value true
+
+    #       php occ app:enable drawio
+    #       php occ config:app:set DrawioTheme --value dark
+    #       php occ config:app:set DrawioLibraries --value yes
+
+    #       php occ app:enable external
+    #       php occ config:app:set sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}"
+    #       php occ config:app:set max_site --value 1
+
+    #       php occ app:enable twofactor_totp
+    #       php occ app:enable bruteforcesettings
+    #       php occ app:enable previewgenerator
+    #       php occ app:enable quota_warning
+    #       php occ app:enable contacts
+    #       php occ app:enable calendar
+    #       php occ app:enable notes
+    #       php occ app:enable deck
+    #       php occ app:enable mail
+
+    #       echo "Add wallabag icon"
+    #       instanceID=$(php occ config:system:get instanceid)
+    #       cp /var/www/html/icons/* /var/www/html/data/appdata_${instanceID}/external/icons
+    #       chown www-data:www-data /var/www/html/data/appdata_${instanceID}/external/icons/*
+
+    nextcloud:
+      host: &host cloud.${DOMAIN_NAME}
+
+      # Admin user
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-credentials
+
+      mail:
+        enabled: true
+        fromAddress: contact
+        domain: ${DOMAIN_NAME}
+
+      phpConfigs:
+        z-nextcloud.ini: |-
+          ;Permanent cache (need restart to revalidate) useful for production
+          opcache.validate_timestamps=false
+      configs:
+        custom.config.php: |-
+          <?php
+          $CONFIG = array (
+            'default_phone_region' => 'FR'
+          );
+        # AIO (chart) config
+        aio.config.php: |-
+          <?php
+          $CONFIG = array (
+            // Imaginary (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L226)
+            'enable_previews' => true,
+            'preview_max_x' => '2048',
+            'preview_max_x' => '2048',
+            'jpeg_quality' => '60',
+            'enabledPreviewProviders' => array (
+              'OC\Preview\Imaginary',
+              'OC\Preview\Image',
+              'OC\Preview\MarkDown',
+              'OC\Preview\MP3',
+              'OC\Preview\TXT',
+              'OC\Preview\OpenDocument',
+              'OC\Preview\Movie'
+            ),
+            'preview_imaginary_url' => 'http://nextcloud-imaginary:8088',
+
+            // Other settings (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L241)
+            'upgrade.disable-web' => true,
+            'trashbin_retention_obligation' => 'auto, 30',
+            'versions_retention_obligation' => 'auto, 30',
+            'activity_expire_days' => '30',
+            'activity_expire_days' => '30',
+            'simpleSignUpLink.shown' => false,
+
+            // Collabora settings (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L400)
+            'allow_local_remote_servers' => true
+          );
+
+          $trustedDomains = getenv('NEXTCLOUD_TRUSTED_DOMAINS');
+          if ($trustedDomains) {
+            $CONFIG['trusted_domains'] = array_merge(['nextcloud:8080'], explode(' ', $trustedDomains));
+          }
+        # Support dynamic database credentials
+        db.config.php: |-
+          <?
+          $overwriteDbName = getenv('POSTGRES_DB');
+          if ($overwriteDbName) {
+            $CONFIG['dbname'] = $overwriteDbName;
+          }
+
+          $overwriteDbHost = getenv('POSTGRES_HOST');
+          if ($overwriteDbHost) {
+            $CONFIG['dbhost'] = $overwriteDbHost;
+          }
+
+          $overwriteDbUser = getenv('POSTGRES_USER');
+          if ($overwriteDbUser) {
+            $CONFIG['dbuser'] = $overwriteDbUser;
+          }
+
+          $overwriteDbPassword = getenv('POSTGRES_PASSWORD');
+          if ($overwriteDbPassword) {
+            $CONFIG['dbpassword'] = $overwriteDbPassword;
+          }
+        # Add missing config files
+        reverse-proxy.config.php: |-
+          <?php
+          $overwriteHost = getenv('OVERWRITEHOST');
+          if ($overwriteHost) {
+            $CONFIG['overwritehost'] = $overwriteHost;
+          }
+
+          $overwriteProtocol = getenv('OVERWRITEPROTOCOL');
+          if ($overwriteProtocol) {
+            $CONFIG['overwriteprotocol'] = $overwriteProtocol;
+          }
+
+          $overwriteCliUrl = getenv('OVERWRITECLIURL');
+          if ($overwriteCliUrl) {
+            $CONFIG['overwrite.cli.url'] = $overwriteCliUrl;
+          }
+
+          $overwriteWebRoot = getenv('OVERWRITEWEBROOT');
+          if ($overwriteWebRoot) {
+            $CONFIG['overwritewebroot'] = $overwriteWebRoot;
+          }
+
+          $overwriteCondAddr = getenv('OVERWRITECONDADDR');
+          if ($overwriteCondAddr) {
+            $CONFIG['overwritecondaddr'] = $overwriteCondAddr;
+          }
+
+          $trustedProxies = getenv('TRUSTED_PROXIES');
+          if ($trustedProxies) {
+            $CONFIG['trusted_proxies'] = array_merge(['127.0.0.1'], array_filter(array_map('trim', explode(' ', $trustedProxies))));
+          }
+          $CONFIG['forwarded_for_headers'] = ['HTTP_X_FORWARDED_FOR'];
+
+      extraEnv:
+        - name: TRUSTED_PROXIES
+          value: "10.42.0.0/16"
+        - name: PHP_MEMORY_LIMIT
+          value: 1024M
+        - name: PHP_UPLOAD_LIMIT
+          value: 16G
+
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-db-credentials
+        hostKey: db-host
+        databaseKey: db-name
+
+    persistence:
+      enabled: true
+      nextcloudData:
+        enabled: true
+        storageClass: openebs-zfspv
+        size: 500Gi
+
+    cronjob:
+      enabled: true
+
+    phpClientHttpsFix:
+      enabled: true
+
+    ingress:
+      enabled: true
+      className: traefik
+      annotations: # TODO: make redirect default ?
+        traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd,nextcloud-chained-middlewares@kubernetescrd
+        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      tls:
+        - hosts:
+            - *host
+
+    extraVolumes:
+      - name: &configName extra-icons
+        configMap:
+          name: *configName
+    extraVolumeMounts:
+      - name: *configName
+        mountPath: /var/www/html/icons
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 1500m
+        memory: 2Gi
+
+    # Disable not necessary apps
+    internalDatabase:
+      enabled: false

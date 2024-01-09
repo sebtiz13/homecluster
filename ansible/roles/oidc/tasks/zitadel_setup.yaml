@@ -1,10 +1,10 @@
 - name: Zitadel | Create groupsClaim action
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/actions"
+    url: "{{ zitadel_internal_url }}/management/v1/actions"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code:
       - 200
       - 409
@@ -21,12 +21,12 @@
 - name: Zitadel | Create developer project
   block:
     - name: Zitadel | dev project | Check if exist
-      delegate_to: "{{ inventory_hostname }}"
       ansible.builtin.uri:
-        url: "{{ apps_zitadel.host }}/management/v1/projects/_search"
+        url: "{{ zitadel_internal_url }}/management/v1/projects/_search"
         method: POST
         headers:
-          Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+          Host: "{{ apps_zitadel.domain_name }}"
+          Authorization: "Bearer {{ zitadel_console_token }}"
         status_code: 200
         return_content: true
         body_format: json
@@ -41,12 +41,12 @@
 
     - name: Zitadel | dev project | Create it
       when: zitadel_project.json.result is not defined
-      delegate_to: "{{ inventory_hostname }}"
       ansible.builtin.uri:
-        url: "{{ apps_zitadel.host }}/management/v1/projects"
+        url: "{{ zitadel_internal_url }}/management/v1/projects"
         method: POST
         headers:
-          Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+          Host: "{{ apps_zitadel.domain_name }}"
+          Authorization: "Bearer {{ zitadel_console_token }}"
         status_code: 200
         return_content: true
         body_format: json
@@ -65,12 +65,12 @@
 # Create users
 ##
 - name: Zitadel | Create admin user
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/users/human/_import"
+    url: "{{ zitadel_internal_url }}/management/v1/users/human/_import"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code:
       - 200
       - 409
@@ -84,7 +84,7 @@
       email:
         email: "admin@{{ domain_name }}"
         isEmailVerified: true
-      password: "{{ admin_passwords.zitadel }}"
+      password: "{{ admin_passwords.salamandre.zitadel }}"
   register: zitadel_admin_user
   changed_when: zitadel_admin_user.status == 200
   notify:
@@ -93,12 +93,12 @@
 
 - name: Zitadel | Create test user
   when: env == 'dev'
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ apps_zitadel.host }}/management/v1/users/human/_import"
+    url: "{{ zitadel_internal_url }}/management/v1/users/human/_import"
     method: POST
     headers:
-      Authorization: "Bearer {{ zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code:
       - 200
       - 409

@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: traefik
+spec:
+  values:
+    ports:
+      minio:
+        port: 3882
+        expose: true
+        exposedPort: 3882
+        protocol: TCP
+        tls:
+          enabled: true
+      monitoring:
+        port: 53639
+        expose: true
+        exposedPort: 53639
+        protocol: TCP
+        tls:
+          enabled: true

@@ -1,0 +1,20 @@
+# Tweaked from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kube-apiserver-histogram.rules.yaml
+# Note: in k3s job "apiserver" is combined in "kubelet".
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: monitoring-kube-apiserver-histogram.rules
+spec:
+  groups:
+  - name: kube-apiserver-histogram.rules
+    rules:
+    - expr: histogram_quantile(0.99, sum by (cluster, le, resource) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[5m]))) > 0
+      labels:
+        quantile: '0.99'
+        verb: read
+      record: cluster_quantile:apiserver_request_sli_duration_seconds:histogram_quantile
+    - expr: histogram_quantile(0.99, sum by (cluster, le, resource) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[5m]))) > 0
+      labels:
+        quantile: '0.99'
+        verb: write
+      record: cluster_quantile:apiserver_request_sli_duration_seconds:histogram_quantile

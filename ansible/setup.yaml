@@ -4,11 +4,6 @@
   roles:
     - role: common
       become: true
-  tasks:
-    - name: Load applications admin passwords
-      ansible.builtin.include_vars:
-        file: "{{ credentials_folder }}/admin_passwords.yaml"
-        name: admin_passwords
 
 - name: Install sensors and database
   hosts: salamandre
@@ -28,13 +23,13 @@
   tags: dyndns
   tasks:
     - name: DynDNS | Install client package
-      when: env == 'prod'
+      when: env == 'production'
       ansible.builtin.apt:
         pkg:
           - ddclient
 
     - name: DynDNS | Configure it
-      when: env == 'prod'
+      when: env == 'production'
       vars:
         username: "{{ dyndns.username }}"
         password: "{{ dyndns.password }}"

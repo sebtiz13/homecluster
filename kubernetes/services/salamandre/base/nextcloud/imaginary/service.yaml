@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: &name nextcloud-imaginary
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: &instance nextcloud
+    app.kubernetes.io/component: imaginary
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8088
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *instance
+    app.kubernetes.io/component: imaginary

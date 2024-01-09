@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: nextcloud
+spec:
+  values:
+    nextcloud:
+      mail:
+        smtp:
+          secure: ""
+          port: 1025
+
+    persistence:
+      nextcloudData:
+        size: 8Gi

@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dns-${DOMAIN_NAME/./-}
+  namespace: &name adguard-proxy
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *name
+data:
+  secretName: dns-${DOMAIN_NAME/./-}-tls
+  issuerRef:
+    name: ${DOMAIN_NAME/./-}-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "dns.${DOMAIN_NAME}"
+    - "*.dns.${DOMAIN_NAME}"

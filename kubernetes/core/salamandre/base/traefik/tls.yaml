@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ${DOMAIN_NAME/./-}
+spec:
+  secretName: ${DOMAIN_NAME/./-}-tls
+  issuerRef:
+    name: ${DOMAIN_NAME/./-}-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "${DOMAIN_NAME}"
+    - "*.${DOMAIN_NAME}"
+    - "console.s3.${DOMAIN_NAME}"

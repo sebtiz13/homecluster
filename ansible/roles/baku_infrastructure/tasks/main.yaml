@@ -1,7 +1,0 @@
-- name: Deploy Minio
-  tags: minio
-  ansible.builtin.import_tasks: minio.yaml
-
-- name: Deploy monitoring stack
-  tags: monitoring
-  ansible.builtin.import_tasks: monitoring.yaml

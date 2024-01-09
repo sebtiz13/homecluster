@@ -1,0 +1,23 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vaultwarden
+resources:
+  - ../../base/vaultwarden
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/target/template/data/SMTP_SECURITY
+        value: 'off'
+      - op: replace
+        path: /spec/target/template/data/SMTP_USERNAME
+        value: ''
+      - op: replace
+        path: /spec/target/template/data/SMTP_PASSWORD
+        value: ''
+    target:
+      group: external-secrets.io
+      version: v1beta1
+      kind: ExternalSecret
+      name: vaultwarden-smtp
+      namespace: vaultwarden

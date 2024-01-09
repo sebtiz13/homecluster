@@ -28,34 +28,39 @@ insert_pwd() {
 ##
 # Salamandre credentials
 ##
-mkdir -p "./out/credentials/salamandre/${ENVIRONMENT}"
+mkdir -p "./out/credentials/${ENVIRONMENT}"
 
 # Admin passwords
-FILE="./out/credentials/salamandre/${ENVIRONMENT}/admin_passwords.yaml"
+FILE="./out/credentials/${ENVIRONMENT}/admin_passwords.yaml"
 
 touch "$FILE"
-insert_pwd "$FILE" .argocd "$(randpw 16)"
-insert_pwd "$FILE" .zitadel "$(randpw 16)"
-insert_pwd "$FILE" .minio "$(randpw 16)"
-insert_pwd "$FILE" .nextcloud "$(randpw 16)"
-insert_pwd "$FILE" .collabora "$(randpw 16)"
-insert_pwd "$FILE" .forgejo "$(randpw 16)"
+insert_pwd "$FILE" .salamandre.zitadel "$(randpw 16)"
+insert_pwd "$FILE" .salamandre.minio "$(randpw 16)"
+insert_pwd "$FILE" .salamandre.nextcloud "$(randpw 16)"
+insert_pwd "$FILE" .salamandre.collabora "$(randpw 16)"
+insert_pwd "$FILE" .salamandre.forgejo "$(randpw 16)"
+insert_pwd "$FILE" .salamandre.vaultwarden "$(randpw 16)"
 
 # Zitadel masterkey
-FILE="./out/credentials/salamandre/${ENVIRONMENT}/zitadel_masterkey"
-
+FILE="./out/credentials/${ENVIRONMENT}/zitadel_masterkey"
 if [ ! -e "$FILE" ]; then
   pwgen -cn 32 1 > "$FILE"
+fi
+
+# Zitadel masterkey
+FILE="./out/credentials/${ENVIRONMENT}/forgejo_runner_token"
+if [ ! -e "$FILE" ]; then
+  openssl rand -hex 20 > "$FILE"
 fi
 
 ##
 # Baku credentials
 ##
-mkdir -p "./out/credentials/baku/${ENVIRONMENT}"
+mkdir -p "./out/credentials/${ENVIRONMENT}"
 
 # Admin passwords
-FILE="./out/credentials/baku/${ENVIRONMENT}/admin_passwords.yaml"
+FILE="./out/credentials/${ENVIRONMENT}/admin_passwords.yaml"
 
 touch "$FILE"
-insert_pwd "$FILE" .minio "$(randpw 16)"
-insert_pwd "$FILE" .grafana "$(randpw 16)"
+insert_pwd "$FILE" .baku.minio "$(randpw 16)"
+insert_pwd "$FILE" .baku.grafana "$(randpw 16)"

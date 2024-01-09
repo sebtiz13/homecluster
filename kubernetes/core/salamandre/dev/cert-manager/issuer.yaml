@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: ${DOMAIN_NAME/./-}-issuer
+spec:
+  ca:
+    secretName: vm-ca-tls

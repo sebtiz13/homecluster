@@ -1,0 +1,50 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../common
+  - source-cm-webhook-ovh.yaml
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/base/salamandre/production
+    target:
+      kind: Kustomization
+      name: flux-system
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/config/salamandre
+    target:
+      kind: Kustomization
+      name: config
+
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/charts/salamandre
+    target:
+      kind: Kustomization
+      name: charts
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/crds/salamandre
+    target:
+      kind: Kustomization
+      name: crds
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/core/salamandre/production
+    target:
+      kind: Kustomization
+      name: core
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/services/salamandre/production
+    target:
+      kind: Kustomization
+      name: services

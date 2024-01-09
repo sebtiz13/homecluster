@@ -1,0 +1,65 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &name minio
+spec:
+  releaseName: *name
+  interval: 1h
+  chart:
+    spec:
+      chart: *name
+      version: "5.0.14"
+      sourceRef:
+        kind: HelmRepository
+        name: *name
+        namespace: flux-system
+  install:
+    createNamespace: true
+  values:
+    existingSecret: minio-admin
+    users: [] # Remove default user
+
+    persistence:
+      storageClass: openebs-zfspv
+      size: 220Gi
+
+    mode: standalone
+
+    metrics:
+      serviceMonitor:
+        enabled: true
+
+    deploymentUpdate:
+      type: Recreate
+
+    resources:
+      requests:
+          cpu: 10m
+          memory: 192Mi
+      limits:
+          cpu: 1000m
+          memory: 1Gi
+
+    environment:
+      MINIO_BROWSER_REDIRECT_URL: https://console.s3.${DOMAIN_NAME}
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      path: /
+      hosts:
+        - &host s3.${DOMAIN_NAME}
+      tls:
+        - hosts:
+            - *host
+    consoleIngress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      hosts:
+        - &hostConsole console.s3.${DOMAIN_NAME}
+      tls:
+        - hosts:
+            - *hostConsole

@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: &name forgejo-runner
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: &instance forgejo
+    app.kubernetes.io/component: runner
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: *name
+      app.kubernetes.io/instance: *instance
+      app.kubernetes.io/component: runner
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: *name
+        app.kubernetes.io/instance: *instance
+        app.kubernetes.io/component: runner
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        # First wait for a Forgejo instance to come online. This is to guard
+        # against race conditions between forgejo and the actions runner when
+        # both are being set up for the first time.
+        - name: await-forgejo
+          image: alpine/curl
+          command:
+            - sh
+          args:
+            - -c
+            - |
+              retries=0
+              max=3
+              echo 'Waiting for Forgejo to come online before proceeding'
+              until $(curl --output /dev/null --silent --head --fail "$FORGEJO_INSTANCE_URL");
+              do
+                retries=$((retries+1))
+                if [ $retries -gt $max ]; then
+                  echo 'Max retries reached, exiting'
+                  exit 1
+                fi
+                echo "Checking again in 5 seconds. Retry count: ${retries} of ${max}";
+                sleep 5;
+              done;
+          env:
+            - name: FORGEJO_INSTANCE_URL
+              value: &host http://forgejo-http.forgejo.svc.cluster.local:3000
+        - name: runner-config-generation
+          image: &image code.forgejo.org/forgejo/runner:3.3.0
+          imagePullPolicy: &imagePolicy IfNotPresent
+          command:
+            - forgejo-runner
+            - create-runner-file
+            - "--instance"
+            - $(FORGEJO_INSTANCE_URL)
+            - "--secret"
+            - $(RUNNER_SECRET)
+            - "--connect"
+          env:
+            - name: RUNNER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-runner-token
+                  key: token
+            - name: FORGEJO_INSTANCE_URL
+              value: *host
+          resources:
+            limits:
+              cpu: "0.50"
+              memory: "64Mi"
+          volumeMounts:
+            - name: runner-data
+              mountPath: /data
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: runner
+          image: *image
+          imagePullPolicy: *imagePolicy
+          command:
+            - sh
+          args:
+            - -c
+            - |
+              while ! nc -z localhost 2376 </dev/null; do
+                echo 'waiting for docker daemon...';
+                sleep 5;
+              done;
+              /bin/forgejo-runner daemon --config config.yaml
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2376
+            - name: DOCKER_CERT_PATH
+              value: /certs/client
+            - name: DOCKER_TLS_VERIFY
+              value: "1"
+          volumeMounts:
+            - name: docker-certs
+              mountPath: /certs
+            - name: runner-data
+              mountPath: /data
+            - name: config
+              mountPath: /data/config.yaml
+              subPath: "config.yaml"
+        - name: daemon
+          image: docker:23.0.6-dind-rootless
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: /certs
+          # NOTE: the container needs to run as root to configure dockerd, but
+          # dockerd itself is NOT run as root
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: docker-certs
+              mountPath: /certs
+      volumes:
+        - name: docker-certs
+          emptyDir: {}
+        - name: runner-data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: forgejo-runner-config

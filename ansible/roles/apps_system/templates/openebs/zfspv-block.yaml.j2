@@ -1,9 +1,0 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: zfspv-block
-provisioner: zfs.csi.openebs.io
-parameters:
-  poolname: "{{ pool_name }}"
-allowVolumeExpansion: true
-volumeBindingMode: WaitForFirstConsumer

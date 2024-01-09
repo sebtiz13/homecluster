@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: forgejo
+spec:
+  values:
+    extraInitVolumeMounts:
+      - name: certificate
+        mountPath: /etc/ssl/certs/vm-ca.crt
+        subPath: tls.crt
+        readOnly: true
+    extraContainerVolumeMounts:
+      - name: certificate
+        mountPath: /etc/ssl/certs/vm-ca.crt
+        subPath: tls.crt
+        readOnly: true
+    extraVolumes:
+      - name: certificate
+        secret:
+          secretName: vm-ca-tls
+          defaultMode: 420

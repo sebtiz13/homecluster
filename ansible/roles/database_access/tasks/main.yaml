@@ -1,15 +1,18 @@
+- name: Store password temporaryly in fact
+  ansible.builtin.set_fact:
+    _password: "{{ password }}"
+
 - name: DB access | Create user
-  delegate_to: "{{ inventory_hostname }}"
+  no_log: true
   become: true
   become_user: postgres
   vars:
     ansible_ssh_pipelining: true
   community.postgresql.postgresql_user:
     name: "{{ username }}"
-    password: "{{ password }}"
+    password: "{{ _password }}"
 
 - name: DB access | Create database
-  delegate_to: "{{ inventory_hostname }}"
   become: true
   become_user: postgres
   vars:
@@ -17,3 +20,26 @@
   community.postgresql.postgresql_db:
     name: "{{ database }}"
     owner: "{{ username }}"
+
+- name: Store permanently in vault
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/{{ secret_path }}"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      data:
+        host: "{{ host | default('postgresql.loc') }}"
+        port: "5432"
+        database: "{{ database }}"
+        user: "{{ username }}"
+        password: "{{ _password }}"
+
+- name: Clear password fact
+  ansible.builtin.set_fact:
+    _password:

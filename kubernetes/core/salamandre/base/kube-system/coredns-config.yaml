@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+data:
+  domain.server: |-
+    ${DOMAIN_NAME}:53 {
+      errors
+      hosts {
+        ${SERVER_IP} sso.${DOMAIN_NAME}
+        fallthrough
+      }
+      kubernetes cluster.local 10.0.0.0/24
+      forward . /etc/resolv.conf
+      cache 3600
+    }
+  loc.server: |-
+    loc:53 {
+      errors
+      hosts {
+        ${SERVER_IP} postgresql.loc
+        fallthrough
+      }
+      forward . /etc/resolv.conf
+      cache
+    }

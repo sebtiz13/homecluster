@@ -4,6 +4,12 @@ timezone: Europe/Paris
 
 bin_dir: "{{ playbook_dir }}/.bin"
 out_dir: "{{ playbook_dir }}/../out"
-credentials_folder: "{{ out_dir }}/credentials/{{ inventory_hostname }}/{{ env }}"
-secrets_base_path: "{{ inventory_hostname }}/data"
+credentials_folder: "{{ out_dir }}/credentials/{{ env }}"
 local_kubeconfig: "{{ out_dir }}/kubeconfig/{{ inventory_hostname }}.{{ env }}.yaml"
+
+git_repo_url: https://gitlab.com/sebtiz13-cluster/homecluster
+
+_manifests_folder: "{{ playbook_dir }}/../kubernetes"
+flux:
+  manifest: "{{ _manifests_folder }}/base/common/flux-system/gotk-components.yaml"
+  bootstrap_folder: "{{ _manifests_folder }}/base/{{ inventory_hostname }}/{{ env }}"

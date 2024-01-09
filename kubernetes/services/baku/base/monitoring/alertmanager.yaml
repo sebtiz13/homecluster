@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager
+type: Opaque
+stringData:
+  alertmanager.yaml: |-
+    route:
+      receiver: noop
+      routes:
+        - match:
+            alertname: 'CPUThrottlingHigh'
+          receiver: noop
+        - matchers:
+          - severity=~"info|warning|critical"
+          group_by: ["alertgroup", "job", "cluster"]
+          receiver: discord
+    receivers:
+      - name: noop
+      - name: discord
+        discord_configs:
+          - webhook_url: '${ALERTS_DISCORD_WEBHOOK_URL}'
+            title: '{{ template "homecluster.discord.title" . }}'
+            message: '{{ template "homecluster.discord.message" . }}'
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: vm-stack-alertmanager-extra-tpl
+  labels:
+    app.kubernetes.io/component: vm-stack-alertmanager
+data:
+  discord.tmpl: |-
+    {{- define "homecluster.discord.title" }}
+    {{- if .CommonLabels.cluster }}[{{ .CommonLabels.cluster }}] {{ end -}}
+    {{- if gt (len .Alerts.Firing) 0 -}}
+    Fire {{ .Alerts.Firing | len }} alerts
+    {{- if gt (len .Alerts.Resolved) 0 }} and {{ end -}}
+    {{- end -}}
+    {{- if gt (len .Alerts.Resolved) 0 -}}
+    {{- .Alerts.Resolved | len }} alerts resolved
+    {{- end -}}
+    {{- if .CommonLabels.job }} for {{ .CommonLabels.job }}{{ end }} !
+    {{- end }}
+
+    {{- define "homecluster.discord.message" }}
+    {{- $alerts := 0 -}}
+    {{- if gt (len .Alerts.Firing) 0 -}}
+    {{- $alerts = .Alerts.Firing -}}
+    {{- else -}}
+    {{- $alerts = .Alerts.Resolved -}}
+    {{- end -}}
+    {{- range $alerts }}
+    - Alert: {{ if .Labels.cluster }}[{{ .Labels.cluster }}] {{ end -}}
+        **{{ if gt (len .Annotations.summary) 150 -}}
+        {{- printf "%.150s..." .Annotations.summary -}}
+        {{- else -}}
+        {{- .Annotations.summary -}}
+        {{- end }}**
+        {{- if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
+      Description:
+      > {{ if gt (len .Annotations.description) 150 -}}
+        {{- printf "%.150s..." .Annotations.description | reReplaceAll "\\n" "\\n  > " }}
+        {{- else -}}
+        {{- .Annotations.description | reReplaceAll "\\n" "\\n  > " }}
+        {{- end }}
+      Labels:
+      > {{ range .Labels.SortedPairs }}
+        {{- printf "`%s=%s`  " .Name .Value }}
+        {{- end }}
+    {{- end }}
+
+    {{ if and (gt (len .Alerts.Firing) 0) (gt (len .Alerts.Resolved) 0) }}
+    > Also {{ .Alerts.Resolved | len }} resolved alerts.
+    {{- end }}
+    {{- end }}

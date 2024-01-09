@@ -1,10 +1,10 @@
-- name: Check if Zitadel application exist
-  delegate_to: "{{ inventory_hostname }}"
+- name: Check if zitadel application exist
   ansible.builtin.uri:
-    url: "{{ hostvars.salamandre.apps_zitadel.host }}/management/v1/projects/{{ project_id }}/apps/_search"
+    url: "{{ zitadel_internal_url }}/management/v1/projects/{{ project_id }}/apps/_search"
     method: POST
     headers:
-      Authorization: "Bearer {{ hostvars.salamandre.zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     return_content: true
     body_format: json
@@ -17,14 +17,14 @@
             method: TEXT_QUERY_METHOD_EQUALS
   register: zitadel_app
 
-- name: Create Zitadel application
+- name: Create zitadel application
   when: zitadel_app.json.result is not defined
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ hostvars.salamandre.apps_zitadel.host }}/management/v1/projects/{{ project_id }}/apps/oidc"
+    url: "{{ zitadel_internal_url }}/management/v1/projects/{{ project_id }}/apps/oidc"
     method: POST
     headers:
-      Authorization: "Bearer {{ hostvars.salamandre.zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     return_content: true
     body_format: json
@@ -40,14 +40,14 @@
       idTokenUserinfoAssertion: true
   register: zitadel_app_n
   changed_when: zitadel_app_n.status == 200
-- name: Refresh Zitadel OIDC client secret
+- name: Refresh zitadel oidc client secret
   when: zitadel_app.json.result is defined
-  delegate_to: "{{ inventory_hostname }}"
   ansible.builtin.uri:
-    url: "{{ hostvars.salamandre.apps_zitadel.host }}/management/v1/projects/{{ project_id }}/apps/{{ zitadel_app.json.result.0.id }}/oidc_config/_generate_client_secret"
+    url: "{{ zitadel_internal_url }}/management/v1/projects/{{ project_id }}/apps/{{ zitadel_app.json.result.0.id }}/oidc_config/_generate_client_secret"
     method: POST
     headers:
-      Authorization: "Bearer {{ hostvars.salamandre.zitadel_console_token.json.access_token }}"
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
     status_code: 200
     return_content: true
     body_format: json
@@ -55,13 +55,23 @@
   register: zitadel_app_r
   changed_when: zitadel_app_r.status == 200
 
-- name: Store OIDC credentials # noqa: var-naming[no-role-prefix]
-  ansible.builtin.import_role:
-    name: vault_secrets
-  vars:
-    secrets:
-      - path: "{{ secret_path }}"
-        data:
-          issuer: "{{ hostvars.salamandre.apps_zitadel.host }}"
-          clientID: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n.json, zitadel_app.json.result.0.oidcConfig)).clientId }}"
-          clientSecret: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n, zitadel_app_r)).json.clientSecret }}"
+- name: Store temporary in fact
+  ansible.builtin.set_fact:
+    oidc:
+      client_id: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n.json, zitadel_app.json.result.0.oidcConfig)).clientId }}"
+      client_secret: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n, zitadel_app_r)).json.clientSecret }}"
+- name: Store permanently in vault
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/{{ secret_path }}"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      data:
+        clientID: "{{ oidc.client_id }}"
+        clientSecret: "{{ oidc.client_secret }}"

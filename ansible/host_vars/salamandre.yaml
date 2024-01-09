@@ -1,46 +1,9 @@
-argocd_host: https://argocd.{{ root_domain }}
-argocd_namespace: argocd
-
-vault_host: https://vault-secrets.{{ root_domain }}
-eso_vault_host: http://vault-internal.vault.svc:8200
-eso_vault_mount_path: kubernetes
-
 domain_name: "{{ root_domain }}"
-domains:
-  - argocd.{{ root_domain }}
-  - vault-secrets.{{ root_domain }} # Vault
-  - sso.{{ root_domain }} # Zitadel
-  - s3.{{ root_domain }} # Minio
-  - git.{{ root_domain }} # Forgejo
-  - bag.{{ root_domain }} # Wallabag
 
-nextcloud_apps:
-  disable:
-    - activity # Activity
-    - circles # Circles
-    - systemtags # Collaborative tags
-    - federation # Federation
-    - privacy # Privacy
-    - nextcloud_announcements # Nextcloud announcements
-    - support # Support
-    - survey_client # Usage survey
-    - user_status # User status
-    - weather_status # Weather status
-
-  enable:
-    - admin_audit # Admin audit
-    - twofactor_totp # 2FA (TOTP)
-    - richdocuments # Collabora
-    - mail # Mail
-    - bookmarks # Bookmarks
-    - bruteforcesettings # Brute-force settings
-    - contacts # Contacts
-    - drawio # Draw.io
-    - external # External sites
-    # - metadata # Metadata # TODO: currently unavailable on 28.x
-    - notes # Note
-    - quota_warning # Quota warning
-    # - files_retention # File retention  # TODO: currently unavailable on 28.x
-    - calendar # Calendar
-    - previewgenerator # Preview Generator (cron task to generate preview)
-    - deck # Desk (Trello/Kanban like)
+# Applications urls
+external_urls:
+  vault: https://vault-secrets.{{ domain_name }}
+  zitadel: https://sso.{{ domain_name }}
+  forgejo: https://git.{{ domain_name }}
+  grafana: https://monitor.{{ domain_name }}
+  baku_minio: https://baku.{{ domain_name }}

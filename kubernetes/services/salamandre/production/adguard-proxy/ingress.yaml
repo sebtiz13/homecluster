@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: adguard-proxy-web-tls
+  namespace: &name adguard-proxy
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *name
+  annotations: # TODO: make redirect default ?
+    traefik.ingress.kubernetes.io/router.middlewares: adguard-proxy-chained-middlewares@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: &host dns.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    - host: &host2 "*.dns.${DOMAIN_NAME}"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+  tls:
+    - secretName: dns-${DOMAIN_NAME/./-}-tls
+      hosts:
+        - *host
+        - *host2
