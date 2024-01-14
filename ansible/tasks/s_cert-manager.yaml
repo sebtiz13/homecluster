@@ -12,6 +12,7 @@
 - name: Cert-manager | Store CA (dev) # noqa: var-naming[no-role-prefix]
   when: env == 'dev'
   vars:
+    validate_certs: false
     secrets:
       - path: tls/vm-ca
         data:
@@ -23,6 +24,7 @@
 - name: Cert-manager | Store issuer credentials (prod) # noqa: var-naming[no-role-prefix]
   when: env == 'prod'
   vars:
+    validate_certs: false
     secrets:
       - path: cert-manager/ovh
         data:
