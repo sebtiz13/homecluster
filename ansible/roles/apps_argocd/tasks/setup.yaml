@@ -57,14 +57,17 @@
   loop_control:
     label: "{{ item.item }}"
 
-- name: Download ExternalSecret CRD
+- name: Download ExternalSecret CRDs
   ansible.builtin.uri:
-    url: "https://raw.githubusercontent.com/external-secrets/external-secrets/v{{  apps_external_secrets.version }}/config/crds/bases/external-secrets.io_externalsecrets.yaml"
+    url: "https://raw.githubusercontent.com/external-secrets/external-secrets/v{{ apps_external_secrets.version }}/config/crds/bases/external-secrets.io_{{ item }}.yaml"
     method: GET
     return_content: true
     status_code: 200
-  register: es_crd
-- name: Deploy patched ExternalSecret CRD
+  register: es_crds
+  loop:
+    - externalsecrets
+    - pushsecrets
+- name: Deploy patched ExternalSecret CRDs
   vars:
     metadata_patch:
       metadata:
@@ -73,7 +76,35 @@
         annotations:
           meta.helm.sh/release-namespace: "{{ apps_external_secrets.namespace }}"
           meta.helm.sh/release-name: "{{ apps_external_secrets.release_name }}"
-    manifest: "{{ es_crd.content | from_yaml | combine(metadata_patch, recursive=True) }}"
+    manifest: "{{ item.content | from_yaml | combine(metadata_patch, recursive=True) }}"
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    state: present
+    resource_definition: "{{ manifest }}"
+  loop: "{{ es_crds.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Download cert-manager CRD
+  ansible.builtin.uri:
+    url: "https://raw.githubusercontent.com/cert-manager/cert-manager/v{{ apps_cert_manager.version }}/deploy/crds/crd-certificates.yaml"
+    method: GET
+    return_content: true
+    status_code: 200
+  register: cm_crd
+- name: Deploy patched cert-manager CRD
+  vars:
+    metadata_patch:
+      metadata:
+        labels:
+          app: cert-manager
+          app.kubernetes.io/name: cert-manager
+          app.kubernetes.io/instance: "{{ apps_cert_manager.release_name }}"
+          app.kubernetes.io/managed-by: Helm
+        annotations:
+          meta.helm.sh/release-namespace: "{{ apps_cert_manager.namespace }}"
+          meta.helm.sh/release-name: "{{ apps_cert_manager.release_name }}"
+    manifest: "{{ cm_crd.content | from_yaml | combine(metadata_patch, recursive=True) }}"
   kubernetes.core.k8s:
     kubeconfig: "{{ local_kubeconfig }}"
     state: present

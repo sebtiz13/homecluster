@@ -17,6 +17,15 @@
       release_name: "{{ manifest.spec.source.helm.releaseName }}"
       namespace: "{{ manifest.spec.destination.namespace }}"
 
+- name: Retrieve cert-manager informations
+  vars:
+    manifest: "{{ lookup('file', manifests_folder + '/cert-manager.yaml') | from_yaml }}"
+  ansible.builtin.set_fact:
+    apps_cert_manager:
+      version: "1.13.3" # TODO: change this to dynamic
+      release_name: "{{ manifest.spec.source.helm.releaseName }}"
+      namespace: "{{ manifest.spec.destination.namespace }}"
+
 - name: Setup requirements for deploy application
   ansible.builtin.import_tasks: setup.yaml
 
