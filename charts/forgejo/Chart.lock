@@ -1,0 +1,12 @@
+dependencies:
+- name: external-secrets
+  repository: file://../_dependencies/external-secrets
+  version: 1.0.0
+- name: forgejo
+  repository: oci://codeberg.org/forgejo-contrib
+  version: 1.0.4
+- name: forgejo-runner
+  repository: oci://codeberg.org/wrenix/helm-charts
+  version: 0.1.5
+digest: sha256:f9b7662171abfec9a384957affe658537f46e1bda68172b80fb244341648f0e1
+generated: "2024-01-14T22:04:27.658991778+01:00"
