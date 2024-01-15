@@ -23,3 +23,4 @@ actions:
       pullPolicy: IfNotPresent
       rootless: true
     replicas: 1
+    existingSecret: runner-secret
