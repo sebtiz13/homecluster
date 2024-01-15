@@ -1,0 +1,290 @@
+{{- if .Values.actions.runner.enabled -}}
+{{- $forgejoVals := dict "Values" .Values.forgejo "Chart" .Chart "Release" .Release -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: actions-runner
+  labels:
+    {{- include "gitea.actions.runner.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.actions.runner.replicas }}
+  strategy:
+    type: {{ .Values.forgejo.strategy.type }}
+    {{- if eq .Values.forgejo.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.forgejo.strategy.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.forgejo.strategy.rollingUpdate.maxSurge }}
+    {{- end }}
+  selector:
+    matchLabels:
+      {{- include "gitea.actions.runner.selectorLabels" . | nindent 6 }}
+      {{- if .Values.forgejo.deployment.labels }}
+      {{- toYaml .Values.forgejo.deployment.labels | nindent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.forgejo.gitea.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "gitea.actions.runner.labels" . | nindent 8 }}
+        {{- if .Values.forgejo.deployment.labels }}
+        {{- toYaml .Values.forgejo.deployment.labels | nindent 68 }}
+        {{- end }}
+    spec:
+      {{- if .Values.forgejo.schedulerName }}
+      schedulerName: "{{ .Values.forgejo.schedulerName }}"
+      {{- end }}
+      {{- if (or .Values.forgejo.serviceAccount.create .Values.forgejo.serviceAccount.name) }}
+      serviceAccountName: {{ include "gitea.actions.runner.serviceAccountName" . }}
+      {{- end }}
+      {{- if .Values.forgejo.priorityClassName }}
+      priorityClassName: "{{ .Values.forgejo.priorityClassName }}"
+      {{- end }}
+      {{- include "gitea.images.pullSecrets" $forgejoVals | nindent 6 }}
+      securityContext:
+        {{- toYaml .Values.forgejo.podSecurityContext | nindent 8 }}
+      initContainers:
+        # First wait for a Forgejo instance to come online. This is to guard
+        # against race conditions between forgejo and the actions runner when
+        # both are being set up for the first time.
+        - name: await-forgejo
+          image: alpine/curl
+          command:
+            - sh
+          args:
+            - -c
+            - |
+              retries=0
+              max=3
+              echo 'Waiting for Forgejo to come online before proceeding'
+              until $(curl --output /dev/null --silent --head --fail http://{{ include "gitea.fullname" . }}-http.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.forgejo.service.http.port }});
+              do
+                retries=$((retries+1))
+                if [ $retries -gt $max ]; then
+                  echo 'Max retries reached, exiting'
+                  exit 1
+                fi
+                echo "Checking again in 5 seconds. Retry count: ${retries} of ${max}";
+                sleep 5;
+              done;
+        # We are recreating just enough of the app.ini so that we can invoke
+        # the forgejo-cli to register secrets and create runner files out the
+        # newly registered secrets.
+        - name: init-directories
+          image: "{{ include "gitea.image" $forgejoVals }}"
+          imagePullPolicy: {{ .Values.forgejo.image.pullPolicy }}
+          command: ["/usr/sbin/init_directory_structure.sh"]
+          env:
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/app.ini
+            - name: GITEA_CUSTOM
+              value: /data/gitea
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: GITEA_TEMP
+              value: /tmp/gitea
+            {{- if .Values.forgejo.deployment.env }}
+            {{- toYaml .Values.forgejo.deployment.env | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: init
+              mountPath: /usr/sbin
+            - name: temp
+              mountPath: /tmp
+            - name: data
+              mountPath: /data
+              {{- if .Values.forgejo.persistence.subPath }}
+              subPath: {{ .Values.forgejo.persistence.subPath }}
+              {{- end }}
+          securityContext:
+            {{- toYaml .Values.forgejo.containerSecurityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.forgejo.initContainers.resources | nindent 12 }}
+        - name: init-app-ini
+          image: "{{ include "gitea.image" $forgejoVals }}"
+          imagePullPolicy: {{ .Values.forgejo.image.pullPolicy }}
+          command: ["/usr/sbin/config_environment.sh"]
+          env:
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/app.ini
+            - name: GITEA_CUSTOM
+              value: /data/gitea
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: GITEA_TEMP
+              value: /tmp/gitea
+            {{- if .Values.forgejo.deployment.env }}
+            {{- toYaml .Values.forgejo.deployment.env | nindent 12 }}
+            {{- end }}
+            {{- if .Values.forgejo.gitea.additionalConfigFromEnvs }}
+            {{- toYaml .Values.forgejo.gitea.additionalConfigFromEnvs | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /usr/sbin
+            - name: temp
+              mountPath: /tmp
+            - name: data
+              mountPath: /data
+              {{- if .Values.forgejo.persistence.subPath }}
+              subPath: {{ .Values.forgejo.persistence.subPath }}
+              {{- end }}
+            - name: inline-config-sources
+              mountPath: /env-to-ini-mounts/inlines/
+            {{- range $idx, $value := .Values.forgejo.gitea.additionalConfigSources }}
+            - name: additional-config-sources-{{ $idx }}
+              mountPath: "/env-to-ini-mounts/additionals/{{ $idx }}/"
+            {{- end }}
+            {{- include "gitea.init-additional-mounts" $forgejoVals | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.forgejo.containerSecurityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.forgejo.initContainers.resources | nindent 12 }}
+        - name: configure-gitea
+          image: "{{ include "gitea.image" $forgejoVals }}"
+          command: ["/usr/sbin/generate_token.sh"]
+          imagePullPolicy: {{ .Values.forgejo.image.pullPolicy }}
+          securityContext:
+            {{- /* By default this container runs as user 1000 unless otherwise stated */ -}}
+            {{- $csc := deepCopy .Values.forgejo.containerSecurityContext -}}
+            {{- if not (hasKey $csc "runAsUser") -}}
+            {{- $_ := set $csc "runAsUser" 1000 -}}
+            {{- end -}}
+            {{- toYaml $csc | nindent 12 }}
+          env:
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/app.ini
+            - name: GITEA_CUSTOM
+              value: /data/gitea
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: GITEA_TEMP
+              value: /tmp/gitea
+          volumeMounts:
+            - name: init-runner
+              mountPath: /usr/sbin
+            - name: temp
+              mountPath: /tmp
+            - name: data
+              mountPath: /data
+              {{- if .Values.forgejo.persistence.subPath }}
+              subPath: {{ .Values.forgejo.persistence.subPath }}
+              {{- end }}
+          resources:
+            {{- toYaml .Values.forgejo.initContainers.resources | nindent 12 }}
+        - name: configure-runner
+          image: "{{ include "gitea.actions.image" . }}"
+          imagePullPolicy: {{ default .Values.forgejo.image.pullPolicy .Values.actions.runner.image.pullPolicy }}
+          command: ["/usr/sbin/configure_runner.sh"]
+          volumeMounts:
+            - name: init-runner
+              mountPath: /usr/sbin
+            - name: data
+              mountPath: /data
+            - name: temp
+              mountPath: /tmp
+      terminationGracePeriodSeconds: {{ .Values.forgejo.deployment.terminationGracePeriodSeconds }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ include "gitea.actions.image" . }}"
+          imagePullPolicy: {{ default .Values.forgejo.image.pullPolicy .Values.actions.runner.image.pullPolicy }}
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2376
+            - name: DOCKER_CERT_PATH
+              value: /certs/client
+            - name: DOCKER_TLS_VERIFY
+              value: "1"
+          command:
+            - sh
+          args:
+            - -c
+            - |
+              if [ ! -L /.runner ]; then
+                ln -s /data/.runner /.runner;
+              fi;
+              /bin/forgejo-runner daemon
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+            - name: data
+              mountPath: /data
+              {{- if .Values.forgejo.persistence.subPath }}
+              subPath: {{ .Values.forgejo.persistence.subPath }}
+              {{- end }}
+            - name: temp
+              mountPath: /tmp
+        - name: daemon
+          image: docker:23.0.6-dind-rootless
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: /certs
+          # NOTE: the container needs to run as root to configure dockerd, but
+          # dockerd itself is NOT run as root
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+      {{- with .Values.forgejo.global.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.forgejo.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.forgejo.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.forgejo.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.forgejo.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.forgejo.dnsConfig }}
+      dnsConfig:
+        {{- toYaml .Values.forgejo.dnsConfig | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: init
+          secret:
+            secretName: {{ include "gitea.fullname" . }}-init
+            defaultMode: 110
+        - name: init-runner
+          secret:
+            secretName: {{ include "gitea.fullname" . }}-init-runner
+            defaultMode: 110
+        - name: config
+          secret:
+            secretName: {{ include "gitea.fullname" . }}
+            defaultMode: 110
+        {{- if gt (len .Values.forgejo.extraVolumes) 0 }}
+        {{- toYaml .Values.forgejo.extraVolumes | nindent 8 }}
+        {{- end }}
+        - name: inline-config-sources
+          secret:
+            secretName: {{ include "gitea.fullname" . }}-inline-config
+        {{- range $idx, $value := .Values.forgejo.gitea.additionalConfigSources }}
+        - name: additional-config-sources-{{ $idx }}
+          {{- toYaml $value | nindent 10 }}
+        {{- end }}
+        - name: temp
+          emptyDir: {}
+        {{- if .Values.forgejo.persistence.enabled }}
+        {{- if .Values.forgejo.persistence.mount }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.forgejo.persistence.claimName }}
+        {{- end }}
+        {{- else if not .Values.forgejo.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+{{- end }}

@@ -12,7 +12,14 @@ forgejo:
   postgresql-ha:
     enabled: false
 
-forgejo-runner:
-  fullnameOverride: forgejo
-
+actions:
   enabled: true
+  runner:
+    enabled: true
+    image:
+      registry: codeberg.org
+      repository: forgejo/runner
+      tag: "3.3.0"
+      pullPolicy: IfNotPresent
+      rootless: true
+    replicas: 1

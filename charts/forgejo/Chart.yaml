@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: A Helm chart for Kubernetes
 type: application
-version: 0.0.1
+version: 0.0.2
 appVersion: 1.21.3-0
 
 annotations:
@@ -18,7 +18,3 @@ dependencies:
   - name: forgejo
     repository: oci://codeberg.org/forgejo-contrib
     version: 1.0.4
-  - name: forgejo-runner
-    repository: oci://codeberg.org/wrenix/helm-charts
-    version: 0.1.5
-    condition: forgejo-runner.enabled
