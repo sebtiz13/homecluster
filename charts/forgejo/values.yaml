@@ -17,10 +17,10 @@ actions:
   runner:
     enabled: true
     image:
-      registry: codeberg.org
+      registry: code.forgejo.org
       repository: forgejo/runner
       tag: "3.3.0"
       pullPolicy: IfNotPresent
-      rootless: true
+      rootless: false
     replicas: 1
     existingSecret: runner-secret

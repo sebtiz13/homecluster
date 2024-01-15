@@ -20,7 +20,7 @@ Create image name and tag used by the actions runner.
 {{- $registry := .Values.actions.runner.image.registry | default (.Values.forgejo.global.imageRegistry | default .Values.forgejo.image.registry) -}}
 {{- $name := .Values.actions.runner.image.repository -}}
 {{- $tag := .Values.actions.runner.image.tag -}}
-{{- $rootless := ternary "-rootless" "" (or .Values.forgejo.image.rootless .Values.actions.runner.image.rootless) -}}
+{{- $rootless := ternary "-rootless" "" .Values.actions.runner.image.rootless -}}
 {{- if $registry -}}
   {{- printf "%s/%s:%s%s" $registry $name $tag $rootless -}}
 {{- else -}}

@@ -89,7 +89,7 @@ spec:
             - name: RUNNER_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.actions.existingSecret }}
+                  name: {{ .Values.actions.runner.existingSecret }}
                   key: token
             - name: FORGEJO_INSTANCE_URL
               value: http://{{ include "gitea.fullname" $forgejoVals }}-http.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.forgejo.service.http.port }}
