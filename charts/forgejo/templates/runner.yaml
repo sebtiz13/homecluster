@@ -277,6 +277,8 @@ spec:
         {{- end }}
         - name: temp
           emptyDir: {}
+        - name: certs
+          emptyDir: {}
         {{- if .Values.forgejo.persistence.enabled }}
         {{- if .Values.forgejo.persistence.mount }}
         - name: data
