@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: actions-runner
+  name: forgejo-runner
   labels:
     {{- include "gitea.actions.runner.labels" . | nindent 4 }}
 spec:
@@ -72,7 +72,7 @@ spec:
           env:
             - name: FORGEJO_INSTANCE_URL
               value: http://{{ include "gitea.fullname" $forgejoVals }}-http.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.forgejo.service.http.port }}
-        - name: runner-register
+        - name: runner-config-generation
           image: "{{ include "gitea.actions.image" . }}"
           imagePullPolicy: {{ default .Values.forgejo.image.pullPolicy .Values.actions.runner.image.pullPolicy }}
           command:
@@ -82,6 +82,7 @@ spec:
             - $(FORGEJO_INSTANCE_URL)
             - "--secret"
             - $(RUNNER_SECRET)
+            - "--connect"
           env:
             - name: RUNNER_SECRET
               valueFrom:
@@ -99,7 +100,7 @@ spec:
               mountPath: /data
       terminationGracePeriodSeconds: {{ .Values.forgejo.deployment.terminationGracePeriodSeconds }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: runner
           image: "{{ include "gitea.actions.image" . }}"
           imagePullPolicy: {{ default .Values.forgejo.image.pullPolicy .Values.actions.runner.image.pullPolicy }}
           command:
@@ -111,7 +112,7 @@ spec:
                 echo 'waiting for docker daemon...';
                 sleep 5;
               done;
-              /bin/forgejo-runner daemon
+              /bin/forgejo-runner daemon --config config.yaml
           env:
             - name: DOCKER_HOST
               value: tcp://localhost:2376
@@ -124,6 +125,9 @@ spec:
               mountPath: /certs
             - name: runner-data
               mountPath: /data
+            - name: config
+              mountPath: /data/config.yaml
+              subPath: "config.yaml"
         - name: daemon
           image: docker:23.0.6-dind-rootless
           env:
@@ -165,4 +169,7 @@ spec:
           emptyDir: {}
         - name: runner-data
           emptyDir: {}
+        - name: config
+          configMap:
+            name: forgejo-runner-config
 {{- end }}
