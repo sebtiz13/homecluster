@@ -77,14 +77,11 @@ spec:
           imagePullPolicy: {{ default .Values.forgejo.image.pullPolicy .Values.actions.runner.image.pullPolicy }}
           command:
             - forgejo-runner
-            - register
-            - "--no-interactive"
-            - "--token"
-            - $(RUNNER_SECRET)
-            - "--name"
-            - runner
+            - create-runner-file
             - "--instance"
             - $(FORGEJO_INSTANCE_URL)
+            - "--secret"
+            - $(RUNNER_SECRET)
           env:
             - name: RUNNER_SECRET
               valueFrom:
