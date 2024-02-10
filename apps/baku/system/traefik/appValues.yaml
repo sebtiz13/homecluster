@@ -4,6 +4,9 @@ ingressClass:
   enabled: true
   isDefaultClass: true
 
+service:
+  externalTrafficPolicy: Local
+
 providers:
   kubernetesIngress:
     publishedService:
