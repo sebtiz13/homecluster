@@ -1,9 +1,0 @@
-dependencies:
-- name: external-secrets
-  repository: file://../_dependencies/external-secrets
-  version: 1.0.0
-- name: gitlab
-  repository: https://charts.gitlab.io/
-  version: 7.1.2
-digest: sha256:99bb1e8bb39fc8b58a8077d447d57cb6484f47551e14d38e83712bda5bb0ef09
-generated: "2023-12-31T00:00:14.454356247+01:00"

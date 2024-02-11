@@ -9,8 +9,6 @@
       endpoint: "{{ release_name }}.{{ namespace }}.svc.cluster.local:9000"
       host: "{{ manifest.metadata.annotations['sebtiz13.fr/host'] }}"
       region: "minio"
-      svcacctSecretKeys:
-        gitlab: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=40) }}"
 
 - name: Minio | Deploy application and secrets # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
@@ -25,24 +23,6 @@
         data:
           rootUser: admin
           rootPassword: "{{ admin_passwords.minio }}"
-      # * Dependencies
-      - path: gitlab/s3
-        data:
-          endpoint: "{{ apps_minio.endpoint }}"
-          region: "{{ apps_minio.region }}"
-          accessKey: gitlab
-          secretKey: "{{ apps_minio.svcacctSecretKeys.gitlab }}"
-          # Buckets
-          bucket_artifacts: gitlab-artifacts
-          bucket_backups: gitlab-backups
-          bucket_depsProxy: gitlab-dependency-proxy
-          bucket_packages: gitlab-packages
-          bucket_pages: gitlab-pages
-          bucket_registry: gitlab-registry
-          bucket_runner: gitlab-runner
-          bucket_tfState: gitlab-terraform-state
-          bucket_uploads: gitlab-uploads
-          bucket_lfs: git-lfs
 
 - name: Minio | Wait until is available
   ansible.builtin.uri:

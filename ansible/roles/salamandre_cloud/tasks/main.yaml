@@ -12,6 +12,10 @@
 - name: Deploy Vaultwarden
   tags: vaultwarden
   ansible.builtin.import_tasks: vaultwarden.yaml
+
+- name: Deploy Forgejo
+  tags: forgejo
+  ansible.builtin.import_tasks: forgejo.yaml
 # TODO: Fix it !
 # - name: Deploy Wallabag
 #   tags: wallabag

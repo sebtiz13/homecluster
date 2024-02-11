@@ -11,7 +11,7 @@ graph LR
     s-system --- s-traefik[traefik]
 
     s-infrastructure[infrastructure] --- argocd
-    s-infrastructure --- gitlab
+    s-infrastructure --- forgejo
     s-infrastructure --- gitlab-agent
     s-infrastructure --- zitadel
     s-infrastructure --- minio
@@ -47,7 +47,7 @@ graph LR
     v-init --> vault[restart vault]
 
     vault --> m-vault[create minio secrets] --> minio[deploy minio]
-    vault --> g-vault[create gitlab secrets] --> gitlab[deploy gitlab]
+    vault --> g-vault[create forgejo secrets] --> forgejo[deploy Forgejo]
     vault --> k-vault[create zitadel secrets] --> zitadel[deploy zitadel]
     vault --> mg-vault[create VictoriaMetrics/Grafana secrets] --> monitoring[deploy monitoring (VictoriaMetrics, Grafana, etc)]
 
@@ -55,9 +55,9 @@ graph LR
     zitadel --> v-oidc[configure vault oidc]
 
     %% Deps
-    postgresql -----> g-db[create gitlab database] --> g-vault
+    postgresql -----> g-db[create forgejo database] --> g-vault
     postgresql -----> k-db[create zitadel database] --> k-vault
     zfs-pool --> r-vault & openebs & monitoring
     vault --> a-vault
-    minio --> gitlab
+    minio --> forgejo
 ```

@@ -22,9 +22,9 @@ You can disable some applications by specify environment variable `ANSIBLE_SKIP_
 The apps tags :
 
 - `oidc` (for disable zitadel)
-- `gitlab`
+- `forgejo`
 
-_example_: `ANSIBLE_SKIP_TAGS=oidc,gitlab make test-cluster`, this deploy all cluster but without oidc and gitlab applications
+_example_: `ANSIBLE_SKIP_TAGS=oidc,forgejo make test-cluster`, this deploy all cluster but without oidc and forgejo applications
 
 ## GitLab Agent
 

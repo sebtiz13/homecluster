@@ -2,13 +2,6 @@
   tags: minio
   ansible.builtin.import_tasks: minio.yaml
 
-- name: Deploy Gitlab
-  tags:
-    - minio # Depends on s3
-    - oidc # Require OIDC
-    - gitlab
-  ansible.builtin.import_tasks: gitlab.yaml
-
 - name: Deploy Adguard proxy application manifest
   tags: adguard
   when: env == 'prod'

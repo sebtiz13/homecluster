@@ -35,18 +35,6 @@ Run the following commands for restore the cluster.
   1. Retrieve pod name: run `kubectl get pods -n nextcloud -lapp.kubernetes.io/name=nextcloud,app.kubernetes.io/component=app`
   2. Run `ubectl exec <pod name> -n nextcloud -it -- su -m www-data -s /bin/sh -c 'php occ files:scan --all'` inside pod
 
-- Restore GitLab data :
-
-  > ⚠️ Before restoring please ensure the backup and currently installed version is same.
-
-  1. Retrieve toolbox pod name : run `kubectl get pods -n gitlab -lapp=toolbox,release=gitlab`
-  2. If not exist, upload the wanted backup inside `gitlab-backups` bucket on minio.
-  3. Run `kubectl exec <pod name> -n gitlab -it -- backup-utility --restore -t <timestamp>_<version>`
-  4. Restart `sidekiq` and `webservice` pods, by running the following command
-
-     - `kubectl delete pods -n gitlab -lapp=sidekiq,release=gitlab`
-     - `kubectl delete pods -n gitlab -lapp=sidekiq,release=gitlab`
-
 ### Apps specific
 
 #### Nextcloud

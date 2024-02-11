@@ -9,16 +9,12 @@ if ! command -v jq  &> /dev/null; then
 fi
 
 ENVIRONMENT=${ENVIRONMENT:-prod}
-if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: ./gitlab-agent.sh <local/homecluster> <token>"
+if [ -z "$1" ]; then
+  echo "Usage: ./gitlab-agent.sh <token>"
   exit 1
 fi
 if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
   echo "Incorrect environment. Valid value : 'dev' or 'prod'"
-  exit 1
-fi
-if [ "$1" != "local" ] && [ "$1" != "homecluster" ]; then
-  echo "Incorrect type. Valid value : 'local' or 'homecluster'"
   exit 1
 fi
 
@@ -26,22 +22,16 @@ fi
 KUBECONFIG="./out/kubeconfig/salamandre.${ENVIRONMENT}.yaml"
 ROOT_TOKEN=$(jq .root_token "./out/credentials/salamandre/$ENVIRONMENT/vault.json")
 MANIFESTS_PATH="./manifests/salamandre"
-MANIFEST_FILE="gitlab-agent.yaml"
+MANIFEST_FILE="gitlab-agent-homecluster.yaml"
 KV_BASE_PATH="salamandre/gitlab/agents"
-KV_PATH="$KV_BASE_PATH/local"
+KV_PATH="$KV_BASE_PATH/homecluster"
 
 if [ "$ENVIRONMENT" = "dev" ]; then
   MANIFESTS_PATH="./vagrant/.vagrant/manifests/salamandre"
 fi
 
-# Specific values for homecluster agent
-if [ "$1" = "homecluster" ]; then
-  MANIFEST_FILE="gitlab-agent-homecluster.yaml"
-  KV_PATH="$KV_BASE_PATH/homecluster"
-fi
-
 # Generate KV keys
-KV_KEYS="token=\"$2\""
+KV_KEYS="token=\"$1\""
 if [ "$ENVIRONMENT" = "dev" ]; then
   KV_KEYS="$KV_KEYS caCert=\"$(cat ./vagrant/.vagrant/ca/rootCA.pem)\""
 fi

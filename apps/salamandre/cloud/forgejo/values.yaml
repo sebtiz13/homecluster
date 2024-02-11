@@ -1,15 +1,15 @@
-plugin: argocd-vault-plugin-helm
+plugin: helm
 
 ingress:
   subdomain: git
 
 source:
   repoURL: https://gitlab.com/api/v4/projects/40446088/packages/helm/stable
-  chart: gitlab
-  targetRevision: 2.0.0
+  chart: forgejo
+  targetRevision: 0.0.1
 
 destination:
-  namespace: gitlab
+  namespace: forgejo
 
 syncPolicy:
   createLabeledNamespace: true

@@ -11,8 +11,7 @@ domains:
   - vault-secrets.{{ root_domain }} # Vault
   - sso.{{ root_domain }} # Zitadel
   - s3.{{ root_domain }} # Minio
-  - git.{{ root_domain }} # GitLab
-  - kas.{{ root_domain }} # GitLab
+  - git.{{ root_domain }} # Forgejo
   - bag.{{ root_domain }} # Wallabag
 
 nextcloud_apps:

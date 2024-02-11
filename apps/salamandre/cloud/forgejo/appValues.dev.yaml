@@ -1,0 +1,28 @@
+forgejo:
+  extraInitVolumeMounts:
+    - name: certificate
+      mountPath: /etc/ssl/certs/vm-ca.crt
+      subPath: tls.crt
+      readOnly: true
+  extraContainerVolumeMounts:
+    - name: certificate
+      mountPath: /etc/ssl/certs/vm-ca.crt
+      subPath: tls.crt
+      readOnly: true
+  extraVolumes:
+    - name: certificate
+      secret:
+        secretName: forgejo-vm-ca-tls
+        defaultMode: 420
+
+# forgejo-runner:
+#   volumeMounts:
+#     - name: certificate
+#       mountPath: /etc/ssl/certs/vm-ca.crt
+#       subPath: tls.crt
+#       readOnly: true
+#   volumes:
+#     - name: certificate
+#       secret:
+#         secretName: forgejo-vm-ca-tls
+#         defaultMode: 420

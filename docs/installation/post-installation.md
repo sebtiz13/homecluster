@@ -27,15 +27,15 @@ step):
 - Minio:
   - Username: `root`
   - Password: `yq .minio ./out/credentials/salamandre/<env>/admin_passwords.yaml`
-- Gitlab:
-  - Username: `root`
-  - Password: run `yq .gitlab ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Nextcloud:
   - Username: `admin`
   - Password: run `yq .nextcloud ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Collabora:
   - Username: `admin`
   - Password: run `yq .collabora ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+- Forgejo:
+  - Username: `root`
+  - Password: run `yq .forgejo ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 
 ### Baku
 

@@ -60,7 +60,7 @@ Can be used in "production" (for family).
 - [x] Minimal dependency on external services
 - [x] Additional applications
   - **Salamandre**
-    - [x] GitLab (git server and private container registry)
+    - [x] Forgejo (git server and private container registry)
     - [x] Nextcloud
     - [x] Vaultwarden
 
