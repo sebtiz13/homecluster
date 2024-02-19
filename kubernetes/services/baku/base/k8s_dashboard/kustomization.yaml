@@ -1,0 +1,17 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: k8s_dashboard
+resources:
+  - ../../../common/base/k8s_dashboard
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: 'argocd-baku.${DOMAIN_NAME}'
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: 'argocd-baku.${DOMAIN_NAME}'
+    target:
+      kind: Ingress
+      name: kubernetes-dashboard

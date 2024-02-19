@@ -8,3 +8,4 @@ resources:
   - openebs-zfslocalpv.yaml
   - traefik.yaml
   - victoriametrics.yaml
+  - kubernetes-dashboard.yaml

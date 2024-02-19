@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &name kubernetes-dashboard
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *name
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: k8s_dashboard-admin-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  rules:
+    - host: &host argocd.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: kubernetes-dashboard-web
+                port:
+                  name: web
+          - path: /api
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: kubernetes-dashboard-api
+                port:
+                  name: api
+  tls:
+    - hosts:
+        - *host

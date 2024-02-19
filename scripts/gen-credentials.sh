@@ -25,21 +25,29 @@ insert_pwd() {
   fi
 }
 
-##
-# Salamandre credentials
-##
 mkdir -p "./out/credentials/${ENVIRONMENT}"
 
 # Admin passwords
 FILE="./out/credentials/${ENVIRONMENT}/admin_passwords.yaml"
-
 touch "$FILE"
+
+insert_pwd "$FILE" .k8s_dashboard "$(randpw 16)"
+
+##
+# Salamandre credentials
+##
 insert_pwd "$FILE" .salamandre.zitadel "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.minio "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.nextcloud "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.collabora "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.forgejo "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.vaultwarden "$(randpw 16)"
+
+##
+# Baku credentials
+##
+insert_pwd "$FILE" .baku.minio "$(randpw 16)"
+insert_pwd "$FILE" .baku.grafana "$(randpw 16)"
 
 # Zitadel masterkey
 FILE="./out/credentials/${ENVIRONMENT}/zitadel_masterkey"
@@ -52,15 +60,3 @@ FILE="./out/credentials/${ENVIRONMENT}/forgejo_runner_token"
 if [ ! -e "$FILE" ]; then
   openssl rand -hex 20 > "$FILE"
 fi
-
-##
-# Baku credentials
-##
-mkdir -p "./out/credentials/${ENVIRONMENT}"
-
-# Admin passwords
-FILE="./out/credentials/${ENVIRONMENT}/admin_passwords.yaml"
-
-touch "$FILE"
-insert_pwd "$FILE" .baku.minio "$(randpw 16)"
-insert_pwd "$FILE" .baku.grafana "$(randpw 16)"
