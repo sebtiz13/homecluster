@@ -5,5 +5,3 @@ namespace: traefik
 resources:
   - namespace.yaml
   - helm-release.yaml
-  - middleware.yaml
-  - tls-store.yaml

@@ -23,6 +23,16 @@ spec:
   values:
     priorityClassName: system-cluster-critical
 
+    ports:
+      web:
+        redirectTo:
+          port: websecure
+
+    tlsStore:
+      default:
+        defaultCertificate:
+          secretName: ${DOMAIN_NAME/./-}-tls
+
     service:
       externalTrafficPolicy: Local
 

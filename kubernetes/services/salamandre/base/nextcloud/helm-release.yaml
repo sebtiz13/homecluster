@@ -221,10 +221,8 @@ spec:
 
     ingress:
       enabled: true
-      className: traefik
-      annotations: # TODO: make redirect default ?
-        traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd,nextcloud-chained-middlewares@kubernetescrd
-        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: nextcloud-chained-middlewares@kubernetescrd
       tls:
         - hosts:
             - *host

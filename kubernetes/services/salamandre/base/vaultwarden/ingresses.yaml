@@ -5,11 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: *name
     app.kubernetes.io/instance: *name
-  annotations: # TODO: make redirect default ?
-    traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
 spec:
-  ingressClassName: traefik
   rules:
     - host: &host vault.${DOMAIN_NAME}
       http:
@@ -36,7 +32,6 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: vaultwarden-admin-auth@kubernetescrd
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
-  ingressClassName: traefik
   rules:
     - host: &host vault.${DOMAIN_NAME}
       http:

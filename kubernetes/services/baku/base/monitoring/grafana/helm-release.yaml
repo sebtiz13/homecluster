@@ -123,10 +123,6 @@ spec:
 
     ingress:
       enabled: true
-      ingressClassName: traefik
-      annotations: # TODO: make redirect default ?
-        traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
-        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       hosts:
         - &host monitor.${DOMAIN_NAME}
       tls:

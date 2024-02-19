@@ -3,10 +3,8 @@ kind: Ingress
 metadata:
   name: &name collabora-code
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd,nextcloud-chained-middlewares@kubernetescrd
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: nextcloud-chained-middlewares@kubernetescrd
 spec:
-  ingressClassName: traefik
   rules:
     - host: &host cloud.${DOMAIN_NAME}
       http:

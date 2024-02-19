@@ -6,11 +6,9 @@ metadata:
   labels:
     app.kubernetes.io/name: *name
     app.kubernetes.io/instance: *name
-  annotations: # TODO: make redirect default ?
-    traefik.ingress.kubernetes.io/router.middlewares: adguard-proxy-chained-middlewares@kubernetescrd
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: adguard-proxy-headers@kubernetescrd
 spec:
-  ingressClassName: traefik
   rules:
     - host: &host dns.${DOMAIN_NAME}
       http:

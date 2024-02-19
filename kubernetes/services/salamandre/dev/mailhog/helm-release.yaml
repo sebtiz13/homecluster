@@ -19,10 +19,6 @@ spec:
   values:
     ingress:
       enabled: true
-      className: traefik
-      annotations: # TODO: make redirect default ?
-        traefik.ingress.kubernetes.io/router.middlewares: traefik-redirect-https@kubernetescrd
-        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       hosts:
         - host: &host mail.${DOMAIN_NAME}
           paths:
