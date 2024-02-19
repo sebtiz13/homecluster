@@ -6,3 +6,33 @@ resources:
   - datasource.yaml
   - secrets.yaml
   - service-scrape.yaml
+configMapGenerator:
+  - name: grafana-dashboards-default
+    options:
+      labels:
+        grafana_dashboard: "1"
+    files:
+      - dashboards/minio.json
+      - dashboards/nodeexporter.json
+      - dashboards/traefik.json
+  - name: grafana-dashboards-kubernetes
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: "Kubernetes"
+    files:
+      - dashboards/kubernetes/views_global.json
+      - dashboards/kubernetes/views_namespaces.json
+      - dashboards/kubernetes/views_pods.json
+      - dashboards/kubernetes/volumes_cluster.json
+  - name: grafana-dashboards-victoriametrics
+    options:
+      labels:
+        grafana_dashboard: "1"
+      annotations:
+        grafana_folder: "VictoriaMetrics"
+    files:
+      - dashboards/victoriametrics/global.json
+      - dashboards/victoriametrics/vmagent.json
+      - dashboards/victoriametrics/vmalert.json

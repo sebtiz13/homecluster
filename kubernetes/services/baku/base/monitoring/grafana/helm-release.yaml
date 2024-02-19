@@ -23,69 +23,15 @@ spec:
 
     defaultDashboardsEnabled: true
     defaultDashboardsTimezone: utc
-    dashboards:
-      # TODO: Generate ConfigMap instead urls
-      kubernetes:
-        views_global:
-          url: ${GRAFANA_DASHBOARDS}/kubernetes/views_global.json
-        views_namespaces:
-          url: ${GRAFANA_DASHBOARDS}/kubernetes/views_namespaces.json
-        views_pods:
-          url: ${GRAFANA_DASHBOARDS}/kubernetes/views_pods.json
-        volumes_cluster:
-          url: ${GRAFANA_DASHBOARDS}/kubernetes/volumes_cluster.json
-      victoriametrics:
-        global:
-          url: ${GRAFANA_DASHBOARDS}/victoriametrics/global.json
-        vmagent:
-          url: ${GRAFANA_DASHBOARDS}/victoriametrics/vmagent.json
-        vmalert:
-          url: ${GRAFANA_DASHBOARDS}/victoriametrics/vmalert.json
-      default:
-        minio:
-          url: ${GRAFANA_DASHBOARDS}/minio.json
-        nodeexporter:
-          url: ${GRAFANA_DASHBOARDS}/nodeexporter.json
-        traefik:
-          url: ${GRAFANA_DASHBOARDS}/traefik.json
 
     sidecar:
       datasources:
         enabled: true
       dashboards:
-        additionalDashboardLabels: {}
-        additionalDashboardAnnotations: {}
         enabled: true
-        multicluster: true
-
-    dashboardProviders:
-      dashboardproviders.yaml:
-        apiVersion: 1
-        providers:
-          - name: "default"
-            orgId: 1
-            folder: ""
-            type: file
-            disableDeletion: false
-            editable: true
-            options:
-              path: /var/lib/grafana/dashboards/default
-          - name: "kubernetes"
-            orgId: 1
-            folder: "Kubernetes"
-            type: file
-            disableDeletion: false
-            editable: true
-            options:
-              path: /var/lib/grafana/dashboards/kubernetes
-          - name: "victoriametrics"
-            orgId: 1
-            folder: "VictoriaMetrics"
-            type: file
-            disableDeletion: false
-            editable: true
-            options:
-              path: /var/lib/grafana/dashboards/victoriametrics
+        folderAnnotation: grafana_folder
+        provider:
+          foldersFromFilesStructure: true
 
     grafana.ini:
       feature_toggles:

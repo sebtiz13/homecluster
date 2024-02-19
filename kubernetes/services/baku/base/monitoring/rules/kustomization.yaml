@@ -1,0 +1,15 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - kube-apiserver-availability.rules.yaml
+  - kube-apiserver-burnrate.rules.yaml
+  - kube-apiserver-histogram.rules.yaml
+  - kube-apiserver-slos.yaml
+  - kube-prometheus-node-recording.rules.yaml
+  - kube-scheduler.rules.yaml
+  - kubernetes-resources.yaml
+  - kubernetes-system-apiserver.yaml
+  - kubernetes-system-kubelet.yaml
+  - vm-health.yaml
+  - vmagent.yaml

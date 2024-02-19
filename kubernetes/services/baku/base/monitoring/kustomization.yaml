@@ -8,7 +8,7 @@ resources:
   - alertmanager.yaml
   - secret.yaml
   - middleware.yaml
-  - rules/*.yaml
+  - rules
 patches:
   - path: helm-release-patch.yaml
     target:

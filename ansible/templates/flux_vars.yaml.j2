@@ -13,6 +13,3 @@ stringData:
   OIDC_ISSUER_HOST: "{{ hostvars.salamandre.external_urls.zitadel | replace('https://', '') }}"
 
   ALERTS_DISCORD_WEBHOOK_URL: "{{ alerts_discord_webhook_url }}"
-  {% if inventory_hostname == "baku" -%}
-  GRAFANA_DASHBOARDS: "{{ grafana_dashboards_url }}"
-  {% endif %}
