@@ -5,6 +5,7 @@ namespace: flux-system
 resources:
   - ../common
   - chrisingenhaag.yaml # collabora-code (nextcloud)
+  - cloudnative-pg.yaml
   - forgejo.yaml
   - hashicorp.yaml # vault
   - jetstack.yaml # cert-manager

@@ -72,8 +72,8 @@ spec:
             WarnColorDark: "#BF616A"
             FontColorDark: "#ECEFF4"
 
-    initJob:
-      command: zitadel
+    # initJob:
+    #   command: zitadel
 
     ingress:
       enabled: true

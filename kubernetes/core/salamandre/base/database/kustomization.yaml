@@ -1,13 +1,10 @@
 # vscode-kubernetes-tools: exclude
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: wallabag
+namespace: database
 resources:
   - namespace.yaml
-  - configmaps.yaml
-  - pvc.yaml
+  - helm-release.yaml
   - secret.yaml
-  - deployment.yaml
-  - service.yaml
-  - ingress.yaml
-  - initdb.yaml
+  - cnpg-cluster.yaml
+  - scheduledbackup.yaml

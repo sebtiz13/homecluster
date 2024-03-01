@@ -7,3 +7,4 @@ resources:
   - ../base/external-secrets
   - cert-manager
   - ../base/vault
+  - database

@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: postgres
+spec:
+  method: volumeSnapshot
+  schedule: "0 0 2 * * *" # @daily at 2am
+  backupOwnerReference: cluster
+  cluster:
+    name: postgres16

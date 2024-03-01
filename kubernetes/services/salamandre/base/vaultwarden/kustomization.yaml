@@ -11,4 +11,5 @@ resources:
   - service.yaml
   - middleware.yaml
   - ingresses.yaml
+  - initdb.yaml
 # TODO: use helm chart https://github.com/guerzon/vaultwarden

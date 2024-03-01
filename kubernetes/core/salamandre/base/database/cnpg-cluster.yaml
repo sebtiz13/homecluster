@@ -1,0 +1,66 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres16
+  labels:
+    # Note: serverName version needs to be incremented
+    # when recovering from an existing cnpg cluster
+    cnpg.io/servername: &currentCluster postgres16-v1
+spec:
+  instances: 1
+
+  storage:
+    size: 5Gi
+    storageClass: openebs-zfspv
+
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: cnpg-secret
+
+  postgresql:
+    parameters:
+      max_connections: "400"
+      shared_buffers: 256MB
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+
+  resources:
+    requests:
+      cpu: 500m
+    limits:
+      memory: 1Gi
+
+  backup:
+    retentionPolicy: 30d
+    volumeSnapshot:
+      snapshotOwnerReference: cluster
+
+    barmanObjectStore: &barmanObjectStore
+      data:
+        compression: bzip2
+      wal:
+        compression: bzip2
+        maxParallel: 8
+      destinationPath: s3://backup-salamandre-pg/
+      endpointURL: https://baku.${DOMAIN_NAME}
+      serverName: *currentCluster
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-secret
+          key: S3_ACCESS_KEY
+        secretAccessKey:
+          name: cnpg-secret
+          key: S3_SECRET_KEY
+
+  # Note: previousCluster needs to be set to the name of the previous
+  # cluster when recovering from an existing cnpg cluster
+  # bootstrap:
+  #   recovery:
+  #     source: &previousCluster postgres16-v0
+  # # Note: externalClusters is needed when recovering from an existing cnpg cluster
+  # externalClusters:
+  #   - name: *previousCluster
+  #     barmanObjectStore:
+  #       <<: *barmanObjectStore
+  #       serverName: *previousCluster

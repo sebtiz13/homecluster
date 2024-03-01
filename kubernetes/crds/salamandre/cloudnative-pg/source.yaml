@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/gitrepository-source-v1.json
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: cloudnative-pg-source
+spec:
+  url: https://github.com/cloudnative-pg/cloudnative-pg.git
+  ref:
+    tag: v1.22.1
+  interval: 15m
+  ignore: |
+    # exclude all
+    /*
+    # include crds directory
+    !/config/crd/bases

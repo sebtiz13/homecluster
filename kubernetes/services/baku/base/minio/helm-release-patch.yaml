@@ -7,10 +7,10 @@ metadata:
 spec:
   values:
     buckets:
-      - name: backup-cluster-barman
+      - name: backup-salamandre-pg
         policy: none
         purge: false
-      - name: backup-cluster-pvc
+      - name: backup-salamandre-pvc
         policy: none
         purge: false
     svcaccts:
@@ -25,8 +25,8 @@ spec:
                 - s3:ListBucket
                 - s3:ListBucketMultipartUploads
               resources:
-                - arn:aws:s3:::backup-cluster-barman
-                - arn:aws:s3:::backup-cluster-pvc
+                - arn:aws:s3:::backup-salamandre-pg
+                - arn:aws:s3:::backup-salamandre-pvc
             - actions:
                 - s3:AbortMultipartUpload
                 - s3:GetObject
@@ -34,8 +34,8 @@ spec:
                 - s3:PutObject
                 - s3:ListMultipartUploadParts
               resources:
-                - arn:aws:s3:::backup-cluster-barman/*
-                - arn:aws:s3:::backup-cluster-pvc/*
+                - arn:aws:s3:::backup-salamandre-pg/*
+                - arn:aws:s3:::backup-salamandre-pvc/*
 
     persistence:
       size: 500Gi

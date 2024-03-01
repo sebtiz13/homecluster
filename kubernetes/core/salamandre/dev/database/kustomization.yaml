@@ -1,0 +1,22 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: database
+resources:
+  - ../../base/database
+  - ca-tls.yaml
+patches:
+  - patch: |-
+      - op: add
+        path: /spec/backup/barmanObjectStore/endpointCA
+        value:
+          name: vm-ca-tls
+          key: tls.crt
+      # - op: add
+      #   path: /spec/externalClusters/0/barmanObjectStore/endpointCA
+      #   value:
+      #     name: vm-ca-tls
+      #     key: tls.crt
+    target:
+      kind: Cluster
+      name: postgres16

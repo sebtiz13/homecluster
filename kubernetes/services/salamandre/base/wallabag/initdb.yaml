@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: initdb
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+    helm.sh/hook-weight: "2"
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 300
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: init-db
+        image: postgres:16.2-alpine3.19
+        env:
+          - name: PGHOST
+            value: postgres16-rw.database.svc.cluster.local
+          - name: PGUSER
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_SUPER_USER
+                name: wallabag-db-credentials
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_SUPER_PASS
+                name: wallabag-db-credentials
+          - name: INIT_DATABASE
+            valueFrom:
+              secretKeyRef:
+                key: SYMFONY__ENV__DATABASE_NAME
+                name: wallabag-db-credentials
+          - name: INIT_USER
+            valueFrom:
+              secretKeyRef:
+                key: SYMFONY__ENV__DATABASE_USER
+                name: wallabag-db-credentials
+          - name: INIT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: SYMFONY__ENV__DATABASE_PASSWORD
+                name: wallabag-db-credentials
+        command:
+          - "/bin/sh"
+          - "-c"
+          - 'psql -a -c "CREATE ROLE ''$INIT_USER'' WITH LOGIN PASSWORD ''$INIT_PASSWORD''; CREATE DATABASE ''$INIT_DATABASE'' OWNER ''$INIT_USER'';"'

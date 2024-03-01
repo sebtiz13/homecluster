@@ -5,7 +5,7 @@
     - role: common
       become: true
 
-- name: Install sensors and database
+- name: Install sensors
   hosts: salamandre
   roles:
     - role: salamandre_sensors
@@ -13,9 +13,6 @@
       connection: ssh
       become: true
       tags: sensors
-    - role: database
-      connection: ssh
-      become: true
 
 - name: Install and Configure DynDNS
   hosts: baku

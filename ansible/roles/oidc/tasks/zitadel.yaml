@@ -12,14 +12,6 @@
     body:
       data:
         value: "{{ lookup('file', credentials_folder + '/zitadel_masterkey') }}"
-- name: Zitadel | Create database access # noqa: var-naming[no-role-prefix]
-  ansible.builtin.include_role:
-    name: database_access
-  vars:
-    database: zitadel
-    username: zitadel
-    password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits']) }}"
-    secret_path: salamandre/data/zitadel/database
 
 - name: External-secrets | Force sync secrets
   delegate_to: localhost

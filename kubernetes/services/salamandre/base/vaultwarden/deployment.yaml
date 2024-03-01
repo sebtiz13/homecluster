@@ -23,13 +23,17 @@ spec:
         - name: *name
           image: &image vaultwarden/server:1.30.1-alpine
           imagePullPolicy: &imagePolicy IfNotPresent
-          envFrom:
+          envFrom: &envFrom
             - configMapRef:
-                name: &configName vaultwarden-config
+                name: vaultwarden-config
             - secretRef:
-                name: &dbSecretName vaultwarden-db-credentials
-            - secretRef:
-                name: &smtpSecretName vaultwarden-smtp
+                name: vaultwarden-smtp
+          env: &env
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: DATABASE_URL
+                  name: vaultwarden-db-credentials
           ports:
             - name: http
               containerPort: 8080
@@ -55,13 +59,8 @@ spec:
           command:
             - sh
             - /scripts/update-config.sh
-          envFrom:
-            - configMapRef:
-                name: *configName
-            - secretRef:
-                name: *dbSecretName
-            - secretRef:
-                name: *smtpSecretName
+          envFrom: *envFrom
+          env: *env
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
