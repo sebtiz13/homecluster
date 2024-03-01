@@ -20,6 +20,7 @@ spec:
 
   postgresql:
     parameters:
+      timezone: "${TIMEZONE}"
       max_connections: "400"
       shared_buffers: 256MB
   nodeMaintenanceWindow:
