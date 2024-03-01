@@ -19,11 +19,6 @@ spec:
         env:
           - name: PGHOST
             value: postgres16-rw.database.svc.cluster.local
-          - name: PGUSER
-            valueFrom:
-              secretKeyRef:
-                key: POSTGRES_SUPER_USER
-                name: nextcloud-db-credentials
           - name: PGPASSWORD
             valueFrom:
               secretKeyRef:
@@ -45,6 +40,7 @@ spec:
                 key: db-password
                 name: nextcloud-db-credentials
         command:
-          - "/bin/sh"
-          - "-c"
-          - 'psql -a -c "CREATE ROLE ''$INIT_USER'' WITH LOGIN PASSWORD ''$INIT_PASSWORD''; CREATE DATABASE ''$INIT_DATABASE'' OWNER ''$INIT_USER'';"'
+          - psql
+          - '-a'
+          - '-c'
+          - \"CREATE ROLE '$INIT_USER' WITH LOGIN PASSWORD '$INIT_PASSWORD'; CREATE DATABASE '$INIT_DATABASE' OWNER '$INIT_USER';\"
