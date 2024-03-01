@@ -15,7 +15,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: init-db
-        image: postgres:16.2-alpine3.19
+        image: ghcr.io/cloudnative-pg/postgresql:16.2
         env:
           - name: PGHOST
             value: postgres16-rw.database.svc.cluster.local
