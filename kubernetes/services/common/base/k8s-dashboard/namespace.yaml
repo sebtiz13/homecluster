@@ -1,4 +1,4 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: k8s_dashboard
+  name: k8s-dashboard
