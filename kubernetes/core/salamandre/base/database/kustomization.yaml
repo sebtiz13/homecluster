@@ -5,6 +5,6 @@ namespace: database
 resources:
   - namespace.yaml
   - helm-release.yaml
-  - secret.yaml
+  - secrets.yaml
   - cnpg-cluster.yaml
   - scheduledbackup.yaml

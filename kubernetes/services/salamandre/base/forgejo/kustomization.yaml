@@ -6,5 +6,4 @@ resources:
   - namespace.yaml
   - helm-release.yaml
   - secrets.yaml
-  - initdb.yaml
   - runner

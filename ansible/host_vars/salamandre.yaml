@@ -1,5 +1,7 @@
 domain_name: "{{ root_domain }}"
 
+postgres_version: 16
+
 # Applications urls
 external_urls:
   vault: https://vault-secrets.{{ domain_name }}

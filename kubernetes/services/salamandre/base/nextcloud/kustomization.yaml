@@ -6,7 +6,6 @@ resources:
   - namespace.yaml
   - helm-release.yaml
   - secrets.yaml
-  - initdb.yaml
   - traefik-middlewares/cardav.yaml
   - traefik-middlewares/headers.yaml
   - traefik-middlewares/webfinger.yaml

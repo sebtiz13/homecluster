@@ -32,6 +32,9 @@
     - name: Vault | Fill applications secrets
       tags: vault
       ansible.builtin.import_tasks: tasks/s_apps_secrets.yaml
+    - name: Create database accesses
+      tags: vault
+      ansible.builtin.import_tasks: tasks/s_apps_databases.yaml
     - name: Register forgejo runner
       delegate_to: localhost
       tags: forgejo

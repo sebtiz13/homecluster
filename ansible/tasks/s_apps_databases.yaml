@@ -1,0 +1,15 @@
+- name: Create database access # noqa: var-naming[no-role-prefix]
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    database: "{{ item }}"
+    username: "{{ item }}"
+    secret_path: "salamandre/data/{{ item }}/database"
+  loop_control:
+    label: "{{ item }}"
+  loop:
+    # ? zitadel > created in oidc role
+    - forgejo
+    - nextcloud
+    - vaultwarden
+    - wallabag
