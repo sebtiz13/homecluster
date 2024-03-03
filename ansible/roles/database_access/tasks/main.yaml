@@ -25,12 +25,12 @@
         namespace: database
         pod: "postgres{{ postgres_version }}-1"
         command: >-
-          psql -c 'CREATE ROLE {{ username | quote }} WITH LOGIN PASSWORD {{ _password | quote }};\
-          CREATE DATABASE {{ database | quote }} OWNER {{ username | quote }};'
+          psql -c "\set AUTOCOMMIT on\n
+          CREATE ROLE '{{ username }}' WITH LOGIN PASSWORD '{{ _password }}';
+          CREATE DATABASE '{{ database }}' OWNER '{{ username }}';"
       register: database_cmd
       changed_when: database_cmd.rc == 0
-      failed_when:
-        - database_cmd.rc != 0
+      failed_when: database_cmd.rc != 0
 
     - name: Store credentials in vault
       no_log: true

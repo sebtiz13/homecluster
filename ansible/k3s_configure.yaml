@@ -1,4 +1,4 @@
-- name: Configure salamandre applications
+- name: Load informations and configure salamandre applications
   hosts: salamandre
   tags: kubernetes
   pre_tasks:
@@ -26,9 +26,22 @@
   roles:
     - role: apps_vault
       tags: vault
-    - role: oidc
-      tags: oidc
   post_tasks:
+    - name: Wait until database is ready
+      delegate_to: localhost
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ local_kubeconfig }}"
+        kind: Pod
+        namespace: database
+        name: "postgres{{ postgres_version }}-1"
+        wait: true
+        wait_timeout: 300
+
+    - name: OIDC | Initialize OIDC
+      tags: oidc
+      ansible.builtin.import_role:
+        name: oidc
+
     - name: Vault | Fill applications secrets
       tags: vault
       ansible.builtin.import_tasks: tasks/s_apps_secrets.yaml
