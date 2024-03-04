@@ -27,14 +27,14 @@
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
     kind: Secret
-    name: "{{ apps_zitadel.release_name }}-admin-sa"
+    name: "{{ apps_zitadel.release_name }}-console-sa"
     namespace: "{{ apps_zitadel.namespace }}"
     wait: true
-  register: zitadel_admin_key
+  register: zitadel_console_key
 - name: Zitadel | Generate console JWT token
   delegate_to: localhost
   vars:
-    key: "{{ zitadel_admin_key.resources.0.data[apps_zitadel.release_name + '-admin-sa.json'] | b64decode }}"
+    key: "{{ zitadel_console_key.resources.0.data[apps_zitadel.release_name + '-console-sa.json'] | b64decode }}"
     payload:
       iss: "{{ key.userId }}"
       sub: "{{ key.userId }}"

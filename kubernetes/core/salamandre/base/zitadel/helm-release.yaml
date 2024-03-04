@@ -49,8 +49,8 @@ spec:
           Org:
             Machine:
               Machine:
-                Username: zitadel-admin-sa
-                Name: Admin
+                Username: zitadel-console-sa
+                Name: Console
               MachineKey:
                 Type: 1
         DefaultInstance:
