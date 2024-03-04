@@ -6,7 +6,6 @@
   ansible.builtin.include_role:
     name: vault_secret
   vars:
-    updatable: false
     path: "{{ secret_path }}"
     data:
       database: "{{ database }}"
@@ -24,6 +23,18 @@
       psql -c "\set AUTOCOMMIT on\n
       CREATE ROLE '{{ username }}' WITH LOGIN PASSWORD '{{ _password }}';
       CREATE DATABASE '{{ database }}' OWNER '{{ username }}';"
+  register: database_cmd
+  changed_when: database_cmd.rc == 0
+  failed_when: database_cmd.rc != 0
+- name: Change role password
+  when: vault_check.status != 404
+  delegate_to: localhost
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ local_kubeconfig }}"
+    namespace: database
+    pod: "postgres{{ postgres_version }}-1"
+    command: >-
+      psql -c "ALTER ROLE '{{ username }}' WITH PASSWORD '{{ _password }}';"
   register: database_cmd
   changed_when: database_cmd.rc == 0
   failed_when: database_cmd.rc != 0
