@@ -2,10 +2,6 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: postgres16
-  labels:
-    # Note: serverName version needs to be incremented
-    # when recovering from an existing cnpg cluster
-    cnpg.io/servername: &currentCluster postgres16-v1
 spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:16.2
@@ -46,7 +42,9 @@ spec:
         maxParallel: 8
       destinationPath: s3://backup-salamandre-pg/
       endpointURL: https://baku.${DOMAIN_NAME}
-      serverName: *currentCluster
+      # Note: serverName version needs to be incremented
+      # when recovering from an existing cnpg cluster
+      serverName:  &currentCluster postgres16-v1
       s3Credentials:
         accessKeyId:
           name: cnpg-s3-credentials
