@@ -1,4 +1,4 @@
-- name: Load informations and configure salamandre applications
+- name: Load informations and configure salamandre core applications
   hosts: salamandre
   tags: kubernetes
   pre_tasks:
@@ -9,10 +9,10 @@
 
     - name: Store applications informations
       ansible.builtin.set_fact:
-        # vault_api_url: "" # Defined in roles/apps_vault/tasks/main.yaml
-        # vault_root_token: "" # Defined in roles/apps_vault/tasks/main.yaml
-        # zitadel_internal_url: "" # Defined in roles/oidc/tasks/zitadel.yaml
-        # zitadel_console_token: "" # Defined in roles/oidc/tasks/zitadel.yaml
+        # vault_api_url: "" # Defined in roles/apps_vault/tasks/auth.yaml
+        # vault_root_token: "" # Defined in roles/apps_vault/tasks/auth.yaml
+        # zitadel_internal_url: "" # Defined in roles/apps_zitadel/tasks/auth.yaml
+        # zitadel_console_token: "" # Defined in roles/apps_zitadel/tasks/auth.yaml
         apps_vault:
           release_name: vault
           namespace: vault
@@ -27,6 +27,9 @@
     - role: apps_vault
       tags: vault
   post_tasks:
+    - name: Vault | Fill applications secrets
+      ansible.builtin.import_tasks: tasks/s_core_apps_secrets.yaml
+
     - name: Wait until database is ready
       delegate_to: localhost
       kubernetes.core.k8s_info:
@@ -37,20 +40,43 @@
         wait: true
         wait_timeout: 300
 
-    - name: OIDC | Initialize OIDC
-      tags: oidc
+    - name: Zitadel | Setup zitadel
+      tags: zitadel
       ansible.builtin.import_role:
-        name: oidc
+        name: apps_zitadel
 
-    - name: Vault | Fill applications secrets
-      tags: vault
-      ansible.builtin.import_tasks: tasks/s_apps_secrets.yaml
-    - name: Create database accesses
-      tags: vault
-      ansible.builtin.import_tasks: tasks/s_apps_databases.yaml
+- name: Configure applications
+  hosts: salamandre
+  tags: kubernetes
+  pre_tasks:
+    - name: Vault | Authenticate console
+      when: "'vault' in ansible_skip_tags"
+      ansible.builtin.import_tasks: roles/apps_vault/tasks/auth.yaml
+    - name: Zitadel | Authenticate console
+      when: "'zitadel' in ansible_skip_tags"
+      ansible.builtin.import_tasks: roles/apps_zitadel/tasks/auth.yaml
+  tasks:
+    - name: Configure vault oidc
+      tags:
+        - vault
+        - oidc
+      ansible.builtin.import_role:
+        name: vault_oidc
+
+    - name: Vault | Fill salamandre applications secrets
+      ansible.builtin.import_tasks: tasks/s_apps/secrets.yaml
+    - name: Database | Create applications access
+      ansible.builtin.import_tasks: tasks/s_apps/databases.yaml
+    - name: Zitadel (OIDC) | Create applications access
+      ansible.builtin.import_tasks: tasks/s_apps/oidc.yaml
+
+    - name: Vault | Fill baku applications secrets
+      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
+      ansible.builtin.import_tasks: tasks/b_apps/secrets.yaml
+
     - name: Register forgejo runner
-      delegate_to: localhost
       tags: forgejo
+      delegate_to: localhost
       ansible.builtin.import_tasks: tasks/s_forgejo_runner.yaml
 
 - name: Configure baku applications
@@ -58,6 +84,6 @@
   tags: kubernetes
   tasks:
     - name: Vault | Configure access
-      delegate_to: localhost
       tags: vault
+      delegate_to: localhost
       ansible.builtin.import_tasks: tasks/b_vault.yaml

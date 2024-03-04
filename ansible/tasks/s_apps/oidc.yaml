@@ -1,4 +1,6 @@
-- name: Forgejo | Create oidc access # noqa: var-naming[no-role-prefix]
+# ? Vault is managed in "vault_oidc" role
+
+- name: Zitadel | Create Forgejo oidc access # noqa: var-naming[no-role-prefix]
   tags: forgejo
   ansible.builtin.include_role:
     name: oidc_access
@@ -17,8 +19,8 @@
       - OIDC_GRANT_TYPE_REFRESH_TOKEN
     auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
 
-- name: Monitoring | Create Grafana oidc access # noqa: var-naming[no-role-prefix]
-  tags: oidc
+- name: Zitadel | Create Grafana oidc access # noqa: var-naming[no-role-prefix]
+  tags: grafana
   ansible.builtin.include_role:
     name: oidc_access
   vars:

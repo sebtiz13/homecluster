@@ -28,7 +28,7 @@
     headers:
       X-Vault-Token: "{{ hostvars.salamandre.vault_root_token }}"
     body:
-      policy: "{{ lookup('ansible.builtin.file', './vault-policies/' + item + '.hcl') }}"
+      policy: "{{ lookup('ansible.builtin.file', './' + item + '.hcl') }}"
   loop:
     - reader
     - admin

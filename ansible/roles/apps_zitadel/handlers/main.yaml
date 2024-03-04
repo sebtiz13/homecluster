@@ -1,7 +1,7 @@
 ##
 # Handlers for actions
 ##
-- name: Zitadel | Set groupsClaim action triggers
+- name: Set groupsClaim action triggers
   listen: groupsClaim action triggers
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/flows/{{ item.flow }}/trigger/{{ item.trigger }}"
@@ -27,8 +27,7 @@
 ##
 # Handlers for projects
 ##
-- name: Zitadel | Create developer roles
-  listen: Create developer roles
+- name: Create developer roles
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/projects/{{ zitadel_dev_project_id }}/roles/_bulk"
     method: POST
@@ -49,8 +48,7 @@
 ##
 # Handlers for users
 ##
-- name: Zitadel | Add organization permission to admin user
-  listen: Add organization permission to admin user
+- name: Add organization permission to admin user
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/orgs/me/members"
     method: POST
@@ -63,8 +61,7 @@
       userId: "{{ zitadel_admin_user.json.userId }}"
       roles:
         - ORG_OWNER
-- name: Zitadel | Add developer project permission to admin user
-  listen: Add developer project permission to admin user
+- name: Add developer project permission to admin user
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/users/{{ zitadel_admin_user.json.userId }}/grants"
     method: POST
@@ -78,8 +75,7 @@
       roleKeys:
         - Admin
 
-- name: Zitadel | Add developer project permission to test user
-  listen: Add developer project permission to test user
+- name: Add developer project permission to test user
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/users/{{ zitadel_test_user.json.userId }}/grants"
     method: POST

@@ -8,7 +8,7 @@
     "*.conf.j2": "properties",
     "*.json.j2": "json",
     "**/ansible/{site,salamandre,baku}.yaml": "ansible",
-    "**/ansible/**/{handlers,tasks}/*.yaml": "ansible"
+    "**/ansible/**/{handlers,tasks}/**/*.yaml": "ansible"
   },
   "[yaml]": {
     "editor.formatOnSave": false

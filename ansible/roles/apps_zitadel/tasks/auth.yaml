@@ -1,42 +1,3 @@
-- name: Zitadel | Store masterkey
-  no_log: true
-  ansible.builtin.uri:
-    url: "{{ vault_api_url }}/salamandre/data/zitadel/masterkey"
-    method: POST
-    status_code:
-      - 204 # When successfull
-      - 200 # When warning
-    body_format: json
-    headers:
-      X-Vault-Token: "{{ vault_root_token }}"
-    body:
-      data:
-        value: "{{ lookup('file', credentials_folder + '/zitadel_masterkey') }}"
-- name: Zitadel | Create database access # noqa: var-naming[no-role-prefix]
-  ansible.builtin.include_role:
-    name: database_access
-  vars:
-    secret_path: salamandre/data/zitadel/database
-    database: zitadel
-    username: zitadel
-
-- name: External-secrets | Force sync secrets
-  delegate_to: localhost
-  kubernetes.core.k8s:
-    state: patched
-    kubeconfig: "{{ local_kubeconfig }}"
-    api_version: external-secrets.io/v1beta1
-    kind: ExternalSecret
-    name: "{{ item }}"
-    namespace: "{{ apps_zitadel.namespace }}"
-    definition:
-      metadata:
-        annotations:
-          force-sync: "{{ ansible_date_time.epoch }}"
-  loop:
-    - zitadel-credentials
-    - zitadel-masterkey
-
 - name: Zitadel | Retrieve server service
   delegate_to: localhost
   kubernetes.core.k8s_info:
@@ -104,3 +65,29 @@
 - name: Zitadel | Store console token
   ansible.builtin.set_fact:
     zitadel_console_token: "{{ zitadel_console_token.json.access_token }}"
+
+##
+# Retrieve developer project
+##
+- name: Zitadel | Retrieve developer project id
+  ansible.builtin.uri:
+    url: "{{ zitadel_internal_url }}/management/v1/projects/_search"
+    method: POST
+    headers:
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
+    status_code: 200
+    return_content: true
+    body_format: json
+    body:
+      query:
+        limit: 1
+      queries:
+        - nameQuery:
+            name: developer
+            method: TEXT_QUERY_METHOD_EQUALS
+  register: zitadel_project
+- name: Zitadel | Store the project id
+  when: zitadel_project.json.result is defined
+  ansible.builtin.set_fact:
+    zitadel_dev_project_id: "{{ zitadel_project.json.result.0.id }}"

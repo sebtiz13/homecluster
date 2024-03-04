@@ -30,24 +30,8 @@
   delegate_to: localhost
   ansible.builtin.import_tasks: initialize.yaml
 
-- name: Generate child token
-  vars:
-    vault_file: "{{ lookup('ansible.builtin.file', credentials_folder + '/vault.json') }}"
-  ansible.builtin.uri:
-    url: "{{ vault_api_url }}/auth/token/create"
-    method: POST
-    status_code: 200
-    return_content: true
-    body_format: json
-    headers:
-      X-Vault-Token: "{{ vault_file.root_token }}"
-    body:
-      renewable: false
-      ttl: 1h
-  register: vault_token
-- name: Store child token
-  ansible.builtin.set_fact:
-    vault_root_token: "{{ vault_token.json.auth.client_token }}"
+- name: Authenticate console
+  ansible.builtin.import_tasks: auth.yaml
 
 - name: Enable static secrets engine for each cluster
   delegate_to: localhost
@@ -71,9 +55,6 @@
 
 - name: Configure external-secrets access
   ansible.builtin.import_tasks: eso_access.yaml
-
-- name: Fill applications secrets
-  ansible.builtin.import_tasks: apps_secrets.yaml
 
 - name: External-secrets | Wait cluster store ready
   delegate_to: localhost

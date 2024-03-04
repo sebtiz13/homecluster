@@ -1,0 +1,38 @@
+- name: Store masterkey # noqa: var-naming[no-role-prefix]
+  ansible.builtin.include_role:
+    name: vault_secret
+  vars:
+    updatable: false
+    path: salamandre/data/zitadel/masterkey
+    data:
+      value: "{{ lookup('file', credentials_folder + '/zitadel_masterkey') }}"
+- name: Create database access # noqa: var-naming[no-role-prefix]
+  ansible.builtin.include_role:
+    name: database_access
+  vars:
+    secret_path: salamandre/data/zitadel/database
+    database: zitadel
+    username: zitadel
+
+- name: External-secrets | Force sync secrets
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    state: patched
+    kubeconfig: "{{ local_kubeconfig }}"
+    api_version: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    name: "{{ item }}"
+    namespace: "{{ apps_zitadel.namespace }}"
+    definition:
+      metadata:
+        annotations:
+          force-sync: "{{ ansible_date_time.epoch }}"
+  loop:
+    - zitadel-credentials
+    - zitadel-masterkey
+
+- name: Authenticate console
+  ansible.builtin.import_tasks: auth.yaml
+
+- name: Configure Zitadel resources
+  ansible.builtin.import_tasks: setup.yaml

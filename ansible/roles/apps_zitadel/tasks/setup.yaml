@@ -1,4 +1,4 @@
-- name: Zitadel | Create groupsClaim action
+- name: Create groupsClaim action
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/actions"
     method: POST
@@ -13,34 +13,15 @@
     body:
       name: groupsClaim
       allowedToFail: true
-      script: "{{ lookup('ansible.builtin.file', './zitadel-actions/groupsClaim.js') }}"
+      script: "{{ lookup('ansible.builtin.file', './groupsClaim.js') }}"
   register: zitadel_groupsclaim_action
   changed_when: zitadel_groupsclaim_action.status == 200
   notify: groupsClaim action triggers
 
-- name: Zitadel | Create developer project
+- name: Create developer project
+  when: zitadel_project.json.result is not defined
   block:
-    - name: Zitadel | dev project | Check if exist
-      ansible.builtin.uri:
-        url: "{{ zitadel_internal_url }}/management/v1/projects/_search"
-        method: POST
-        headers:
-          Host: "{{ apps_zitadel.domain_name }}"
-          Authorization: "Bearer {{ zitadel_console_token }}"
-        status_code: 200
-        return_content: true
-        body_format: json
-        body:
-          query:
-            limit: 1
-          queries:
-            - nameQuery:
-                name: developer
-                method: TEXT_QUERY_METHOD_EQUALS
-      register: zitadel_project
-
-    - name: Zitadel | dev project | Create it
-      when: zitadel_project.json.result is not defined
+    - name: Dev project | Create it
       ansible.builtin.uri:
         url: "{{ zitadel_internal_url }}/management/v1/projects"
         method: POST
@@ -57,9 +38,9 @@
       register: zitadel_project_n
       changed_when: zitadel_project_n.status == 200
       notify: Create developer roles
-    - name: Zitadel | dev project | Store the id
+    - name: Dev project | Store the id
       ansible.builtin.set_fact:
-        zitadel_dev_project_id: "{{ ((zitadel_project_n is changed) | ternary(zitadel_project_n.json, zitadel_project.json.result.0)).id }}"
+        zitadel_dev_project_id: "{{ zitadel_project_n.json.id }}"
 
 ##
 # Create users

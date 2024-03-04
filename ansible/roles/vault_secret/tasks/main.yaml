@@ -1,0 +1,31 @@
+- name: Check if secret exist
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/{{ path }}"
+    method: GET
+    status_code:
+      - 200 # When successfull
+      - 204 # When warning
+      - 404 # When is not created
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    return_content: true
+  register: vault_check
+
+- name: Store secret
+  when: >
+    (vault_check.status == 404) or
+    (updatable and vault_check.json.data.data != data)
+  no_log: true
+  changed_when: true
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/{{ path }}"
+    method: POST
+    status_code:
+      - 200 # When successfull
+      - 204 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      data: "{{ data }}"

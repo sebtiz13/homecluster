@@ -8,7 +8,7 @@
   loop_control:
     label: "{{ item }}"
   loop:
-    # ? zitadel > created in oidc role
+    # ? zitadel > created in "oidc" role
     - forgejo
     - nextcloud
     - vaultwarden

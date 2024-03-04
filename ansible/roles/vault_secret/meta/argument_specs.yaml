@@ -1,0 +1,13 @@
+argument_specs:
+  main:
+    short_description: The main entry point for the vault secret.
+    options:
+      updatable:
+        type: bool
+        default: true
+      path:
+        type: str
+        required: true
+      data:
+        type: dict
+        required: true
