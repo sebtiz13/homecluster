@@ -20,9 +20,8 @@
     namespace: database
     pod: "postgres{{ postgres_version }}-1"
     command: >-
-      psql -c "\set AUTOCOMMIT on\n
-      CREATE ROLE '{{ username }}' WITH LOGIN PASSWORD '{{ _password }}';
-      CREATE DATABASE '{{ database }}' OWNER '{{ username }}';"
+      psql -U postgres -c "CREATE ROLE {{ username }} WITH LOGIN PASSWORD '{{ _password }}';"
+      -c "CREATE DATABASE {{ database }} OWNER {{ username }};"
   register: database_cmd
   changed_when: database_cmd.rc == 0
   failed_when: database_cmd.rc != 0
@@ -34,7 +33,7 @@
     namespace: database
     pod: "postgres{{ postgres_version }}-1"
     command: >-
-      psql -c "ALTER ROLE '{{ username }}' WITH PASSWORD '{{ _password }}';"
+      psql -U postgres -c "ALTER ROLE {{ username }} WITH PASSWORD '{{ _password }}';"
   register: database_cmd
   changed_when: database_cmd.rc == 0
   failed_when: database_cmd.rc != 0
