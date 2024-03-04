@@ -8,3 +8,4 @@ resources:
   - cert-manager
   - ../base/vault
   - ../base/database
+  - ../base/zitadel
