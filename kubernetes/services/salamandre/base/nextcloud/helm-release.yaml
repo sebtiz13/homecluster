@@ -31,6 +31,7 @@ spec:
 
       hooks:
         post-installation: |-
+          _instanceID=$(php occ config:system:get instanceid)
           echo "Disable unneeded Nextcloud Apps"
           php occ app:disable activity
           php occ app:disable circles
@@ -61,10 +62,6 @@ spec:
           php occ config:app:set drawio DrawioTheme --value dark && \
           php occ config:app:set drawio DrawioLibraries --value yes
 
-          php occ app:enable external && \
-          php occ config:app:set external sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}" && \
-          php occ config:app:set external max_site --value 1
-
           php occ app:enable twofactor_totp
           php occ app:enable bruteforcesettings
           php occ app:enable previewgenerator
@@ -75,10 +72,12 @@ spec:
           php occ app:enable deck
           php occ app:enable mail
 
-          echo "Add wallabag icon"
-          instanceID=$(php occ config:system:get instanceid)
-          cp /var/www/html/icons/* /var/www/html/data/appdata_${instanceID}/external/icons
-          chown www-data:www-data /var/www/html/data/appdata_${instanceID}/external/icons/*
+          php occ app:enable external && \
+          php occ config:app:set external sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}" && \
+          php occ config:app:set external max_site --value 1 && \
+          echo "Copy extra icons for external apps" && \
+          cp /var/www/html/icons/* /var/www/html/data/appdata_${_instanceID}/external/icons && \
+          chown www-data:www-data /var/www/html/data/appdata_${_instanceID}/external/icons/*
 
         post-upgrade: |-
           echo "Update all Nextcloud Apps"
