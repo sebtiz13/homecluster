@@ -80,6 +80,10 @@ spec:
           cp /var/www/html/icons/* /var/www/html/data/appdata_${instanceID}/external/icons
           chown www-data:www-data /var/www/html/data/appdata_${instanceID}/external/icons/*
 
+        post-upgrade: |-
+          echo "Update all Nextcloud Apps"
+          php occ app:update --all
+
       phpConfigs:
         z-nextcloud.ini: |-
           ;Permanent cache (need restart to revalidate) useful for production
