@@ -190,6 +190,14 @@ spec:
         - name: PHP_UPLOAD_LIMIT
           value: 16G
 
+      extraVolumes:
+        - name: &configName extra-icons
+          configMap:
+            name: *configName
+      extraVolumeMounts:
+        - name: *configName
+          mountPath: /var/www/html/icons
+
     externalDatabase:
       enabled: true
       type: postgresql
@@ -219,14 +227,6 @@ spec:
       tls:
         - hosts:
             - *host
-
-    extraVolumes:
-      - name: &configName extra-icons
-        configMap:
-          name: *configName
-    extraVolumeMounts:
-      - name: *configName
-        mountPath: /var/www/html/icons
 
     resources:
       requests:

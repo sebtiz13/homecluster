@@ -17,3 +17,5 @@ configMapGenerator:
     files:
       - _icons/wallabag.svg
       - _icons/wallabag-dark.svg
+generatorOptions:
+  disableNameSuffixHash: true
