@@ -31,8 +31,6 @@ mkdir -p "./out/credentials/${ENVIRONMENT}"
 FILE="./out/credentials/${ENVIRONMENT}/admin_passwords.yaml"
 touch "$FILE"
 
-insert_pwd "$FILE" .k8s_dashboard "$(randpw 16)"
-
 ##
 # Salamandre credentials
 ##
