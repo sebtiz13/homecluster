@@ -10,70 +10,12 @@ spec:
   chart:
     spec:
       chart: *name
-      version: "4.5.10"
+      version: "4.6.4"
       sourceRef:
         kind: HelmRepository
         name: *name
         namespace: flux-system
   values:
-    # lifecycle:
-    #   postStartCommand:
-    #     # php occ db:add-missing-indices
-    #     - su
-    #     - -s
-    #     - /bin/sh
-    #     - www-data
-    #     - -c
-    #     - |-
-    #       echo "Disable unneeded Nextcloud Apps"
-    #       php occ app:disable activity
-    #       php occ app:disable circles
-    #       php occ app:disable systemtags
-    #       php occ app:disable federation
-    #       php occ app:disable privacy
-    #       php occ app:disable nextcloud_announcements
-    #       php occ app:disable support
-    #       php occ app:disable survey_client
-    #       php occ app:disable user_status
-    #       php occ app:disable weather_status
-
-    #       echo "Configuring Nextcloud Apps"
-    #       php occ config:app:set jpeg_quality --value 60
-
-    #       php occ app:enable admin_audit
-    #       php occ config:app:set logfile --value /var/www/html/data/audit.log
-
-    #       php occ app:enable richdocuments
-    #       php occ config:app:set wopi_allowlist --value 10.42.0.0/16
-    #       php occ config:app:set wopi_url --value http://nextcloud/
-    #       php occ config:app:set public_wopi_url --value https://cloud.${DOMAIN_NAME}/
-
-    #       php occ app:enable bookmarks
-    #       php occ config:app:set privacy.enableScraping --value true
-
-    #       php occ app:enable drawio
-    #       php occ config:app:set DrawioTheme --value dark
-    #       php occ config:app:set DrawioLibraries --value yes
-
-    #       php occ app:enable external
-    #       php occ config:app:set sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}"
-    #       php occ config:app:set max_site --value 1
-
-    #       php occ app:enable twofactor_totp
-    #       php occ app:enable bruteforcesettings
-    #       php occ app:enable previewgenerator
-    #       php occ app:enable quota_warning
-    #       php occ app:enable contacts
-    #       php occ app:enable calendar
-    #       php occ app:enable notes
-    #       php occ app:enable deck
-    #       php occ app:enable mail
-
-    #       echo "Add wallabag icon"
-    #       instanceID=$(php occ config:system:get instanceid)
-    #       cp /var/www/html/icons/* /var/www/html/data/appdata_${instanceID}/external/icons
-    #       chown www-data:www-data /var/www/html/data/appdata_${instanceID}/external/icons/*
-
     nextcloud:
       host: &host cloud.${DOMAIN_NAME}
 
@@ -86,6 +28,57 @@ spec:
         enabled: true
         fromAddress: contact
         domain: ${DOMAIN_NAME}
+
+      hooks:
+        post-installation: |-
+          echo "Disable unneeded Nextcloud Apps"
+          php occ app:disable activity
+          php occ app:disable circles
+          php occ app:disable systemtags
+          php occ app:disable federation
+          php occ app:disable privacy
+          php occ app:disable nextcloud_announcements
+          php occ app:disable support
+          php occ app:disable survey_client
+          php occ app:disable user_status
+          php occ app:disable weather_status
+
+          echo "Configuring Nextcloud Apps"
+          php occ config:app:set preview jpeg_quality --value 60
+
+          php occ app:enable admin_audit && \
+          php occ config:app:set admin_audit logfile --value /var/www/html/data/audit.log
+
+          php occ app:enable richdocuments && \
+          php occ config:app:set richdocuments wopi_allowlist --value 10.42.0.0/16 && \
+          php occ config:app:set richdocuments wopi_url --value http://nextcloud/ && \
+          php occ config:app:set richdocuments public_wopi_url --value https://cloud.${DOMAIN_NAME}/
+
+          php occ app:enable bookmarks && \
+          php occ config:app:set bookmarks privacy.enableScraping --value true
+
+          php occ app:enable drawio && \
+          php occ config:app:set drawio DrawioTheme --value dark && \
+          php occ config:app:set drawio DrawioLibraries --value yes
+
+          php occ app:enable external && \
+          php occ config:app:set external sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}" && \
+          php occ config:app:set external max_site --value 1
+
+          php occ app:enable twofactor_totp
+          php occ app:enable bruteforcesettings
+          php occ app:enable previewgenerator
+          php occ app:enable quota_warning
+          php occ app:enable contacts
+          php occ app:enable calendar
+          php occ app:enable notes
+          php occ app:enable deck
+          php occ app:enable mail
+
+          echo "Add wallabag icon"
+          instanceID=$(php occ config:system:get instanceid)
+          cp /var/www/html/icons/* /var/www/html/data/appdata_${instanceID}/external/icons
+          chown www-data:www-data /var/www/html/data/appdata_${instanceID}/external/icons/*
 
       phpConfigs:
         z-nextcloud.ini: |-
