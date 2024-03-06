@@ -52,7 +52,7 @@ spec:
 
           php occ app:enable richdocuments && \
           php occ config:app:set richdocuments wopi_allowlist --value 10.42.0.0/16 && \
-          php occ config:app:set richdocuments wopi_url --value http://nextcloud/ && \
+          php occ config:app:set richdocuments wopi_url --value http://collabora-code:9980/ && \
           php occ config:app:set richdocuments public_wopi_url --value https://cloud.${DOMAIN_NAME}/
 
           php occ app:enable bookmarks && \
@@ -73,7 +73,7 @@ spec:
           php occ app:enable mail
 
           php occ app:enable external && \
-          php occ config:app:set external sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}" && \
+          php occ config:app:set external sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.${DOMAIN_NAME}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}" && \
           php occ config:app:set external max_site --value 1 && \
           echo "Copy extra icons for external apps" && \
           cp /var/www/html/icons/* /var/www/html/data/appdata_$${_instanceID}/external/icons && \

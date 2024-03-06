@@ -22,7 +22,7 @@ spec:
     collabora:
       aliasgroups:
         - domain: https://cloud.${DOMAIN_NAME}
-      server_name: cloud${DOMAIN_NAME}
+      server_name: cloud.${DOMAIN_NAME}
 
       dictionaries: en_GB en_US fr_FR
 
