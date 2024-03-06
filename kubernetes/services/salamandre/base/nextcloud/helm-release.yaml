@@ -76,8 +76,8 @@ spec:
           php occ config:app:set external sites --value "{\"1\":{\"id\":1,\"name\":\"Wallabag\",\"url\":\"https:\/\/bag.{{ domain_name }}\",\"lang\":\"\",\"type\":\"link\",\"device\":\"\",\"icon\":\"wallabag.svg\",\"groups\":[],\"redirect\":false}}" && \
           php occ config:app:set external max_site --value 1 && \
           echo "Copy extra icons for external apps" && \
-          cp /var/www/html/icons/* /var/www/html/data/appdata_${_instanceID}/external/icons && \
-          chown www-data:www-data /var/www/html/data/appdata_${_instanceID}/external/icons/*
+          cp /var/www/html/icons/* /var/www/html/data/appdata_$${_instanceID}/external/icons && \
+          chown www-data:www-data /var/www/html/data/appdata_$${_instanceID}/external/icons/*
 
           echo "Add missing DB indices"
           php occ db:add-missing-indices

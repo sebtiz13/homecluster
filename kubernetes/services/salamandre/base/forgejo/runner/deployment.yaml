@@ -45,7 +45,7 @@ spec:
                   echo 'Max retries reached, exiting'
                   exit 1
                 fi
-                echo "Checking again in 5 seconds. Retry count: ${retries} of ${max}";
+                echo "Checking again in 5 seconds. Retry count: $retries of $max";
                 sleep 5;
               done;
           env:

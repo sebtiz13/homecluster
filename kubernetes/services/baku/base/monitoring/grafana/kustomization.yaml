@@ -10,6 +10,7 @@ configMapGenerator:
   - name: grafana-dashboards-default
     options:
       labels:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
         grafana_dashboard: "1"
     files:
       - dashboards/minio.json
@@ -20,6 +21,7 @@ configMapGenerator:
       labels:
         grafana_dashboard: "1"
       annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
         grafana_folder: "Kubernetes"
     files:
       - dashboards/kubernetes/views_global.json
@@ -31,6 +33,7 @@ configMapGenerator:
       labels:
         grafana_dashboard: "1"
       annotations:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
         grafana_folder: "VictoriaMetrics"
     files:
       - dashboards/victoriametrics/global.json
