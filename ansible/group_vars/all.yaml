@@ -13,3 +13,6 @@ _manifests_folder: "{{ playbook_dir }}/../kubernetes"
 flux:
   manifest: "{{ _manifests_folder }}/base/common/flux-system/gotk-components.yaml"
   bootstrap_folder: "{{ _manifests_folder }}/base/{{ inventory_hostname }}/{{ env }}"
+
+# Webhook url for send discord notifications
+alerts_discord_webhook_url: "{{ credentials_folder }}/discord_webhook_url"

@@ -3,6 +3,3 @@ smtp_auth:
   port: "1025"
   username: "contact@{{ root_domain }}"
   password: password
-
-# Webhook url for send discord notifications
-alerts_discord_webhook_url: https://discord.com/api/webhooks/1136349194488123392/sq8Vb7NqtScDnnI6tewPUUNTx37ZYOEzeELcWIdh2DTC4FBhEQeKfm4nQrOPlbLlwIZd

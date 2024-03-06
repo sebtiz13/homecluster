@@ -33,6 +33,3 @@ cert_manager_ovh_auth:
   application_key: ""
   application_secret: ""
   consumer_key: ""
-
-# Webhook url for send discord notifications
-alerts_discord_webhook_url: ""

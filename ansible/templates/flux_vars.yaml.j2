@@ -12,4 +12,4 @@ stringData:
   DOMAIN_NAME: "{{ root_domain }}"
   OIDC_ISSUER_HOST: "{{ hostvars.salamandre.external_urls.zitadel | replace('https://', '') }}"
 
-  ALERTS_DISCORD_WEBHOOK_URL: "{{ alerts_discord_webhook_url }}"
+  ALERTS_DISCORD_WEBHOOK_URL: "{{ lookup('file', alerts_discord_webhook_url) }}"

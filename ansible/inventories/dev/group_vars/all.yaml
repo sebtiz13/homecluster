@@ -23,6 +23,3 @@ zfs_pool:
 ca:
   cert: "{{ _vagrant_dir }}/ca/rootCA.pem"
   key: "{{ _vagrant_dir }}/ca/rootCA-key.pem"
-
-# Webhook url for send discord notifications
-alerts_discord_webhook_url: "" # TODO: secret it
