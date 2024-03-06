@@ -7,4 +7,4 @@ spec:
     middlewares:
       - name: headers
       - name: redirect-cardav
-      - name: webfinger-nodeinfo
+      - name: redirect-webfinger-nodeinfo

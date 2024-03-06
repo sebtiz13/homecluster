@@ -6,9 +6,8 @@ resources:
   - namespace.yaml
   - helm-release.yaml
   - secrets.yaml
-  - traefik-middlewares/cardav.yaml
   - traefik-middlewares/headers.yaml
-  - traefik-middlewares/webfinger.yaml
+  - traefik-middlewares/redirects.yaml
   - traefik-middlewares/chained.yaml
   - imaginary
   - collabora
