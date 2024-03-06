@@ -79,7 +79,13 @@ spec:
           cp /var/www/html/icons/* /var/www/html/data/appdata_${_instanceID}/external/icons && \
           chown www-data:www-data /var/www/html/data/appdata_${_instanceID}/external/icons/*
 
+          echo "Add missing DB indices"
+          php occ db:add-missing-indices
+
         post-upgrade: |-
+          echo "Add missing DB indices"
+          php occ db:add-missing-indices
+
           echo "Update all Nextcloud Apps"
           php occ app:update --all
 
@@ -91,7 +97,8 @@ spec:
         custom.config.php: |-
           <?php
           $CONFIG = array (
-            'default_phone_region' => 'FR'
+            'default_phone_region' => 'FR',
+            'maintenance_window_start' => 1
           );
         # AIO (chart) config
         aio.config.php: |-
