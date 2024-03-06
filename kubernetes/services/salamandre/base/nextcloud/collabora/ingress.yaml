@@ -4,6 +4,9 @@ metadata:
   name: &name collabora-code
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: nextcloud-chained-middlewares@kubernetescrd
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: nextcloud
+    app.kubernetes.io/component: *name
 spec:
   rules:
     - host: &host cloud.${DOMAIN_NAME}

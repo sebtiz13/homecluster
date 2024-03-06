@@ -30,9 +30,6 @@ step):
 - Nextcloud:
   - Username: `admin`
   - Password: run `yq .nextcloud ./out/credentials/salamandre/<env>/admin_passwords.yaml`
-- Collabora:
-  - Username: `admin`
-  - Password: run `yq .collabora ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Forgejo:
   - Username: `root`
   - Password: run `yq .forgejo ./out/credentials/salamandre/<env>/admin_passwords.yaml`
