@@ -82,16 +82,19 @@ spec:
           echo "Add missing DB indices"
           php occ db:add-missing-indices
 
+        # Based on: https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L296-L306
         post-upgrade: |-
-          php occ maintenance:mode --on
-
-          echo "Add missing DB indices"
-          php occ db:add-missing-indices
-
           echo "Update all Nextcloud Apps"
           php occ app:update --all
 
-          php occ maintenance:mode --off
+          echo "Doing some optimizations..."
+          php occ maintenance:repair
+          php occ db:add-missing-indices
+          php occ db:add-missing-columns
+          php occ db:add-missing-primary-keys
+          yes | php occ db:convert-filecache-bigint
+          php occ maintenance:mimetype:update-js
+          php occ maintenance:mimetype:update-db
 
       phpConfigs:
         z-nextcloud.ini: |-
