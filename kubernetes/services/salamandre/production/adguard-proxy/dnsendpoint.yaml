@@ -1,0 +1,14 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: dns-${DOMAIN_NAME/./-}
+spec:
+  endpoints:
+    - dnsName: dns.${DOMAIN_NAME}
+      recordType: CNAME
+      targets:
+        - ${ROOT_DOMAIN_NAME}
+    - dnsName: "*.dns.${DOMAIN_NAME}"
+      recordType: CNAME
+      targets:
+        - ${ROOT_DOMAIN_NAME}

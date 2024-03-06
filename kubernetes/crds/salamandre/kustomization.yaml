@@ -5,3 +5,4 @@ resources:
   - ../common
   - cert-manager
   - cloudnative-pg
+  - external-dns

@@ -5,6 +5,7 @@ namespace: flux-system
 resources:
   - ../common
   - cloudnative-pg.yaml
+  - external-dns.yaml
   - forgejo.yaml
   - hashicorp.yaml # vault
   - jetstack.yaml # cert-manager

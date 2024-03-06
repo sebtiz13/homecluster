@@ -19,7 +19,7 @@ services in our home cluster.
 - [ ] Automatically update apps (with approval, _Currently: only manual update_) 🚧
 - [x] Modular architecture, easy to add or remove features/components
 - [x] Automated certificate management
-- [ ] Automatically update DNS records for exposed services
+- [x] Automatically update DNS records for exposed services
 - [x] CI/CD platform
 - [x] Git server
 - [x] Private container registry

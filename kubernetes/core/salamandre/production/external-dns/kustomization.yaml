@@ -1,12 +1,9 @@
 # vscode-kubernetes-tools: exclude
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: external-dns
 resources:
   - namespace.yaml
-  - certificate.yaml
   - dnsendpoint.yaml
-  - endpoint.yaml
-  - ingress.yaml
-  - middlewares.yaml
-  - service.yaml
-  - tlsoptions.yaml
+  - helm-release.yaml
+  - secret.yaml

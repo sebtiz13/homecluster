@@ -26,7 +26,7 @@ Good enough for tinkering.
 Good enough for tinkering, personal usage and reasonably secure.
 
 - [x] Automated application sync (GitLab Agent and ArgoCD, on Salamandre)
-- [ ] Automated DNS management (update DNS records, on Salamandre)
+- [x] Automated DNS management (update DNS records, on Salamandre)
 - [x] Single Sign-On (Zitadel, on Salamandre)
 - [x] Reasonably secure
   - [x] Automated certificate management (cert-manager, on Salamandre)

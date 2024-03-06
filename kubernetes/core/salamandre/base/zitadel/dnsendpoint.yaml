@@ -1,0 +1,10 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: ${OIDC_ISSUER_HOST/./-}
+spec:
+  endpoints:
+    - dnsName: ${OIDC_ISSUER_HOST}
+      recordType: CNAME
+      targets:
+        - ${ROOT_DOMAIN_NAME}

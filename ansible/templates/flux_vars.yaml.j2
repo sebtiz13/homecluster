@@ -11,5 +11,9 @@ stringData:
   SERVER_IP: "{{ ansible_host }}"
   DOMAIN_NAME: "{{ root_domain }}"
   OIDC_ISSUER_HOST: "{{ hostvars.salamandre.external_urls.zitadel | replace('https://', '') }}"
+{% if env == 'production' and inventory_hostname == 'salamandre' %}
+  ROOT_DOMAIN_NAME: "{{ root_domains.salamandre }}"
+  BAKU_ROOT_DOMAIN_NAME: "{{ root_domains.baku }}"
+{% endif %}
 
   ALERTS_DISCORD_WEBHOOK_URL: "{{ lookup('file', alerts_discord_webhook_url) }}"

@@ -1,0 +1,10 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: ${BAKU_ROOT_DOMAIN_NAME/./-}
+spec:
+  endpoints:
+    - dnsName: monitor.${DOMAIN_NAME}
+      recordType: CNAME
+      targets:
+        - ${BAKU_ROOT_DOMAIN_NAME}

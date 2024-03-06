@@ -5,6 +5,7 @@ namespace: vaultwarden
 resources:
   - namespace.yaml
   - configmaps.yaml
+  - dnsendpoint.yaml
   - pvc.yaml
   - secrets.yaml
   - deployment.yaml

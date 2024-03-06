@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: forgejo
 resources:
   - namespace.yaml
+  - dnsendpoint.yaml
   - helm-release.yaml
   - secrets.yaml
   - runner

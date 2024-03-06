@@ -1,0 +1,10 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: git-${DOMAIN_NAME/./-}
+spec:
+  endpoints:
+    - dnsName: git.${DOMAIN_NAME}
+      recordType: CNAME
+      targets:
+        - ${ROOT_DOMAIN_NAME}

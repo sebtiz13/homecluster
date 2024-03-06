@@ -5,6 +5,7 @@ namespace: wallabag
 resources:
   - namespace.yaml
   - configmaps.yaml
+  - dnsendpoint.yaml
   - pvc.yaml
   - secret.yaml
   - deployment.yaml

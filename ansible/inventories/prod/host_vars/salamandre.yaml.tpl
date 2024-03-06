@@ -29,7 +29,15 @@ smtp_auth:
   username: "contact@{{ root_domain }}"
   password: user
 
-cert_manager_ovh_auth:
+# The user need to be able to :
+# - add, edit and delete sub domain
+# - add, edit, delete TLS certificate
+ovh_credentials:
   application_key: ""
   application_secret: ""
   consumer_key: ""
+
+# The root domains used for each cluster to define sub domains CNAME
+root_domains:
+  salamandre: "salamandre.{{ root_domain }}"
+  baku:"baku.{{ root_domain }}"
