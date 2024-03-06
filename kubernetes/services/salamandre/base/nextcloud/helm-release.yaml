@@ -83,11 +83,15 @@ spec:
           php occ db:add-missing-indices
 
         post-upgrade: |-
+          php occ maintenance:mode --on
+
           echo "Add missing DB indices"
           php occ db:add-missing-indices
 
           echo "Update all Nextcloud Apps"
           php occ app:update --all
+
+          php occ maintenance:mode --off
 
       phpConfigs:
         z-nextcloud.ini: |-
