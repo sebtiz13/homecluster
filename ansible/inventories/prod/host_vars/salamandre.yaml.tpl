@@ -4,11 +4,6 @@ ansible_host: 0.0.0.0 # Server IP
 ansible_port: 0 # SSH port of server
 ansible_user: root # user name used for run ansible (! NEED can run `sudo`)
 ansible_sudo_pass: root # password of user for use `sudo`
-host_netmask: 255.255.255.0
-
-# Custom CIDR if server IP is different from SSH connection
-# This use CIDR format WITH ip_address/netmask (netmask can be prefix or full like `255.255.255.0`)
-# host_cidr: "192.168.1.10/24"
 
 # Only support one of https://github.com/frankcrawford/it87/blob/master/README (only numbers)
 # motherboard_chip: 8686 # Gigabyte_B360M

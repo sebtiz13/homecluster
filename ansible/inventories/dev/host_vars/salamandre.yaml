@@ -1,5 +1,3 @@
-host_cidr: "{{ ansible_eth0.ipv4.address }}/{{ ansible_eth0.ipv4.netmask }}"
-
 smtp_auth:
   host: mailhog.mailhog.svc
   port: "1025"
