@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/instance: nextcloud
     app.kubernetes.io/component: *name
 data:
-  DONT_GEN_SSL_CERT: true
+  DONT_GEN_SSL_CERT: "true"
   dictionaries: en_GB en_US es_ES fr_FR
   aliasgroup1: https://cloud.${DOMAIN_NAME}:443
   extra_params: --o:ssl.termination=true --o:ssl.enable=false
