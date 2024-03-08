@@ -67,6 +67,9 @@ spec:
       enabled: true
       size: 5Gi
 
+    annotations:
+      reloader.stakater.com/auto: "true"
+
     ingress:
       enabled: true
       hosts:

@@ -72,6 +72,9 @@ spec:
             WarnColorDark: "#BF616A"
             FontColorDark: "#ECEFF4"
 
+    annotations:
+      reloader.stakater.com/auto: "true"
+
     initJob:
       command: zitadel
 

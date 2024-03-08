@@ -5,6 +5,8 @@ metadata:
   labels:
     app.kubernetes.io/name: *name
     app.kubernetes.io/instance: *name
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   selector:

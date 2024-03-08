@@ -45,3 +45,6 @@ spec:
           secretKeyRef:
             name: ovh-credentials
             key: consumerKey
+
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"

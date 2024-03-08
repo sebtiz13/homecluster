@@ -64,6 +64,10 @@ spec:
     strategy:
       type: Recreate
 
+    deployment:
+      annotations:
+        reloader.stakater.com/auto: "true"
+
     ingress:
       enabled: true
       hosts:

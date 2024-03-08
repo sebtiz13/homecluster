@@ -6,5 +6,6 @@ resources:
   - external-secrets.yaml
   - minio.yaml
   - openebs-zfslocalpv.yaml
+  - stakater.yaml # reloader
   - traefik.yaml
   - victoriametrics.yaml

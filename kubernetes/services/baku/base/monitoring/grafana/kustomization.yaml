@@ -11,6 +11,7 @@ configMapGenerator:
     options:
       labels:
         kustomize.toolkit.fluxcd.io/substitute: disabled
+        reloader/watch: enabled
         grafana_dashboard: "1"
     files:
       - dashboards/minio.json
@@ -19,6 +20,7 @@ configMapGenerator:
   - name: grafana-dashboards-kubernetes
     options:
       labels:
+        reloader/watch: enabled
         grafana_dashboard: "1"
       annotations:
         kustomize.toolkit.fluxcd.io/substitute: disabled
@@ -31,6 +33,7 @@ configMapGenerator:
   - name: grafana-dashboards-victoriametrics
     options:
       labels:
+        reloader/watch: enabled
         grafana_dashboard: "1"
       annotations:
         kustomize.toolkit.fluxcd.io/substitute: disabled

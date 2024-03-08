@@ -40,4 +40,4 @@ ovh_credentials:
 # The root domains used for each cluster to define sub domains CNAME
 root_domains:
   salamandre: "salamandre.{{ root_domain }}"
-  baku:"baku.{{ root_domain }}"
+  baku: "baku.{{ root_domain }}"

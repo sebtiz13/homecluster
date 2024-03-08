@@ -19,7 +19,7 @@ spec:
     nextcloud:
       host: &host cloud.${DOMAIN_NAME}
 
-      # Admin user
+      # Admin user + SMTP credentials
       existingSecret:
         enabled: true
         secretName: nextcloud-credentials
@@ -236,6 +236,9 @@ spec:
 
     phpClientHttpsFix:
       enabled: true
+
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
 
     ingress:
       enabled: true
