@@ -13,26 +13,3 @@
       connection: ssh
       become: true
       tags: sensors
-
-- name: Install and Configure DynDNS
-  hosts: baku
-  become: true
-  tags: dyndns
-  tasks:
-    - name: DynDNS | Install client package
-      when: env == 'production'
-      ansible.builtin.apt:
-        pkg:
-          - ddclient
-
-    - name: DynDNS | Configure it
-      when: env == 'production'
-      vars:
-        username: "{{ dyndns.username }}"
-        password: "{{ dyndns.password }}"
-        domain: "{{ dyndns.domain }}"
-      ansible.builtin.template:
-        dest: /etc/ddclient.conf
-        src: b_ddclient.conf.j2
-        mode: "u=rwx,g=rx,o=rx"
-        backup: true

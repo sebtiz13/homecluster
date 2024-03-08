@@ -19,8 +19,3 @@ zfs_pool:
   disks:
     []
     # - /dev/by-uuid/5e3051da-d345-4a1c-be59-e987678c005e
-
-dyndns:
-  username: ""
-  password: ""
-  domain: "{{ domain_name }}"
