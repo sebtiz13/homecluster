@@ -38,7 +38,13 @@ insert_pwd "$FILE" .salamandre.zitadel "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.minio "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.nextcloud "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.forgejo "$(randpw 16)"
-insert_pwd "$FILE" .salamandre.vaultwarden "$(randpw 16)"
+
+if [[ "$(yq .salamandre.vaultwarden "$FILE")" = "null" ]]; then
+  token=$(openssl rand -base64 48)
+  insert_pwd "$FILE" .salamandre.vaultwarden.value "$token"
+  insert_pwd "$FILE" .salamandre.vaultwarden.salt "$(openssl rand -base64 32)"
+  unset "$token"
+fi
 
 ##
 # Baku credentials

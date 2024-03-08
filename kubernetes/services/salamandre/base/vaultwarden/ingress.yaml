@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: &name vaultwarden
+  labels:
+    app.kubernetes.io/name: *name
+    app.kubernetes.io/instance: *name
+spec:
+  rules:
+    - host: &host vault.${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - *host

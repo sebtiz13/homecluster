@@ -15,6 +15,7 @@
   - [Ansible](https://www.ansible.com/)
     - [jq](https://stedolan.github.io/jq/)
     - [yq](https://github.com/mikefarah/yq/)
+    - [argon2](https://github.com/P-H-C/phc-winner-argon2)
   - [pwgen](https://sourceforge.net/projects/pwgen/)
 
 ### Servers

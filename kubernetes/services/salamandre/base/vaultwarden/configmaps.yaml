@@ -24,7 +24,6 @@ data:
   ORG_ATTACHMENT_LIMIT: "-1"
   TRASH_AUTO_DELETE_DAYS: "30"
   SIGNUPS_ALLOWED: "false"
-  DISABLE_ADMIN_TOKEN: "true"
   DATA_FOLDER: /vw-data
   ROCKET_PORT: "8080"
   # NOTE: SMTP_* cannot be set here
