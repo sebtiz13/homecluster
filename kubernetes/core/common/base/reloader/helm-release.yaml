@@ -18,5 +18,6 @@ spec:
   install:
     createNamespace: true
   values:
+    fullnameOverride: reloader
     reloader:
       resourceLabelSelector: reloader/watch==enabled
