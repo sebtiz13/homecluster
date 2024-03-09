@@ -5,6 +5,7 @@ resources:
   - ../base/kube-system
   - ../base/traefik
   - ../base/external-secrets
+  - ../../common/base/reloader
   - cert-manager
   - ../base/vault
   - database

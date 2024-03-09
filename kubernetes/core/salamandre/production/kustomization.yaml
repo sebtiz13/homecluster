@@ -5,7 +5,9 @@ resources:
   - ../base/kube-system
   - ../base/traefik
   - ../base/external-secrets
+  - ../../common/base/reloader
   - cert-manager
+  - external-dns
   - ../base/vault
   - ../base/database
   - ../base/zitadel
