@@ -5,7 +5,7 @@ metadata:
 provisioner: zfs.csi.openebs.io
 parameters:
   recordsize: 4k
-  compression: "off"
+  compression: "on"
   dedup: "off"
   fstype: "zfs"
   poolname: ${ZFS_POOL_NAME}
