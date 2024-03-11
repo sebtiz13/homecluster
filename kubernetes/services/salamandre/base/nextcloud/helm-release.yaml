@@ -226,10 +226,10 @@ spec:
 
     persistence:
       enabled: true
+      existingClaim: nextcloud
       nextcloudData:
         enabled: true
-        storageClass: openebs-zfspv
-        size: 500Gi
+        existingClaim: nextcloud-data
 
     cronjob:
       enabled: true

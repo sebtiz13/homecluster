@@ -5,6 +5,7 @@ namespace: nextcloud
 resources:
   - namespace.yaml
   - dnsendpoint.yaml
+  - pvc.yaml
   - helm-release.yaml
   - secrets.yaml
   - traefik-middlewares/headers.yaml
