@@ -6,6 +6,7 @@ metadata:
     app.kubernetes.io/name: *name
     app.kubernetes.io/instance: *name
 spec:
+  storageClassName: openebs-zfspv
   accessModes:
     - ReadWriteOnce
   resources:
