@@ -11,14 +11,11 @@
     name: MAILTO
     value: root
 
-- name: Scripts | Upload scripts
+- name: Scripts | Upload script
   ansible.builtin.copy:
-    src: scripts/{{ item }}.sh
-    dest: "{{ exec_dir }}/{{ item }}.sh"
+    src: scripts/backup.sh
+    dest: "{{ exec_dir }}/backup.sh"
     mode: "u=rwx,g=rx,o=rx"
-  loop:
-    - backup
-    - restore
 
 - name: Scripts | Configure cron task
   ansible.builtin.cron:
