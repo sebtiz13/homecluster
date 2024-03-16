@@ -33,10 +33,6 @@ ifeq ($(ENVIRONMENT), dev)
 else
 	mkdir -p ./out/credentials/{salamandre,baku}/prod
 endif
-	echo "Download Minio client..."
-	curl --progress-bar https://dl.min.io/client/mc/release/linux-amd64/mc \
-		-o $(ANSIBLE_DIR)/.bin/mc \
-		&& chmod +x $(ANSIBLE_DIR)/.bin/mc
 	echo "Download JWT tool..."
 	curl -L --progress-bar https://github.com/mike-engel/jwt-cli/releases/download/6.0.0/jwt-linux.tar.gz \
 		-o $(ANSIBLE_DIR)/.bin/jwt-linux.tar.gz \

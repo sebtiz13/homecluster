@@ -4,16 +4,15 @@
 
 The salamandre cluster is automatically backup each day.
 
-- The database run they backup with barman at 1am.
+- The database run they backup with barman at 2am.
 - The kubernetes PVC run they backup at 2am.
 
   > **NOTE**: This create one full backup each first day of week (even database), and next days is incremental.
 
-### Sandbox backup
+### Manual backup
 
 The cron jobs is disabled on sandbox but it's can be run manually with following commands :
 
-- Database: `sudo -u barman /usr/bin/barman -q backup --wait main_backup`
 - Kubernetes PVC: `sudo -u backup /opt/backup-cluster/backup.sh`
 
 ## Restore
@@ -22,18 +21,12 @@ The cron jobs is disabled on sandbox but it's can be run manually with following
 
 Run the following commands for restore the cluster.
 
-- List database backup : `barman list-backup main_backup`
-- Restore database : `BACKUP_ID=<id> sudo /opt/backup-cluster/barman-restore.sh`
-
-  _**NOTE**: Replace `<id>` by the backup if retrieve from the list of backup._
-
-- Restore Kubernetes PVC: `sudo -u backup /opt/backup-cluster/restore.sh`
 - Restore Nextcloud data :
 
   If you doesn't restore the database, you need run the following commands :
 
   1. Retrieve pod name: run `kubectl get pods -n nextcloud -lapp.kubernetes.io/name=nextcloud,app.kubernetes.io/component=app`
-  2. Run `ubectl exec <pod name> -n nextcloud -it -- su -m www-data -s /bin/sh -c 'php occ files:scan --all'` inside pod
+  2. Run `kubectl exec <pod name> -n nextcloud -it -- su -m www-data -s /bin/sh -c 'php occ files:scan --all'` inside pod
 
 ### Apps specific
 

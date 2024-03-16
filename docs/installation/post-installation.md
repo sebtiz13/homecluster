@@ -7,8 +7,7 @@ step):
 
 - `./out/kubeconfig/salamandre.prod.yaml`
 - `./out/kubeconfig/baku.prod.yaml`
-- `./out/credentials/salamandre/prod/*` (for `vault.json` only `root_token` and `unseal_keys_b64` is important)
-- `./out/credentials/baku/prod/*`
+- `./out/credentials/prod/*` (for `vault.json` only `root_token` and `unseal_keys_b64` is important)
 
 ## Admin credentials
 
@@ -16,9 +15,6 @@ step):
 
 ### Salamandre
 
-- ArgoCD:
-  - Username: `admin`
-  - Password: run `yq .argocd ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Vault:
   - Root token: run `jq -r .root_token ./out/credentials/salamandre/<env>/vault.json`
 - Zitadel:

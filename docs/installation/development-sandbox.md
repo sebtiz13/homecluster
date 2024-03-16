@@ -19,14 +19,14 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 ### Install the following packages
 
 - [Make](https://www.gnu.org/software/make/)
-- [Vagrant](https://www.vagrantup.com/)
-  - [libvirt](https://libvirt.org/)
-- [mkcert](https://github.com/FiloSottile/mkcert)
-- [Helm](https://helm.sh/)
 - [python](https://www.python.org/)
 - [jq](https://stedolan.github.io/jq/)
 - [yq](https://github.com/mikefarah/yq/)
+- [argon2](https://github.com/P-H-C/phc-winner-argon2)
 - [pwgen](https://sourceforge.net/projects/pwgen/)
+- [Vagrant](https://www.vagrantup.com/)
+  - [libvirt](https://libvirt.org/)
+- [mkcert](https://github.com/FiloSottile/mkcert)
 
 ### Configuring DNS
 
@@ -49,7 +49,7 @@ address=/monitor.local.vm/192.168.12.11
 Add the following line in `/etc/hosts` file:
 
 ```conf
-192.168.12.10 local.vm argocd.local.vm vault-secrets.local.vm sso.local.vm s3.local.vm console.s3.local.vm git.local.vm
+192.168.12.10 local.vm vault-secrets.local.vm sso.local.vm s3.local.vm console.s3.local.vm git.local.vm
 192.168.12.11 baku.local.vm metrics.local.vm monitor.local.vm
 ```
 
@@ -69,8 +69,6 @@ make test-cluster
 
 If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
 
-You can exclude some applications by specify environment variable `ANSIBLE_SKIP_TAGS` ([see more informations](#exclude-applications))
-
 If you want change storage pool you can specify the name with `VAGRANT_STORAGE_POOL` environment variable.
 
 ### Provisioning virtual machines
@@ -82,21 +80,6 @@ make test-provision
 ```
 
 If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
-
-#### Exclude applications
-
-You can disable some applications by specify environment variable `ANSIBLE_SKIP_TAGS` with one or more next tags.
-The apps tags :
-
-- `oidc` (for disable `zitadel`)
-- `forgejo`
-- `cloud` (for disable `nextcloud`, `vaultwarden` and `wallabag`)
-- `nextcloud`
-- `vaultwarden`
-- `adguard` (only for proxy on `salamandre`)
-- `monitoring`
-
-_example_: `ANSIBLE_SKIP_TAGS=oidc make test-cluster`, this deploy all cluster but without oidc (zitadel) and forgejo applications
 
 ### (Re)Create virtual machines
 

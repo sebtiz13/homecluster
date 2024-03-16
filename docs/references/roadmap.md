@@ -25,24 +25,26 @@ Good enough for tinkering.
 
 Good enough for tinkering, personal usage and reasonably secure.
 
-- [x] Automated application sync (GitLab Agent and ArgoCD, on Salamandre)
+- [x] Automated application sync (Flux)
 - [x] Automated DNS management (update DNS records, on Salamandre)
 - [x] Single Sign-On (Zitadel, on Salamandre)
 - [x] Reasonably secure
   - [x] Automated certificate management (cert-manager, on Salamandre)
   - [x] Declarative secret management (vault and external-secrets, on Salamandre)
   - [x] Replace all default passwords with randomly generated ones
-- [x] Backup solution (Barman/ZFS, _Strategy: 3 copies, 2 separate devices, 1 offsite_)
+- [x] Backup solution (Barman/ZFS)
 - [ ] Observability (on Baku)
   - [x] Monitoring
   - [ ] Logging
   - [x] Alerting
 - [x] Core/System applications
+  - [x] Traefik
+  - [x] external-secrets
+  - [x] OpenEBS (zfs-localpv)
   - **Salamandre**
-    - [x] Config Syncer
-    - [x] Minio
+    - [x] Postgres
   - **Baku**
-    - [x] Config Syncer
+    - [x] external-secrets
     - [x] Minio
 
 ## Stable requirement
@@ -52,8 +54,6 @@ Can be used in "production" (for family).
 - [x] A single command to deploy everything
 - [x] Fast deployment time (from empty hard drive to running services in under 1 hour)
 - [ ] Fully automatic, not just automated
-  - [ ] Bare-metal OS rolling upgrade
-  - [ ] Kubernetes version rolling upgrade
   - [ ] Application version upgrade (Renovate)
   - [ ] Encrypted backups
   - [x] Self healing
