@@ -1,2 +1,2 @@
-barman_dir: /var/lib/barman
 exec_dir: /opt/backup-cluster
+log_dir: /var/log/backup-cluster

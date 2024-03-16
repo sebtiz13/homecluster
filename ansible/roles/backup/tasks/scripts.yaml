@@ -1,67 +1,31 @@
-- name: Create folder for backup excutables
-  ansible.builtin.file:
-    state: directory
-    path: "{{ exec_dir }}"
-    mode: "u=rwx,g=rx,o=rx"
-
-- name: Create folder for backup task log
-  ansible.builtin.file:
-    state: directory
-    path: /var/log/backup-cluster
-    owner: backup
-    group: backup
-    mode: "u=rwx,g=rwx,o=rx"
-
-- name: Create folder for backup script
-  ansible.builtin.file:
-    state: directory
-    path: /var/backups/cluster
-    owner: backup
-    group: backup
-    mode: "u=rwx,g=rx,o=rx"
-
-- name: Allow snapshot and send on ZFS pool for backup user
-  ansible.builtin.command: zfs allow backup snapshot,send {{ zfs_pool.name | default('data') }}
+- name: Scripts | Allow send on ZFS pool for backup user
+  ansible.builtin.command: zfs allow backup send {{ zfs_pool.name | default('data') }}
   register: result_allow
   changed_when: false
   failed_when: result_allow.stderr != ''
 
-- name: Configure mail to root for backup cron
+- name: Scripts | Configure mail to root for backup-cluster cron task
   community.general.cronvar:
     user: backup
     cron_file: backup-cluster
     name: MAILTO
     value: root
 
-- name: Configure cron task for backup
+- name: Scripts | Upload scripts
+  ansible.builtin.copy:
+    src: scripts/{{ item }}.sh
+    dest: "{{ exec_dir }}/{{ item }}.sh"
+    mode: "u=rwx,g=rx,o=rx"
+  loop:
+    - backup
+    - restore
+
+- name: Scripts | Configure cron task
   ansible.builtin.cron:
     user: backup
     cron_file: backup-cluster
     name: backup cluster
-    job: '[ -x {{ exec_dir }}/backup.sh ] && {{ exec_dir }}/backup.sh > /var/log/backup-cluster/backup-$(date +\%U_\%Y-\%m-\%d_\%H-\%M-\%S).log 2>&1'
+    job: '[ -x {{ exec_dir }}/backup.sh ] && {{ exec_dir }}/backup.sh cron 2>&1 > "{{ log_dir }}/cron-$(date +\%U_\%Y-\%m-\%d).log"'
     minute: "0"
     hour: "2"
     disabled: "{{ env == 'dev' }}"
-
-- name: Upload backup script
-  vars:
-    keep_weeks: 2
-    mc_bucket: "baku/{{ backup_s3.data.data.data.bucket }}"
-    backup_dir: /var/backups/cluster
-  ansible.builtin.template:
-    dest: "{{ exec_dir }}/backup.sh"
-    src: scripts/backup.sh
-    mode: "u=rwx,g=rx,o=rx"
-    backup: true
-
-- name: Upload restore script
-  ansible.builtin.copy:
-    dest: "{{ exec_dir }}/restore.sh"
-    src: scripts/restore.sh
-    mode: "u=rwx,g=rx,o=rx"
-
-- name: Upload barman restore script
-  ansible.builtin.copy:
-    dest: "{{ exec_dir }}/barman-restore.sh"
-    src: scripts/barman-restore.sh
-    mode: "u=rwx,g=rx,o=rx"
