@@ -31,6 +31,11 @@ ZFS_SNAPSHOTS=$(zfs list -t snapshot -o name -H)
 PVC_CONDITION='?(@.spec.storageClassName=="openebs-zfspv")' # TODO: change to label/annotation
 PVC_OUTPUT_NAME='{.metadata.namespace}{":"}{.metadata.name}' # Format: namespace:name
 
+# Check if database need to be dump
+if [ "$1" != "cron" ] || [[ $CURRENT_DAYWEEK -gt 0 ]]; then
+  DATABASE_NEED_DUMP=1
+fi
+
 ###
 # Functions
 ###
@@ -253,14 +258,19 @@ do
   fi
 done
 
-echo "-- Dump database --"
-backup:dbDump
+if [ -n "$DATABASE_NEED_DUMP" ]; then
+  echo "-- Dump database --"
+  backup:dbDump
+fi
 
 echo "-- Sync backup to minio --"
 "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/pvc" "${BACKUP_PVC_BUCKET}"
 MC_RESULT1_PVC=$?
-"${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/db" "${BACKUP_DB_BUCKET}/dump"
-MC_RESULT_DB=$?
+
+if [ -n "$DATABASE_NEED_DUMP" ]; then
+  "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/db" "${BACKUP_DB_BUCKET}/dump"
+  MC_RESULT_DB=$?
+fi
 
 echo "-- Clean files --"
 if [ $MC_RESULT1_PVC -eq 0 ]; then
@@ -268,10 +278,13 @@ if [ $MC_RESULT1_PVC -eq 0 ]; then
 else
   log "_" "WARN: keep zvol files due to an error on minio transfert. Keep it for next backup"
 fi
-if [ $MC_RESULT_DB -eq 0 ]; then
-  backup:pruneDBFiles
-else
-  log "_" "WARN: keep database dump due to an error on minio transfert. Keep it for next backup"
+if [ -n "$DATABASE_NEED_DUMP" ]; then
+  # shellcheck disable=SC2086
+  if [ $MC_RESULT_DB -eq 0 ]; then
+    backup:pruneDBFiles
+  else
+    log "_" "WARN: keep database dump due to an error on minio transfert. Keep it for next backup"
+  fi
 fi
 
 END_TIME=$(date +%s)
