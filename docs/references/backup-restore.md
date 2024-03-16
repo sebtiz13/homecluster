@@ -5,7 +5,7 @@
 The salamandre cluster is automatically backup each day.
 
 - The database run they backup with barman at 2am.
-- The kubernetes PVC run they backup at 2am.
+- The kubernetes PVC run they backup at 3am.
 
   > **NOTE**: This create one full backup each first day of week (even database), and next days is incremental.
 
