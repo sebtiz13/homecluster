@@ -10,7 +10,6 @@ KEEP_WEEKS=6
 BACKUP_PVC_BUCKET=baku/backup-salamandre-pvc
 BACKUP_DB_BUCKET=baku/backup-salamandre-pg
 SNAPSHOT_CLASS=zfspv-snapclass
-DATETIME_FORMAT=+%Y%m%d%H0000
 
 OPENEBS_NAMESPACE=kube-system
 DATABASE_NAMESPACE=database
@@ -20,6 +19,12 @@ DATABASE_POD_NAME="${DATABASE_CLUSTER_NAME}-1"
 ###
 # Script variables
 ###
+if [ "$1" == "cron" ]; then
+  DATETIME_FORMAT=+%Y%m%d%H0000
+else
+  DATETIME_FORMAT=+%Y%m%d%H%M%S
+fi
+
 # Script variable
 START_TIME=$(date +%s)
 CURRENT_DAYWEEK=$(date +%w)
