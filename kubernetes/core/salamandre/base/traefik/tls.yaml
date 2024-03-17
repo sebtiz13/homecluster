@@ -10,4 +10,3 @@ spec:
   dnsNames:
     - "${DOMAIN_NAME}"
     - "*.${DOMAIN_NAME}"
-    - "console.s3.${DOMAIN_NAME}"

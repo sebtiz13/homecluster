@@ -35,7 +35,6 @@ touch "$FILE"
 # Salamandre credentials
 ##
 insert_pwd "$FILE" .salamandre.zitadel "$(randpw 16)"
-insert_pwd "$FILE" .salamandre.minio "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.nextcloud "$(randpw 16)"
 insert_pwd "$FILE" .salamandre.forgejo "$(randpw 16)"
 

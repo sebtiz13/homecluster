@@ -20,9 +20,6 @@ step):
 - Zitadel:
   - Username: `admin`
   - Password: run `yq .zitadel ./out/credentials/salamandre/<env>/admin_passwords.yaml`
-- Minio:
-  - Username: `root`
-  - Password: `yq .minio ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Nextcloud:
   - Username: `admin`
   - Password: run `yq .nextcloud ./out/credentials/salamandre/<env>/admin_passwords.yaml`

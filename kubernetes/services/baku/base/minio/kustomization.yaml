@@ -3,17 +3,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: minio
 resources:
-  - ../../../common/base/minio
-  - secret.yaml
-patches:
-  - path: helm-release-patch.yaml
-  - patch: |-
-      - op: replace
-        path: /spec/dataFrom/0/extract/key
-        value: baku/minio/auth
-    target:
-      group: external-secrets.io
-      version: v1beta1
-      kind: ExternalSecret
-      name: minio-admin
-      namespace: minio
+  - namespace.yaml
+  - helm-release.yaml
+  - secrets.yaml
