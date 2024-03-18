@@ -3,6 +3,7 @@
   "ansible.python.activationScript": "./ansible/.venv/bin/activate",
   "ansible.validation.lint.path": "./ansible/.venv/bin/ansible-lint",
   "files.associations": {
+    ".renovaterc.json": "jsonc", // this fix issue due no json5 support
     "appValues*.yaml": "helm",
     "*.yaml.j2": "yaml",
     "*.conf.j2": "properties",

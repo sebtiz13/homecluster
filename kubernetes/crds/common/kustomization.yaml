@@ -7,5 +7,7 @@ resources:
   - external-snapshotter # OpenEBS snapshot class
   # victoria-metrics operator + prometheus
   #! NOTE: need to keep version synced with operator in "victoria-metrics-k8s-stack" deployment (file: kubernetes/services/common/base/monitoring/helm-release.yaml)
+  # renovate: datasource=docker image=victoriametrics/operator
   - https://github.com/VictoriaMetrics/operator/releases/download/v0.41.1/crd.yaml
+  # renovate: datasource=docker image=victoriametrics/operator
   - https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.41.1/hack/prom_crd/prometheus_operator_crd.yaml

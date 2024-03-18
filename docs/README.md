@@ -15,3 +15,4 @@
 - [Roadmap](./references/roadmap.md)
 - [Backup & Restore](./references/backup-restore.md)
 - [Storage](./references/storage.md)
+- [Updates](./references/updates.md)
