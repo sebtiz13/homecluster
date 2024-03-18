@@ -29,10 +29,10 @@ init: ## Init environment
 	mkdir -p $(ANSIBLE_DIR)/.bin
 	mkdir -p ./out/kubeconfig
 ifeq ($(ENVIRONMENT), dev)
-	mkdir -p ./out/credentials/{salamandre,baku}/dev
+	mkdir -p ./out/credentials/dev
 	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
 else
-	mkdir -p ./out/credentials/{salamandre,baku}/prod
+	mkdir -p ./out/credentials/prod
 endif
 	echo "Download JWT tool..."
 	curl -L --progress-bar https://github.com/mike-engel/jwt-cli/releases/download/6.0.0/jwt-linux.tar.gz \
@@ -47,7 +47,7 @@ cleanup: ## Cleanup development environment
 	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -uninstall
 	rm -rf $(VAGRANT_DIR)/.vagrant/{ca,manifests}
 	rm -rf ./out/kubeconfig/*.dev.yaml
-	rm -rf ./out/credentials/{salamandre,baku}/dev
+	rm -rf ./out/credentials/dev
 	rm -rf $(ANSIBLE_DIR)/{.venv,.bin}
 
 cluster: ## All-in-one command for cluster deployment
