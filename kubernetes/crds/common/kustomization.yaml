@@ -4,10 +4,7 @@ kind: Kustomization
 resources:
   - traefik
   - external-secrets
-  # OpenEBS snapshot class
-  - https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.3.3/client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml
-  - https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.3.3/client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml
-  - https://raw.githubusercontent.com/kubernetes-csi/external-snapshotter/v6.3.3/client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml
+  - external-snapshotter # OpenEBS snapshot class
   # victoria-metrics (chart v0.18.11) + prometheus
   - https://raw.githubusercontent.com/VictoriaMetrics/helm-charts/victoria-metrics-k8s-stack-0.18.11/charts/victoria-metrics-k8s-stack/charts/crds/crds/crd.yaml
   - https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.41.1/hack/prom_crd/prometheus_operator_crd.yaml
