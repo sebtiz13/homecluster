@@ -1,6 +1,6 @@
 .PHONY: help init validate cleanup cluster vagrant
 .SILENT:
-.DEFAULT_GOAL= help
+.DEFAULT_GOAL: help
 
 ANSIBLE_DIR := ./ansible
 VAGRANT_DIR := ./vagrant
@@ -28,11 +28,9 @@ init: ## Init environment
 	echo "Creating required folders..."
 	mkdir -p $(ANSIBLE_DIR)/.bin
 	mkdir -p ./out/kubeconfig
+	mkdir -p ./out/credentials/{dev,prod}
 ifeq ($(ENVIRONMENT), dev)
-	mkdir -p ./out/credentials/dev
-	mkdir -p $(VAGRANT_DIR)/.vagrant/{ca,manifests}
-else
-	mkdir -p ./out/credentials/prod
+	mkdir -p $(VAGRANT_DIR)/.vagrant/ca
 endif
 	echo "Download JWT tool..."
 	curl -L --progress-bar https://github.com/mike-engel/jwt-cli/releases/download/6.0.0/jwt-linux.tar.gz \
@@ -45,7 +43,7 @@ cleanup: ## Cleanup development environment
 	echo "Clean development environment..."
 	cd $(VAGRANT_DIR); vagrant destroy || true
 	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -uninstall
-	rm -rf $(VAGRANT_DIR)/.vagrant/{ca,manifests}
+	rm -rf $(VAGRANT_DIR)/.vagrant/ca
 	rm -rf ./out/kubeconfig/*.dev.yaml
 	rm -rf ./out/credentials/dev
 	rm -rf $(ANSIBLE_DIR)/{.venv,.bin}
@@ -71,7 +69,6 @@ test-cluster: ## [DEV] All-in-one command for cluster deployment
 	$(MAKE) init ENVIRONMENT=dev
 	echo "Create credentials..."
 	ENVIRONMENT=dev ./scripts/gen-credentials.sh
-	$(MAKE) vm-manifests
 	$(MAKE) vm-create
 	$(MAKE) test-provision
 test-provision: ## [DEV] Provisioning machines
@@ -109,7 +106,3 @@ vm-reload: ## Reload vagrant VM
 vagrant: ## (Re)create vagrant VM
 	$(MAKE) vm-destroy
 	$(MAKE) vm-create
-vm-manifests: ## Build manifests for VM
-	echo "Generate applications manifests..."
-	MANIFESTS_PATH=$(VAGRANT_DIR)/.vagrant/manifests ENVIRONMENT=dev \
-		./scripts/apps/all.sh ./scripts/apps/build.sh
