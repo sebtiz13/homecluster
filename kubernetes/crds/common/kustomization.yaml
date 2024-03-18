@@ -5,6 +5,7 @@ resources:
   - traefik
   - external-secrets
   - external-snapshotter # OpenEBS snapshot class
-  # victoria-metrics (chart v0.18.11) + prometheus
-  - https://raw.githubusercontent.com/VictoriaMetrics/helm-charts/victoria-metrics-k8s-stack-0.18.11/charts/victoria-metrics-k8s-stack/charts/crds/crds/crd.yaml
+  # victoria-metrics operator + prometheus
+  #! NOTE: need to keep version synced with operator in "victoria-metrics-k8s-stack" deployment (file: kubernetes/services/common/base/monitoring/helm-release.yaml)
+  - https://github.com/VictoriaMetrics/operator/releases/download/v0.41.1/crd.yaml
   - https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.41.1/hack/prom_crd/prometheus_operator_crd.yaml

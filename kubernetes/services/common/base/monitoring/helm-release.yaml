@@ -48,6 +48,9 @@ spec:
 
     victoria-metrics-operator:
       fullnameOverride: victoria-metrics-operator
+      image:
+        tag: v0.41.1
+
       operator:
         disable_prometheus_converter: false
         prometheus_converter_add_argocd_ignore_annotations: true
