@@ -4,3 +4,9 @@ disable:
   - traefik
 tls-san:
   - "{{ k3s_domain | default(domain_name) }}"
+  - "--oidc-issuer-url={{ hostvars.salamandre.external_urls.zitadel}}"
+  - --oidc-client-id=Kubernetes
+  - --oidc-username-claim=preferred_username
+  - --oidc-groups-claim=groups
+  - "--oidc-username-prefix=oidc:"
+  - "--oidc-groups-prefix="oidc:""

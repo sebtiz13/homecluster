@@ -1,5 +1,22 @@
 # ? Vault is managed in "vault_oidc" role
 
+- name: Zitadel | Create Kubernetes oidc access # noqa: var-naming[no-role-prefix]
+  tags: forgejo
+  ansible.builtin.include_role:
+    name: oidc_access
+  vars:
+    secret_path: salamandre/data/kubernettes/oidc
+    project_id: "{{ zitadel_dev_project_id }}"
+    app_name: Kubernetes
+    redirect_uris:
+      - http://localhost:8000/*
+    response_types:
+      - OIDC_RESPONSE_TYPE_CODE
+    grant_types:
+      - OIDC_GRANT_TYPE_AUTHORIZATION_CODE
+      - OIDC_GRANT_TYPE_REFRESH_TOKEN
+    auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
+
 - name: Zitadel | Create Forgejo oidc access # noqa: var-naming[no-role-prefix]
   tags: forgejo
   ansible.builtin.include_role:
