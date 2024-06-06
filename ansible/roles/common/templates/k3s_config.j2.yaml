@@ -9,4 +9,4 @@ tls-san:
   - --oidc-username-claim=preferred_username
   - --oidc-groups-claim=groups
   - "--oidc-username-prefix=oidc:"
-  - "--oidc-groups-prefix="oidc:""
+  - "--oidc-groups-prefix=oidc:"
