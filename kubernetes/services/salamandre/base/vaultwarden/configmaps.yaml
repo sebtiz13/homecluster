@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: &name vaultwarden
     app.kubernetes.io/instance: *name
 # Vaultwarden configuration.
-# For details about the options, see: https://github.com/dani-garcia/vaultwarden/wiki/Configuration-overviewhttps://github.com/dani-garcia/vaultwarden/wiki/Configuration-overview
+# For details about the options, see: https://github.com/dani-garcia/vaultwarden/wiki/Configuration-overview
 #
 # Besides the options listed below, Rocket can be further configured (though it shouldn't be required).
 # See: https://rocket.rs/v0.5-rc/guide/configuration/#environment-variables
