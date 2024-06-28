@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: zfs-localpv
-      version: "2.4.0"
+      version: "2.5.1"
       sourceRef:
         kind: HelmRepository
         name: openebs-zfslocalpv
@@ -20,6 +20,9 @@ spec:
   upgrade:
     crds: CreateReplace
   values:
-    crd:
-      enableInstall: false
-      volumeSnapshot: false
+    crds:
+      zfsLocalPv:
+        enabled: false
+      csi:
+        volumeSnapshots:
+          enabled: false

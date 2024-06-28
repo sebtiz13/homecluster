@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: victoria-metrics-k8s-stack
-      version: "0.18.11"
+      version: "0.23.3"
       sourceRef:
         kind: HelmRepository
         name: victoriametrics
@@ -50,11 +50,9 @@ spec:
       fullnameOverride: victoria-metrics-operator
       image:
         # renovate: datasource=docker image=victoriametrics/operator
-        tag: v0.41.1
+        tag: v0.45.0
 
       operator:
-        disable_prometheus_converter: false
-        prometheus_converter_add_argocd_ignore_annotations: true
         enable_converter_ownership: true
 
     # Disable unneeded alert rules
@@ -82,6 +80,8 @@ spec:
       enabled: false
     # Disable CRDs
     crds:
+      enabled: false
+    prometheus-operator-crds:
       enabled: false
 
     fullnameOverride: vm-stack

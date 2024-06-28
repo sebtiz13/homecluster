@@ -5,9 +5,9 @@ kind: GitRepository
 metadata:
   name: external-dns-source
 spec:
-  url: https://github.com/kubernetes-sigs/external-dns.git
+  url: https://github.com/kubernetes-sigs/external-dns
   ref:
-    tag: v0.14.0
+    tag: external-dns-helm-chart-1.14.5 # TODO: change back to vX.X.X on next update (https://github.com/kubernetes-sigs/external-dns/issues/4483)
   interval: 15m
   ignore: |
     # exclude all

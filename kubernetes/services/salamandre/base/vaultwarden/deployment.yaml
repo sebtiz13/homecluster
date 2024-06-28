@@ -23,7 +23,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: *name
-          image: &image vaultwarden/server:1.30.1-alpine
+          image: &image vaultwarden/server:1.30.5-alpine
           imagePullPolicy: &imagePolicy IfNotPresent
           envFrom: &envFrom
             - configMapRef:

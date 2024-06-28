@@ -5,9 +5,9 @@ kind: GitRepository
 metadata:
   name: external-snapshotter-source
 spec:
-  url: https://github.com/kubernetes-csi/external-snapshotter.git
+  url: https://github.com/kubernetes-csi/external-snapshotter
   ref:
-    tag: v6.3.3
+    tag: v8.0.1
   interval: 15m
   ignore: |
     # exclude all

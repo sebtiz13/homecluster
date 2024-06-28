@@ -7,14 +7,16 @@ spec:
     ports:
       minio:
         port: 3882
-        expose: true
+        expose:
+          default: true
         exposedPort: 3882
         protocol: TCP
         tls:
           enabled: true
       monitoring:
         port: 53639
-        expose: true
+        expose:
+          default: true
         exposedPort: 53639
         protocol: TCP
         tls:

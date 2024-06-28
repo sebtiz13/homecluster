@@ -1,0 +1,9 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: traefik
+spec:
+  values:
+    rbac:
+      secretResourceNames:
+        - "${DOMAIN_NAME/./-}-tls"

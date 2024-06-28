@@ -52,7 +52,7 @@ spec:
             - name: FORGEJO_INSTANCE_URL
               value: &host http://forgejo-http.forgejo.svc.cluster.local:3000
         - name: runner-config-generation
-          image: &image code.forgejo.org/forgejo/runner:3.3.0
+          image: &image code.forgejo.org/forgejo/runner:3.5.0
           imagePullPolicy: &imagePolicy IfNotPresent
           command:
             - forgejo-runner
