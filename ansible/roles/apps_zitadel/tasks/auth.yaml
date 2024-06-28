@@ -61,10 +61,10 @@
       grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
       scope: "openid urn:zitadel:iam:org:project:id:zitadel:aud"
       assertion: "{{ zitadel_console_jwt.stdout }}"
-  register: zitadel_console_token
+  register: zitadel_console_token1
 - name: Zitadel | Store console token
   ansible.builtin.set_fact:
-    zitadel_console_token: "{{ zitadel_console_token.json.access_token }}"
+    zitadel_console_token: "{{ zitadel_console_token1.json.access_token }}"
 
 ##
 # Retrieve developer project
