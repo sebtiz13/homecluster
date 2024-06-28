@@ -15,14 +15,10 @@ spec:
         kind: HelmRepository
         name: openebs-zfslocalpv
         namespace: flux-system
-  install:
-    crds: CreateReplace
-  upgrade:
-    crds: CreateReplace
   values:
     crds:
       zfsLocalPv:
-        enabled: false
+        enabled: true
       csi:
         volumeSnapshots:
           enabled: false
