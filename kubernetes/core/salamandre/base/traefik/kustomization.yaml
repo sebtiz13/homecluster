@@ -6,8 +6,3 @@ resources:
   - ../../../common/base/traefik
   - tls.yaml
   - secret.yaml
-patches:
-  - path: helm-release-patch.yaml
-    target:
-      kind: HelmRelease
-      name: traefik
