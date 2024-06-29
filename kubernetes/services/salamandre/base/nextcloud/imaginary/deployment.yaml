@@ -24,13 +24,10 @@ spec:
     spec:
       containers:
         - name: imaginary
-          image: nextcloud/aio-imaginary # TODO: add tag
+          # renovate: datasource=docker image=nextcloud/aio-imaginary
+          image: nextcloud/aio-imaginary:20240617_084300-latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 9000
               protocol: TCP
-          # volumeMounts:
-          #   - name: images
-          #     mountPath: /mnt/data
-          #     subPath: data
