@@ -1,6 +1,6 @@
 # Roadmap
 
-> Current status: **ALPHA**
+> Current status: **BETA**
 
 ## Alpha requirement
 
@@ -35,7 +35,7 @@ Good enough for tinkering, personal usage and reasonably secure.
 - [x] Backup solution (Barman/ZFS)
 - [ ] Observability (on Baku)
   - [x] Monitoring
-  - [ ] Logging
+  - [ ] Logging (_waiting VictoriaLogs_)
   - [x] Alerting
 - [x] Core/System applications
   - [x] Traefik
@@ -55,7 +55,6 @@ Can be used in "production" (for family).
 - [x] Fast deployment time (from empty hard drive to running services in under 1 hour)
 - [ ] Fully automatic, not just automated
   - [ ] Application version upgrade (Renovate)
-  - [ ] Encrypted backups
   - [x] Self healing
 - [x] Minimal dependency on external services
 - [x] Additional applications
@@ -70,5 +69,6 @@ Nice to have
 
 - [ ] Addition applications
   - [ ] Plex
+- [ ] Encrypted backups
 - [ ] Serverless ([Knative](https://knative.dev/))
-- [ ] Secrets rotation (_currently impossible due to ArgoCD_)
+- [x] Secrets rotation

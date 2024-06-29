@@ -8,7 +8,7 @@ services in our home cluster.
 
 ## Overview
 
-> Project status: **ALPHA**
+> Project status: **BETA**
 
 ### Features
 
