@@ -101,8 +101,10 @@
       name: "{{ item.name }}"
       policies: "{{ item.policies }}"
       type: external
-  register: vault_identity
-  changed_when: "'data' in vault_identity.json"
+  register: vault_identity_n
+  changed_when:
+    - "'json' in vault_identity_n"
+    - "'data' in vault_identity_n.json"
   loop_control:
     label: "{{ item.name }}"
   loop:
@@ -113,6 +115,22 @@
       policies:
         - operator
         - admin
+
+- name: Vault | Retrieve identity groups
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/identity/group/name/{{ item }}"
+    method: GET
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+  register: vault_identity
+  loop_control:
+    label: "{{ item }}"
+  loop:
+    - Operator
+    - Admin
 
 - name: Vault | Retrieve auth methods
   ansible.builtin.uri:
@@ -136,9 +154,13 @@
     headers:
       X-Vault-Token: "{{ vault_root_token }}"
     body:
-      name: "{{ item.item.name }}"
+      name: "{{ item.item }}"
       mount_accessor: "{{ vault_auths.json.data['oidc/'].accessor }}"
       canonical_id: "{{ item.json.data.id }}"
+  register: vault_identity_alias
+  failed_when:
+    - "vault_identity_alias.status != 204 and vault_identity_alias.status != 200"
+    - "('json' not in vault_identity_alias) or (vault_identity_alias.json.errors.0 != 'combination of mount and group alias name is already in use')"
   loop_control:
-    label: "{{ item.item.name }}"
+    label: "{{ item.item }}"
   loop: "{{ vault_identity.results }}"
