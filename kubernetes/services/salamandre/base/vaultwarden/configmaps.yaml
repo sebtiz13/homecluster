@@ -9,7 +9,7 @@ metadata:
 # For details about the options, see: https://github.com/dani-garcia/vaultwarden/wiki/Configuration-overview
 #
 # Besides the options listed below, Rocket can be further configured (though it shouldn't be required).
-# See: https://rocket.rs/v0.5-rc/guide/configuration/#environment-variables
+# See: https://rocket.rs/v0.5/guide/configuration/#environment-variables
 data:
   DOMAIN: https://vault.${DOMAIN_NAME}
   TZ: ${TIMEZONE}
@@ -20,8 +20,6 @@ data:
   # See: https://github.com/dani-garcia/vaultwarden/wiki/Disabling-or-overriding-the-Vault-interface-hosting
   WEB_VAULT_ENABLED: "true"
   SENDS_ALLOWED: "true"
-  USER_ATTACHMENT_LIMIT: "-1"
-  ORG_ATTACHMENT_LIMIT: "-1"
   TRASH_AUTO_DELETE_DAYS: "30"
   SIGNUPS_ALLOWED: "false"
   DATA_FOLDER: /vw-data
