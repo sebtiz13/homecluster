@@ -165,36 +165,6 @@ spec:
           if ($overwriteDbPassword) {
             $CONFIG['dbpassword'] = $overwriteDbPassword;
           }
-        # Add missing config files
-        reverse-proxy.config.php: |-
-          <?php
-          $overwriteHost = getenv('OVERWRITEHOST');
-          if ($overwriteHost) {
-            $CONFIG['overwritehost'] = $overwriteHost;
-          }
-
-          $overwriteProtocol = getenv('OVERWRITEPROTOCOL');
-          if ($overwriteProtocol) {
-            $CONFIG['overwriteprotocol'] = $overwriteProtocol;
-          }
-
-          $overwriteCliUrl = getenv('OVERWRITECLIURL');
-          if ($overwriteCliUrl) {
-            $CONFIG['overwrite.cli.url'] = $overwriteCliUrl;
-          }
-
-          $overwriteWebRoot = getenv('OVERWRITEWEBROOT');
-          if ($overwriteWebRoot) {
-            $CONFIG['overwritewebroot'] = $overwriteWebRoot;
-          }
-
-          $overwriteCondAddr = getenv('OVERWRITECONDADDR');
-          if ($overwriteCondAddr) {
-            $CONFIG['overwritecondaddr'] = $overwriteCondAddr;
-          }
-
-          $CONFIG['trusted_proxies'] = ['127.0.0.1', '10.42.0.0/16'];
-          $CONFIG['forwarded_for_headers'] = ['HTTP_X_FORWARDED_FOR'];
 
       extraEnv:
         - name: PHP_MEMORY_LIMIT

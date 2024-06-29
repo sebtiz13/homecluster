@@ -34,7 +34,8 @@ spec:
           secretName: ${DOMAIN_NAME/./-}-tls
 
     service:
-      externalTrafficPolicy: Local
+      spec:
+        externalTrafficPolicy: Local
 
     ingressClass:
       enabled: true
