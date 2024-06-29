@@ -210,6 +210,9 @@ spec:
         - name: *configName
           mountPath: /mnt/extra-icons
 
+    startupProbe:
+      enabled: true
+
     externalDatabase:
       enabled: true
       type: postgresql
