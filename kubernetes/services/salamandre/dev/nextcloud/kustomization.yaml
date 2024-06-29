@@ -22,3 +22,11 @@ patches:
       kind: ExternalSecret
       name: nextcloud-credentials
       namespace: nextcloud
+  - patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 8Gi
+    target:
+      kind: PersistentVolumeClaim
+      name: nextcloud-data
+      namespace: nextcloud

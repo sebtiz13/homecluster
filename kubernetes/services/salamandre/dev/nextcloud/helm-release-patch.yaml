@@ -9,7 +9,3 @@ spec:
         smtp:
           secure: ""
           port: 1025
-
-    persistence:
-      nextcloudData:
-        size: 8Gi
