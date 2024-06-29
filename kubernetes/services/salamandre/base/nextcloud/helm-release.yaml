@@ -193,15 +193,10 @@ spec:
             $CONFIG['overwritecondaddr'] = $overwriteCondAddr;
           }
 
-          $trustedProxies = getenv('TRUSTED_PROXIES');
-          if ($trustedProxies) {
-            $CONFIG['trusted_proxies'] = array_merge(['127.0.0.1'], array_filter(array_map('trim', explode(' ', $trustedProxies))));
-          }
+          $CONFIG['trusted_proxies'] = ['127.0.0.1', '10.42.0.0/16'];
           $CONFIG['forwarded_for_headers'] = ['HTTP_X_FORWARDED_FOR'];
 
       extraEnv:
-        - name: TRUSTED_PROXIES
-          value: "10.42.0.0/16"
         - name: PHP_MEMORY_LIMIT
           value: 1024M
         - name: PHP_UPLOAD_LIMIT
