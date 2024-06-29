@@ -69,10 +69,15 @@
       ansible.builtin.import_tasks: tasks/s_apps/databases.yaml
     - name: Zitadel (OIDC) | Create applications access
       ansible.builtin.import_tasks: tasks/s_apps/oidc.yaml
+    - name: External-secrets | Force sync applications secrets
+      ansible.builtin.import_tasks: tasks/s_apps/secrets_sync.yaml
 
     - name: Vault | Fill baku applications secrets
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       ansible.builtin.import_tasks: tasks/b_apps/secrets.yaml
+    - name: External-secrets | Force sync applications secrets
+      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
+      ansible.builtin.import_tasks: tasks/b_apps/secrets_sync.yaml
 
     - name: Register forgejo runner
       tags: forgejo

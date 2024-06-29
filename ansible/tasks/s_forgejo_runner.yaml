@@ -4,25 +4,6 @@
       release_name: forgejo
       namespace: forgejo
 
-- name: External-secrets | Force sync secrets
-  kubernetes.core.k8s:
-    state: patched
-    kubeconfig: "{{ local_kubeconfig }}"
-    api_version: external-secrets.io/v1beta1
-    kind: ExternalSecret
-    name: "{{ item }}"
-    namespace: "{{ apps_forgejo.namespace }}"
-    definition:
-      metadata:
-        annotations:
-          force-sync: "{{ ansible_date_time.epoch }}"
-  loop:
-    - forgejo-admin-credentials
-    - forgejo-app-ini-database
-    - forgejo-oidc-credentials
-    - forgejo-runner-token
-    - forgejo-app-ini-mail
-
 - name: Forgejo | Retrieve pod informations
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
