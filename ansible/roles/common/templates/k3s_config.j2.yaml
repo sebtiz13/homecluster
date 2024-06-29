@@ -10,3 +10,7 @@ tls-san:
   - --oidc-groups-claim=groups
   - "--oidc-username-prefix=oidc:"
   - "--oidc-groups-prefix=oidc:"
+{% if env == 'dev' %}
+node-external-ip: "{{ ansible_host }}"
+flannel-iface: eth1
+{% endif %}
