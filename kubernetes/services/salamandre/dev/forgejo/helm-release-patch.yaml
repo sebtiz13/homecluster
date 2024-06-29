@@ -4,6 +4,14 @@ metadata:
   name: forgejo
 spec:
   values:
+    gitea:
+      config:
+        server:
+          SSH_PORT: 2222
+    service:
+      ssh:
+        port: 2222
+
     extraInitVolumeMounts:
       - name: certificate
         mountPath: /etc/ssl/certs/vm-ca.crt

@@ -68,6 +68,10 @@ spec:
       annotations:
         reloader.stakater.com/auto: "true"
 
+    service:
+      ssh:
+        type: LoadBalancer
+
     ingress:
       enabled: true
       hosts:
