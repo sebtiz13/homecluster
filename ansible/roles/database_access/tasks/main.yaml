@@ -34,6 +34,6 @@
     pod: "postgres{{ postgres_version }}-1"
     command: >-
       psql -U postgres -c "ALTER ROLE {{ username }} WITH PASSWORD '{{ _password }}';"
-  register: database_cmd
-  changed_when: database_cmd.rc == 0
-  failed_when: database_cmd.rc != 0
+  register: database_pass_cmd
+  changed_when: database_pass_cmd.rc == 0
+  failed_when: database_pass_cmd.rc != 0

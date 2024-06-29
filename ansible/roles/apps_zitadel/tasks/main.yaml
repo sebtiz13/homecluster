@@ -31,6 +31,19 @@
     - zitadel-credentials
     - zitadel-masterkey
 
+- name: Force restart zitadel application
+  when: database_pass_cmd is not skipped
+  delegate_to: "{{ inventory_hostname }}"
+  vars:
+    namespace: zitadel
+    dep_name: zitadel
+  ansible.builtin.shell: |
+    kubectl rollout restart deployment --namespace '{{ namespace }}' \
+    '{{ dep_name }}' && \
+    kubectl rollout status deployment --namespace '{{ namespace }}' \
+    '{{ dep_name }}'
+  changed_when: false
+
 - name: Authenticate console
   ansible.builtin.import_tasks: auth.yaml
 
