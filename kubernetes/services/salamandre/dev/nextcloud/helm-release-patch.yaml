@@ -19,16 +19,11 @@ spec:
             --discoveryuri="https://${OIDC_ISSUER_HOST}/.well-known/openid-configuration" \
             --scope="openid email profile groups quota" --group-provisioning 1
 
-      extraVolumeMounts:
-        - name: &oauthSecName auth-oidc-secret-mount
-          mountPath: /var/run/secrets/auth_oidc
-          readOnly: true
-        - name: certificate
-          mountPath: /etc/ssl/certs/vm-ca.crt
-          subPath: tls.crt
-          readOnly: true
       extraVolumes:
-        - name: *oauthSecName
+        - name: &configName extra-icons
+          configMap:
+            name: *configName
+        - name: &oauthSecName auth-oidc-secret-mount
           secret:
             secretName: nextcloud-oidc-credentials
             defaultMode: 420
@@ -36,3 +31,13 @@ spec:
           secret:
             secretName: vm-ca-tls
             defaultMode: 420
+      extraVolumeMounts:
+        - name: *configName
+          mountPath: /mnt/extra-icons
+        - name: *oauthSecName
+          mountPath: /var/run/secrets/auth_oidc
+          readOnly: true
+        - name: certificate
+          mountPath: /etc/ssl/certs/vm-ca.crt
+          subPath: tls.crt
+          readOnly: true
