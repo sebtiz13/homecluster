@@ -39,12 +39,12 @@
     body_format: json
     body:
       roles:
-        - key: Operator
+        - key: operator
           displayName: Operator
-          group: Operator
-        - key: Admin
+          group: operator
+        - key: admin
           displayName: Administrator
-          group: Admin
+          group: admin
 - name: Create public roles
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/projects/{{ zitadel_pub_project_id }}/roles/_bulk"
@@ -56,12 +56,12 @@
     body_format: json
     body:
       roles:
-        - key: Operator
+        - key: operator
           displayName: Operator
-          group: Operator
-        - key: Admin
+          group: operator
+        - key: admin
           displayName: Administrator
-          group: Admin
+          group: admin
 
 ##
 # Handlers for users
@@ -91,7 +91,7 @@
     body:
       projectId: "{{ zitadel_dev_project_id }}"
       roleKeys:
-        - Admin
+        - admin
 - name: Add public project permission to admin user
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/users/{{ zitadel_admin_user.json.userId }}/grants"
@@ -104,7 +104,7 @@
     body:
       projectId: "{{ zitadel_pub_project_id }}"
       roleKeys:
-        - Admin
+        - admin
 
 - name: Add public project permission to test user
   ansible.builtin.uri:
@@ -118,7 +118,7 @@
     body:
       projectId: "{{ zitadel_pub_project_id }}"
       roleKeys:
-        - Operator
+        - operator
 - name: Add quota metadata to test user
   vars:
     quota: "1 GB"

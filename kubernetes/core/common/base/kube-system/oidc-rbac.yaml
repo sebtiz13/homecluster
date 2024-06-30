@@ -4,7 +4,7 @@ metadata:
   name: zitadel-admins-binding
 subjects:
   - kind: Group
-    name: oidc:Admin
+    name: oidc:admin
 roleRef:
   kind: ClusterRole
   name: cluster-admin

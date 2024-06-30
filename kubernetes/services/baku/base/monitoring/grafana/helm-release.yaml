@@ -54,7 +54,7 @@ spec:
         scopes: openid email profile offline_access groups
         login_attribute_path: email
         name_attribute_path: preferred_username
-        role_attribute_path: "contains(groups[*], 'Admin') && 'Admin' || contains(groups[*], 'Operator') && 'Editor' || 'Viewer'"
+        role_attribute_path: "contains(groups[*], 'admin') && 'Admin' || contains(groups[*], 'operator') && 'Editor' || 'Viewer'"
 
     extraSecretMounts:
       - name: auth-generic-oauth-secret-mount

@@ -108,10 +108,10 @@
   loop_control:
     label: "{{ item.name }}"
   loop:
-    - name: Operator
+    - name: operator
       policies:
         - operator
-    - name: Admin
+    - name: admin
       policies:
         - operator
         - admin
@@ -129,8 +129,8 @@
   loop_control:
     label: "{{ item }}"
   loop:
-    - Operator
-    - Admin
+    - operator
+    - admin
 
 - name: Vault | Retrieve auth methods
   ansible.builtin.uri:
