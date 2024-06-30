@@ -67,7 +67,7 @@
     zitadel_console_token: "{{ zitadel_console_token1.json.access_token }}"
 
 ##
-# Retrieve developer project
+# Retrieve projects
 ##
 - name: Zitadel | Retrieve developer project id
   ansible.builtin.uri:
@@ -86,8 +86,31 @@
         - nameQuery:
             name: developer
             method: TEXT_QUERY_METHOD_EQUALS
-  register: zitadel_project
-- name: Zitadel | Store the project id
-  when: zitadel_project.json.result is defined
+  register: zitadel_dev_project
+- name: Zitadel | Store developer project id
+  when: zitadel_dev_project.json.result is defined
   ansible.builtin.set_fact:
-    zitadel_dev_project_id: "{{ zitadel_project.json.result.0.id }}"
+    zitadel_dev_project_id: "{{ zitadel_dev_project.json.result.0.id }}"
+
+- name: Zitadel | Retrieve public project id
+  ansible.builtin.uri:
+    url: "{{ zitadel_internal_url }}/management/v1/projects/_search"
+    method: POST
+    headers:
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
+    status_code: 200
+    return_content: true
+    body_format: json
+    body:
+      query:
+        limit: 1
+      queries:
+        - nameQuery:
+            name: public
+            method: TEXT_QUERY_METHOD_EQUALS
+  register: zitadel_pub_project
+- name: Zitadel | Store public project id
+  when: zitadel_pub_project.json.result is defined
+  ansible.builtin.set_fact:
+    zitadel_pub_project_id: "{{ zitadel_pub_project.json.result.0.id }}"

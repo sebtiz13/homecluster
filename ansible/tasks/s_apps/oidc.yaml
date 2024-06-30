@@ -23,7 +23,7 @@
     name: oidc_access
   vars:
     secret_path: salamandre/data/forgejo/oidc
-    project_id: "{{ zitadel_dev_project_id }}"
+    project_id: "{{ zitadel_pub_project_id }}"
     app_name: Forgejo
     redirect_uris:
       - "{{ external_urls.forgejo }}/user/oauth2/zitadel/callback"
@@ -42,7 +42,7 @@
     name: oidc_access
   vars:
     secret_path: salamandre/data/nextcloud/oidc
-    project_id: "{{ zitadel_dev_project_id }}"
+    project_id: "{{ zitadel_pub_project_id }}"
     app_name: Nextcloud
     redirect_uris:
       - "{{ external_urls.nextcloud }}/apps/user_oidc/code"

@@ -47,7 +47,7 @@
 ##
 
 - name: Create developer project
-  when: zitadel_project.json.result is not defined
+  when: zitadel_dev_project.json.result is not defined
   block:
     - name: Dev project | Create it
       ansible.builtin.uri:
@@ -63,12 +63,37 @@
           name: developer
           projectRoleAssertion: true
           projectRoleCheck: true
-      register: zitadel_project_n
-      changed_when: zitadel_project_n.status == 200
+          hasProjectCheck: true
+      register: zitadel_dev_project_n
+      changed_when: zitadel_dev_project_n.status == 200
       notify: Create developer roles
     - name: Dev project | Store the id
       ansible.builtin.set_fact:
-        zitadel_dev_project_id: "{{ zitadel_project_n.json.id }}"
+        zitadel_dev_project_id: "{{ zitadel_dev_project_n.json.id }}"
+
+- name: Create public project
+  when: zitadel_pub_project.json.result is not defined
+  block:
+    - name: Public project | Create it
+      ansible.builtin.uri:
+        url: "{{ zitadel_internal_url }}/management/v1/projects"
+        method: POST
+        headers:
+          Host: "{{ apps_zitadel.domain_name }}"
+          Authorization: "Bearer {{ zitadel_console_token }}"
+        status_code: 200
+        return_content: true
+        body_format: json
+        body:
+          name: public
+          projectRoleAssertion: true
+          hasProjectCheck: true
+      register: zitadel_pub_project_n
+      changed_when: zitadel_pub_project_n.status == 200
+      notify: Create public roles
+    - name: Public project | Store the id
+      ansible.builtin.set_fact:
+        zitadel_pub_project_id: "{{ zitadel_pub_project_n.json.id }}"
 
 ##
 # Create users
@@ -99,6 +124,7 @@
   notify:
     - Add organization permission to admin user
     - Add developer project permission to admin user
+    - Add public project permission to admin user
 
 - name: Zitadel | Create test user
   when: env == 'dev'
@@ -124,7 +150,7 @@
   register: zitadel_test_user
   changed_when: zitadel_test_user.status == 200
   notify:
-    - Add developer project permission to test user
+    - Add public project permission to test user
     - Add quota metadata to test user
 
 - name: Flush handlers
