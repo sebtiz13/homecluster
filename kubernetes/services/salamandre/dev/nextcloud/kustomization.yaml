@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: nextcloud
 resources:
   - ../../base/nextcloud
+  - ca-tls.yaml
 patches:
   - path: helm-release-patch.yaml
     target:

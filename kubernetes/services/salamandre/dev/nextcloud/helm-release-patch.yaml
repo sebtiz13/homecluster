@@ -9,3 +9,18 @@ spec:
         smtp:
           secure: ""
           port: 1025
+
+      hooks:
+        before-starting: |-
+          php occ security:certificates:import /etc/ssl/certs/vm-ca.crt
+
+      extraVolumeMounts:
+        - name: certificate
+          mountPath: /etc/ssl/certs/vm-ca.crt
+          subPath: tls.crt
+          readOnly: true
+      extraVolumes:
+        - name: certificate
+          secret:
+            secretName: vm-ca-tls
+            defaultMode: 420
