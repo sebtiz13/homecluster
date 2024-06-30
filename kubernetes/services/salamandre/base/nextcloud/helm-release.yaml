@@ -50,6 +50,9 @@ spec:
           php occ app:enable admin_audit && \
           php occ config:app:set admin_audit logfile --value /var/www/html/data/audit.log
 
+          php occ app:enable user_oidc && \
+          php occ config:app:set --value=0 user_oidc allow_multiple_user_backends
+
           php occ app:enable richdocuments && \
           php occ config:app:set richdocuments wopi_allowlist --value 10.42.0.0/16 && \
           php occ config:app:set richdocuments wopi_url --value http://collabora-code:9980/ && \
@@ -62,7 +65,6 @@ spec:
           php occ config:app:set drawio DrawioTheme --value dark && \
           php occ config:app:set drawio DrawioLibraries --value yes
 
-          php occ app:enable twofactor_totp
           php occ app:enable bruteforcesettings
           php occ app:enable previewgenerator
           php occ app:enable quota_warning
@@ -81,6 +83,13 @@ spec:
 
           echo "Add missing DB indices"
           php occ db:add-missing-indices
+
+        # Update credential on each reboot
+        before-starting: |-
+          php occ user_oidc:provider Zitadel --clientid="$(cat /var/run/secrets/auth_oidc/clientID)" \
+            --clientsecret="$(cat /var/run/secrets/auth_oidc/clientSecret)" \
+            --discoveryuri="https://${OIDC_ISSUER_HOST}/.well-known/openid-configuration" \
+            --scope="openid email profile groups quota" --group-provisioning 1
 
         # Based on: https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L296-L306
         post-upgrade: |-
@@ -176,9 +185,16 @@ spec:
         - name: &configName extra-icons
           configMap:
             name: *configName
+        - name: &oauthSecName auth-oidc-secret-mount
+          secret:
+            secretName: nextcloud-oidc-credentials
+            defaultMode: 420
       extraVolumeMounts:
         - name: *configName
           mountPath: /mnt/extra-icons
+        - name: *oauthSecName
+          mountPath: /var/run/secrets/auth_oidc
+          readOnly: true
 
     startupProbe:
       enabled: true

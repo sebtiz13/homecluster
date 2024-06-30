@@ -1,8 +1,8 @@
 ##
 # Handlers for actions
 ##
-- name: Set groupsClaim action triggers
-  listen: groupsClaim action triggers
+- name: Set actions triggers
+  listen: token actions triggers
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/flows/{{ item.flow }}/trigger/{{ item.trigger }}"
     method: POST
@@ -14,6 +14,7 @@
     body:
       actionIds:
         - "{{ zitadel_groupsclaim_action.json.id }}"
+        - "{{ zitadel_quotaclaim_action.json.id }}"
   loop_control:
     label: "{{ item.name }}"
   loop:
@@ -88,3 +89,16 @@
       projectId: "{{ zitadel_dev_project_id }}"
       roleKeys:
         - Operator
+- name: Add quota metadata to test user
+  vars:
+    quota: "1 GB"
+  ansible.builtin.uri:
+    url: "{{ zitadel_internal_url }}/management/v1/users/{{ zitadel_test_user.json.userId }}/metadata/quota"
+    method: POST
+    headers:
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
+    status_code: 200
+    body_format: json
+    body:
+      value: "{{ quota | b64encode }}"

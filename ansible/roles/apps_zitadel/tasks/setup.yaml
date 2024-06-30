@@ -1,3 +1,7 @@
+##
+# Create actions
+##
+
 - name: Create groupsClaim action
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/actions"
@@ -16,7 +20,31 @@
       script: "{{ lookup('ansible.builtin.file', './groupsClaim.js') }}"
   register: zitadel_groupsclaim_action
   changed_when: zitadel_groupsclaim_action.status == 200
-  notify: groupsClaim action triggers
+  notify: token actions triggers
+
+- name: Create quotaClaim action
+  ansible.builtin.uri:
+    url: "{{ zitadel_internal_url }}/management/v1/actions"
+    method: POST
+    headers:
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
+    status_code:
+      - 200
+      - 409
+    return_content: true
+    body_format: json
+    body:
+      name: quotaClaim
+      allowedToFail: true
+      script: "{{ lookup('ansible.builtin.file', './quotaClaim.js') }}"
+  register: zitadel_quotaclaim_action
+  changed_when: zitadel_quotaclaim_action.status == 200
+  notify: token actions triggers
+
+##
+# Create projects
+##
 
 - name: Create developer project
   when: zitadel_project.json.result is not defined
@@ -95,7 +123,9 @@
       password: "Test123!"
   register: zitadel_test_user
   changed_when: zitadel_test_user.status == 200
-  notify: Add developer project permission to test user
+  notify:
+    - Add developer project permission to test user
+    - Add quota metadata to test user
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

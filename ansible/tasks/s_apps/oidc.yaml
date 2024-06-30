@@ -36,6 +36,25 @@
       - OIDC_GRANT_TYPE_REFRESH_TOKEN
     auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
 
+- name: Zitadel | Create Nextcloud oidc access # noqa: var-naming[no-role-prefix]
+  tags: nextcloud
+  ansible.builtin.include_role:
+    name: oidc_access
+  vars:
+    secret_path: salamandre/data/nextcloud/oidc
+    project_id: "{{ zitadel_dev_project_id }}"
+    app_name: Nextcloud
+    redirect_uris:
+      - "{{ external_urls.nextcloud }}/apps/user_oidc/code"
+    post_logout_redirect_uris:
+      - "{{ external_urls.nextcloud }}/"
+    response_types:
+      - OIDC_RESPONSE_TYPE_CODE
+    grant_types:
+      - OIDC_GRANT_TYPE_AUTHORIZATION_CODE
+      - OIDC_GRANT_TYPE_REFRESH_TOKEN
+    auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
+
 - name: Zitadel | Create Grafana oidc access # noqa: var-naming[no-role-prefix]
   tags: grafana
   ansible.builtin.include_role:
