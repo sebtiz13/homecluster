@@ -21,6 +21,7 @@ step):
   - Username: `admin`
   - Password: run `yq .zitadel ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Nextcloud:
+  - Url: `https://cloud.DOMAIN.TLD/login?direct=1`
   - Username: `admin`
   - Password: run `yq .nextcloud ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 - Forgejo:
