@@ -61,9 +61,7 @@ ifndef DOMAIN_NAME
 	$(error DOMAIN_NAME is required for this command)
 endif
 	echo "Provisioning cluster(s)"
-	cd $(ANSIBLE_DIR); . ./.venv/bin/activate
-	cd $(ANSIBLE_DIR); ansible-playbook --inventory "inventories/prod" \
-		--extra-vars "root_domain=$(DOMAIN_NAME)" "$(STEP).yaml"
+	./scripts/_ansible.sh "$(ANSIBLE_DIR)" prod "$(DOMAIN_NAME)" "$(STEP)"
 
 test-cluster: ## [DEV] All-in-one command for cluster deployment
 	$(MAKE) init ENVIRONMENT=dev
@@ -73,15 +71,12 @@ test-cluster: ## [DEV] All-in-one command for cluster deployment
 	$(MAKE) test-provision
 test-provision: ## [DEV] Provisioning machines
 	echo "Provisioning VM(s)"
-	cd $(ANSIBLE_DIR); . ./.venv/bin/activate
 ifndef VM_NAME
-	cd $(ANSIBLE_DIR); ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook \
-		--inventory "inventories/dev" \
-		--extra-vars "root_domain=$(or $(DOMAIN_NAME), local.vm)" "$(STEP).yaml"
+	./scripts/_ansible.sh "$(ANSIBLE_DIR)" dev "$(or $(DOMAIN_NAME), local.vm)" \
+		"$(STEP)"
 else
-	cd $(ANSIBLE_DIR); ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook \
-		--inventory "inventories/dev" --extra-vars "root_domain=$(or $(DOMAIN_NAME), local.vm)" \
-		--limit $(VM_NAME) "$(STEP).yaml"
+	./scripts/_ansible.sh "$(ANSIBLE_DIR)" dev "$(or $(DOMAIN_NAME), local.vm)" \
+		"--limit $(VM_NAME)" "$(STEP)"
 endif
 
 vm-create: ## Create vagrant VM

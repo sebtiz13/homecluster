@@ -1,5 +1,4 @@
 env: dev
-git_branch: develop
 _vagrant_dir: "{{ playbook_dir }}/../vagrant/.vagrant"
 
 ansible_port: 22
