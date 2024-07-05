@@ -6,6 +6,7 @@ spec:
   values:
     vmsingle:
       spec:
+        retentionPeriod: "1" # 1 month
         storage:
           resources:
             requests:

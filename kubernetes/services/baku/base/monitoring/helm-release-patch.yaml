@@ -16,10 +16,14 @@ spec:
           - hosts:
               - *host
       spec:
+        retentionPeriod: "14" # 14 months
         storage:
+          storageClassName: openebs-zfspv
+          accessModes:
+            - ReadWriteOnce
           resources:
             requests:
-              storage: 20Gi
+              storage: 50Gi
 
     vmagent:
       spec:
