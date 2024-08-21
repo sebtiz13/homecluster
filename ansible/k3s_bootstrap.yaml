@@ -26,7 +26,7 @@
         kubeconfig: "{{ local_kubeconfig }}"
         template: flux_vars.yaml.j2
 
-    - name: Flux | Deploy bootstrap manifests
+    - name: Flux | Deploy bootstrap manifests # noqa: jinja[invalid]
       delegate_to: localhost
       vars:
         raw_definition: "{{ lookup('kubernetes.core.kustomize', dir=flux.bootstrap_folder) }}"
