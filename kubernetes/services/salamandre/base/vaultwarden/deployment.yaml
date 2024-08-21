@@ -44,6 +44,8 @@ spec:
                 secretKeyRef:
                   key: ADMIN_TOKEN
                   name: vaultwarden-admin-credentials
+            - name: ROCKET_PORT
+              value: "8080"
           ports:
             - name: http
               containerPort: 8080
@@ -60,7 +62,7 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
           volumeMounts:
-            - mountPath: /vw-data
+            - mountPath: /data
               name: data-storage
       initContainers:
         - name: update-config
@@ -76,7 +78,7 @@ spec:
           volumeMounts:
             - mountPath: /scripts
               name: config-scripts
-            - mountPath: /vw-data
+            - mountPath: /data
               name: data-storage
       volumes:
         - name: config-scripts

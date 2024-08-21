@@ -11,19 +11,14 @@ metadata:
 # Besides the options listed below, Rocket can be further configured (though it shouldn't be required).
 # See: https://rocket.rs/v0.5/guide/configuration/#environment-variables
 data:
-  DOMAIN: https://vault.${DOMAIN_NAME}
   TZ: ${TIMEZONE}
+  DOMAIN: https://vault.${DOMAIN_NAME}
   # Show password hint instead of sending it via email
   # See: https://github.com/dani-garcia/vaultwarden/wiki/Password-hint-display
   SHOW_PASSWORD_HINTS: "false"
-  # Enable Vault interface, when disabled, only API is served
-  # See: https://github.com/dani-garcia/vaultwarden/wiki/Disabling-or-overriding-the-Vault-interface-hosting
-  WEB_VAULT_ENABLED: "true"
   SENDS_ALLOWED: "true"
   TRASH_AUTO_DELETE_DAYS: "30"
   SIGNUPS_ALLOWED: "false"
-  DATA_FOLDER: /vw-data
-  ROCKET_PORT: "8080"
   # NOTE: SMTP_* cannot be set here
 ---
 apiVersion: v1
@@ -38,7 +33,7 @@ metadata:
 data:
   update-config.sh: |-
     #!/bin/sh
-    CONFIG_FILE="${DATA_FOLDER}/config.json"
+    CONFIG_FILE="${DATA_FOLDER:="/data"}/config.json"
     if [ ! -f "${CONFIG_FILE}" ]; then
       echo "File \"${CONFIG_FILE}\" doesn't exist"
       exit
