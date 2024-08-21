@@ -10,4 +10,4 @@ resources:
   # renovate: datasource=docker image=victoriametrics/operator
   - https://github.com/VictoriaMetrics/operator/releases/download/v0.47.0/crd.yaml
   # renovate: datasource=docker image=victoriametrics/operator
-  - https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.47.0/hack/prom_crd/prometheus_operator_crd.yaml
+  - https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.47.0/hack/crd/prometheus/crd.yaml
