@@ -110,17 +110,13 @@ spec:
           php occ maintenance:mimetype:update-db
 
       # Global configuration
-      trustedDomains:
-        - *host
-        - nextcloud:8080
-        - nextcloud.nextcloud.svc.cluster.local
-
       phpConfigs:
         z-nextcloud.ini: |-
           ;Permanent cache (need restart to revalidate) useful for production
           opcache.validate_timestamps=false
       defaultConfigs:
         autoconfig.php: false # Implemented by "db.config.php" bellow
+        reverse-proxy.config.php: false # Re implement bellow
         # Disable unneeded configs
         redis.config.php: false
         s3.config.php: false
@@ -130,7 +126,13 @@ spec:
           <?php
           $CONFIG = array (
             'default_phone_region' => 'FR',
-            'maintenance_window_start' => 1
+            'maintenance_window_start' => 1,
+
+            'trusted_domains' => array (
+              0 => 'localhost',
+              1 => 'cloud.${DOMAIN_NAME}',
+              2 => 'nextcloud:8080'
+            )
           );
         # AIO (chart) config
         aio.config.php: |-
@@ -164,7 +166,6 @@ spec:
         # Support dynamic database credentials
         db.config.php: |-
           <?
-          $AUTOCONFIG["directory"] = getenv('NEXTCLOUD_DATA_DIR') ?: "/var/www/html/data";
           $overwriteDbName = getenv('POSTGRES_DB');
           if ($overwriteDbName) {
             $CONFIG['dbname'] = $overwriteDbName;
@@ -184,6 +185,17 @@ spec:
           if ($overwriteDbPassword) {
             $CONFIG['dbpassword'] = $overwriteDbPassword;
           }
+        reverse-proxy.config.php: |-
+          <?
+          $CONFIG = array (
+            'trusted_proxies' => array (
+                0 => '127.0.0.1/32',
+                1 => '10.42.0.0/16',
+            ),
+            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
+            'overwriteprotocol' => 'https',
+            'overwrite.cli.url' => 'https://cloud.${DOMAIN_NAME}',
+          );
 
       extraEnv:
         - name: PHP_MEMORY_LIMIT

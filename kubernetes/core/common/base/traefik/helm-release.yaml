@@ -24,9 +24,17 @@ spec:
     priorityClassName: system-cluster-critical
 
     ports:
+      websecure:
+        proxyProtocol:
+        forwardedHeaders: &forwardedHeaders
+          trustedIPs:
+            - "127.0.0.1/32"
+            - "10.42.0.0/16"
       web:
         redirectTo:
           port: websecure
+        forwardedHeaders:
+          <<: *forwardedHeaders
 
     tlsStore:
       default:
