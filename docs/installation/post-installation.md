@@ -27,6 +27,8 @@ step):
 - Forgejo:
   - Username: `root`
   - Password: run `yq .forgejo ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+- Vaullwarden:
+  - Token: run `yq .vaultwarden.value ./out/credentials/salamandre/<env>/admin_passwords.yaml`
 
 ### Baku
 

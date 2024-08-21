@@ -108,12 +108,7 @@ For admin account see [admin credentials](post-installation.md#admin-credentials
 For SSO (OpenID) apps the user is :
 
 - username: `test`
-- password `test`
-
-For Vaultwarden admin panel user is :
-
-- username: `admin`
-- password: `admin`
+- password `Test123!`
 
 ### Kubectl access
 
