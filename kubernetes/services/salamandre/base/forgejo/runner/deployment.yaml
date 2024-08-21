@@ -29,7 +29,8 @@ spec:
         # against race conditions between forgejo and the actions runner when
         # both are being set up for the first time.
         - name: await-forgejo
-          image: alpine/curl
+          # renovate: datasource=docker image=alpine/curl
+          image: alpine/curl:8.9.0
           command:
             - sh
           args:
@@ -108,7 +109,8 @@ spec:
               mountPath: /data/config.yaml
               subPath: "config.yaml"
         - name: daemon
-          image: docker:23.0.6-dind-rootless
+          # renovate: datasource=docker image=docker
+          image: docker:27.1.2-dind-rootless
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs

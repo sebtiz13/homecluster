@@ -10,13 +10,14 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: cert-manager-webhook-ovh
-      version: "0.6.0"
+      chart: *name
+      version: "0.7.0"
       sourceRef:
         kind: HelmRepository
         name: *name
         namespace: flux-system
   values:
+    configVersion: 0.0.1 # Need to be same as https://github.com/aureq/cert-manager-webhook-ovh/blob/main/charts/cert-manager-webhook-ovh/templates/version.yaml#L1
     groupName: ${DOMAIN_NAME}
 
     resources:

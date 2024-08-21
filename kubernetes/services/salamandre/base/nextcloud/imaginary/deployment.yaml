@@ -25,7 +25,7 @@ spec:
       containers:
         - name: imaginary
           # renovate: datasource=docker image=nextcloud/aio-imaginary
-          image: nextcloud/aio-imaginary:20240617_084300-latest
+          image: nextcloud/aio-imaginary:20240808_083748
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

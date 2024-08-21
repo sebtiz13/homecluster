@@ -29,6 +29,7 @@ spec:
         fromAddress: contact
         domain: ${DOMAIN_NAME}
 
+      # Configure apps + Update actions
       hooks:
         post-installation: |-
           _instanceID=$(php occ config:system:get instanceid)
@@ -105,10 +106,22 @@ spec:
           php occ maintenance:mimetype:update-js
           php occ maintenance:mimetype:update-db
 
+      # Global configuration
+      trustedDomains:
+        - *host
+        - nextcloud:8080
+        - nextcloud.nextcloud.svc.cluster.local
+
       phpConfigs:
         z-nextcloud.ini: |-
           ;Permanent cache (need restart to revalidate) useful for production
           opcache.validate_timestamps=false
+      defaultConfigs:
+        autoconfig.php: false # Implemented by "db.config.php" bellow
+        # Disable unneeded configs
+        redis.config.php: false
+        s3.config.php: false
+        swift.config.php: false
       configs:
         custom.config.php: |-
           <?php
@@ -120,7 +133,7 @@ spec:
         aio.config.php: |-
           <?php
           $CONFIG = array (
-            // Imaginary (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L226)
+            // Imaginary (from https://github.com/nextcloud/all-in-one/blob/3ccdd332a99307a180816280279847549ebc44f8/Containers/nextcloud/entrypoint.sh#L331)
             'enable_previews' => true,
             'preview_max_x' => '2048',
             'preview_max_x' => '2048',
@@ -136,25 +149,19 @@ spec:
             ),
             'preview_imaginary_url' => 'http://nextcloud-imaginary:8088',
 
-            // Other settings (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L241)
-            'upgrade.disable-web' => true,
+            // Other settings (from https://github.com/nextcloud/all-in-one/blob/3ccdd332a99307a180816280279847549ebc44f8/Containers/nextcloud/entrypoint.sh#L347)
             'trashbin_retention_obligation' => 'auto, 30',
             'versions_retention_obligation' => 'auto, 30',
             'activity_expire_days' => '30',
-            'activity_expire_days' => '30',
             'simpleSignUpLink.shown' => false,
 
-            // Collabora settings (from https://github.com/nextcloud/all-in-one/blob/bce08a1564895a064cca1280482e4898ab5100fc/Containers/nextcloud/entrypoint.sh#L400)
+            // Collabora settings
             'allow_local_remote_servers' => true
           );
-
-          $trustedDomains = getenv('NEXTCLOUD_TRUSTED_DOMAINS');
-          if ($trustedDomains) {
-            $CONFIG['trusted_domains'] = array_merge(['nextcloud:8080'], explode(' ', $trustedDomains));
-          }
         # Support dynamic database credentials
         db.config.php: |-
           <?
+          $AUTOCONFIG["directory"] = getenv('NEXTCLOUD_DATA_DIR') ?: "/var/www/html/data";
           $overwriteDbName = getenv('POSTGRES_DB');
           if ($overwriteDbName) {
             $CONFIG['dbname'] = $overwriteDbName;

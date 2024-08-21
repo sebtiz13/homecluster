@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: victoria-metrics-k8s-stack
-      version: "0.23.3"
+      version: "0.25.2"
       sourceRef:
         kind: HelmRepository
         name: victoriametrics
@@ -50,16 +50,18 @@ spec:
       fullnameOverride: victoria-metrics-operator
       image:
         # renovate: datasource=docker image=victoriametrics/operator
-        tag: v0.45.0
+        tag: v0.47.0
 
       operator:
         enable_converter_ownership: true
 
     # Disable unneeded alert rules
     defaultRules:
-      rules:
-        etcd: false
-        vmcluster: false
+      groups:
+        etcd:
+          create: false
+        vmcluster:
+          create: false
 
     ## In k3s alls bellow components is combined in "kubelet"
     kubeControllerManager:

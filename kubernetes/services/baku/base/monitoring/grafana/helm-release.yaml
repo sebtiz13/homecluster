@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: *name
-      version: "8.2.0"
+      version: "8.4.6"
       sourceRef:
         kind: HelmRepository
         name: *name

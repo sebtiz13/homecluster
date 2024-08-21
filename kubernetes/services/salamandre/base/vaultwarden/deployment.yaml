@@ -25,7 +25,8 @@ spec:
         fsGroup: 1000
       containers:
         - name: *name
-          image: &image vaultwarden/server:1.30.5-alpine
+          # renovate: datasource=docker image=vaultwarden/server
+          image: &image vaultwarden/server:1.32.0-alpine
           imagePullPolicy: &imagePolicy IfNotPresent
           envFrom: &envFrom
             - configMapRef:
