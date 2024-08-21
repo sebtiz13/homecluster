@@ -16,6 +16,9 @@ spec:
         name: *name
         namespace: flux-system
       interval: 12h
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: database
   values:
     gitea:
       admin:

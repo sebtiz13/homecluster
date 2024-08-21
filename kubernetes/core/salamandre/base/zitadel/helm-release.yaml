@@ -15,6 +15,9 @@ spec:
         kind: HelmRepository
         name: *name
         namespace: flux-system
+  dependsOn:
+    - name: cloudnative-pg
+      namespace: database
   values:
     replicaCount: 1
 
