@@ -4,10 +4,21 @@ metadata:
   name: grafana
 spec:
   values:
+    grafana.ini:
+      auth.generic_oauth:
+        tls_client_ca: /etc/ssl/certs/ca.crt
+
     extraSecretMounts:
+      # Clone from base
+      - name: auth-generic-oauth-secret-mount
+        secretName: monitoring-oidc-credentials
+        defaultMode: 0440
+        mountPath: /etc/secrets/auth_generic_oauth
+        readOnly: true
+
       - name: certificate
         mountPath: /etc/ssl/certs/ca.crt
-        secretName: monitoring-vm-ca-tls
+        secretName: vm-ca-tls
         subPath: tls.crt
         readOnly: true
         defaultMode: 420
