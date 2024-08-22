@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - ../../../common/base/monitoring
-  - grafana
+  # - grafana # NOTE: Implemented by environments
   - alertmanager.yaml
   - secret.yaml
   - middleware.yaml
