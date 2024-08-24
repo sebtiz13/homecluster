@@ -14,13 +14,15 @@
     field_selectors:
       - status.phase=Running
     wait: true
+    wait_timeout: 300
   register: forgejo_pod
+  failed_when: (forgejo_pod.resources | length) == 0
 
 - name: Forgejo | Register runner
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: "{{ apps_forgejo.namespace }}"
-    pod: "{{ (forgejo_pod.resources | first).metadata.name }}"
+    pod: "{{ forgejo_pod.resources.0.metadata.name }}"
     command: >-
       forgejo forgejo-cli actions register
       --name 'default'

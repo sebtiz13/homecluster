@@ -6,7 +6,9 @@
     name: "{{ apps_zitadel.release_name }}"
     namespace: "{{ apps_zitadel.namespace }}"
     wait: true
+    wait_timeout: 300
   register: server
+  failed_when: (server.resources | length) == 0
 - name: Zitadel | Store server url
   ansible.builtin.set_fact:
     zitadel_internal_url: "http://{{ server.resources.0.spec.clusterIP }}:{{ server.resources.0.spec.ports.0.port }}"

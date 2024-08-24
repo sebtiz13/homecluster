@@ -8,6 +8,7 @@
     wait: true
     wait_timeout: 300
   register: vault_server
+  failed_when: (vault_server.resources | length) == 0
 - name: Store server url
   ansible.builtin.set_fact:
     vault_api_url: "http://{{ vault_server.resources.0.spec.clusterIP }}:{{ vault_server.resources.0.spec.ports.0.port }}/v1"
