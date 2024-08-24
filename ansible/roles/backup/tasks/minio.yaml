@@ -15,7 +15,7 @@
 - name: MinIO | Retrieve baku credentials
   no_log: true
   ansible.builtin.uri:
-    url: "{{ vault_api_url }}/{{ path }}"
+    url: "{{ vault_api_url }}/{{ secret_path }}"
     method: GET
     status_code:
       - 200 # When successfull
@@ -27,9 +27,9 @@
 
 - name: MinIO | Upload config
   vars:
-    url: "{{ minio_creds.data.data.data.endpoint }}"
-    access_key: "{{ minio_creds.data.data.data.accessKey }}"
-    secret_key: "{{ minio_creds.data.data.data.secretKey }}"
+    url: "{{ minio_creds.json.data.data.endpoint }}"
+    access_key: "{{ minio_creds.json.data.data.accessKey }}"
+    secret_key: "{{ minio_creds.json.data.data.secretKey }}"
   ansible.builtin.template:
     dest: "{{ exec_dir }}/.mc/config.json"
     src: mc_config.json.j2
