@@ -27,12 +27,13 @@
       metadata:
         annotations:
           force-sync: "{{ ansible_date_time.epoch }}"
+  register: zitadel_resync
   loop:
     - zitadel-credentials
     - zitadel-masterkey
 
-- name: Force restart zitadel application
-  when: database_pass_cmd is not skipped
+- name: Force restart zitadel application # noqa: no-handler
+  when: zitadel_resync is changed
   delegate_to: "{{ inventory_hostname }}"
   vars:
     namespace: zitadel

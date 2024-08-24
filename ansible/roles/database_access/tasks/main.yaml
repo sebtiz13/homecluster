@@ -12,28 +12,23 @@
       username: "{{ username }}"
       password: "{{ _password }}"
 
-- name: Create role and database
-  when: vault_check.status == 404
+- name: Create/update role and database
   delegate_to: localhost
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: database
     pod: "postgres{{ postgres_version }}-1"
     command: >-
-      psql -U postgres -c "CREATE ROLE {{ username }} WITH LOGIN PASSWORD '{{ _password }}';"
-      -c "CREATE DATABASE {{ database }} OWNER {{ username }};"
+      psql -U postgres -c "DO $$
+        BEGIN
+          IF EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '{{ username }}') THEN
+              ALTER ROLE {{ username }} WITH PASSWORD '{{ _password }}';
+          ELSE
+              CREATE ROLE {{ username }} WITH LOGIN PASSWORD '{{ _password }}';
+              CREATE DATABASE {{ database }} OWNER {{ username }};
+          END IF;
+        END
+        $$;"
   register: database_cmd
   changed_when: database_cmd.rc == 0
   failed_when: database_cmd.rc != 0
-- name: Change role password
-  when: vault_check.status != 404
-  delegate_to: localhost
-  kubernetes.core.k8s_exec:
-    kubeconfig: "{{ local_kubeconfig }}"
-    namespace: database
-    pod: "postgres{{ postgres_version }}-1"
-    command: >-
-      psql -U postgres -c "ALTER ROLE {{ username }} WITH PASSWORD '{{ _password }}';"
-  register: database_pass_cmd
-  changed_when: database_pass_cmd.rc == 0
-  failed_when: database_pass_cmd.rc != 0
