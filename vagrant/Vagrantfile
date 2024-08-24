@@ -38,7 +38,6 @@ Vagrant.configure("2") do |config|
   NODES.each do |node|
     config.vm.define node[:name] do |cfg|
       cfg.vm.hostname = node[:hostname]
-      cfg.vm.box_check_update = false
       cfg.vm.network :private_network, :ip => node[:ip]
 
       # Configure provider

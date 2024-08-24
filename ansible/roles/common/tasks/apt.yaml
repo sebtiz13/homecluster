@@ -4,10 +4,19 @@
     update_cache: true
     cache_valid_time: 86400
 
-- name: Reboot if kernel/libs updated and requested by the system
-  when: "'/var/run/reboot-required' is exists"
+- name: Check if reboot required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+
+- name: Reboot if required
+  when: reboot_required_file.stat.exists
   ansible.builtin.reboot: {}
-  notify: Update kernel version
+  register: rebooted
+
+- name: Regathering facts variables if is rebooted # noqa: no-handler
+  when: rebooted is changed
+  ansible.builtin.setup: {}
 
 - name: Install utils packages (htop, curl)
   ansible.builtin.apt:

@@ -1,13 +1,3 @@
-- name: Update kernel version
-  block:
-    - name: Retrieve new kernel version
-      ansible.builtin.command: uname -r
-      register: apt_kernel_version
-      changed_when: "apt_kernel_version.stdout != ansible_kernel"
-    - name: Update ansible fact
-      ansible.builtin.set_fact:
-        ansible_kernel: "{{ apt_kernel_version.stdout }}"
-
 - name: Restart sshd
   ansible.builtin.service:
     name: sshd
