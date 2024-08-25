@@ -14,6 +14,8 @@
 
 - name: Create/update role and database
   delegate_to: localhost
+  vars:
+    err_msg: 'database "{{ database }}" already exists'
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
     namespace: database
@@ -25,10 +27,12 @@
               ALTER ROLE {{ username }} WITH PASSWORD '{{ _password }}';
           ELSE
               CREATE ROLE {{ username }} WITH LOGIN PASSWORD '{{ _password }}';
-              CREATE DATABASE {{ database }} OWNER {{ username }};
           END IF;
         END
         $$;"
+        -c "CREATE DATABASE {{ database }} OWNER {{ username }};"
   register: database_cmd
   changed_when: database_cmd.rc == 0
-  failed_when: database_cmd.rc != 0
+  failed_when:
+    - database_cmd.rc != 0
+    - not err_msg in database_cmd.stderr
