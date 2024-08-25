@@ -16,7 +16,7 @@ fi
 
 DEFAULT_LENGTH=32
 randpw () {
-  pwgen -cnysB -r "'\"\`" "${1:-$DEFAULT_LENGTH}" 1
+  pwgen -cnysB -r "'\"\`{}" "${1:-$DEFAULT_LENGTH}" 1
 }
 
 insert_pwd() {
