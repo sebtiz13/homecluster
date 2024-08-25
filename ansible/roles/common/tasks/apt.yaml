@@ -18,8 +18,9 @@
   when: rebooted is changed
   ansible.builtin.setup: {}
 
-- name: Install utils packages (htop, curl)
+- name: Install utils packages (curl, htop and btop)
   ansible.builtin.apt:
     pkg:
-      - htop
       - curl
+      - htop
+      - btop
