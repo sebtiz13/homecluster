@@ -14,7 +14,19 @@
     database: zitadel
     username: zitadel
 
+- name: Zitadel | Check application
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Deployment
+    name: "{{ apps_zitadel.release_name }}"
+    namespace: "{{ apps_zitadel.namespace }}"
+  register: server
+
 - name: External-secrets | Force sync secrets
+  when:
+    - (server.resources | length) > 0
+    - server.resources.0.status.readyReplicas == server.resources.0.status.replicas
   delegate_to: localhost
   kubernetes.core.k8s:
     state: patched
@@ -32,21 +44,18 @@
     - zitadel-credentials
     - zitadel-masterkey
 
-- name: Force restart zitadel application # noqa: no-handler
+- name: Zitadel | Force restart application # noqa: no-handler
   when: zitadel_resync is changed
   delegate_to: "{{ inventory_hostname }}"
   vars:
     namespace: "{{ apps_zitadel.namespace }}"
     dep_name: "{{ apps_zitadel.release_name }}"
-    err_msg: 'deployments.apps "{{ dep_name }}" not found'
   ansible.builtin.shell: |
     kubectl rollout restart deployment --namespace '{{ namespace }}' \
     '{{ dep_name }}' && \
     kubectl rollout status deployment --namespace '{{ namespace }}' \
     '{{ dep_name }}'
   changed_when: false
-  register: zitadel_restart
-  failed_when: not err_msg in zitadel_restart.stderr
 
 - name: Authenticate console
   ansible.builtin.import_tasks: auth.yaml
