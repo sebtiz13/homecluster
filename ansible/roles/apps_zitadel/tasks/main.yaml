@@ -36,14 +36,17 @@
   when: zitadel_resync is changed
   delegate_to: "{{ inventory_hostname }}"
   vars:
-    namespace: zitadel
-    dep_name: zitadel
+    namespace: "{{ apps_zitadel.namespace }}"
+    dep_name: "{{ apps_zitadel.release_name }}"
+    err_msg: 'deployments.apps "{{ dep_name }}" not found'
   ansible.builtin.shell: |
     kubectl rollout restart deployment --namespace '{{ namespace }}' \
     '{{ dep_name }}' && \
     kubectl rollout status deployment --namespace '{{ namespace }}' \
     '{{ dep_name }}'
   changed_when: false
+  register: zitadel_restart
+  failed_when: not err_msg in zitadel_restart.stderr
 
 - name: Authenticate console
   ansible.builtin.import_tasks: auth.yaml
