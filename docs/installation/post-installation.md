@@ -16,22 +16,22 @@ step):
 ### Salamandre
 
 - Vault:
-  - Root token: run `jq -r .root_token ./out/credentials/salamandre/<env>/vault.json`
+  - Root token: run `jq -r .root_token ./out/credentials/<env>/vault.json`
 - Zitadel:
   - Username: `admin`
-  - Password: run `yq .zitadel ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+  - Password: run `yq .salamandre.zitadel ./out/credentials/<env>/admin_passwords.yaml`
 - Nextcloud:
   - Url: `https://cloud.DOMAIN.TLD/login?direct=1`
   - Username: `admin`
-  - Password: run `yq .nextcloud ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+  - Password: run `yq .salamandre.nextcloud ./out/credentials/<env>/admin_passwords.yaml`
 - Forgejo:
   - Username: `root`
-  - Password: run `yq .forgejo ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+  - Password: run `yq .salamandre.forgejo ./out/credentials/<env>/admin_passwords.yaml`
 - Vaullwarden:
-  - Token: run `yq .vaultwarden.value ./out/credentials/salamandre/<env>/admin_passwords.yaml`
+  - Token: run `yq .salamandre.vaultwarden.value ./out/credentials/<env>/admin_passwords.yaml`
 
 ### Baku
 
 - Minio:
   - Username: `root`
-  - Password: `yq .minio ./out/credentials/baku/<env>/admin_passwords.yaml`
+  - Password: `yq .baku.minio ./out/credentials/<env>/admin_passwords.yaml`
