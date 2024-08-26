@@ -43,7 +43,7 @@ cleanup: ## Cleanup development environment
 	echo "Clean development environment..."
 	cd $(VAGRANT_DIR); vagrant destroy || true
 	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -uninstall
-	rm -rf $(VAGRANT_DIR)/.vagrant/ca
+	rm -rf $(VAGRANT_DIR)/.vagrant
 	rm -rf ./out/kubeconfig/*.dev.yaml
 	rm -rf ./out/credentials/dev
 	rm -rf $(ANSIBLE_DIR)/{.venv,.bin}
