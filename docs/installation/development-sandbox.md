@@ -81,6 +81,13 @@ make test-provision
 
 If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
 
+You can precise step with `STEP` argument. This following steps is available :
+
+- `setup`: upgrading operating system and kubernetes
+- `k3s_bootstrap`: Deploying applications with flux
+- `k3s_configure`: (Re)Configure applications
+- `k3s_nuke`: Delete Kubernetes, so it clean all applications
+
 ### (Re)Create virtual machines
 
 Create or recreate virtual machines :

@@ -1,0 +1,17 @@
+- name: Nuke kubernetes clusters
+  hosts: all
+  tags: common
+  tasks:
+    - name: Kubernetes | Nuke it
+      become: true
+      ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+      register: kube_nuke
+      changed_when: kube_nuke.rc == 0
+      failed_when: kube_nuke.rc != 0
+
+    - name: Kubernetes | Remove local kubeconfig
+      delegate_to: localhost
+      become: false
+      ansible.builtin.file:
+        path: "{{ local_kubeconfig }}"
+        state: absent
