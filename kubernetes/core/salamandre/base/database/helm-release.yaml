@@ -16,8 +16,8 @@ spec:
         name: *name
         namespace: flux-system
   dependsOn:
-    - name: zfs-localpv
-      namespace: kube-system
+    - name: external-secrets
+      namespace: external-secrets
   values:
     priorityClassName: system-cluster-critical
 

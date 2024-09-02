@@ -5,3 +5,8 @@ namespace: external-secrets
 resources:
   - ../../../common/base/external-secrets
   - vault-store.yaml
+patches:
+  - path: helm-release-patch.yaml
+    target:
+      kind: HelmRelease
+      name: external-secrets
