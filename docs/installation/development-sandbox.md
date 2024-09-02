@@ -110,6 +110,9 @@ For SSO (OpenID) apps the user is :
 - username: `test`
 - password `Test123!`
 
+> [!NOTE]
+> This user only have access to public application as an operator.
+
 ### Kubectl access
 
 You can export kubeconfig with following command :
