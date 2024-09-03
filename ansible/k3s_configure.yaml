@@ -1,3 +1,26 @@
+- name: Retrieve baku JWT access
+  hosts: baku
+  tags: kubernetes
+  tasks:
+    - name: External-secrets | Retrieve service account JWT
+      tags: vault
+      delegate_to: localhost
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ local_kubeconfig }}"
+        kind: Secret
+        name: vault-auth-secret
+        namespace: external-secrets
+        wait: true
+      register: vault_jwt
+      failed_when: (vault_jwt.resources | length) == 0
+    - name: External-secrets | Store JWT in facts
+      vars:
+        resource: "{{ vault_jwt.resources.0 }}"
+      ansible.builtin.set_fact:
+        vault_jwt:
+          token: "{{ resource.data.token }}"
+          ca_cert: "{{ resource.data['ca.crt'] }}"
+
 - name: Load informations and configure salamandre core applications
   hosts: salamandre
   tags: kubernetes
@@ -29,6 +52,25 @@
   post_tasks:
     - name: Vault | Fill applications secrets
       ansible.builtin.import_tasks: tasks/s_core_apps_secrets.yaml
+    - name: Vault | Configure kubernetes auth for baku
+      tags: vault
+      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
+      vars:
+        kubeconfig: "{{ lookup('file', hostvars.baku.local_kubeconfig) | from_yaml }}"
+        vault_jwt: "{{ hostvars.baku.vault_jwt }}"
+      ansible.builtin.uri:
+        url: "{{ vault_api_url }}/auth/baku-cluster/config"
+        method: POST
+        status_code:
+          - 204 # When successfull
+          - 200 # When warning
+        body_format: json
+        headers:
+          X-Vault-Token: "{{ vault_root_token }}"
+        body:
+          token_reviewer_jwt: "{{ vault_jwt.token | b64decode }}"
+          kubernetes_host: "{{ kubeconfig.clusters.0.cluster.server }}"
+          kubernetes_ca_cert: "{{ vault_jwt.ca_cert | b64decode }}\n"
 
     - name: Wait until database is ready
       delegate_to: localhost
@@ -83,51 +125,3 @@
       tags: forgejo
       delegate_to: localhost
       ansible.builtin.import_tasks: tasks/s_forgejo_runner.yaml
-
-- name: Configure baku applications
-  hosts: baku
-  tags: kubernetes
-  tasks:
-    - name: External-secrets | Retrieve service account JWT
-      tags: vault
-      delegate_to: localhost
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ local_kubeconfig }}"
-        kind: Secret
-        name: vault-auth-secret
-        namespace: external-secrets
-        wait: true
-      register: vault_jwt
-      failed_when: (vault_jwt.resources | length) == 0
-    - name: External-secrets | Store JWT in facts
-      vars:
-        resource: "{{ vault_jwt.resources.0 }}"
-      ansible.builtin.set_fact:
-        vault_jwt:
-          token: "{{ resource.data.token }}"
-          ca_cert: "{{ resource.data['ca.crt'] }}"
-
-- name: Finalize configure salamandre applications
-  hosts: salamandre
-  tags:
-    - kubernetes
-    - vault
-  tasks:
-    - name: Vault | Configure kubernetes auth for baku
-      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
-      vars:
-        kubeconfig: "{{ lookup('file', hostvars.baku.local_kubeconfig) | from_yaml }}"
-        vault_jwt: "{{ hostvars.baku.vault_jwt }}"
-      ansible.builtin.uri:
-        url: "{{ vault_api_url }}/auth/baku-cluster/config"
-        method: POST
-        status_code:
-          - 204 # When successfull
-          - 200 # When warning
-        body_format: json
-        headers:
-          X-Vault-Token: "{{ vault_root_token }}"
-        body:
-          token_reviewer_jwt: "{{ vault_jwt.token | b64decode }}"
-          kubernetes_host: "{{ kubeconfig.clusters.0.cluster.server }}"
-          kubernetes_ca_cert: "{{ vault_jwt.ca_cert | b64decode }}\n"
