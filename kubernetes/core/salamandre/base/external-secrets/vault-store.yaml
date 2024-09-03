@@ -13,3 +13,6 @@ spec:
           serviceAccountRef:
             name: external-secrets
             namespace: external-secrets
+  retrySettings:
+    maxRetries: 30
+    retryInterval: 10s

@@ -131,20 +131,3 @@
           token_reviewer_jwt: "{{ vault_jwt.token | b64decode }}"
           kubernetes_host: "{{ kubeconfig.clusters.0.cluster.server }}"
           kubernetes_ca_cert: "{{ vault_jwt.ca_cert | b64decode }}\n"
-
-- name: Restart baku external-secrets
-  hosts: baku
-  tags: kubernetes
-  tasks:
-    - name: External-secrets | Restart applications
-      tags: vault
-      delegate_to: localhost
-      vars:
-        namespace: external-secrets
-        dep_name: external-secrets
-      ansible.builtin.shell: |
-        kubectl rollout restart deployment --namespace '{{ namespace }}' \
-        '{{ dep_name }}' && \
-        kubectl rollout status deployment --namespace '{{ namespace }}' \
-        '{{ dep_name }}'
-      changed_when: false
