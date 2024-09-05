@@ -9,4 +9,4 @@ external_urls:
   forgejo: https://git.{{ domain_name }}
   nextcloud: https://cloud.{{ domain_name }}
   grafana: https://monitor.{{ domain_name }}
-  baku_minio: https://baku.{{ domain_name }}
+  baku_minio: https://baku.{{ domain_name }}:3882 # S3 url
