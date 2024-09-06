@@ -1,6 +1,8 @@
 - name: MinIO | Download CLI client
   ansible.builtin.get_url:
     url: https://dl.min.io/client/mc/release/linux-amd64/mc
+    owner: backup
+    group: backup
     dest: "{{ exec_dir }}/mc"
     mode: "u=rwx,g=rx,o=rx"
 
@@ -33,4 +35,6 @@
   ansible.builtin.template:
     dest: "{{ exec_dir }}/.mc/config.json"
     src: mc_config.json.j2
+    owner: backup
+    group: backup
     mode: "0640" # u=rw,g=r
