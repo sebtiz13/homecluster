@@ -1,0 +1,9 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: "%name%"
+  namespace: "%namespace%"
+spec:
+  volumeSnapshotClassName: zfspv-snapclass
+  source:
+    persistentVolumeClaimName: "%pvc_name%"

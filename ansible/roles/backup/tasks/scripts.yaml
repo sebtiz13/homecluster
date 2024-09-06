@@ -18,6 +18,13 @@
     owner: backup
     group: backup
     mode: "u=rwx,g=rx,o=rx"
+- name: Scripts | Upload snapshot template
+  ansible.builtin.copy:
+    src: snapshot_template.yaml
+    dest: "{{ exec_dir }}/snapshot_template.yaml"
+    owner: backup
+    group: backup
+    mode: "u=rw,g=r,o=r"
 
 - name: Scripts | Configure cron task
   ansible.builtin.cron:

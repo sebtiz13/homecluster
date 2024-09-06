@@ -10,7 +10,6 @@ LOGS_KEEP_WEEKS=6
 FILES_KEEP_WEEKS=2
 BACKUP_PVC_BUCKET=baku/backup-salamandre-pvc
 BACKUP_DB_BUCKET=baku/backup-salamandre-pg
-SNAPSHOT_CLASS=zfspv-snapclass
 
 OPENEBS_NAMESPACE=kube-system
 DATABASE_NAMESPACE=database
@@ -151,17 +150,20 @@ function backup:snapshot() {
   vlSnapshotName="${2}-$CURRENT_DATETIME"
 
   log "backup:snapshot" "Create snapshot for pvc ${1}/$2"
-  kubectl apply -f - >/dev/null <<EOF
-apiVersion: snapshot.storage.k8s.io/v1
-kind: VolumeSnapshot
-metadata:
-  name: $vlSnapshotName
-  namespace: $1
-spec:
-  volumeSnapshotClassName: $SNAPSHOT_CLASS
-  source:
-    persistentVolumeClaimName: $2
-EOF
+
+  # Create template
+  tmp=/tmp/backup-snap.$$
+  # shellcheck disable=SC2064
+  trap "rm -f $tmp; exit 1" 0 1 2 3 SIGPIPE 15  # aka EXIT HUP INT QUIT PIPE TERM
+  sed -e "s/%name%/$vlSnapshotName/g" -e "s/%namespace%/$1/g" \
+    -e "s/%pvc_name%/$2/g" "$EXEC_DIR/snapshot_template.yaml" > $tmp
+
+  # Apply it
+  kubectl apply -f "$tmp" >/dev/null
+
+  # Remove tmp file and trap
+  rm -f $tmp
+  trap 0
 
   vlSnapshotUid=$(kubectl get vs -o jsonpath='{.metadata.uid}' -n "$1" "$vlSnapshotName")
   if wait_for_zfsSnapshot "$1" "snapshot-$vlSnapshotUid"; then
