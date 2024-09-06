@@ -1,13 +1,4 @@
 - ansible.builtin.import_playbook: setup.yaml
 - ansible.builtin.import_playbook: k3s_bootstrap.yaml
 - ansible.builtin.import_playbook: k3s_configure.yaml
-
-- name: Configure backup
-  hosts: salamandre
-  become: true
-  tags:
-    - backup
-    - minio
-  roles:
-    - role: backup
-      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
+- ansible.builtin.import_playbook: backup.yaml
