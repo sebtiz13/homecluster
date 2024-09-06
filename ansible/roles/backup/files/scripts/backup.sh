@@ -225,7 +225,7 @@ function backup:dbDump() {
   filepath="${BACKUP_DIR}/db/${DATABASE_CLUSTER_NAME}-${CURRENT_DATETIME}.sql"
 
   log "backup:dbDump" "Dump database"
-  kubectl exec -n "${DATABASE_NAMESPACE}" "${DATABASE_POD_NAME}" -- pg_dumpall | gzip > "$filepath"
+  kubectl exec -n "${DATABASE_NAMESPACE}" "${DATABASE_POD_NAME}" -c postgres -- pg_dumpall | gzip > "$filepath"
 
   elapsedTime=$(($(date +%s) - elapsedTime))
   log "backup:dbDump" "Database as been dumped to \"$filepath\" in aprox $elapsedTime seconds"
