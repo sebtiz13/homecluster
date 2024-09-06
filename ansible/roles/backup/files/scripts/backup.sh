@@ -240,7 +240,7 @@ mkdir -p "${BACKUP_DIR}/pvc"
 mkdir -p "${BACKUP_DIR}/db"
 
 # Clean old logs
-if [ -z "$IS_CRON_RUN" ]; then
+if [ -n "$IS_CRON_RUN" ]; then
   echo "-- Clean old backup logs --"
   backup:pruneLogs
   backup:prunePVCFiles
@@ -259,7 +259,7 @@ do
   name=$(echo "${line}" | awk -F":" '{print $2}')
 
   # Clean old snapshots
-  if [ -z "$IS_CRON_RUN" ]; then
+  if [ -n "$IS_CRON_RUN" ]; then
     backup:pruneSnapshots "$namespace" "$name"
   fi
 
