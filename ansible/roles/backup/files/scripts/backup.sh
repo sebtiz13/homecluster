@@ -6,7 +6,8 @@
 LOG_DIR=/var/log/backup-cluster
 BACKUP_DIR=/var/backups/kubernetes
 EXEC_DIR=/opt/backup-cluster
-KEEP_WEEKS=6
+LOGS_KEEP_WEEKS=6
+FILES_KEEP_WEEKS=2
 BACKUP_PVC_BUCKET=baku/backup-salamandre-pvc
 BACKUP_DB_BUCKET=baku/backup-salamandre-pg
 SNAPSHOT_CLASS=zfspv-snapclass
@@ -31,6 +32,8 @@ START_TIME=$(date +%s)
 CURRENT_DAYWEEK=$(date +%w)
 CURRENT_DATETIME=$(date $DATETIME_FORMAT)
 YESTERDAY_DATETIME=$(date -d "yesterday" $DATETIME_FORMAT)
+_LOGS_KEEP_TIME="last-sunday - $LOGS_KEEP_WEEKS week"
+_FILES_KEEP_TIME="last-sunday - $FILES_KEEP_WEEKS week"
 
 ZFS_SNAPSHOTS=$(zfs list -t snapshot -o name -H)
 
@@ -80,10 +83,7 @@ function wait_for_zfsSnapshot() {
 
 # Prune cron logs files
 function backup:pruneLogs() {
-  local expiredWeek
-  expiredWeek=$(date -d "${KEEP_WEEKS} week ago" +%U)
-
-  mapfile -t oldFiles < <(find "${LOG_DIR}" -maxdepth 1 -type f -name "cron-${expiredWeek}_*")
+  mapfile -t oldFiles < <(find "${LOG_DIR}" -maxdepth 1 -type f -name "cron-*.log" -not -newermt "$_LOGS_KEEP_TIME")
   # Say if have no old files
   [[ "${#oldFiles[@]}" -eq 0 ]] && log "backup:pruneLogs" "No old logs need to be deleted"
   for file in "${oldFiles[@]}"
@@ -94,13 +94,39 @@ function backup:pruneLogs() {
     fi
   done
 }
+# Prune ZFS snapshot files (".zvol.gz")
+function backup:prunePVCFiles() {
+  mapfile -t files < <(find "${BACKUP_DIR}/pvc" -maxdepth 2 -type f -name "*.zvol.gz" -not -newermt "$_FILES_KEEP_TIME")
+
+  [[ "${#files[@]}" -eq 0 ]] && log "backup:prunePVCFiles" "No files need to be deleted"
+  for file in "${files[@]}"
+  do
+    if [ -f "$file" ]; then
+      rm "$file" > /dev/null
+      log "backup:prunePVCFiles" "File \"$file\" as been deleted"
+    fi
+  done
+}
+# Prune database files (".sql.gz")
+function backup:pruneDBFiles() {
+  mapfile -t files < <(find "${BACKUP_DIR}/db" -maxdepth 1 -type f -name "*.sql.gz" -not -newermt "$_FILES_KEEP_TIME")
+
+  [[ "${#files[@]}" -eq 0 ]] && log "backup:pruneDBFiles" "No files need to be deleted"
+  for file in "${files[@]}"
+  do
+    if [ -f "$file" ]; then
+      rm "$file" > /dev/null
+      log "backup:pruneDBFiles" "File \"$file\" as been deleted"
+    fi
+  done
+}
 
 # Prune snapshot (VolumeSnapshot kubernetes resources)
 # usage: backup:pruneSnapshots "namespace" "pvcName"
 function backup:pruneSnapshots() {
   local expiredDay
   local cmdArgs
-  expiredDay=$(date -d "${KEEP_WEEKS} week ago" $DATETIME_FORMAT)
+  expiredDay=$(date -d "${FILES_KEEP_WEEKS} week ago" $DATETIME_FORMAT)
   cmdArgs=(-n "$1" "${2}-$expiredDay")
 
   # Check if snapshot exist
@@ -180,6 +206,7 @@ function backup:zfsExport() {
 
   log "backup:zfsExport" "$logMessage"
 
+  # File path format: pvc/$namespace/$pvcName$date{%Y%m%d%H%M%S}-[full/incr]
   filepath="${BACKUP_DIR}/pvc/${1}/${3}${fileSuffix}.zvol.gz"
   mkdir -p "$(dirname "$filepath")"
   zfs send "${sendArgs[@]}" "$snapshotName" | gzip > "$filepath"
@@ -202,33 +229,6 @@ function backup:dbDump() {
   log "backup:dbDump" "Database as been dumped to \"$filepath\" in aprox $elapsedTime seconds"
 }
 
-# Prune ZFS snapshot files (".zvol.gz")
-function backup:prunePVCFiles() {
-  mapfile -t files < <(find "${BACKUP_DIR}/pvc" -maxdepth 2 -type f -name "*.zvol.gz")
-
-  [[ "${#files[@]}" -eq 0 ]] && log "backup:prunePVCFiles" "No files need to be deleted"
-  for file in "${files[@]}"
-  do
-    if [ -f "$file" ]; then
-      rm "$file" > /dev/null
-      log "backup:prunePVCFiles" "File \"$file\" as been deleted"
-    fi
-  done
-}
-# Prune database files (".sql.gz")
-function backup:pruneDBFiles() {
-  mapfile -t files < <(find "${BACKUP_DIR}/db" -maxdepth 1 -type f -name "*.sql.gz")
-
-  [[ "${#files[@]}" -eq 0 ]] && log "backup:pruneDBFiles" "No files need to be deleted"
-  for file in "${files[@]}"
-  do
-    if [ -f "$file" ]; then
-      rm "$file" > /dev/null
-      log "backup:pruneDBFiles" "File \"$file\" as been deleted"
-    fi
-  done
-}
-
 ###
 # Backup script
 ###
@@ -239,8 +239,10 @@ mkdir -p "${BACKUP_DIR}/db"
 
 # Clean old logs
 if [ -z "$IS_CRON_RUN" ]; then
-  echo "-- Clean old logs --"
+  echo "-- Clean old backup logs --"
   backup:pruneLogs
+  backup:prunePVCFiles
+  backup:pruneDBFiles
 fi
 
 echo "-- Backup PVC --"
@@ -271,25 +273,8 @@ fi
 
 echo "-- Sync backup to minio --"
 "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/pvc" "${BACKUP_PVC_BUCKET}"
-MC_RESULT1_PVC=$?
-
 if [ -n "$DATABASE_NEED_DUMP" ]; then
   "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/db" "${BACKUP_DB_BUCKET}/dump"
-  MC_RESULT_DB=$?
-fi
-
-echo "-- Clean files --"
-if [[ $MC_RESULT1_PVC -eq 0 ]]; then
-  backup:prunePVCFiles
-else
-  log "_" "WARN: keep zvol files due to an error on minio transfert. Keep it for next backup"
-fi
-if [ -n "$DATABASE_NEED_DUMP" ]; then
-  if [[ $MC_RESULT_DB -eq 0 ]]; then
-    backup:pruneDBFiles
-  else
-    log "_" "WARN: keep database dump due to an error on minio transfert. Keep it for next backup"
-  fi
 fi
 
 END_TIME=$(date +%s)
