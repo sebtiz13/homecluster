@@ -3,6 +3,8 @@ kind: VolumeSnapshot
 metadata:
   name: "%name%"
   namespace: "%namespace%"
+  labels:
+    backup/managed: "true"
 spec:
   volumeSnapshotClassName: zfspv-snapclass
   source:

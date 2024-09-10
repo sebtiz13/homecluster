@@ -38,6 +38,7 @@ ZFS_SNAPSHOTS=$(zfs list -t snapshot -o name -H)
 
 PVC_CONDITION='?(@.spec.storageClassName=="openebs-zfspv")' # TODO: change to label/annotation
 PVC_OUTPUT_NAME='{.metadata.namespace}{":"}{.metadata.name}' # Format: namespace:name
+VS_CONDITION_LABELS='backup/managed=true'
 
 # Check if database need to be dump
 if [ -n "$IS_CRON_RUN" ] || [[ $CURRENT_DAYWEEK -gt 0 ]]; then
@@ -128,8 +129,8 @@ function backup:pruneSnapshots() {
 
   # List snapshots
   # shellcheck disable=SC2068
-  mapfile -t snapshots < <(kubectl get vs --ignore-not-found -n "$1" -o \
-    jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
+  mapfile -t snapshots < <(kubectl get vs --ignore-not-found -n "$1" -l "$VS_CONDITION_LABELS" \
+    -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
   for name in "${snapshots[@]}"
   do
     date=$(echo "${name}" | awk -F"-" '{print $NF}')
@@ -157,6 +158,10 @@ function backup:pruneSnapshots() {
 # - $vSnapshotName: snapshot name
 # - $vlSnapshotUid: snapshot uid
 function backup:snapshot() {
+  if [ "$1" == "database" ]; then # Skip database
+    return 0
+  fi
+
   vlSnapshotName="${2}-$CURRENT_DATETIME"
 
   log "backup:snapshot" "Create snapshot for pvc ${1}/$2"

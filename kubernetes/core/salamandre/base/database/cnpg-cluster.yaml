@@ -34,6 +34,8 @@ spec:
     retentionPolicy: 30d
     volumeSnapshot:
       snapshotOwnerReference: cluster
+      labels:
+        backup/managed: "true"
 
     barmanObjectStore: &barmanObjectStore
       data:
