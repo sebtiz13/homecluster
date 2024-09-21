@@ -15,7 +15,7 @@ services in our home cluster.
 - [x] Automated bare metal provisioning with Ansible
 - [x] Automated Kubernetes installation and management
 - [x] Installing and managing applications using GitOps
-- [ ] Automatically update apps (with approval, _Currently: only manual update_) 🚧
+- [x] Automatically update apps (with approval)
 - [x] Modular architecture, easy to add or remove features/components
 - [x] Automated certificate management
 - [x] Automatically update DNS records for exposed services

@@ -53,8 +53,8 @@ Can be used in "production" (for family).
 
 - [x] A single command to deploy everything
 - [x] Fast deployment time (from empty hard drive to running services in under 1 hour)
-- [ ] Fully automatic, not just automated
-  - [ ] Application version upgrade (Renovate)
+- [x] Fully automatic, not just automated
+  - [x] Application version upgrade (Renovate)
   - [x] Self healing
 - [x] Minimal dependency on external services
 - [x] Additional applications
