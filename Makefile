@@ -7,7 +7,7 @@ VAGRANT_DIR := ./vagrant
 ENVIRONMENT := prod
 STEP := site
 # renovate: datasource=github-releases depName=mike-engel/jwt-cli
-JWT_VERSION := 6.1.0
+JWT_VERSION := 6.1.1
 
 ifndef VERBOSE
 MAKEFLAGS += --no-print-directory
