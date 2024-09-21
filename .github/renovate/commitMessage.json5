@@ -1,0 +1,21 @@
+{
+  // Based on : https://github.com/onedr0p/home-ops/blob/6b2eb51777d20cb5ecb45a4c18c163656b28f64b/.github/renovate/commitMessage.json5
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "commitMessageSuffix": "",
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "helm"
+      ],
+      "commitMessageTopic": "chart {{depName}}"
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "commitMessageTopic": "image {{depName}}"
+    }
+  ]
+}

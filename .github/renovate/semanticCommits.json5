@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "*"
+      ],
+      "commitMessageTopic": "{{depName}}",
+      "commitMessageExtra": " ({{currentVersion}} → {{newVersion}})"
+    },
+    {
+      "description": [
+        "Add attention to potential breaking change on major update"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "commitMessagePrefix": "{{semanticCommitType}}({{semanticCommitScope}})!:"
+    },
+    {
+      "description": [
+        "Kubernetes: Custom behavior for minor versions"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "matchDepNames": [
+        "kubernetes",
+        "kubernetes-validate",
+        "k3s-io/k3s"
+      ],
+      "commitMessagePrefix": "{{semanticCommitType}}({{semanticCommitScope}})!:"
+    }
+  ]
+}

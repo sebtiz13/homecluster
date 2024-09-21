@@ -1,0 +1,42 @@
+{
+  // Based on: https://github.com/onedr0p/home-ops/blob/d404344d90681d1260031dd824dbec8e7d6e2564/.github/renovate.json5
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "config:semverAllMonthly",
+    "docker:enableMajor",
+    ":automergeBranch",
+    ":disableRateLimiting",
+    ":gitSignOff",
+    "github>sebtiz13/homecluster//.github/renovate/clusters.json5",
+    "github>sebtiz13/homecluster//.github/renovate/commitMessage.json5",
+    "github>sebtiz13/homecluster//.github/renovate/customManagers.json5",
+    "github>sebtiz13/homecluster//.github/renovate/groups.json5",
+    "github>sebtiz13/homecluster//.github/renovate/labels.json5",
+    "github>sebtiz13/homecluster//.github/renovate/packageRules.json5",
+    "github>sebtiz13/homecluster//.github/renovate/semanticCommits.json5"
+  ],
+  "timezone": "Europe/Paris",
+  "dependencyDashboardTitle": "Renovate Dashboard 🤖",
+  "onboarding": false,
+  "separateMajorMinor": true,
+  "assigneesFromCodeOwners": true,
+  "ignorePaths": [
+    "*/wallabag/**"
+  ],
+  "flux": {
+    "fileMatch": [
+      "(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$"
+    ]
+  },
+  "helm-values": {
+    "fileMatch": [
+      "(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$"
+    ]
+  },
+  "kubernetes": {
+    "fileMatch": [
+      "(^|/)kubernetes/.+\\.ya?ml$"
+    ]
+  }
+}

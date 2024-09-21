@@ -1,0 +1,54 @@
+{
+  // Based on: https://github.com/onedr0p/home-ops/blob/6b2eb51777d20cb5ecb45a4c18c163656b28f64b/.github/renovate/commitMessage.json5
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": [
+        "Custom schedule for frequently updated packages"
+      ],
+      "matchDatasources": [
+        "docker",
+        "helm"
+      ],
+      "matchPackageNames": [
+        "minio",
+        "postgresql",
+        "reloader"
+      ],
+      "schedule": [
+        "on the first day of the month"
+      ]
+    },
+    {
+      "description": [
+        "Custom versioning for k3s"
+      ],
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchDepNames": [
+        "k3s-io/k3s"
+      ],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$"
+    },
+    {
+      "description": [
+        "Use custom versioning for Minio"
+      ],
+      "matchDepNames": [
+        "quay.io/minio/minio",
+        "quay.io/minio/mc"
+      ],
+      "versioning": "regex:^RELEASE\\.(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)T.*Z$"
+    },
+    {
+      "description": [
+        "Use custom versioning for ansible 'kubernetes'. This is for match 'k3s' upgrade"
+      ],
+      "matchDepNames": [
+        "kubernetes"
+      ],
+      "versioning": "regex:^(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    }
+  ]
+}
