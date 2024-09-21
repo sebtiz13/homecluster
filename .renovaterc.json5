@@ -18,16 +18,22 @@
     ]
   },
   "helm-values": {
-    "fileMatch": ["kubernetes/.+/helm-?release\\.ya?ml$"]
+    "fileMatch": [
+      "kubernetes/.+/helm-?release\\.ya?ml$"
+    ]
   },
   "kubernetes": {
-    "fileMatch": ["kubernetes/.+\\.ya?ml$"]
+    "fileMatch": [
+      "kubernetes/.+\\.ya?ml$"
+    ]
   },
   "customManagers": [
     // From https://github.com/onedr0p/home-ops/blob/6b2eb51777d20cb5ecb45a4c18c163656b28f64b/.github/renovate/customManagers.json5
     {
       "customType": "regex",
-      "description": ["Process custom dependencies"],
+      "description": [
+        "Process custom dependencies"
+      ],
       "fileMatch": [
         "(^|/)ansible/.+\\.ya?ml(?:\\.j2)?$",
         "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
@@ -46,9 +52,15 @@
     },
     {
       "customType": "regex",
-      "description": ["Process CloudnativePG Postgresql version"],
-      "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"],
-      "matchStrings": ["imageName: (?<depName>\\S+):(?<currentValue>.*\\-.*)"],
+      "description": [
+        "Process CloudnativePG Postgresql version"
+      ],
+      "fileMatch": [
+        "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
+      ],
+      "matchStrings": [
+        "imageName: (?<depName>\\S+):(?<currentValue>.*\\-.*)"
+      ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "redhat"
     }
@@ -56,7 +68,9 @@
   "regexManagers": [
     {
       "description": "Process CRD dependencies",
-      "fileMatch": ["cluster/.+\\.ya?ml$"],
+      "fileMatch": [
+        "cluster/.+\\.ya?ml$"
+      ],
       "matchStrings": [
         "registryUrl=(?<registryUrl>\\S+) chart=(?<depName>\\S+)\n.*?(?<currentValue>[^-\\s]*)\n",
         "datasource=(?<datasource>\\S+) image=(?<depName>\\S+)\n.*?-\\s(.*?)/(?<currentValue>[^/]+)/[^/]+\n"
@@ -65,7 +79,11 @@
     },
     {
       "description": "Process various dependencies",
-      "fileMatch": ["ansible/.+\\.ya?ml$", "cluster/.+\\.ya?ml$", ".+\\.md$"],
+      "fileMatch": [
+        "ansible/.+\\.ya?ml$",
+        "cluster/.+\\.ya?ml$",
+        ".+\\.md$"
+      ],
       "matchStrings": [
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?(?<annotation> \\(\\d\\))?\n.*?\"(?<currentValue>\\S+)\"\n?"
       ],
@@ -75,40 +93,72 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["kubernetes"],
-      "matchDatasources": ["kubernetes-api"],
+      "matchManagers": [
+        "kubernetes"
+      ],
+      "matchDatasources": [
+        "kubernetes-api"
+      ],
       "enabled": false
     },
     {
-      "matchPackagePatterns": ["flux"],
+      "matchPackagePatterns": [
+        "flux"
+      ],
       "groupName": "flux"
     },
     {
       "description": "Add attention to potential breaking change on major update",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "commitMessagePrefix": "{{semanticCommitType}}({{semanticCommitScope}})!:"
     },
     {
       "description": "Automerge minor and patch",
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     },
     // From: https://github.com/onedr0p/home-ops/blob/6b2eb51777d20cb5ecb45a4c18c163656b28f64b/.github/renovate/packageRules.json5
     {
-      "description": ["Custom schedule for frequently updated packages"],
-      "matchDataSources": ["docker", "helm"],
-      "matchPackagePatterns": ["minio", "reloader"],
-      "schedule": ["on the first day of the month"]
+      "description": [
+        "Custom schedule for frequently updated packages"
+      ],
+      "matchDataSources": [
+        "docker",
+        "helm"
+      ],
+      "matchPackagePatterns": [
+        "minio",
+        "reloader"
+      ],
+      "schedule": [
+        "on the first day of the month"
+      ]
     },
     {
-      "description": ["Custom versioning for k3s"],
-      "matchDatasources": ["github-releases"],
-      "matchPackagePatterns": ["k3s"],
+      "description": [
+        "Custom versioning for k3s"
+      ],
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackagePatterns": [
+        "k3s"
+      ],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$"
     },
     {
       "description": "Use custom versioning for Minio",
-      "matchDepNames": ["quay.io/minio/minio", "quay.io/minio/mc"],
+      "matchDepNames": [
+        "quay.io/minio/minio",
+        "quay.io/minio/mc"
+      ],
       "versioning": "regex:^RELEASE\\.(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)T.*Z$"
     }
   ]
