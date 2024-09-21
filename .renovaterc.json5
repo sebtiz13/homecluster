@@ -129,7 +129,7 @@
       "description": [
         "Custom schedule for frequently updated packages"
       ],
-      "matchDataSources": [
+      "matchDatasources": [
         "docker",
         "helm"
       ],
