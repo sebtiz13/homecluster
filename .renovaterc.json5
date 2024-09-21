@@ -36,7 +36,8 @@
       ],
       "fileMatch": [
         "(^|/)ansible/.+\\.ya?ml(?:\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"
+        "(^|/)kubernetes/.+\\.ya?ml$",
+        "(^|/)Makefile$"
       ],
       "matchStrings": [
         // # renovate: datasource=github-releases depName=k3s-io/k3s
@@ -65,48 +66,35 @@
       "versioningTemplate": "redhat"
     }
   ],
-  "regexManagers": [
-    {
-      "description": "Process CRD dependencies",
-      "fileMatch": [
-        "cluster/.+\\.ya?ml$"
-      ],
-      "matchStrings": [
-        "registryUrl=(?<registryUrl>\\S+) chart=(?<depName>\\S+)\n.*?(?<currentValue>[^-\\s]*)\n",
-        "datasource=(?<datasource>\\S+) image=(?<depName>\\S+)\n.*?-\\s(.*?)/(?<currentValue>[^/]+)/[^/]+\n"
-      ],
-      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}helm{{/if}}"
-    },
-    {
-      "description": "Process various dependencies",
-      "fileMatch": [
-        "ansible/.+\\.ya?ml$",
-        "cluster/.+\\.ya?ml$",
-        ".+\\.md$"
-      ],
-      "matchStrings": [
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?(?<annotation> \\(\\d\\))?\n.*?\"(?<currentValue>\\S+)\"\n?"
-      ],
-      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
-      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
-    }
-  ],
   "packageRules": [
+    // Groups
     {
-      "matchManagers": [
-        "kubernetes"
+      "description": [
+        "Kubernetes Group"
       ],
-      "matchDatasources": [
-        "kubernetes-api"
+      "matchDepNames": [
+        "kubernetes",
+        "kubernetes-validate",
+        "k3s-io/k3s"
       ],
-      "enabled": false
+      "groupName": "kubernetes",
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      }
     },
     {
-      "matchPackagePatterns": [
-        "flux"
+      "description": [
+        "Flux Group"
       ],
-      "groupName": "flux"
+      "matchDepNames": [
+        "fluxcd"
+      ],
+      "groupName": "flux",
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      }
     },
+    //
     {
       "description": "Add attention to potential breaking change on major update",
       "matchUpdateTypes": [
@@ -124,16 +112,29 @@
       ],
       "automerge": true
     },
+    {
+      "description": "Kubernetes: Custom behavior for minor versions",
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "matchDepNames": [
+        "kubernetes",
+        "kubernetes-validate",
+        "k3s-io/k3s"
+      ],
+      "commitMessagePrefix": "{{semanticCommitType}}({{semanticCommitScope}})!:",
+      "automerge": false
+    },
     // From: https://github.com/onedr0p/home-ops/blob/6b2eb51777d20cb5ecb45a4c18c163656b28f64b/.github/renovate/packageRules.json5
     {
       "description": [
         "Custom schedule for frequently updated packages"
       ],
-      "matchDataSources": [
+      "matchDatasources": [
         "docker",
         "helm"
       ],
-      "matchPackagePatterns": [
+      "matchPackageNames": [
         "minio",
         "reloader"
       ],
@@ -148,8 +149,8 @@
       "matchDatasources": [
         "github-releases"
       ],
-      "matchPackagePatterns": [
-        "k3s"
+      "matchDepNames": [
+        "k3s-io/k3s"
       ],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$"
     },
@@ -160,6 +161,21 @@
         "quay.io/minio/mc"
       ],
       "versioning": "regex:^RELEASE\\.(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)T.*Z$"
+    },
+    {
+      "description": "Use custom versioning for ansible kubernetes. This is for match k3s upgrade",
+      "matchDepNames": [
+        "kubernetes"
+      ],
+      "versioning": "regex:^(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    //
+    {
+      "description": "Ignore wallabag",
+      "matchDepNames": [
+        "wallabag/wallabag"
+      ],
+      "enabled": false
     }
   ]
 }

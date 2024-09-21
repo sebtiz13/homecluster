@@ -6,6 +6,8 @@ ANSIBLE_DIR := ./ansible
 VAGRANT_DIR := ./vagrant
 ENVIRONMENT := prod
 STEP := site
+# renovate: datasource=github-releases depName=mike-engel/jwt-cli
+JWT_VERSION := 6.1.0
 
 ifndef VERBOSE
 MAKEFLAGS += --no-print-directory
@@ -33,7 +35,7 @@ ifeq ($(ENVIRONMENT), dev)
 	mkdir -p $(VAGRANT_DIR)/.vagrant/ca
 endif
 	echo "Download JWT tool..."
-	curl -L --progress-bar https://github.com/mike-engel/jwt-cli/releases/download/6.1.0/jwt-linux.tar.gz \
+	curl -L --progress-bar https://github.com/mike-engel/jwt-cli/releases/download/$(JWT_VERSION)/jwt-linux.tar.gz \
 		-o $(ANSIBLE_DIR)/.bin/jwt-linux.tar.gz \
 		&& tar -xf $(ANSIBLE_DIR)/.bin/jwt-linux.tar.gz -C $(ANSIBLE_DIR)/.bin \
 		&& chmod +x $(ANSIBLE_DIR)/.bin/jwt \
