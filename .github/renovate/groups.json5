@@ -5,6 +5,10 @@
       "description": [
         "Kubernetes Group"
       ],
+      "matchDatasources": [
+        "pypi",
+        "github-releases"
+      ],
       "matchDepNames": [
         "kubernetes",
         "kubernetes-validate",

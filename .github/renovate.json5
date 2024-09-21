@@ -18,11 +18,10 @@
   ],
   "timezone": "Europe/Paris",
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
-  "onboarding": false,
   "separateMajorMinor": true,
   "assigneesFromCodeOwners": true,
   "ignorePaths": [
-    "*/wallabag/**"
+    "**/wallabag/**"
   ],
   "flux": {
     "fileMatch": [

@@ -9,7 +9,11 @@
       "matchFileNames": [
         "**/kubernetes/**/salamandre/**"
       ],
-      "additionalBranchPrefix": "salamandre-"
+      "additionalBranchPrefix": "salamandre-",
+      "groupName": "salamandre",
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} cluster"
+      }
     },
     {
       "description": [
@@ -18,7 +22,11 @@
       "matchFileNames": [
         "**/kubernetes/**/baku/**"
       ],
-      "additionalBranchPrefix": "baku-"
+      "additionalBranchPrefix": "baku-",
+      "groupName": "baku",
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} cluster"
+      }
     }
   ]
 }
