@@ -1,4 +1,4 @@
-ansible>=10.3,<10.4
-ansible-lint>=24.7,<24.8
+ansible>=10.4,<10.5
+ansible-lint>=24.9,<24.10
 kubernetes>=31,<31.1
 kubernetes-validate>=1.31,<1.32
