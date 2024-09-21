@@ -9,8 +9,7 @@
       ],
       "fileMatch": [
         "(^|/)ansible/.+\\.ya?ml(?:\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml$",
-        "(^|/)Makefile$"
+        "(^|/)kubernetes/.+\\.ya?ml$"
       ],
       "matchStrings": [
         // # renovate: datasource=github-releases depName=k3s-io/k3s
@@ -37,6 +36,22 @@
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "redhat"
+    },
+    {
+      "customType": "regex",
+      "description": [
+        "Process Makefile versions"
+      ],
+      "fileMatch": [
+        "(^|/)Makefile$"
+      ],
+      "matchStrings": [
+        // # renovate: datasource=github-releases depName=mike-engel/jwt-cli
+        // JWT_VERSION := 6.1.0
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n.+:= (&\\S+\\s)?(?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
+      "versioningTemplate": "semver"
     }
   ]
 }
