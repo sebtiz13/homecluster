@@ -26,7 +26,7 @@ spec:
       containers:
         - name: collabora-code
           # renovate: datasource=docker image=collabora/code
-          image: collabora/code:24.04.6.2.1
+          image: collabora/code:24.04.7.2.1
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
