@@ -1,0 +1,7 @@
+# Clusters
+cluster/salamandre:
+  - changed-files:
+      - any-glob-to-any-file: "kubernetes/**/salamandre/**/*"
+cluster/baku:
+  - changed-files:
+      - any-glob-to-any-file: "kubernetes/**/baku/**/*"
