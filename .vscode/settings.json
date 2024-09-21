@@ -3,8 +3,7 @@
   "ansible.python.activationScript": "./ansible/.venv/bin/activate",
   "ansible.validation.lint.path": "./ansible/.venv/bin/ansible-lint",
   "files.associations": {
-    ".renovaterc.json5": "jsonc", // this fix issue due no json5 support
-    "appValues*.yaml": "helm",
+    "**/*.json5": "jsonc", // this fix issue due no json5 support
     "*.yaml.j2": "yaml",
     "*.conf.j2": "properties",
     "*.json.j2": "json",
@@ -14,13 +13,11 @@
   "[yaml]": {
     "editor.formatOnSave": false
   },
-  "[helm]": {
-    "editor.formatOnSave": false
-  },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
+  "yaml.schemaStore.enable": true,
   "yaml.schemas": {
-    "./charts/common-app/values.schema.json": "apps/**/values.yaml"
+    "kubernetes": "./kubernetes/**/*.yaml"
   }
 }
