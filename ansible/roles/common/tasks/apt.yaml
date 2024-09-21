@@ -24,3 +24,9 @@
       - curl
       - htop
       - btop
+
+- name: Install tools for dev
+  when: env == 'dev'
+  ansible.builtin.apt:
+    pkg:
+      - faketime
