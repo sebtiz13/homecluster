@@ -7,7 +7,6 @@
     "docker:enableMajor",
     ":automergeBranch",
     ":disableRateLimiting",
-    ":gitSignOff",
     "github>sebtiz13/homecluster//.github/renovate/clusters.json5",
     "github>sebtiz13/homecluster//.github/renovate/commitMessage.json5",
     "github>sebtiz13/homecluster//.github/renovate/customManagers.json5",
