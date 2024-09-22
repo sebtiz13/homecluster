@@ -158,33 +158,35 @@ function backup:pruneSnapshots() {
 # - $vSnapshotName: snapshot name
 # - $vlSnapshotUid: snapshot uid
 function backup:snapshot() {
-  if [ "$1" == "database" ]; then # Skip database
-    return 0
-  fi
-
+  local processType
   vlSnapshotName="${2}-$CURRENT_DATETIME"
 
-  log "backup:snapshot" "Create snapshot for pvc ${1}/$2"
+  if [ "$1" != "database" ]; then # Exclude creation if is database (CloudNativePG manage it)
+    processType="create"
+    log "backup:snapshot" "Create snapshot for pvc ${1}/$2"
 
-  # Create template
-  tmp=/tmp/backup-snap.$$
-  # shellcheck disable=SC2064
-  trap "rm -f $tmp; exit 1" 0 1 2 3 SIGPIPE 15  # aka EXIT HUP INT QUIT PIPE TERM
-  sed -e "s/%name%/$vlSnapshotName/g" -e "s/%namespace%/$1/g" \
-    -e "s/%pvc_name%/$2/g" "$EXEC_DIR/snapshot_template.yaml" > $tmp
+    # Create template
+    tmp=/tmp/backup-snap.$$
+    # shellcheck disable=SC2064
+    trap "rm -f $tmp; exit 1" 0 1 2 3 SIGPIPE 15  # aka EXIT HUP INT QUIT PIPE TERM
+    sed -e "s/%name%/$vlSnapshotName/g" -e "s/%namespace%/$1/g" \
+      -e "s/%pvc_name%/$2/g" "$EXEC_DIR/snapshot_template.yaml" > $tmp
 
-  # Apply it
-  kubectl apply -f "$tmp" >/dev/null
+    # Apply it
+    kubectl apply -f "$tmp" >/dev/null
 
-  # Remove tmp file and trap
-  rm -f $tmp
-  trap 0
+    # Remove tmp file and trap
+    rm -f $tmp
+    trap 0
+  else
+    processType="retrieve"
+  fi
 
   vlSnapshotUid=$(kubectl get vs -o jsonpath='{.metadata.uid}' -n "$1" "$vlSnapshotName")
   if wait_for_zfsSnapshot "$1" "snapshot-$vlSnapshotUid"; then
-    log "backup:snapshot" "Snapshot for pvc ${1}/${2} as been created with name ${vlSnapshotName} (UID: ${vlSnapshotUid})"
+    log "backup:snapshot" "Snapshot for pvc ${1}/${2} as been ${processType}d with name ${vlSnapshotName} (UID: ${vlSnapshotUid})"
   else
-    log "backup:snapshot" "ERROR: Failed to create snapshot for pvc ${1}/${2}. Please check status with \"kubectl describe zfssnapshot -n $OPENEBS_NAMESPACE snapshot-$vlSnapshotUid\""
+    log "backup:snapshot" "ERROR: Failed to ${processType} snapshot for pvc ${1}/${2}. Please check status with \"kubectl describe zfssnapshot -n $OPENEBS_NAMESPACE snapshot-$vlSnapshotUid\""
     return 1
   fi
 }
