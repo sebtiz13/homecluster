@@ -125,3 +125,10 @@
       tags: forgejo
       delegate_to: localhost
       ansible.builtin.import_tasks: tasks/s_forgejo_runner.yaml
+
+- name: Configure baku applications
+  hosts: baku
+  tags: kubernetes
+  tasks:
+    - name: External-secrets | Force sync applications secrets
+      ansible.builtin.import_tasks: tasks/b_apps/secrets_sync.yaml
