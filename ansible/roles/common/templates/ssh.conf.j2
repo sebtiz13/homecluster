@@ -2,3 +2,8 @@ Port {{ssh.port}}
 PermitRootLogin no
 AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2
 PermitEmptyPasswords no
+
+# Disable login with password
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+UsePAM no

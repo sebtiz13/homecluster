@@ -1,8 +1,6 @@
 - name: Create user
   ansible.builtin.user:
     name: "{{ item.name }}"
-    password_expire_max: 90
-    password_expire_warn: 60
     update_password: on_create
 
 - name: Add ssh key
