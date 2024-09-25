@@ -10,7 +10,9 @@ ssh:
   users:
     []
     # - name: user
+    #   password: ""
     #   sudoer: true
+    #   authorized_key: ""
 
 zfs_pool:
   # The pool type (available values: stripe, mirror, raidz (similar to RAID5) or raidz2 (Similar to RAID5 with dual parity))
