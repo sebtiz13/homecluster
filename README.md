@@ -22,7 +22,7 @@ services in our home cluster.
 - [x] CI/CD platform
 - [x] Git server
 - [x] Private container registry
-- [x] Support multiple environments (dev, prod)
+- [x] Support multiple environments (development and production)
 - [x] Monitoring and alerting
 - [x] Automated offsite backups
 - [x] Single sign-on

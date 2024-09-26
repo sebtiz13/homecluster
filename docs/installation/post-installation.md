@@ -5,13 +5,13 @@
 Save the following files to a safe location like a password manager (if you're using the sandbox, you can skip this
 step):
 
-- `./out/kubeconfig/salamandre.prod.yaml`
-- `./out/kubeconfig/baku.prod.yaml`
-- `./out/credentials/prod/*` (for `vault.json` only `root_token` and `unseal_keys_b64` is important)
+- `./out/kubeconfig/salamandre.production.yaml`
+- `./out/kubeconfig/baku.production.yaml`
+- `./out/credentials/production/*` (for `vault.json` only `root_token` and `unseal_keys_b64` is important)
 
 ## Admin credentials
 
-> ⚠️ **Before run command, replace `<env>` by the wanted environment (`dev` or `prod`)**
+> ⚠️ **Before run command, replace `<env>` by the wanted environment (`dev` or `production`)**
 
 ### Salamandre
 

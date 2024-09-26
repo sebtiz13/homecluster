@@ -4,7 +4,7 @@
 
 ANSIBLE_DIR := ./ansible
 VAGRANT_DIR := ./vagrant
-ENVIRONMENT := prod
+ENVIRONMENT := production
 STEP := site
 # renovate: datasource=github-releases depName=mike-engel/jwt-cli
 JWT_VERSION := 6.1.1
@@ -30,7 +30,7 @@ init: ## Init environment
 	echo "Creating required folders..."
 	mkdir -p $(ANSIBLE_DIR)/.bin
 	mkdir -p ./out/kubeconfig
-	mkdir -p ./out/credentials/{dev,prod}
+	mkdir -p ./out/credentials/{dev,production}
 ifeq ($(ENVIRONMENT), dev)
 	mkdir -p $(VAGRANT_DIR)/.vagrant/ca
 endif
@@ -63,7 +63,7 @@ ifndef DOMAIN_NAME
 	$(error DOMAIN_NAME is required for this command)
 endif
 	echo "Provisioning cluster(s)"
-	./scripts/_ansible.sh "$(ANSIBLE_DIR)" prod "$(DOMAIN_NAME)" "$(STEP)"
+	./scripts/_ansible.sh "$(ANSIBLE_DIR)" production "$(DOMAIN_NAME)" "$(STEP)"
 
 test-cluster: ## [DEV] All-in-one command for cluster deployment
 	$(MAKE) init ENVIRONMENT=dev

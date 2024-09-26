@@ -8,9 +8,9 @@ if ! command -v yq  &> /dev/null; then
   exit 1
 fi
 
-ENVIRONMENT=${ENVIRONMENT:-prod}
-if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "prod" ]; then
-  echo "Incorrect environment. Valid value : 'dev' or 'prod'"
+ENVIRONMENT=${ENVIRONMENT:-production}
+if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "production" ]; then
+  echo "Incorrect environment. Valid value : 'dev' or 'production'"
   exit 1
 fi
 
