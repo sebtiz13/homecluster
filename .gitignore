@@ -1,8 +1,5 @@
-.vagrant/
 ansible/.venv/
-ansible/.bin
+ansible/.bin/
 out/
-
-charts/*/charts
-manifests/**/*.yaml
+vagrant/.vagrant/
 todo
