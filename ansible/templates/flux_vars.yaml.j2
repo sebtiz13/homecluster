@@ -8,7 +8,6 @@ stringData:
   GIT_REPO_URL: "{{ git_repo_url }}"
   GIT_BRANCH: "{{ git_branch }}"
 
-  SERVER_IP: "{{ ansible_host }}"
   DOMAIN_NAME: "{{ root_domain }}"
   OIDC_ISSUER_HOST: "{{ hostvars.salamandre.external_urls.zitadel | replace('https://', '') }}"
 {% if inventory_hostname == 'salamandre' %}
