@@ -4,11 +4,11 @@
   ansible.builtin.include_role:
     name: oidc_access
   vars:
-    secret_path: salamandre/data/{{ item.path_name or item.name }}/oidc
+    secret_path: salamandre/data/{{ item.path_name }}/oidc
     project_id: "{{ item.project_id }}"
     app_name: "{{ item.name }}"
     redirect_uris: "{{ item.redirect_uris }}"
-    post_logout_redirect_uris: "{{ item.post_logout_redirect_uris or [] }}"
+    post_logout_redirect_uris: "{{ item.post_logout_redirect_uris }}"
     response_types:
       - OIDC_RESPONSE_TYPE_CODE
     grant_types:
@@ -24,6 +24,7 @@
       project_id: "{{ zitadel_dev_project_id }}"
       redirect_uris:
         - http://localhost:8000/*
+      post_logout_redirect_uris: []
     - name: Grafana
       path_name: grafana
       project_id: "{{ zitadel_dev_project_id }}"
