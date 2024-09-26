@@ -30,6 +30,6 @@
 - name: Enbable module
   community.general.modprobe:
     name: it87
-    params: force_id=0x{{ motherboard_chip }}
+    params: force_id=0x{{ motherboard_chip }} ignore_resource_conflict=1
     state: present
     persistent: present
