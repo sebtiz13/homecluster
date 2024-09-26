@@ -37,12 +37,12 @@ spec:
         email: "contact@${DOMAIN_NAME}"
         ovhEndpointName: ovh-eu
         ovhAuthenticationRef:
-          applicationKey:
+          applicationKeyRef:
             name: ovh-credentials
             key: applicationKey
-          applicationSecret:
+          applicationSecretRef:
             name: ovh-credentials
             key: applicationSecret
-          consumerKey:
+          consumerKeyRef:
             name: ovh-credentials
             key: consumerKey
