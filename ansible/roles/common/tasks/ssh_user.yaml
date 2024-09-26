@@ -1,7 +1,6 @@
 - name: Create user
   ansible.builtin.user:
     name: "{{ item.name }}"
-    password: "{{ item.password or '' }}"
     update_password: on_create
 
 - name: Add ssh key

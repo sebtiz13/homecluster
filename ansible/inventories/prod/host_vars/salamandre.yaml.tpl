@@ -13,7 +13,6 @@ ssh:
   users:
     []
     # - name: user
-    #   password: ""
     #   sudoer: true
     #   authorized_key: ""
 
