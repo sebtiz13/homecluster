@@ -58,5 +58,3 @@ Common settings:
 
 1. Duplicate files from `ansible/inventories/prod/host_vars/*.yaml.tpl` and remove the `.tpl` extension
 2. Fill the data inside each files
-
-   - You can add `k3s_domain` for customize specific host for kubernetes

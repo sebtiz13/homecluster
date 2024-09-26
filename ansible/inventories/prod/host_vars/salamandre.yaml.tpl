@@ -38,6 +38,13 @@ ovh_credentials:
   application_secret: ""
   consumer_key: ""
 
+# Kubernetes domain
+# This is useful when the kubernetes host differ from `root_domain` (`DOMAIN_NAME` env var).
+# Eg. `DOMAIN_NAME` is set to `local.vm` but you want salamandre kubernetes at `home2.local.vm`, so add `k3s_domain` with value `home.local.vm` to the `salamandre.yaml` file.
+#
+# Default: `{{ root_domain }}`
+# k3s_domain: ""
+
 # The root domains used for each cluster to define sub domains CNAME
 root_domains:
   salamandre: "salamandre.{{ root_domain }}"
