@@ -49,7 +49,8 @@
     - vault_cmd.rc != 0
     - not "path is already in use at" in vault_cmd.stderr
 
-- name: Vault | Configure access for oidc auth
+- name: Vault | Configure access for oidc auth (dev)
+  when: env == 'dev'
   ansible.builtin.uri:
     url: "{{ vault_api_url }}/auth/oidc/config"
     method: POST
@@ -62,6 +63,22 @@
     body:
       oidc_discovery_url: "{{ external_urls.zitadel }}"
       oidc_discovery_ca_pem: "{{ lookup('file', ca.cert) }}"
+      oidc_client_id: "{{ oidc.client_id }}"
+      oidc_client_secret: "{{ oidc.client_secret }}"
+      default_role: reader
+- name: Vault | Configure access for oidc auth (prod)
+  when: env == 'production'
+  ansible.builtin.uri:
+    url: "{{ vault_api_url }}/auth/oidc/config"
+    method: POST
+    status_code:
+      - 204 # When successfull
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_root_token }}"
+    body:
+      oidc_discovery_url: "{{ external_urls.zitadel }}"
       oidc_client_id: "{{ oidc.client_id }}"
       oidc_client_secret: "{{ oidc.client_secret }}"
       default_role: reader
