@@ -9,11 +9,11 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: *name
+      chart: minio
       version: "5.2.0"
       sourceRef:
         kind: HelmRepository
-        name: *name
+        name: minio
         namespace: flux-system
   install:
     createNamespace: true

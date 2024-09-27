@@ -9,7 +9,7 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: *name
+      chart: cert-manager
       version: "1.15.3"
       sourceRef:
         kind: HelmRepository

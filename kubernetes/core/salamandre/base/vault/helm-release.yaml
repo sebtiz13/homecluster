@@ -9,7 +9,7 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: *name
+      chart: vault
       version: "0.28.1"
       sourceRef:
         kind: HelmRepository

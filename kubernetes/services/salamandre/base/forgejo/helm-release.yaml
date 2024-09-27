@@ -9,11 +9,11 @@ spec:
   interval: 30m
   chart:
     spec:
-      chart: *name
+      chart: forgejo
       version: "8.1.2"
       sourceRef:
         kind: HelmRepository
-        name: *name
+        name: forgejo
         namespace: flux-system
       interval: 12h
   dependsOn:

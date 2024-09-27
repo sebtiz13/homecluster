@@ -9,11 +9,11 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: *name
+      chart: nextcloud
       version: "5.5.2"
       sourceRef:
         kind: HelmRepository
-        name: *name
+        name: nextcloud
         namespace: flux-system
   dependsOn:
     - name: cloudnative-pg

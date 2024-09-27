@@ -4,6 +4,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: openebs-zfslocalpv
+  namespace: flux-system
 spec:
   interval: 24h
   url: https://openebs.github.io/zfs-localpv

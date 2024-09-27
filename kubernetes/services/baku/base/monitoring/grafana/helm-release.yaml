@@ -9,11 +9,11 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: *name
+      chart: grafana
       version: "8.4.6"
       sourceRef:
         kind: HelmRepository
-        name: *name
+        name: grafana
         namespace: flux-system
   values:
     admin:

@@ -9,11 +9,11 @@ spec:
   interval: 10m0s
   chart:
     spec:
-      chart: *name
+      chart: traefik
       version: "30.1.0"
       sourceRef:
         kind: HelmRepository
-        name: *name
+        name: traefik
         namespace: flux-system
   install:
     createNamespace: true

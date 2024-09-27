@@ -9,11 +9,11 @@ spec:
   interval: 1h
   chart:
     spec:
-      chart: *name
+      chart: zitadel
       version: "8.1.0"
       sourceRef:
         kind: HelmRepository
-        name: *name
+        name: zitadel
         namespace: flux-system
   dependsOn:
     - name: cloudnative-pg
