@@ -26,7 +26,8 @@
     "fileMatch": [
       "(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$",
       "(^|/)kubernetes/base/.+\\.ya?ml$",
-      "(^|/)kubernetes/charts/.+\\.ya?ml$"
+      "(^|/)kubernetes/charts/.+\\.ya?ml$",
+      "(^|/)kubernetes/crds/.+\\.ya?ml$"
     ]
   },
   "helm-values": {
