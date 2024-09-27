@@ -3,7 +3,9 @@ PermitRootLogin no
 AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2
 PermitEmptyPasswords no
 
+{% if env == 'production' %}
 # Disable login with password
 ChallengeResponseAuthentication no
 PasswordAuthentication no
 UsePAM no
+{% endif %}
