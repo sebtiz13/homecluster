@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: victoria-metrics-k8s-stack
-      version: "0.25.2"
+      version: "0.25.17"
       sourceRef:
         kind: HelmRepository
         name: victoriametrics
@@ -35,22 +35,23 @@ spec:
         enabled: false
 
     kubelet:
-      spec:
-        # drop high cardinality label and useless metrics for cadvisor and kubelet
-        metricRelabelConfigs:
-          - action: labeldrop
-            regex: (uid)
-          # - action: labeldrop # Keep this
-          #   regex: (id|name)
-          - action: drop
-            source_labels: [__name__]
-            regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+      vmScrape:
+        spec:
+          # drop high cardinality label and useless metrics for cadvisor and kubelet
+          metricRelabelConfigs:
+            - action: labeldrop
+              regex: (uid)
+            # - action: labeldrop # Keep this
+            #   regex: (id|name)
+            - action: drop
+              source_labels: [__name__]
+              regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
 
     victoria-metrics-operator:
       fullnameOverride: victoria-metrics-operator
       image:
         repository: victoriametrics/operator
-        tag: v0.47.0
+        tag: v0.48.1
 
       operator:
         enable_converter_ownership: true
