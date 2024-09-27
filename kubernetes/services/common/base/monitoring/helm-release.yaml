@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: victoria-metrics-k8s-stack
-      version: "0.25.2"
+      version: "0.25.17"
       sourceRef:
         kind: HelmRepository
         name: victoriametrics
@@ -50,7 +50,7 @@ spec:
       fullnameOverride: victoria-metrics-operator
       image:
         repository: victoriametrics/operator
-        tag: v0.47.0
+        tag: v0.48.1
 
       operator:
         enable_converter_ownership: true
