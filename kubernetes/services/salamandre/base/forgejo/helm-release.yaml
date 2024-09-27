@@ -32,6 +32,7 @@ spec:
           autoDiscoverUrl: https://${OIDC_ISSUER_HOST}/.well-known/openid-configuration
 
       config:
+        APP_NAME: Sebtiz13 Forgejo
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true

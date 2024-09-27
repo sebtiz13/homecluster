@@ -49,6 +49,9 @@ spec:
           php occ app:disable weather_status
 
           echo "Configuring Nextcloud Apps"
+          php occ theming:config url https://cloud.${DOMAIN_NAME}
+          php occ theming:config name "Sebtiz13 cloud"
+
           php occ config:app:set preview jpeg_quality --value 60
 
           php occ app:enable admin_audit && \
