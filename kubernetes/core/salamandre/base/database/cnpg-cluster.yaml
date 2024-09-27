@@ -44,7 +44,7 @@ spec:
         compression: bzip2
         maxParallel: 8
       destinationPath: s3://backup-salamandre-pg/
-      endpointURL: https://baku.${DOMAIN_NAME}
+      endpointURL: https://baku.${DOMAIN_NAME}:3882
       # Note: serverName version needs to be incremented
       # when recovering from an existing cnpg cluster
       serverName:  &currentCluster postgres16-v1
