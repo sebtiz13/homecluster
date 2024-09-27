@@ -20,10 +20,10 @@ spec:
   values:
     # Manual image versions
     image:
-      # renovate: datasource=docker image=quay.io/minio/minio
+      repository: quay.io/minio/minio
       tag: RELEASE.2024-08-17T01-24-54Z
     mcImage:
-      # renovate: datasource=docker image=quay.io/minio/mc
+      repository: quay.io/minio/mc
       tag: RELEASE.2024-08-17T11-33-50Z
 
     existingSecret: minio-admin
