@@ -35,16 +35,17 @@ spec:
         enabled: false
 
     kubelet:
-      spec:
-        # drop high cardinality label and useless metrics for cadvisor and kubelet
-        metricRelabelConfigs:
-          - action: labeldrop
-            regex: (uid)
-          # - action: labeldrop # Keep this
-          #   regex: (id|name)
-          - action: drop
-            source_labels: [__name__]
-            regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+      vmScrape:
+        spec:
+          # drop high cardinality label and useless metrics for cadvisor and kubelet
+          metricRelabelConfigs:
+            - action: labeldrop
+              regex: (uid)
+            # - action: labeldrop # Keep this
+            #   regex: (id|name)
+            - action: drop
+              source_labels: [__name__]
+              regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
 
     victoria-metrics-operator:
       fullnameOverride: victoria-metrics-operator
