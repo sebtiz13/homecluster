@@ -24,7 +24,9 @@
   ],
   "flux": {
     "fileMatch": [
-      "(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$"
+      "(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$",
+      "(^|/)kubernetes/base/.+\\.ya?ml$",
+      "(^|/)kubernetes/charts/.+\\.ya?ml$"
     ]
   },
   "helm-values": {
