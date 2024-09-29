@@ -25,12 +25,14 @@ spec:
 
     ports:
       websecure:
-        proxyProtocol:
+        asDefault: true
+        proxyProtocol: {}
         forwardedHeaders: &forwardedHeaders
           trustedIPs:
             - "127.0.0.1/32"
             - "10.42.0.0/16"
       web:
+        asDefault: true
         redirectTo:
           port: websecure
         forwardedHeaders:
