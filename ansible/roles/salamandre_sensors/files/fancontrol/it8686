@@ -1,9 +1,9 @@
 INTERVAL=10
-DEVPATH=hwmon1=devices/pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0 hwmon7=devices/platform/it87.2624 hwmon8=devices/platform/coretemp.0
-DEVNAME=hwmon1=drivetemp hwmon7=it8686 hwmon8=coretemp
-FCTEMPS=hwmon7/pwm1=hwmon8/temp1_input hwmon7/pwm4=hwmon1/temp1_input hwmon7/pwm2=hwmon1/temp1_input hwmon7/pwm3=hwmon1/temp1_input hwmon7/pwm5=hwmon1/temp1_input
-FCFANS=hwmon7/pwm1= hwmon7/pwm4=hwmon7/fan3_input hwmon7/pwm2=hwmon7/fan1_input hwmon7/pwm3=hwmon7/fan2_input hwmon7/pwm5=hwmon7/fan4_input
-MINTEMP=hwmon7/pwm1=20 hwmon7/pwm4=20 hwmon7/pwm2=20 hwmon7/pwm3=20 hwmon7/pwm5=20
-MAXTEMP=hwmon7/pwm1=70 hwmon7/pwm4=60 hwmon7/pwm2=60 hwmon7/pwm3=60 hwmon7/pwm5=60
-MINSTART=hwmon7/pwm1=150 hwmon7/pwm4=150 hwmon7/pwm2=150 hwmon7/pwm3=150 hwmon7/pwm5=150
-MINSTOP=hwmon7/pwm1=0 hwmon7/pwm4=0 hwmon7/pwm2=0 hwmon7/pwm3=0 hwmon7/pwm5=100
+DEVPATH=hwmon2=devices/platform/it87.2624 hwmon3=devices/platform/coretemp.0 hwmon4=devices/pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0
+DEVNAME=hwmon4=drivetemp hwmon2=it8686 hwmon3=coretemp
+FCTEMPS=hwmon2/pwm1=hwmon3/temp1_input hwmon2/pwm4=hwmon4/temp1_input hwmon2/pwm2=hwmon4/temp1_input hwmon2/pwm3=hwmon4/temp1_input hwmon2/pwm5=hwmon4/temp1_input
+FCFANS=hwmon2/pwm1= hwmon2/pwm4=hwmon2/fan3_input hwmon2/pwm2=hwmon2/fan1_input hwmon2/pwm3=hwmon2/fan2_input hwmon2/pwm5=hwmon2/fan4_input
+MINTEMP=hwmon2/pwm1=20 hwmon2/pwm4=20 hwmon2/pwm2=20 hwmon2/pwm3=20 hwmon2/pwm5=20
+MAXTEMP=hwmon2/pwm1=70 hwmon2/pwm4=60 hwmon2/pwm2=60 hwmon2/pwm3=60 hwmon2/pwm5=60
+MINSTART=hwmon2/pwm1=150 hwmon2/pwm4=150 hwmon2/pwm2=150 hwmon2/pwm3=150 hwmon2/pwm5=150
+MINSTOP=hwmon2/pwm1=0 hwmon2/pwm4=0 hwmon2/pwm2=0 hwmon2/pwm3=0 hwmon2/pwm5=100

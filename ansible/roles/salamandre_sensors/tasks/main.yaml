@@ -15,5 +15,11 @@
     - Build and install module
     - Enbable module
 
+- name: Load system modules temp
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/system.conf
+    src: modules/system.conf
+    mode: "u=rw,g=r,o=r"
+
 - name: Install and configure fancontrol
   ansible.builtin.import_tasks: fancontrol.yaml
