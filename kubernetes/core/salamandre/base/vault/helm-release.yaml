@@ -58,5 +58,13 @@ spec:
           name: *keysSecretName
           readOnly: true
 
+      resources:
+        requests:
+          memory: 192Mi
+          cpu: 10m
+        limits:
+          memory: 256Mi
+          cpu: 250m
+
     injector:
       enabled: false

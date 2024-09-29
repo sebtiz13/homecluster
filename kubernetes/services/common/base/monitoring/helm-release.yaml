@@ -56,6 +56,15 @@ spec:
       operator:
         enable_converter_ownership: true
 
+      # Example: https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-operator/values.yaml#L144-L151
+      resources:
+        requests:
+          cpu: 80m
+          memory: 120Mi
+        limits:
+          cpu: 120m
+          memory: 320Mi
+
     # Disable unneeded alert rules
     defaultRules:
       groups:
@@ -90,5 +99,21 @@ spec:
     fullnameOverride: vm-stack
     prometheus-node-exporter:
       fullnameOverride: node-exporter
+      # Example: https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-node-exporter/values.yaml#L292-L302
+      resources:
+        requests:
+          cpu: 100m
+          memory: 30Mi
+        limits:
+          cpu: 200m
+          memory: 50Mi
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
+      # Example: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-state-metrics/values.yaml#L413-L423
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi

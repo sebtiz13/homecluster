@@ -245,6 +245,13 @@ spec:
 
     cronjob:
       enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 3Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
 
     phpClientHttpsFix:
       enabled: true

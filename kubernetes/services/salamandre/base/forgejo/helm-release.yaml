@@ -72,6 +72,14 @@ spec:
       annotations:
         reloader.stakater.com/auto: "true"
 
+    resources:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
     service:
       ssh:
         type: LoadBalancer

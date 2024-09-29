@@ -27,3 +27,24 @@ spec:
       requests:
         cpu: 10m
         memory: 32Mi
+      limit:
+        cpu: 30m
+        memory: 64Mi
+
+    webhook:
+      resources:
+        requests:
+          cpu: 2m
+          memory: 16Mi
+        limit:
+          cpu: 5m
+          memory: 32Mi
+
+    cainjector:
+      resources:
+        requests:
+          cpu: 2m
+          memory: 48Mi
+        limit:
+          cpu: 5m
+          memory: 64Mi

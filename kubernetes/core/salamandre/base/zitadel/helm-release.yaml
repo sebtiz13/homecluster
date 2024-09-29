@@ -92,6 +92,14 @@ spec:
         - hosts:
             - *host
 
+    resources:
+      requests:
+        memory: 96Mi
+        cpu: 10m
+      limits:
+        memory: 128Mi
+        cpu: 100m
+
     service:
       annotations:
         traefik.ingress.kubernetes.io/service.serversscheme: h2c

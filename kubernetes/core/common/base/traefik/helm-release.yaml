@@ -58,6 +58,14 @@ spec:
       - name: TZ
         value: ${TIMEZONE}
 
+    resources:
+      requests:
+        cpu: 2m
+        memory: 64Mi
+      limit:
+        cpu: 10m
+        memory: 128Mi
+
     metrics:
       prometheus:
         service:

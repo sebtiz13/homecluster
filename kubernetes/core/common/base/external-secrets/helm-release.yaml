@@ -26,3 +26,29 @@ spec:
       createClusterExternalSecret: false
       createClusterSecretStore: false
       createPushSecret: false
+
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limit:
+        cpu: 100m
+        memory: 64Mi
+
+    webhook:
+      resources:
+        requests:
+          cpu: 5m
+          memory: 32Mi
+        limit:
+          cpu: 10m
+          memory: 64Mi
+
+    certController:
+      resources:
+        requests:
+          cpu: 5m
+          memory: 64Mi
+        limit:
+          cpu: 10m
+          memory: 96Mi

@@ -100,6 +100,13 @@ spec:
               value: /certs/client
             - name: DOCKER_TLS_VERIFY
               value: "1"
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
           volumeMounts:
             - name: docker-certs
               mountPath: /certs
@@ -118,6 +125,13 @@ spec:
           # dockerd itself is NOT run as root
           securityContext:
             privileged: true
+          resources:
+            requests:
+              cpu: 200m
+              memory: 96Mi
+            limits:
+              cpu: 1500m
+              memory: 1024Mi
           volumeMounts:
             - name: docker-certs
               mountPath: /certs
