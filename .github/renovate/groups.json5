@@ -25,7 +25,8 @@
         "Flux Group"
       ],
       "matchDepNames": [
-        "fluxcd"
+        "fluxcd/flux2",
+        "ghcr.io/fluxcd/*-controller"
       ],
       "groupName": "flux",
       "group": {
