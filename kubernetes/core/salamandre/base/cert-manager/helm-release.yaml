@@ -26,25 +26,25 @@ spec:
     resources:
       requests:
         cpu: 10m
-        memory: 32Mi
-      limit:
+        memory: 48Mi
+      limits:
         cpu: 30m
-        memory: 64Mi
+        memory: 96Mi
 
     webhook:
       resources:
         requests:
           cpu: 2m
-          memory: 16Mi
-        limit:
+          memory: 24Mi
+        limits:
           cpu: 5m
-          memory: 32Mi
+          memory: 48Mi
 
     cainjector:
       resources:
         requests:
-          cpu: 2m
-          memory: 48Mi
-        limit:
-          cpu: 5m
-          memory: 64Mi
+          cpu: 4m
+          memory: 128Mi
+        limits:
+          cpu: 20m
+          memory: 256Mi

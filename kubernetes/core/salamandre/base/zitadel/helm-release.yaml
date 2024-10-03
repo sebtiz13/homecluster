@@ -95,10 +95,10 @@ spec:
     resources:
       requests:
         memory: 96Mi
-        cpu: 10m
+        cpu: 20m
       limits:
-        memory: 128Mi
-        cpu: 100m
+        memory: 192Mi
+        cpu: 200m
 
     service:
       annotations:

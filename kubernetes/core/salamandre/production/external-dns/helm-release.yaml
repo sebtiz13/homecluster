@@ -48,11 +48,11 @@ spec:
 
     resources:
       requests:
-        cpu: 2m
-        memory: 32Mi
-      limits:
-        cpu: 6m
+        cpu: 4m
         memory: 64Mi
+      limits:
+        cpu: 10m
+        memory: 128Mi
 
 
     deploymentAnnotations:

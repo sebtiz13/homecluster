@@ -55,6 +55,7 @@ spec:
           PROVIDER: db
         server:
           DOMAIN: &host git.${DOMAIN_NAME}
+          OFFLINE_MODE: false
 
       additionalConfigSources:
         - secret:
@@ -74,8 +75,8 @@ spec:
 
     resources:
       requests:
-        cpu: 20m
-        memory: 128Mi
+        cpu: 30m
+        memory: 192Mi
       limits:
         cpu: 200m
         memory: 256Mi

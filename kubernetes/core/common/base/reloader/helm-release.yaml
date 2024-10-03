@@ -21,10 +21,11 @@ spec:
     fullnameOverride: reloader
     reloader:
       resourceLabelSelector: reloader/watch==enabled
-      resources:
-        requests:
-          cpu: 10m
-          memory: 16Mi
-        limits:
-          cpu: 100m
-          memory: 64Mi
+      deployment:
+        resources:
+          requests:
+            cpu: 2m
+            memory: 16Mi
+          limits:
+            cpu: 4m
+            memory: 32Mi
