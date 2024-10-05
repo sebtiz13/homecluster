@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg
+  namespace: flux-system
+spec:
+  targetNamespace: database
+  interval: 10m0s
+  prune: true
+  wait: true
+  path: ./kubernetes/core/salamandre/base/database/app
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg-cluster
+  namespace: flux-system
+spec:
+  targetNamespace: database
+  interval: 10m0s
+  prune: true
+  wait: true
+  dependsOn:
+    - name: cloudnative-pg
+    - name: external-secrets
+  path: ./kubernetes/core/salamandre/base/database/cluster
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

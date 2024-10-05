@@ -1,12 +1,13 @@
 # vscode-kubernetes-tools: exclude
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: monitoring
 resources:
   - ../../../common/base/monitoring
-  - secret.yaml
 patches:
-  - path: helm-release-patch.yaml
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/services/salamandre/base/monitoring/vm-stack
     target:
-      kind: HelmRelease
+      kind: Kustomization
       name: victoria-metrics-k8s-stack

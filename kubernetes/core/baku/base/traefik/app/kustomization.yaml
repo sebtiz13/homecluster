@@ -1,0 +1,12 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: traefik
+resources:
+  - ../../../../common/base/traefik/app
+  - tls.yaml
+patches:
+  - path: helm-release-patch.yaml
+    target:
+      kind: HelmRelease
+      name: traefik

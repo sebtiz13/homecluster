@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: external-secrets
+  namespace: flux-system
+spec:
+  targetNamespace: external-secrets
+  interval: 10m0s
+  timeout: 5m0s
+  prune: true
+  wait: true
+  path: ./kubernetes/core/common/base/external-secrets/app
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

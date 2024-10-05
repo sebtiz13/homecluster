@@ -11,7 +11,6 @@ spec:
   wait: true
   dependsOn:
     - name: config
-    - name: charts
     - name: crds
   path: ./kubernetes/core # NOTE: replaced by kustomization
   sourceRef:
@@ -23,3 +22,20 @@ spec:
         name: cluster-settings
       - kind: Secret
         name: cluster-secrets
+  patches:
+    - patch: |-
+        apiVersion: kustomize.toolkit.fluxcd.io/v1
+        kind: Kustomization
+        metadata:
+          name: not-used
+        spec:
+          postBuild:
+            substituteFrom:
+              - kind: ConfigMap
+                name: cluster-settings
+              - kind: Secret
+                name: cluster-secrets
+      target:
+        group: kustomize.toolkit.fluxcd.io
+        kind: Kustomization
+        labelSelector: substitution.flux.home.arpa/disabled notin (true)

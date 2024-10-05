@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: forgejo
+  namespace: flux-system
+spec:
+  targetNamespace: forgejo
+  interval: 10m0s
+  prune: true
+  wait: true
+  dependsOn:
+    - name: cloudnative-pg-cluster
+  path: ./kubernetes/services/salamandre/base/forgejo/app
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: forgejo-runner
+  namespace: flux-system
+spec:
+  targetNamespace: forgejo
+  interval: 10m0s
+  prune: true
+  wait: true
+  dependsOn:
+    - name: forgejo
+  path: ./kubernetes/services/salamandre/base/forgejo/runner
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
