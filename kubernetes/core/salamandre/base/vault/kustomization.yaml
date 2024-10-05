@@ -1,8 +1,6 @@
 # vscode-kubernetes-tools: exclude
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: vault
 resources:
+  - ks.yaml
   - namespace.yaml
-  - dnsendpoint.yaml
-  - helm-release.yaml

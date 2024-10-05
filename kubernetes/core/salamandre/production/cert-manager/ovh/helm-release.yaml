@@ -15,7 +15,6 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: cert-manager-webhook-ovh
-        namespace: flux-system
   values:
     configVersion: 0.0.1 # Need to be same as https://github.com/aureq/cert-manager-webhook-ovh/blob/main/charts/cert-manager-webhook-ovh/templates/version.yaml#L1
     groupName: ${DOMAIN_NAME}

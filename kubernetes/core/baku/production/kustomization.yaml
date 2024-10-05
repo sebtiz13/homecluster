@@ -5,4 +5,3 @@ resources:
   - ../../common/base/kube-system
   - ../base/traefik
   - ../base/external-secrets
-  - ../../common/base/reloader

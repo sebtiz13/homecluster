@@ -1,12 +1,28 @@
 # vscode-kubernetes-tools: exclude
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: external-secrets
 resources:
   - ../../../common/base/external-secrets
-  - vault-store.yaml
 patches:
-  - path: helm-release-patch.yaml
+  - patch: |-
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: not-used
+      spec:
+        path: ./kubernetes/core/salamandre/base/external-secrets/app
+        # Ignore currently broken track of ClusterSecretStore
+        wait: false
+        healthChecks:
+          - kind: Deployment
+            name: external-secrets
+            namespace: external-secrets
+          - kind: Deployment
+            name: external-secrets-cert-controller
+            namespace: external-secrets
+          - kind: Deployment
+            name: external-secrets-webhook
+            namespace: external-secrets
     target:
-      kind: HelmRelease
+      kind: Kustomization
       name: external-secrets

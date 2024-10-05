@@ -1,8 +1,18 @@
 # vscode-kubernetes-tools: exclude
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: traefik
 resources:
   - ../../../common/base/traefik
-  - tls.yaml
-  - secret.yaml
+patches:
+  - patch: |-
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: not-used
+      spec:
+        path: ./kubernetes/core/salamandre/base/traefik/app
+        dependsOn:
+          - name: cert-manager
+    target:
+      kind: Kustomization
+      name: traefik

@@ -1,0 +1,77 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name traefik
+spec:
+  releaseName: *name
+  interval: 10m0s
+  chart:
+    spec:
+      chart: traefik
+      version: "32.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+  install:
+    createNamespace: true
+    crds: Skip
+  upgrade:
+    crds: Skip
+  values:
+    priorityClassName: system-cluster-critical
+
+    ports:
+      websecure:
+        asDefault: true
+        proxyProtocol: {}
+        forwardedHeaders: &forwardedHeaders
+          trustedIPs:
+            - "127.0.0.1/32"
+            - "10.42.0.0/16"
+      web:
+        asDefault: true
+        redirectTo:
+          port: websecure
+        forwardedHeaders:
+          <<: *forwardedHeaders
+
+    tlsStore:
+      default:
+        defaultCertificate:
+          secretName: ${DOMAIN_NAME/./-}-tls
+
+    service:
+      spec:
+        externalTrafficPolicy: Local
+
+    ingressClass:
+      enabled: true
+      isDefaultClass: true
+
+    providers:
+      kubernetesIngress:
+        publishedService:
+          enabled: true
+
+    env:
+      - name: TZ
+        value: ${TIMEZONE}
+
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
+
+    metrics:
+      prometheus:
+        service:
+          enabled: true
+        serviceMonitor:
+          enabled: true
+          jobLabel: *name
+          honorLabels: true

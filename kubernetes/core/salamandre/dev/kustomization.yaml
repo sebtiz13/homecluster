@@ -2,10 +2,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../base/kube-system
+  - ../../common/base/kube-system
   - ../base/traefik
   - ../base/external-secrets
-  - ../../common/base/reloader
   - cert-manager
   - ../base/vault
   - database

@@ -1,0 +1,104 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name forgejo
+spec:
+  releaseName: *name
+  interval: 30m
+  chart:
+    spec:
+      chart: forgejo
+      version: "9.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: forgejo
+      interval: 12h
+  values:
+    gitea:
+      admin:
+        existingSecret: forgejo-admin-credentials
+        email: admin@${DOMAIN_NAME}
+
+      oauth:
+        - name: zitadel
+          existingSecret: forgejo-oidc-credentials
+          provider: openidConnect
+          autoDiscoverUrl: https://${OIDC_ISSUER_HOST}/.well-known/openid-configuration
+
+      config:
+        APP_NAME: Sebtiz13 Forgejo
+        indexer:
+          ISSUE_INDEXER_TYPE: bleve
+          REPO_INDEXER_ENABLED: true
+        queue:
+          TYPE: level
+        openid:
+          ENABLE_OPENID_SIGNIN: false
+        oauth2_client:
+          ENABLE_AUTO_REGISTRATION: true
+          ACCOUNT_LINKING: auto
+        service:
+          DISABLE_REGISTRATION: false
+          ENABLE_BASIC_AUTHENTICATION: false
+          DEFAULT_KEEP_EMAIL_PRIVATE: true
+          SHOW_REGISTRATION_BUTTON: false
+          ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+        cache:
+          ADAPTER: memory
+        session:
+          PROVIDER: db
+        server:
+          DOMAIN: &host git.${DOMAIN_NAME}
+          OFFLINE_MODE: false
+
+      additionalConfigSources:
+        - secret:
+            secretName: forgejo-app-ini-mail
+        - secret:
+            secretName: forgejo-app-ini-database
+      additionalConfigFromEnvs:
+        - name: TZ
+          value: ${TIMEZONE}
+
+    strategy:
+      type: Recreate
+
+    deployment:
+      annotations:
+        reloader.stakater.com/auto: "true"
+
+    resources:
+      requests:
+        cpu: 30m
+        memory: 192Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+    service:
+      ssh:
+        type: LoadBalancer
+
+    ingress:
+      enabled: true
+      hosts:
+        - host: *host
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - hosts:
+            - *host
+
+    persistence:
+      enabled: true
+      storageClass: openebs-zfspv
+      size: 10Gi
+
+    # Disable not necessary apps
+    redis-cluster:
+      enabled: false
+    postgresql-ha:
+      enabled: false

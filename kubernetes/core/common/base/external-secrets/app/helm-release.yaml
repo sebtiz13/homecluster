@@ -1,0 +1,53 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name external-secrets
+spec:
+  releaseName: *name
+  interval: 1h
+  chart:
+    spec:
+      chart: external-secrets
+      version: "0.10.4"
+      sourceRef:
+        kind: HelmRepository
+        name: external-secrets
+  install:
+    createNamespace: true
+  values:
+    priorityClassName: system-cluster-critical
+
+    # Disable CRD
+    installCRDs: false
+    crds:
+      createClusterExternalSecret: false
+      createClusterSecretStore: false
+      createPushSecret: false
+
+    resources:
+      requests:
+        cpu: 10m
+        memory: 48Mi
+      limits:
+        cpu: 100m
+        memory: 96Mi
+
+    webhook:
+      resources:
+        requests:
+          cpu: 5m
+          memory: 32Mi
+        limits:
+          cpu: 10m
+          memory: 64Mi
+
+    certController:
+      resources:
+        requests:
+          cpu: 5m
+          memory: 64Mi
+        limits:
+          cpu: 10m
+          memory: 128Mi
