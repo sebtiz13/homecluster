@@ -25,8 +25,7 @@
 
 - name: External-secrets | Force sync secrets
   when:
-    - (server.resources | length) > 0
-    - server.resources.0.status.readyReplicas == server.resources.0.status.replicas
+    - (server.resources | length) == 0 or (server.resources.0.status.readyReplicas == server.resources.0.status.replicas)
   delegate_to: localhost
   kubernetes.core.k8s:
     state: patched
@@ -45,7 +44,7 @@
     - zitadel-masterkey
 
 - name: Zitadel | Force restart application # noqa: no-handler
-  when: zitadel_resync is changed
+  when: zitadel_resync is changed and (server.resources | length) > 0
   delegate_to: "{{ inventory_hostname }}"
   vars:
     namespace: "{{ apps_zitadel.namespace }}"
