@@ -22,7 +22,7 @@
     headers:
       X-Vault-Token: "{{ hostvars.salamandre.vault_root_token }}"
     body:
-      bound_service_account_names: external-secrets
+      bound_service_account_names: auth-delegator
       bound_service_account_namespaces: external-secrets
       policies: external-secrets
       ttl: 1h

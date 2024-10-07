@@ -11,7 +11,7 @@ spec:
           mountPath: kubernetes
           role: external-secrets
           serviceAccountRef:
-            name: external-secrets
+            name: vault-auth
             namespace: external-secrets
   retrySettings:
     maxRetries: 30
