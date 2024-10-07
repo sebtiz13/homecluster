@@ -161,7 +161,7 @@ function backup:snapshot() {
   local processType
   vlSnapshotName="${2}-$CURRENT_DATETIME"
 
-  if [ "$1" != "database" ]; then # Exclude creation if is database (CloudNativePG manage it)
+  if [ -z "$IS_CRON_RUN" ] || [ "$1" != "database" ]; then # Exclude creation if is database (CloudNativePG manage it)
     processType="create"
     log "backup:snapshot" "Create snapshot for pvc ${1}/$2"
 
