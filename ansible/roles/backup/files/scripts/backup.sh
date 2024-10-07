@@ -212,14 +212,16 @@ function backup:zfsExport() {
   if [[ $CURRENT_DAYWEEK -gt 0 ]]; then
     local previousSnapshotUid
     local previousSnapshot
-    previousSnapshotUid=$(kubectl get vs --ignore-not-found -o jsonpath='{.metadata.uid}' -n "$1" "${2}-$YESTERDAY_DATETIME")
-    previousSnapshot="${dataset}@snapshot-$previousSnapshotUid"
 
     # Check if previous snapshot exist for incremental
-    if [[ $(checkSnapshot "${previousSnapshot}") -eq 1 ]]; then
-      sendArgs=(-i "${previousSnapshot}")
-      fileSuffix="-incr"
-      logMessage="Incremental send snapshot $3 (from $previousSnapshot to $snapshotName)"
+    previousSnapshotUid=$(kubectl get vs --ignore-not-found -o jsonpath='{.metadata.uid}' -n "$1" "${2}-$YESTERDAY_DATETIME")
+    if [ -n "$previousSnapshotUid" ]; then
+      previousSnapshot="${dataset}@snapshot-$previousSnapshotUid"
+      if [[ $(checkSnapshot "${previousSnapshot}") -eq 1 ]]; then
+        sendArgs=(-i "${previousSnapshot}")
+        fileSuffix="-incr"
+        logMessage="Incremental send snapshot $3 (from $previousSnapshot to $snapshotName)"
+      fi
     fi
   fi
 
