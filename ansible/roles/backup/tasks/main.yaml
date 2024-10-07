@@ -1,3 +1,12 @@
+- name: Create group
+  ansible.builtin.group:
+    name: backup
+- name: Create user
+  ansible.builtin.user:
+    name: backup
+    shell: /sbin/nologin
+    password_lock: true
+
 - name: Create folders
   ansible.builtin.file:
     state: directory

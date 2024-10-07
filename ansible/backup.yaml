@@ -17,6 +17,7 @@
           keys_secret_name: vault-keys
           store_name: vault-eso
     - name: Vault | Authenticate console
+      become: false
       when: "vault_root_token is not defined"
       ansible.builtin.import_tasks: roles/apps_vault/tasks/auth.yaml
   roles:
