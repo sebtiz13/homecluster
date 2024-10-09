@@ -84,6 +84,7 @@ function wait_for_zfsSnapshot() {
 # Prune cron logs files
 function backup:pruneLogs() {
   local count
+  local file
   count=0
 
   mapfile -t oldFiles < <(find "${LOG_DIR}" -maxdepth 1 -type f -name "cron-*.log")
@@ -104,6 +105,7 @@ function backup:pruneLogs() {
 # Prune database files (".sql.gz")
 function backup:pruneDBFiles() {
   local count
+  local file
   count=0
 
   mapfile -t files < <(find "${BACKUP_DIR}/db" -maxdepth 1 -type f -name "*.sql.gz")
@@ -126,6 +128,7 @@ function backup:pruneDBFiles() {
 # usage: backup:pruneSnapshots "namespace" "pvcName"
 function backup:pruneSnapshots() {
   local file
+  local name
 
   # List snapshots
   # shellcheck disable=SC2068
