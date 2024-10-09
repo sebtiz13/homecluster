@@ -32,6 +32,6 @@
     cron_file: backup-cluster
     name: backup cluster
     job: '[ -x {{ exec_dir }}/backup.sh ] && {{ exec_dir }}/backup.sh cron 2>&1 > "{{ log_dir }}/cron-$(date +\%U_\%Y-\%m-\%d).log"'
-    minute: "0"
+    minute: "5"
     hour: "3"
     disabled: "{{ env == 'dev' }}"

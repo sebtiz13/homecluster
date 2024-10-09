@@ -4,7 +4,7 @@ metadata:
   name: postgres
 spec:
   method: volumeSnapshot
-  schedule: "0 0 2 * * *" # @daily at 2am
+  schedule: "0 0 3 * * *" # @daily at 3am
   backupOwnerReference: cluster
   cluster:
     name: postgres16
