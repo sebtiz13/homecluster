@@ -40,8 +40,8 @@ PVC_CONDITION='?(@.spec.storageClassName=="openebs-zfspv")' # TODO: change to la
 PVC_OUTPUT_NAME='{.metadata.namespace}{":"}{.metadata.name}' # Format: namespace:name
 VS_CONDITION_LABELS='backup/managed=true'
 
-# Check if database need to be dump
-if [ -n "$IS_CRON_RUN" ] || [[ $CURRENT_DAYWEEK -gt 0 ]]; then
+# Check if database need to be dump (only once a week and when manual backup)
+if [ -z "$IS_CRON_RUN" ] || [[ $CURRENT_DAYWEEK -eq 0 ]]; then
   DATABASE_NEED_DUMP=1
 fi
 
