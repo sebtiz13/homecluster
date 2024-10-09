@@ -163,8 +163,9 @@ function backup:pruneSnapshots() {
 function backup:snapshot() {
   local processType
   vlSnapshotName="${2}-$CURRENT_DATETIME"
+  vlSnapshotUid=$(kubectl get vs --ignore-not-found -o jsonpath='{.metadata.uid}' -n "$1" "$vlSnapshotName")
 
-  if [ -z "$IS_CRON_RUN" ] || [ "$1" != "database" ]; then # Exclude creation if is database (CloudNativePG manage it)
+  if [ -z "$vlSnapshotUid" ]; then # Create if VolumeSnapshot is not found
     processType="create"
     log "backup:snapshot" "Create snapshot for pvc ${1}/$2"
 
@@ -185,8 +186,11 @@ function backup:snapshot() {
     processType="retrieve"
   fi
 
-  vlSnapshotUid=$(kubectl get vs -o jsonpath='{.metadata.uid}' -n "$1" "$vlSnapshotName")
-  if wait_for_zfsSnapshot "$1" "snapshot-$vlSnapshotUid"; then
+  vlSnapshotUid=$(kubectl get vs --ignore-not-found -o jsonpath='{.metadata.uid}' -n "$1" "$vlSnapshotName")
+  if [ -z "$vlSnapshotUid" ]; then
+    log "backup:snapshot" "ERROR: Failed to ${processType} snapshot for pvc ${1}/${2}. VolumeSnapshot $vlSnapshotName is not found."
+    return 1
+  elif wait_for_zfsSnapshot "$1" "snapshot-$vlSnapshotUid"; then
     log "backup:snapshot" "Snapshot for pvc ${1}/${2} as been ${processType}d with name ${vlSnapshotName} (UID: ${vlSnapshotUid})"
   else
     log "backup:snapshot" "ERROR: Failed to ${processType} snapshot for pvc ${1}/${2}. Please check status with \"kubectl describe zfssnapshot -n $OPENEBS_NAMESPACE snapshot-$vlSnapshotUid\""
