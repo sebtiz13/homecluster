@@ -299,9 +299,9 @@ if [ -n "$DATABASE_NEED_DUMP" ]; then
 fi
 
 echo "-- Sync backup to minio --"
-"${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/pvc" "${BACKUP_PVC_BUCKET}" 2>&1
+"${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/pvc" "${BACKUP_PVC_BUCKET}"
 if [ -n "$DATABASE_NEED_DUMP" ]; then
-  "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/db" "${BACKUP_DB_BUCKET}/dump" 2>&1
+  "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/db" "${BACKUP_DB_BUCKET}/dump"
 fi
 
 END_TIME=$(date +%s)
