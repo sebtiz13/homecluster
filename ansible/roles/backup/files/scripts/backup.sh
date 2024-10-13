@@ -1,4 +1,5 @@
 #!/bin/bash
+PATH=$PATH:/usr/local/bin # Add this for kubectl
 
 ###
 # Script constants
@@ -275,10 +276,9 @@ fi
 echo "-- Backup PVC --"
 # List volumes claim want backup
 log "_" "List volumes"
-volumesClaim="kubectl get pvc -A -o jsonpath='{range .items[${PVC_CONDITION}]}${PVC_OUTPUT_NAME}{\"\n\"}{end}'"
 
 # Dump zfs volumes
-for line in $(eval "${volumesClaim}")
+for line in $(kubectl get pvc -A -o jsonpath="{range .items[${PVC_CONDITION}]}${PVC_OUTPUT_NAME}{\"\n\"}{end}")
 do
   namespace=$(echo "${line}" | awk -F":" '{print $1}')
   name=$(echo "${line}" | awk -F":" '{print $2}')
