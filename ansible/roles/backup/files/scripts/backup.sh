@@ -112,7 +112,7 @@ function backup:pruneDBFiles() {
   mapfile -t files < <(find "${BACKUP_DIR}/db" -maxdepth 1 -type f -name "*.sql.gz")
   for file in "${files[@]}"
   do
-    date=$(basename "$file" | sed -n "s/^$DATABASE_CLUSTER_NAME-\(\S*\)\..*$/\1/p") # Extact week from "$DATABASE_CLUSTER_NAME-$DATETIME_FORMAT"
+    date=$(basename "$file" | sed -n "s/^$DATABASE_CLUSTER_NAME-\([[:digit:]]\+\)\..*$/\1/p") # Extact week from "$DATABASE_CLUSTER_NAME-$DATETIME_FORMAT"
 
     if [ -f "$file" ] && [ "$_FILES_KEEP_DATETIME" -ge "$date" ]; then
       rm "$file" > /dev/null
