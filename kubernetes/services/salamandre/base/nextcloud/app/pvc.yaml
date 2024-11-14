@@ -13,3 +13,18 @@ spec:
   resources:
     requests:
       storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-log
+  labels:
+    app.kubernetes.io/name: &name nextcloud
+    app.kubernetes.io/instance: *name
+    app.kubernetes.io/component: app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -37,4 +37,4 @@ spec:
               memory: 16Mi
             limits:
               cpu: 200m
-              memory: 256Mi
+              memory: 384Mi
