@@ -31,19 +31,17 @@ spec:
           cluster: baku
 
     alertmanager:
+      monzoTemplate:
+        enabled: false
       spec:
         configSecret: monitoring.alertmanager
 
     # Disable tweaked alert rules
     defaultRules:
       rules:
-        kubeApiserverAvailability: false
-        kubeApiserverBurnrate: false
-        kubeApiserverHistogram: false
-        kubeApiserverSlos: false
-        kubePrometheusNodeRecording: false
-        kubeScheduler: false
-        kubernetesResources: false
-        kubernetesSystem: false
-        vmhealth: false
-        vmagent: false
+        kubeApiserverAvailability: false # For k3s change
+        kubeApiserverBurnrate: false # For k3s change
+        kubeApiserverHistogram: false # For k3s change
+        kubeScheduler: false # For k3s change
+        kubernetesSystem: false # For k3s change
+        vmagent: false # remove dashboard annotation

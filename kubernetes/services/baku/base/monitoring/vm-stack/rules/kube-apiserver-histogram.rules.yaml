@@ -8,12 +8,12 @@ spec:
   groups:
   - name: kube-apiserver-histogram.rules
     rules:
-    - expr: histogram_quantile(0.99, sum by (cluster, le, resource) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[5m]))) > 0
+    - expr: histogram_quantile(0.99, sum by (le,resource,cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"LIST|GET",subresource!~"proxy|attach|log|exec|portforward"}[5m]))) > 0
       labels:
         quantile: '0.99'
         verb: read
       record: cluster_quantile:apiserver_request_sli_duration_seconds:histogram_quantile
-    - expr: histogram_quantile(0.99, sum by (cluster, le, resource) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[5m]))) > 0
+    - expr: histogram_quantile(0.99, sum by (le,resource,cluster) (rate(apiserver_request_sli_duration_seconds_bucket{job="kubelet",verb=~"POST|PUT|PATCH|DELETE",subresource!~"proxy|attach|log|exec|portforward"}[5m]))) > 0
       labels:
         quantile: '0.99'
         verb: write
