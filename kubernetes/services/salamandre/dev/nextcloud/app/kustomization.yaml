@@ -29,5 +29,5 @@ patches:
         value: 8Gi
     target:
       kind: PersistentVolumeClaim
-      name: nextcloud-data
+      name: nextcloud
       namespace: nextcloud
