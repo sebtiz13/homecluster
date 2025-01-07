@@ -51,7 +51,7 @@ spec:
           php occ config:app:set preview jpeg_quality --value 60
 
           php occ app:enable admin_audit && \
-          php occ config:app:set admin_audit logfile --value /var/www/html/log/audit.log
+          php occ config:app:set admin_audit logfile --value /var/log/nextcloud/audit.log
 
           php occ app:enable user_oidc && \
           php occ config:app:set --value=0 user_oidc allow_multiple_user_backends
@@ -198,12 +198,13 @@ spec:
             'overwriteprotocol' => 'https',
             'overwrite.cli.url' => 'https://cloud.${DOMAIN_NAME}',
           );
-        # Move log files to `/var/www/html/log` (no ZFS PVC to prevent useless backup)
+        # Move log files to `/var/log/nextcloud` (no ZFS PVC to prevent useless backup)
         logging.config.php: |-
           <?
           $CONFIG = array (
-            'logfile' => '/var/www/html/log/nextcloud.log',
-            'logfile_audit' => '/var/www/html/log/audit.log',
+            'log_rotate_size' => 0,
+            'logfile' => '/var/log/nextcloud/nextcloud.log',
+            'logfile_audit' => '/var/log/nextcloud/audit.log',
           );
 
       extraEnv:
@@ -230,7 +231,7 @@ spec:
           mountPath: /var/run/secrets/auth_oidc
           readOnly: true
         - name: *logVolume
-          mountPath: /var/www/html/log
+          mountPath: /var/log/nextcloud
 
     startupProbe:
       enabled: true

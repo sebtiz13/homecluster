@@ -41,7 +41,7 @@ spec:
           mountPath: /var/run/secrets/auth_oidc
           readOnly: true
         - name: *logVolume
-          mountPath: /var/www/html/log
+          mountPath: /var/log/nextcloud
         - name: certificate
           mountPath: /etc/ssl/certs/vm-ca.crt
           subPath: tls.crt
