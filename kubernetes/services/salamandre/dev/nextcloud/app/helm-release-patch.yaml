@@ -27,6 +27,9 @@ spec:
           secret:
             secretName: nextcloud-oidc-credentials
             defaultMode: 420
+        - name: &logVolume nextcloud-log
+          persistentVolumeClaim:
+            claimName: *logVolume
         - name: certificate
           secret:
             secretName: vm-ca-tls
@@ -37,6 +40,8 @@ spec:
         - name: *oauthSecName
           mountPath: /var/run/secrets/auth_oidc
           readOnly: true
+        - name: *logVolume
+          mountPath: /var/www/html/log
         - name: certificate
           mountPath: /etc/ssl/certs/vm-ca.crt
           subPath: tls.crt
