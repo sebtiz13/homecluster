@@ -21,10 +21,6 @@ spec:
 
     # Disable CRD
     installCRDs: false
-    crds:
-      createClusterExternalSecret: false
-      createClusterSecretStore: false
-      createPushSecret: false
 
     resources:
       requests:

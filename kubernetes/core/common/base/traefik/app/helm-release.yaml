@@ -50,11 +50,6 @@ spec:
       enabled: true
       isDefaultClass: true
 
-    providers:
-      kubernetesIngress:
-        publishedService:
-          enabled: true
-
     env:
       - name: TZ
         value: ${TIMEZONE}
