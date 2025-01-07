@@ -7,7 +7,7 @@ OUT_DIR := ./out
 ENVIRONMENT := production
 STEP := site
 # renovate: datasource=github-releases depName=mike-engel/jwt-cli
-JWT_VERSION := 6.1.1
+JWT_VERSION := 6.2.0
 
 ifndef VERBOSE
 MAKEFLAGS += --no-print-directory
