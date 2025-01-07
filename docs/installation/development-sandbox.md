@@ -24,8 +24,11 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 - [yq](https://github.com/mikefarah/yq/)
 - [argon2](https://github.com/P-H-C/phc-winner-argon2)
 - [pwgen](https://sourceforge.net/projects/pwgen/)
-- [Vagrant](https://www.vagrantup.com/)
-  - [libvirt](https://libvirt.org/)
+
+#### Development exclusive
+
+- [libvirt](https://libvirt.org/)
+- [virt-install](https://virt-manager.org/)
 - [mkcert](https://github.com/FiloSottile/mkcert)
 
 ### Configuring DNS
@@ -69,8 +72,6 @@ make test-cluster
 
 If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
 
-If you want change storage pool you can specify the name with `VAGRANT_STORAGE_POOL` environment variable.
-
 ### Provisioning virtual machines
 
 Provisioning virtual machines :
@@ -93,7 +94,7 @@ You can precise step with `STEP` argument. This following steps is available :
 Create or recreate virtual machines :
 
 ```sh
-make vagrant
+make vm-recreate
 ```
 
 If you want (re)create only one VM you can specify `VM_NAME` argument.
@@ -103,8 +104,20 @@ If you want (re)create only one VM you can specify `VM_NAME` argument.
 Use the following command for connect to the machine in SSH :
 
 ```sh
-make vm-ssh VM_NAME=<name>
+# Salamandre
+ssh ansible@192.168.12.10
+# Baku
+ssh ansible@192.168.12.11
 ```
+
+> [!TIP]
+> To ignore SSH fingerprint you can add following lines to your `~/.ssh/config` file.
+>
+> ```txt
+> Host 192.168.12.*
+>    UserKnownHostsFile /dev/null
+>    StrictHostKeyChecking no
+> ```
 
 ## Explore
 
@@ -130,7 +143,7 @@ export KUBECONFIG=./out/kubeconfig/salamandre.dev.yaml;./out/kubeconfig/baku.dev
 
 ## Clean up
 
-Delete development environment (credentials, vagrant files, virtual machines, etc) :
+Delete development environment (credentials, virtual machines, etc) :
 
 ```sh
 make cleanup

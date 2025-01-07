@@ -1,0 +1,45 @@
+- name: Destroy virtual machines
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    - name: Remove VMs # noqa: var-naming[no-role-prefix]
+      when: "(ansible_limit is not defined) or (item.name in ansible_limit)"
+      ansible.builtin.include_role:
+        name: kvm_destroy
+      vars:
+        pool_dir: "{{ vms.pool.dir }}"
+        vm_name: "{{ item.name }}"
+        disks: "{{ item.disks }}"
+      loop: "{{ vms.machines }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Get VMs list
+      community.libvirt.virt:
+        command: list_vms
+      register: existing_vms
+      changed_when: false
+    - name: Destroy network and storage pool
+      when: existing_vms.list_vms | length == 0
+      block:
+        - name: Delete base image
+          ansible.builtin.file:
+            path: "{{ vms.pool.dir }}/{{ vms.base_image.name }}"
+            state: absent
+          become: true
+        - name: Stop network
+          community.libvirt.virt_net:
+            command: destroy
+            name: "{{ vms.network.name }}"
+        - name: Remove network
+          community.libvirt.virt_net:
+            command: undefine
+            name: "{{ vms.network.name }}"
+        - name: Stop storage pool
+          community.libvirt.virt_pool:
+            command: destroy
+            name: "{{ vms.pool.name }}"
+        - name: Remove storage pool
+          community.libvirt.virt_pool:
+            command: undefine
+            name: "{{ vms.pool.name }}"

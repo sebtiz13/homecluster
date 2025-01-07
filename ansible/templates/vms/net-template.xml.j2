@@ -1,0 +1,9 @@
+<network>
+  <name>{{ vms.network.name }}</name>
+  <forward mode="nat" />
+  <ip address="{{ vms.network.gateway }}" netmask="{{ vms.network.netmask }}">
+    <dhcp>
+      <range start="{{ vms.network.dhcp.start }}" end="{{ vms.network.dhcp.end }}" />
+    </dhcp>
+  </ip>
+</network>

@@ -1,0 +1,42 @@
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: false
+
+- name: Create VM if not exists
+  when: vm_name not in existing_vms.list_vms
+  block:
+    - name: Create tmp dir for cloud-init
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: vms
+      register: kvm_tmpdir
+
+    - name: Generate network configuration
+      ansible.builtin.template:
+        src: templates/network-config.yaml.j2
+        dest: "{{ kvm_tmpdir.path }}/network-config"
+        mode: 0440
+    - name: Generate user configuration
+      ansible.builtin.template:
+        src: templates/user-data.yaml.j2
+        dest: "{{ kvm_tmpdir.path }}/user-data"
+        mode: 0440
+    - name: Define vm
+      vars:
+        osinfo: debian12
+        ci_network_config: "{{ kvm_tmpdir.path }}/network-config"
+        ci_user_data: "{{ kvm_tmpdir.path }}/user-data"
+      ansible.builtin.command: "{{ lookup('template', 'command.sh.j2') }}"
+      register: kvm_define
+      changed_when: kvm_define.rc == 0
+
+- name: Ensure VN is started
+  community.libvirt.virt:
+    name: "{{ vm_name }}"
+    state: running
+  register: kvm_start
+  until: kvm_start is success
+  retries: 10
+  delay: 2

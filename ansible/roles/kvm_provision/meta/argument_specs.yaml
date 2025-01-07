@@ -1,0 +1,43 @@
+argument_specs:
+  main:
+    short_description: The main entry point for provisioning virtual machine.
+    options:
+      base_image:
+        type: str
+        required: true
+      storage_pool:
+        type: str
+        required: true
+      vm_name:
+        type: str
+        required: true
+      vcpus:
+        type: int
+        required: true
+      ram_mb:
+        type: int
+        required: true
+      timezone:
+        type: str
+        required: true
+      ssh_user:
+        type: str
+        required: true
+      ssh_key:
+        type: str
+        required: true
+      nic_name:
+        type: str
+        required: true
+      nic_address:
+        type: str
+        required: true
+      nic_gateway:
+        type: str
+        required: true
+      boot_disk_size:
+        type: int
+        default: 20
+      disks:
+        type: list
+        default: []

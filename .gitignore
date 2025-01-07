@@ -1,5 +1,5 @@
 ansible/.venv/
 ansible/.bin/
 out/
-vagrant/.vagrant/
 todo
+virtual-machine/*.iso

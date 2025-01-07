@@ -1,0 +1,33 @@
+vms:
+  pool:
+    name: sebtiz13
+    dir: "/var/lib/libvirt/images/sebtiz13"
+  base_image:
+    source: https://cdimage.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2
+    name: "debian-12-generic-amd64.qcow2"
+  ssh_pub_key: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+  network:
+    name: sebtiz13
+    gateway: 192.168.12.1
+    netmask: 255.255.255.0
+    dhcp:
+      start: 192.168.12.2
+      end: 192.168.12.254
+
+  machines:
+    - name: salamandre
+      ip: 192.168.12.10/24
+      vcpus: 6
+      memory: 10240 # 10 Gib
+      boot_disk_size: 20 # 20 Gib
+      disks:
+        - size: 20 # 20 Gib
+        - size: 20 # 20 Gib
+    - name: baku
+      ip: 192.168.12.11/24
+      vcpus: 3
+      memory: 4096 # 4 Gib
+      boot_disk_size: 20 # 20 Gib
+      disks:
+        - size: 20 # 20 Gib
+        - size: 20 # 20 Gib

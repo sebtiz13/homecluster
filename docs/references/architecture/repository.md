@@ -23,7 +23,3 @@ This folder contains all documentation.
 ## [Provisioning](/ansible/)
 
 Files for provisioning clusters.
-
-## [Virtual machines](/vagrant/)
-
-Virtual machine files

@@ -1,0 +1,5 @@
+distribution: debian-12
+libvirt_pool_dir: /var/lib/libvirt/images
+boot_disk_size: 20G
+virt_builder_extra_options: ""
+disks: []

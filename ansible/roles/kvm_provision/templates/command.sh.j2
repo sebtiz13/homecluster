@@ -1,0 +1,10 @@
+virt-install --name {{ vm_name }} --vcpus {{ vcpus }} --memory {{ ram_mb }}
+--osinfo {{ osinfo }} --import --virt-type kvm
+--disk pool={{ storage_pool }},size={{ boot_disk_size }},backing_store={{ base_image }},device=disk,bus=virtio
+{% for disk in disks | default([]) -%}
+--disk pool={{ storage_pool }},size={{ disk.size }},device=disk,bus=virtio
+{% endfor -%}
+--graphics none --console pty,target_type=serial
+--network network={{ nic_name }},model=virtio
+--cloud-init "disable=on,network-config='{{ ci_network_config }}',user-data='{{ ci_user_data }}'"
+--noautoconsole

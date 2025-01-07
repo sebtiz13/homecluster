@@ -1,0 +1,73 @@
+- name: Deploy virtual machines
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    - name: Get networks list
+      community.libvirt.virt_net:
+        command: list_nets
+      register: existing_nets
+      changed_when: false
+    - name: Create a new network
+      when: vms.network.name not in existing_nets.list_nets
+      community.libvirt.virt_net:
+        command: define
+        name: "{{ vms.network.name }}"
+        xml: "{{ lookup('template', 'vms/net-template.xml.j2') }}"
+    - name: Ensure network is started
+      community.libvirt.virt_net:
+        command: start
+        name: "{{ vms.network.name }}"
+
+    - name: Get storage pools list
+      community.libvirt.virt_pool:
+        command: list_pools
+      register: existing_pools
+      changed_when: false
+    - name: Create storage pool if not exist
+      when: vms.pool.name not in existing_pools.list_pools
+      block:
+        - name: Create a new storage pool
+          community.libvirt.virt_pool:
+            command: define
+            name: "{{ vms.pool.name }}"
+            xml: "{{ lookup('template', 'vms/pool-template.xml.j2') }}"
+        - name: Build a the storage pool
+          community.libvirt.virt_pool:
+            command: build
+            name: "{{ vms.pool.name }}"
+    - name: Ensure storage pool is started
+      community.libvirt.virt_pool:
+        command: start
+        name: "{{ vms.pool.name }}"
+      register: pool_start
+      failed_when:
+        - "'msg' in pool_start"
+        - not "is already active" in pool_start.msg
+
+    - name: Download base VM image
+      ansible.builtin.get_url:
+        url: "{{ vms.base_image.source }}"
+        dest: "{{ vms.pool.dir }}/{{ vms.base_image.name }}"
+        mode: 0660
+      become: true
+
+    - name: Provisioning virtual machines # noqa: var-naming[no-role-prefix]
+      when: "(ansible_limit is not defined) or (item.name in ansible_limit)"
+      ansible.builtin.include_role:
+        name: kvm_provision
+      vars:
+        storage_pool: "{{ vms.pool.name }}"
+        base_image: "{{ vms.pool.dir }}/{{ vms.base_image.name }}"
+        vm_name: "{{ item.name }}"
+        vcpus: "{{ item.vcpus }}"
+        ram_mb: "{{ item.memory }}"
+        ssh_user: "{{ ansible_user }}"
+        ssh_key: "{{ lookup('file', vms.ssh_pub_key) }}"
+        nic_name: "{{ vms.network.name }}"
+        nic_address: "{{ item.ip }}"
+        nic_gateway: "{{ vms.network.gateway }}"
+        boot_disk_size: "{{ item.boot_disk_size }}"
+        disks: "{{ item.disks }}"
+      loop: "{{ vms.machines }}"
+      loop_control:
+        label: "{{ item.name }}"

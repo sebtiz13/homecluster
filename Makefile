@@ -1,9 +1,9 @@
-.PHONY: help init validate cleanup cluster vagrant
+.PHONY: help init validate cleanup cluster
 .SILENT:
 .DEFAULT_GOAL: help
 
 ANSIBLE_DIR := ./ansible
-VAGRANT_DIR := ./vagrant
+OUT_DIR := ./out
 ENVIRONMENT := production
 STEP := site
 # renovate: datasource=github-releases depName=mike-engel/jwt-cli
@@ -29,10 +29,10 @@ init: ## Init environment
 	cd $(ANSIBLE_DIR); .venv/bin/ansible-galaxy install -r requirements.yaml
 	echo "Creating required folders..."
 	mkdir -p $(ANSIBLE_DIR)/.bin
-	mkdir -p ./out/kubeconfig
-	mkdir -p ./out/credentials/{dev,production}
+	mkdir -p $(OUT_DIR)/kubeconfig
+	mkdir -p $(OUT_DIR)/credentials/{dev,production}
 ifeq ($(ENVIRONMENT), dev)
-	mkdir -p $(VAGRANT_DIR)/.vagrant/ca
+	mkdir -p $(OUT_DIR)/vms
 endif
 	echo "Download JWT tool..."
 	curl -L --progress-bar https://github.com/mike-engel/jwt-cli/releases/download/$(JWT_VERSION)/jwt-linux.tar.gz \
@@ -43,11 +43,10 @@ endif
 
 cleanup: ## Cleanup development environment
 	echo "Clean development environment..."
-	cd $(VAGRANT_DIR); vagrant destroy || true
-	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -uninstall
-	rm -rf $(VAGRANT_DIR)/.vagrant
-	rm -rf ./out/kubeconfig/*.dev.yaml
-	rm -rf ./out/credentials/dev
+	CAROOT=$(OUT_DIR)/vms mkcert -uninstall
+	rm -rf $(OUT_DIR)/kubeconfig/*.dev.yaml
+	rm -rf $(OUT_DIR)/credentials/dev
+	rm -rf $(OUT_DIR)/vms
 	rm -rf $(ANSIBLE_DIR)/{.venv,.bin}
 
 cluster: ## All-in-one command for cluster deployment
@@ -81,25 +80,15 @@ else
 		"--limit $(VM_NAME)" "$(STEP)"
 endif
 
-vm-create: ## Create vagrant VM
-ifneq ("$(wildcard $(VAGRANT_DIR)/.vagrant/ca/rootCA.pem)",)
-	CAROOT=$(VAGRANT_DIR)/.vagrant/ca mkcert -install
+vm-create: ## Create VM
+ifneq ("$(wildcard $(OUT_DIR)/vms/rootCA.pem)",)
+	CAROOT=$(OUT_DIR)/vms mkcert -install
 endif
 	echo "Creating new VM(s)..."
-	cd $(VAGRANT_DIR); vagrant up $(VM_NAME)
-vm-destroy: ## Destroying vagrant VM
+	./scripts/_ansible-vm.sh "$(ANSIBLE_DIR)" dev create $(VM_NAME)
+vm-destroy: ## Destroying VM
 	echo "Destroying old VM(s)..."
-ifndef VM_NAME
-	cd $(VAGRANT_DIR); vagrant destroy || true
-else
-	cd $(VAGRANT_DIR); vagrant destroy -f $(VM_NAME) || true
-endif
-vm-ssh: ## Accessing to VM
-	$(MAKE) _validate-vm
-	cd $(VAGRANT_DIR); vagrant ssh $(VM_NAME)
-vm-reload: ## Reload vagrant VM
-	echo "Reload VM(s)..."
-	cd $(VAGRANT_DIR); vagrant reload $(VM_NAME)
-vagrant: ## (Re)create vagrant VM
+	./scripts/_ansible-vm.sh "$(ANSIBLE_DIR)" dev destroy $(VM_NAME)
+vm-recreate: ## (Re)create VM
 	$(MAKE) vm-destroy
 	$(MAKE) vm-create

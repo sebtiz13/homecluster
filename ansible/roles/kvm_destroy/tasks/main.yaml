@@ -1,0 +1,36 @@
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: false
+
+- name: Destroy VM if exists
+  when: vm_name in existing_vms.list_vms
+  block:
+    - name: Destroy VM
+      community.libvirt.virt:
+        command: destroy
+        name: "{{ vm_name }}"
+      register: kvm_destroy
+      until: kvm_destroy is success
+
+    - name: Undefine VM
+      community.libvirt.virt:
+        command: undefine
+        name: "{{ vm_name }}"
+        force: true
+
+    - name: Delete boot disk
+      ansible.builtin.file:
+        path: "{{ pool_dir }}/{{ vm_name }}.qcow2"
+        state: absent
+      become: true
+    - name: Delete extra disks
+      ansible.builtin.file:
+        path: "{{ pool_dir }}/{{ vm_name }}-{{ disk_idx + 1 }}.qcow2"
+        state: absent
+      loop: "{{ disks }}"
+      loop_control:
+        loop_var: disk
+        index_var: disk_idx
+      become: true

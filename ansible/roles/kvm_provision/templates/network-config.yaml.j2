@@ -1,0 +1,13 @@
+network:
+  version: 2
+  ethernets:
+    enp1s0:
+      dhcp4: false
+      addresses:
+        - "{{ nic_address }}"
+      nameservers:
+        addresses:
+          - "{{ nic_gateway }}"
+      routes:
+        - to: 0.0.0.0/0
+          via: "{{ nic_gateway }}"

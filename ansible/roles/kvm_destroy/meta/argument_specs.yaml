@@ -1,0 +1,13 @@
+argument_specs:
+  main:
+    short_description: The main entry point for destroy virtual machine.
+    options:
+      pool_dir:
+        type: str
+        required: true
+      vm_name:
+        type: str
+        required: true
+      disks:
+        type: list
+        default: []

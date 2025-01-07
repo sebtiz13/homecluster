@@ -1,0 +1,9 @@
+<pool type="dir">
+  <name>{{ vms.pool.name }}</name>
+  <target>
+    <path>{{ vms.pool.dir | realpath }}</path>
+    <permissions>
+      <mode>0711</mode>
+    </permissions>
+  </target>
+</pool>
