@@ -20,9 +20,6 @@ spec:
       userKey: admin-user
       passwordKey: admin-password
 
-    defaultDashboardsEnabled: true
-    defaultDashboardsTimezone: utc
-
     sidecar:
       datasources:
         enabled: true
