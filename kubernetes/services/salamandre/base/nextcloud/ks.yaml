@@ -15,35 +15,3 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: collabora
-  namespace: flux-system
-spec:
-  targetNamespace: nextcloud
-  interval: 10m0s
-  prune: true
-  wait: true
-  path: ./kubernetes/services/salamandre/base/nextcloud/collabora
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: imaginary
-  namespace: flux-system
-spec:
-  targetNamespace: nextcloud
-  interval: 10m0s
-  prune: true
-  wait: true
-  path: ./kubernetes/services/salamandre/base/nextcloud/imaginary
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
