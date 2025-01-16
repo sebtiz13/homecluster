@@ -58,7 +58,7 @@ spec:
 
           php occ app:enable richdocuments && \
           php occ config:app:set richdocuments wopi_allowlist --value 10.42.0.0/16 && \
-          php occ config:app:set richdocuments wopi_url --value http://collabora-collabora:9980/ && \
+          php occ config:app:set richdocuments wopi_url --value http://nextcloud-collabora:9980/ && \
           php occ config:app:set richdocuments public_wopi_url --value https://cloud.${DOMAIN_NAME}/
 
           php occ app:enable bookmarks && \
