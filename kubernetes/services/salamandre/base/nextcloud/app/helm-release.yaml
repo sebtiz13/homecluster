@@ -58,7 +58,7 @@ spec:
 
           php occ app:enable richdocuments && \
           php occ config:app:set richdocuments wopi_allowlist --value 10.42.0.0/16 && \
-          php occ config:app:set richdocuments wopi_url --value http://collabora-code:9980/ && \
+          php occ config:app:set richdocuments wopi_url --value http://collabora-collabora:9980/ && \
           php occ config:app:set richdocuments public_wopi_url --value https://cloud.${DOMAIN_NAME}/
 
           php occ app:enable bookmarks && \
@@ -115,6 +115,7 @@ spec:
           opcache.validate_timestamps=false
           opcache.memory_consumption=256
       defaultConfigs:
+        imaginary.config.php: true
         autoconfig.php: false # Implemented by "db.config.php" bellow
         reverse-proxy.config.php: false # Re implement bellow
         # Disable unneeded configs
@@ -139,22 +140,11 @@ spec:
           <?php
           $CONFIG = array (
             // Imaginary (from https://github.com/nextcloud/all-in-one/blob/3ccdd332a99307a180816280279847549ebc44f8/Containers/nextcloud/entrypoint.sh#L331)
-            'enable_previews' => true,
             'preview_max_x' => '2048',
             'preview_max_x' => '2048',
             'preview_format' => 'webp',
             'jpeg_quality' => '60',
             'webp_quality' => '40',
-            'enabledPreviewProviders' => array (
-              'OC\Preview\Imaginary',
-              'OC\Preview\Image',
-              'OC\Preview\MarkDown',
-              'OC\Preview\MP3',
-              'OC\Preview\TXT',
-              'OC\Preview\OpenDocument',
-              'OC\Preview\Movie'
-            ),
-            'preview_imaginary_url' => 'http://nextcloud-imaginary:8088',
 
             // Other settings (from https://github.com/nextcloud/all-in-one/blob/3ccdd332a99307a180816280279847549ebc44f8/Containers/nextcloud/entrypoint.sh#L347)
             'trashbin_retention_obligation' => 'auto, 30',
@@ -280,6 +270,68 @@ spec:
       limits:
         cpu: 1500m
         memory: 2.5Gi
+
+    imaginary:
+      enabled: true
+
+      resources:
+        requests:
+          cpu: 5m
+          memory: 16Mi
+        limits:
+          cpu: 200m
+          memory: 384Mi
+
+    collabora:
+      enabled: true
+
+      collabora:
+        aliasgroups:
+          - host: https://cloud.${DOMAIN_NAME}
+        extra_params: --o:ssl.termination=true --o:ssl.enable=false
+        server_name: *host
+
+        env:
+          - name: DONT_GEN_SSL_CERT
+            value: "true"
+          - name: dictionaries
+            value: "en_GB en_US es_ES fr_FR"
+
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: nextcloud-chained-middlewares@kubernetescrd
+        hosts:
+          - host: *host
+            paths:
+              # static html, js, images, etc. served from coolwsd
+              # browser is the client part of LibreOffice Online
+              - path: /browser
+                pathType: Prefix
+              # WOPI discovery URL
+              - path: /hosting/discovery
+                pathType: Prefix
+              # Capabilities
+              - path: /hosting/capabilities
+                pathType: Prefix
+              # Main websocket, Admin Console websocket and
+              # Download as, Fullscreen presentation and Image upload operations
+              - path: /cool
+                pathType: Prefix
+              # Compatibility with integrations that use the /lool/convert-to endpoint
+              - path: /lool
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *host
+
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          cpu: 500m
+          memory: 1Gi
 
     # Disable not necessary apps
     internalDatabase:
