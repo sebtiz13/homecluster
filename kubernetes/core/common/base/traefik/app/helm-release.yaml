@@ -32,8 +32,10 @@ spec:
             - "10.42.0.0/16"
       web:
         asDefault: true
-        redirectTo:
-          port: websecure
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
         forwardedHeaders:
           <<: *forwardedHeaders
 
