@@ -5,3 +5,4 @@ metadata:
 data:
   noop.server: ""
   sso-domain.override: rewrite stop name exact sso.${DOMAIN_NAME} traefik.traefik.svc.cluster.local
+  cloud-domain.override: rewrite stop name exact cloud.${DOMAIN_NAME} traefik.traefik.svc.cluster.local
