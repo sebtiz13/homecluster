@@ -117,12 +117,10 @@ spec:
               subPath: "config.yaml"
         - name: daemon
           # renovate: datasource=docker image=docker
-          image: docker:27.4.1-dind-rootless
+          image: docker:27.4.1-dind
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs
-          # NOTE: the container needs to run as root to configure dockerd, but
-          # dockerd itself is NOT run as root
           securityContext:
             privileged: true
           resources:

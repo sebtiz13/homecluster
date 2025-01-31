@@ -47,7 +47,7 @@ data:
       # If it's empty when executing the `daemon`, it will use labels in the `.runner` file.
       labels:
         - self-hosted
-        - docker
+        - docker:docker://ghcr.io/catthehacker/ubuntu:act-latest
 
     cache:
       # Enable cache server to use actions/cache.
@@ -96,7 +96,7 @@ data:
       # If "-" or "", an available docker host will automatically be found.
       # If "automount", an available docker host will automatically be found and mounted in the job container (e.g. /var/run/docker.sock).
       # Otherwise the specified docker host will be used and an error will be returned if it doesn't work.
-      docker_host: "-"
+      docker_host: "automount"
       # Pull docker image(s) even if already present
       force_pull: false
       # Rebuild local docker image(s) even if already present
