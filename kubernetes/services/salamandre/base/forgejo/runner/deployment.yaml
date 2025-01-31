@@ -105,8 +105,8 @@ spec:
               cpu: 5m
               memory: 16Mi
             limits:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 1500m
+              memory: 2048Mi
           volumeMounts:
             - name: docker-certs
               mountPath: /certs
