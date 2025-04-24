@@ -15,7 +15,7 @@ zfs_pool:
     # - /dev/sda
 
 # renovate: datasource=github-releases depName=k3s-io/k3s
-k3s_version: v1.31.4+k3s1
+k3s_version: v1.31.7+k3s1
 k3s:
   flags: []
   config: {}
