@@ -3,4 +3,4 @@ ansible-lint>=24.12,<24.13
 lxml>=5.3,<5.4
 libvirt-python>=11,<11.1
 kubernetes>=31,<31.1
-kubernetes-validate>=1.31,<1.32
+kubernetes-validate>=1.32,<1.33
