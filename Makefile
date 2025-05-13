@@ -23,7 +23,7 @@ endif
 
 init: ## Init environment
 	echo "Creating python virual environment and install required packages..."
-	cd $(ANSIBLE_DIR); python -m venv .venv
+	cd $(ANSIBLE_DIR); python -m venv --system-site-packages .venv
 	cd $(ANSIBLE_DIR); .venv/bin/pip install -r requirements.txt
 	echo "Installing ansible modules..."
 	cd $(ANSIBLE_DIR); .venv/bin/ansible-galaxy install -r requirements.yaml
