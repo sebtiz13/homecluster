@@ -117,7 +117,7 @@ spec:
               subPath: "config.yaml"
         - name: daemon
           # renovate: datasource=docker image=docker
-          image: docker:27.4.1-dind
+          image: docker:28.1.1-dind
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs
