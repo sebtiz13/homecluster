@@ -138,8 +138,13 @@ For SSO (OpenID) apps the user is :
 You can export kubeconfig with following command :
 
 ```sh
+# Linux/Mac
+export KUBECONFIG=./out/kubeconfig/salamandre.dev.yaml:./out/kubeconfig/baku.dev.yaml
+# Windows
 export KUBECONFIG=./out/kubeconfig/salamandre.dev.yaml;./out/kubeconfig/baku.dev.yaml
 ```
+
+CF: [The KUBECONFIG environment variable](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
 
 ## Clean up
 
