@@ -26,7 +26,6 @@ else
   DATETIME_FORMAT=+%Y%m%d%H%M%S
 fi
 
-# Script variable
 START_TIME=$(date +%s)
 CURRENT_DAYWEEK=$(date +%w)
 CURRENT_DATETIME=$(date $DATETIME_FORMAT)
@@ -46,11 +45,19 @@ if [ -n "$IS_CRON_RUN" ] || [[ $CURRENT_DAYWEEK -gt 0 ]]; then
 fi
 
 ###
+# Log constants
+###
+_LOGINFO="\e[34m"
+_LOGERROR="\e[31mRed"
+_ENDCOLOR="\e[0m"
+
+###
 # Functions
 ###
 # usage: log "function" "message"
 function log() {
-  echo "[$1] $2"
+  local header="${_LOGINFO}[$1]${_ENDCOLOR}"
+  echo "$header $2"
 }
 
 function checkSnapshot() {
@@ -182,6 +189,7 @@ function backup:snapshot() {
     processType="retrieve"
   fi
 
+  log "backup:snapshot" "get Snapshot for PVC ${1}/${2}" debug
   vlSnapshotUid=$(kubectl get vs -o jsonpath='{.metadata.uid}' -n "$1" "$vlSnapshotName")
   if wait_for_zfsSnapshot "$1" "snapshot-$vlSnapshotUid"; then
     log "backup:snapshot" "Snapshot for pvc ${1}/${2} as been ${processType}d with name ${vlSnapshotName} (UID: ${vlSnapshotUid})"
@@ -266,6 +274,7 @@ fi
 echo "-- Backup PVC --"
 # List volumes claim want backup
 log "_" "List volumes"
+exit
 volumesClaim="kubectl get pvc -A -o jsonpath='{range .items[${PVC_CONDITION}]}${PVC_OUTPUT_NAME}{\"\n\"}{end}'"
 
 # Dump zfs volumes
