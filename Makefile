@@ -92,3 +92,6 @@ vm-destroy: ## Destroying VM
 vm-recreate: ## (Re)create VM
 	$(MAKE) vm-destroy
 	$(MAKE) vm-create
+
+test-k9s: ## Run K9S for VM cluster
+	KUBECONFIG=./out/kubeconfig/baku.dev.yaml:./out/kubeconfig/salamandre.dev.yaml k9s
