@@ -10,37 +10,4 @@ spec:
     name: external-secrets-source
   interval: 15m
   prune: false
-  healthChecks:
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: clusterexternalsecrets.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: clustersecretstores.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: externalsecrets.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: pushsecrets.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: secretstores.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: acraccesstokens.generators.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: ecrauthorizationtokens.generators.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: fakes.generators.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: gcraccesstokens.generators.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: passwords.generators.external-secrets.io
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: vaultdynamicsecrets.generators.external-secrets.io
+  wait: true
