@@ -4,20 +4,21 @@ metadata:
   name: victoria-metrics-k8s-stack
 spec:
   values:
-    externalVM:
-      read:
-        url: https://monitor.${DOMAIN_NAME}:53639/
-        basicAuth: &auth
-          password:
-            key: password
-            name: &secret monitoring-credentials
-          username:
-            key: user
-            name: *secret
-      write:
-        url: https://monitor.${DOMAIN_NAME}:53639/api/v1/write
-        basicAuth:
-          <<: *auth
+    external:
+      vm:
+        read:
+          url: https://monitor.${DOMAIN_NAME}:53639/
+          basicAuth: &auth
+            password:
+              key: password
+              name: &secret monitoring-credentials
+            username:
+              key: user
+              name: *secret
+        write:
+          url: https://monitor.${DOMAIN_NAME}:53639/api/v1/write
+          basicAuth:
+            <<: *auth
 
     vmagent:
       spec:
