@@ -31,10 +31,28 @@ spec:
           cluster: baku
 
     alertmanager:
+      useManagedConfig: true
+      config:
+        inhibit_rules:
+          - target_matchers:
+              - severity="info"
+            source_matchers:
+              - alertname=InfoInhibitor
+        route:
+          receiver: discord
+          routes:
+            - matchers:
+                - alertname=InfoInhibitor
+              receiver: blackhole
+        receivers:
+          - name: blackhole
+          - name: discord
+            discord_configs:
+              - webhook_url: "${ALERTS_DISCORD_WEBHOOK_URL}"
+                title: '{{ template "homecluster.discord.title" . }}'
+                message: '{{ template "homecluster.discord.message" . }}'
       monzoTemplate:
         enabled: false
-      spec:
-        configSecret: monitoring.alertmanager
 
     # Disable tweaked alert rules
     defaultRules:
