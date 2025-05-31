@@ -18,8 +18,6 @@ patches:
         path: /spec/target/template/data/smtp-password
         value: ''
     target:
-      group: external-secrets.io
-      version: v1beta1
       kind: ExternalSecret
       name: nextcloud-credentials
       namespace: nextcloud

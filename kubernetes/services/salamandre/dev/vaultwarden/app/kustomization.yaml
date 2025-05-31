@@ -16,8 +16,6 @@ patches:
         path: /spec/target/template/data/SMTP_PASSWORD
         value: ''
     target:
-      group: external-secrets.io
-      version: v1beta1
       kind: ExternalSecret
       name: vaultwarden-smtp
       namespace: vaultwarden
