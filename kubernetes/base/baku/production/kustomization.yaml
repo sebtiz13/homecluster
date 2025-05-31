@@ -47,3 +47,13 @@ patches:
     target:
       kind: Kustomization
       name: services
+  - patch: |-
+      - op: replace
+        path: /spec/eventMetadata/env
+        value: production
+      - op: replace
+        path: /spec/eventMetadata/cluster
+        value: baku
+    target:
+      kind: Alert
+      name: flux-system

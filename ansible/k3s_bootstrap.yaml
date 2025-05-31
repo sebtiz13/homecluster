@@ -25,6 +25,11 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ local_kubeconfig }}"
         template: flux_vars.yaml.j2
+    - name: Flux | Store discord webhook for alerts
+      delegate_to: localhost
+      kubernetes.core.k8s:
+        kubeconfig: "{{ local_kubeconfig }}"
+        template: flux_alert.yaml.j2
 
     - name: Flux | Deploy bootstrap manifests # noqa: jinja[invalid]
       delegate_to: localhost
