@@ -10,7 +10,7 @@ Good enough for tinkering.
   - [x] Set up ZFS pool
   - [x] Set up PostgreSQL (on Salamandre)
 - [x] Automated cluster creation (k3s)
-- [x] Automated application deployment (ArgoCD, on Salamandre)
+- [x] Automated application deployment (Flux, on Salamandre)
 - [x] Only use open-source technologies
 - [x] Everything is defined as code
 - [x] Core/System applications
@@ -35,7 +35,7 @@ Good enough for tinkering, personal usage and reasonably secure.
 - [x] Backup solution (Barman/ZFS)
 - [ ] Observability (on Baku)
   - [x] Monitoring
-  - [ ] Logging (_waiting VictoriaLogs_)
+  - [ ] Logging (with [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/))
   - [x] Alerting
 - [x] Core/System applications
   - [x] Traefik
@@ -44,7 +44,6 @@ Good enough for tinkering, personal usage and reasonably secure.
   - **Salamandre**
     - [x] Postgres
   - **Baku**
-    - [x] external-secrets
     - [x] Minio
 
 ## Stable requirement
@@ -69,6 +68,7 @@ Nice to have
 
 - [ ] Addition applications
   - [ ] Plex
+  - [ ] Serverless ([Knative](https://knative.dev/))
 - [ ] Encrypted backups
-- [ ] Serverless ([Knative](https://knative.dev/))
 - [x] Secrets rotation
+- [ ] Migrate [Hasicorp Vault](https://developer.hashicorp.com/vault) to [OpenBao](https://openbao.org/) (ref [#21](https://github.com/sebtiz13/homecluster/issues/21))
