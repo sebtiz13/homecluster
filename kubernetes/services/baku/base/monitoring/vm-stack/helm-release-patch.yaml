@@ -44,6 +44,11 @@ spec:
             - matchers:
                 - alertname=InfoInhibitor
               receiver: blackhole
+            - matchers:
+                - alertname=Watchdog
+              group_interval: 24h
+              receiver: discord
+              continue: false
         receivers:
           - name: blackhole
           - name: discord
@@ -115,7 +120,7 @@ spec:
       groups:
         kubeApiserverAvailability: # For k3s change
           create: false
-        kubeApiserverBurnrate:  # For k3s change
+        kubeApiserverBurnrate: # For k3s change
           create: false
         kubeApiserverHistogram: # For k3s change
           create: false
