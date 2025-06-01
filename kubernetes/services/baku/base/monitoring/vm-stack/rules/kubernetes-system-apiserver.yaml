@@ -1,5 +1,6 @@
 # Tweak from https://github.com/VictoriaMetrics/helm-charts/blob/master/charts/victoria-metrics-k8s-stack/templates/rules/kubernetes-system-apiserver.yaml
 # Note: in k3s job "apiserver" is combined in "kubelet".
+# This also present for deploy it
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
 metadata:

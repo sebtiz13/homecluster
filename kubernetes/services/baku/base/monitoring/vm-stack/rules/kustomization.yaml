@@ -7,5 +7,3 @@ resources:
   - kube-apiserver-histogram.rules.yaml
   - kube-scheduler.rules.yaml
   - kubernetes-system-apiserver.yaml
-  - kubernetes-system-kubelet.yaml
-  - vmagent.yaml
