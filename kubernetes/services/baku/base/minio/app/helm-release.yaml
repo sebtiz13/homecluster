@@ -20,10 +20,10 @@ spec:
     # Manual image versions
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2025-04-22T22-12-26Z
+      tag: RELEASE.2025-07-23T15-54-02Z
     mcImage:
       repository: quay.io/minio/mc
-      tag: RELEASE.2025-04-16T18-13-26Z
+      tag: RELEASE.2025-07-21T05-28-08Z
 
     existingSecret: minio-admin
     users: [] # Remove default user
