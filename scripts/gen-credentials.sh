@@ -19,7 +19,7 @@ randpw () {
   pwgen -cnysB -r "'\"\`{}\\|" "${1:-$DEFAULT_LENGTH}" 1
 }
 
-insert_pwd() {
+insert_value() {
   if [[ "$(yq "$2" "$1")" = "null" ]]; then
     yq -i "$2 = \"$3\"" "$1"
   fi
@@ -34,20 +34,20 @@ FILE="./out/credentials/${ENVIRONMENT}/admin_passwords.yaml"
 touch "$FILE"
 
 # Salamandre credentials
-insert_pwd "$FILE" .salamandre.zitadel "$(randpw 16)"
-insert_pwd "$FILE" .salamandre.nextcloud "$(randpw 16)"
-insert_pwd "$FILE" .salamandre.forgejo "$(randpw 16)"
+insert_value "$FILE" .salamandre.zitadel "$(randpw 16)"
+insert_value "$FILE" .salamandre.nextcloud "$(randpw 16)"
+insert_value "$FILE" .salamandre.forgejo "$(randpw 16)"
 
 if [[ "$(yq .salamandre.vaultwarden "$FILE")" = "null" ]]; then
   token=$(openssl rand -base64 48)
-  insert_pwd "$FILE" .salamandre.vaultwarden.value "$token"
-  insert_pwd "$FILE" .salamandre.vaultwarden.salt "$(openssl rand -base64 32)"
+  insert_value "$FILE" .salamandre.vaultwarden.value "$token"
+  insert_value "$FILE" .salamandre.vaultwarden.salt "$(openssl rand -base64 32)"
   unset "$token"
 fi
 
 # Baku credentials
-insert_pwd "$FILE" .baku.minio "$(randpw 16)"
-insert_pwd "$FILE" .baku.grafana "$(randpw 16)"
+insert_value "$FILE" .baku.minio "$(randpw 16)"
+insert_value "$FILE" .baku.grafana "$(randpw 16)"
 
 ##
 # Zitadel masterkey
@@ -68,9 +68,13 @@ fi
 ##
 # Discord webhook url
 ##
-FILE="./out/credentials/${ENVIRONMENT}/discord_webhook_url"
+FILE="./out/credentials/${ENVIRONMENT}/discord_webhook_url.yaml"
 if [ ! -e "$FILE" ]; then
   echo "Enter discord webhook url:"
   IFS= read -r webhookUrl
-  echo "$webhookUrl" > "$FILE"
+  insert_value "$FILE" .alerts "$webhookUrl"
+
+  echo "Enter discord webhook url for Watchdog:"
+  IFS= read -r webhookUrl
+  insert_value "$FILE" .watchdog "$webhookUrl"
 fi

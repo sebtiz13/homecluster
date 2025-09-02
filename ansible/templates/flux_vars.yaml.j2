@@ -15,4 +15,5 @@ stringData:
   BAKU_ROOT_DOMAIN_NAME: "{{ root_domains.baku }}"
 {% endif %}
 
-  ALERTS_DISCORD_WEBHOOK_URL: "{{ lookup('file', alerts_discord_webhook_url) }}"
+  ALERTS_DISCORD_WEBHOOK_URL: "{{ discord_webhook_url.alerts }}"
+  WATCHDOG_DISCORD_WEBHOOK_URL: "{{ discord_webhook_url.watchdog }}"

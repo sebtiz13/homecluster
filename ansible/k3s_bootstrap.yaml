@@ -6,6 +6,10 @@
       ansible.builtin.include_vars:
         file: "{{ credentials_folder }}/admin_passwords.yaml"
         name: admin_passwords
+    - name: Load discord webhook urls
+      ansible.builtin.include_vars:
+        file: "{{ credentials_folder }}/discord_webhook_url.yaml"
+        name: discord_webhook_url
 
 - name: Deploy flux
   hosts: all

@@ -47,13 +47,18 @@ spec:
             - matchers:
                 - alertname=Watchdog
               group_interval: 24h
-              receiver: discord
+              receiver: discord-watchdog
               continue: false
         receivers:
           - name: blackhole
           - name: discord
             discord_configs:
               - webhook_url: "${ALERTS_DISCORD_WEBHOOK_URL}"
+                title: '{{ template "homecluster.discord.title" . }}'
+                message: '{{ template "homecluster.discord.message" . }}'
+          - name: discord-watchdog
+            discord_configs:
+              - webhook_url: "${WATCHDOG_DISCORD_WEBHOOK_URL}"
                 title: '{{ template "homecluster.discord.title" . }}'
                 message: '{{ template "homecluster.discord.message" . }}'
       monzoTemplate:
