@@ -13,6 +13,8 @@ ssh:
     #   sudoer: true
     #   authorized_key: ""
 
+# Percent of total RAM for ARC
+zfs_arc_percent: 25
 zfs_pool:
   # The pool type (available values: stripe, mirror, raidz (similar to RAID5) or raidz2 (Similar to RAID5 with dual parity))
   # Default from: group_vars/all.yaml
