@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Minio source url",
+      "matchPackageNames": [
+        "quay.io/minio/minio"
+      ],
+      "sourceUrl": "https://github.com/minio/minio"
+    },
+    {
+      "description": "Minio source url",
+      "matchPackageNames": [
+        "quay.io/minio/mc"
+      ],
+      "sourceUrl": "https://github.com/minio/mc"
+    },
+    {
+      "description": "Victoria metrics operator source url",
+      "matchPackageNames": [
+        "victoriametrics/operator"
+      ],
+      "sourceUrl": "https://github.com/VictoriaMetrics/operator"
+    }
+  ]
+}

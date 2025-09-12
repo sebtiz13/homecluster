@@ -14,12 +14,15 @@
     "github>sebtiz13/homecluster//.github/renovate/labels.json5",
     "github>sebtiz13/homecluster//.github/renovate/packageRules.json5",
     "github>sebtiz13/homecluster//.github/renovate/semanticCommits.json5",
+    "github>sebtiz13/homecluster//.github/renovate/changelogs.json5",
   ],
   timezone: "Europe/Paris",
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   separateMajorMinor: true,
   assigneesFromCodeOwners: true,
-  ignorePaths: ["**/wallabag/**"],
+  ignorePaths: [
+    "**/wallabag/**"
+  ],
   flux: {
     managerFilePatterns: [
       "/(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$/",
@@ -30,9 +33,13 @@
     ],
   },
   "helm-values": {
-    managerFilePatterns: ["/(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$/"],
+    managerFilePatterns: [
+      "/(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$/"
+    ],
   },
   kubernetes: {
-    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+    managerFilePatterns: [
+      "/(^|/)kubernetes/.+\\.ya?ml$/"
+    ],
   },
 }
