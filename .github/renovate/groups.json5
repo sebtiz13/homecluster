@@ -3,6 +3,33 @@
   "packageRules": [
     {
       "description": [
+        "Separate PRs for github"
+      ],
+      "matchFileNames": [
+        "**/.github/**"
+      ],
+      // "additionalBranchPrefix": "github-",
+      "groupName": "github",
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      }
+    },
+    {
+      "description": [
+        "Separate PRs for ansible"
+      ],
+      "matchFileNames": [
+        "**/ansible/**",
+        "Makefile"
+      ],
+      // "additionalBranchPrefix": "ansible-",
+      "groupName": "ansible",
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      }
+    },
+    {
+      "description": [
         "Kubernetes Group"
       ],
       "matchDatasources": [
