@@ -4,6 +4,16 @@
   "packageRules": [
     {
       "description": [
+        "Separate PRs for kubernetes"
+      ],
+      "matchFileNames": [
+        "**/kubernetes/**"
+      ],
+      // "additionalBranchPrefix": "kubernetes-",
+      "groupName": "kubernetes"
+    },
+    {
+      "description": [
         "Separate PRs for salamandre cluster"
       ],
       "matchFileNames": [
