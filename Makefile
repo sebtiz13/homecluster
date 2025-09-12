@@ -69,6 +69,8 @@ test-cluster: ## [DEV] All-in-one command for cluster deployment
 	echo "Create credentials..."
 	ENVIRONMENT=dev ./scripts/gen-credentials.sh
 	$(MAKE) vm-create
+	echo "Waiting VMs start..."
+	sleep 10
 	$(MAKE) test-provision
 test-provision: ## [DEV] Provisioning machines
 	echo "Provisioning VM(s)"
