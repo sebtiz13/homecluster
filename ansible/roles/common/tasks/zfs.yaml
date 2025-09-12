@@ -22,7 +22,7 @@
     zfs_arc_max_bytes: "{{ (ansible_memtotal_mb * 1024 * 1024 * zfs_arc_percent / 100) | int }}"
   community.general.modprobe:
     name: zfs
-    options: "zfs_arc_max={{ zfs_arc_max_bytes }}"
+    params: "zfs_arc_max={{ zfs_arc_max_bytes }}"
     state: present
     persistent: present
 
