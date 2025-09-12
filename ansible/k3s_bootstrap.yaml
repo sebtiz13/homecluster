@@ -1,5 +1,5 @@
 - name: Load informations
-  hosts: salamandre
+  hosts: all
   tags: kubernetes
   tasks:
     - name: Load applications admin passwords # TODO: use ansible vault ?

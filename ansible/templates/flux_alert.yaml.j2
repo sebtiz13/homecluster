@@ -5,4 +5,4 @@ metadata:
   namespace: flux-system
 type: Opaque
 stringData:
-  address: "{{ lookup('file', discord_webhook_url.alerts) }}"
+  address: "{{ discord_webhook_url.alerts }}"
