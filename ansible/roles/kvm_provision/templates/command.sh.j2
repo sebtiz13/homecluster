@@ -6,5 +6,5 @@ virt-install --name {{ vm_name }} --vcpus {{ vcpus }} --memory {{ ram_mb }}
 {% endfor -%}
 --graphics none --console pty,target_type=serial
 --network network={{ nic_name }},model=virtio
---cloud-init "disable=on,network-config='{{ ci_network_config }}',user-data='{{ ci_user_data }}'"
+--cloud-init "meta-data='{{ ci_metadata }}',network-config='{{ ci_network_config }}',user-data='{{ ci_user_data }}',disable=on"
 --noautoconsole

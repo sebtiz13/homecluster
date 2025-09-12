@@ -13,6 +13,11 @@
         prefix: vms
       register: kvm_tmpdir
 
+    - name: Generate meta data
+      ansible.builtin.template:
+        src: templates/meta-data.yaml.j2
+        dest: "{{ kvm_tmpdir.path }}/meta-data"
+        mode: 0440
     - name: Generate network configuration
       ansible.builtin.template:
         src: templates/network-config.yaml.j2
@@ -26,6 +31,7 @@
     - name: Define vm
       vars:
         osinfo: debian12
+        ci_metadata: "{{ kvm_tmpdir.path }}/meta-data"
         ci_network_config: "{{ kvm_tmpdir.path }}/network-config"
         ci_user_data: "{{ kvm_tmpdir.path }}/user-data"
       ansible.builtin.command: "{{ lookup('template', 'command.sh.j2') }}"
