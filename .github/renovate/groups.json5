@@ -45,6 +45,7 @@
       "group": {
         "commitMessageTopic": "{{{groupName}}} group"
       },
+      "separateMajorMinor": false,
       "separateMinorPatch": true
     },
     {
