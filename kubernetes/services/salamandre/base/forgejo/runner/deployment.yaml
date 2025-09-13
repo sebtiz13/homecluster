@@ -53,7 +53,7 @@ spec:
             - name: FORGEJO_INSTANCE_URL
               value: &host http://forgejo-http.forgejo.svc.cluster.local:3000
         - name: runner-config-generation
-          image: code.forgejo.org/forgejo/runner:6.3.1
+          image: code.forgejo.org/forgejo/runner:11.0.0
           imagePullPolicy: &imagePolicy IfNotPresent
           command:
             - forgejo-runner
@@ -81,7 +81,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: runner
-          image: code.forgejo.org/forgejo/runner:6.3.1
+          image: code.forgejo.org/forgejo/runner:11.0.0
           imagePullPolicy: *imagePolicy
           command:
             - sh
