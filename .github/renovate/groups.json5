@@ -1,66 +1,43 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "packageRules": [
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
     {
-      "description": [
-        "Separate PRs for github"
-      ],
-      "matchFileNames": [
-        "**/.github/**"
-      ],
+      description: ["Separate PRs for github"],
+      matchFileNames: ["**/.github/**"],
       // "additionalBranchPrefix": "github-",
-      "groupName": "github",
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      }
+      groupName: "github",
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
     },
     {
-      "description": [
-        "Separate PRs for ansible"
-      ],
-      "matchFileNames": [
-        "**/ansible/**",
-        "Makefile"
-      ],
+      description: ["Separate PRs for ansible"],
+      matchFileNames: ["**/ansible/**", "Makefile"],
       // "additionalBranchPrefix": "ansible-",
-      "groupName": "ansible",
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      }
+      groupName: "ansible",
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
     },
     {
-      "description": [
-        "Kubernetes Group"
-      ],
-      "matchDatasources": [
-        "pypi",
-        "github-releases"
-      ],
-      "matchDepNames": [
-        "kubernetes",
-        "kubernetes-validate",
-        "k3s-io/k3s"
-      ],
-      "groupName": "kubernetes",
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
+      description: ["Kubernetes Group"],
+      matchDatasources: ["pypi", "github-releases"],
+      matchDepNames: ["kubernetes", "kubernetes-validate", "k3s-io/k3s"],
+      groupName: "kubernetes",
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
       },
-      "separateMajorMinor": false,
-      "separateMinorPatch": true
+      separateMajorMinor: false,
+      separateMinorPatch: true,
     },
     {
-      "description": [
-        "Flux Group"
-      ],
-      "matchDepNames": [
-        "fluxcd/flux2",
-        "ghcr.io/fluxcd/*-controller"
-      ],
-      "groupName": "flux",
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
+      description: ["Flux Group"],
+      matchDepNames: ["fluxcd/flux2", "ghcr.io/fluxcd/*-controller"],
+      groupName: "flux",
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
       },
-      "separateMinorPatch": true
-    }
-  ]
+      separateMinorPatch: true,
+    },
+  ],
 }

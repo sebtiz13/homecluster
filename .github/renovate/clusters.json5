@@ -1,32 +1,24 @@
 {
   // Based on: https://github.com/onedr0p/home-ops/blob/d404344d90681d1260031dd824dbec8e7d6e2564/.github/renovate/clusters.json5
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "packageRules": [
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
     {
-      "description": [
-        "Separate PRs for salamandre cluster"
-      ],
-      "matchFileNames": [
-        "**/kubernetes/**/salamandre/**"
-      ],
+      description: ["Separate PRs for salamandre cluster"],
+      matchFileNames: ["**/kubernetes/**/salamandre/**"],
       // "additionalBranchPrefix": "salamandre-",
-      "groupName": "salamandre",
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} cluster"
-      }
+      groupName: "salamandre",
+      group: {
+        commitMessageTopic: "{{{groupName}}} cluster",
+      },
     },
     {
-      "description": [
-        "Separate PRs for baku cluster"
-      ],
-      "matchFileNames": [
-        "**/kubernetes/**/baku/**"
-      ],
+      description: ["Separate PRs for baku cluster"],
+      matchFileNames: ["**/kubernetes/**/baku/**"],
       // "additionalBranchPrefix": "baku-",
-      "groupName": "baku",
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} cluster"
-      }
-    }
-  ]
+      groupName: "baku",
+      group: {
+        commitMessageTopic: "{{{groupName}}} cluster",
+      },
+    },
+  ],
 }
