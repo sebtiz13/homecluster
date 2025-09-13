@@ -8,6 +8,6 @@ resources:
   # victoria-metrics operator + prometheus
   #! NOTE: need to keep version synced with operator in "victoria-metrics-k8s-stack" deployment (file: kubernetes/services/common/base/monitoring/helm-release.yaml)
   # renovate: datasource=docker depName=victoriametrics/operator
-  - https://github.com/VictoriaMetrics/operator/releases/download/v0.58.0/crd.yaml
+  - https://github.com/VictoriaMetrics/operator/releases/download/v0.63.0/crd.yaml
   # renovate: datasource=docker depName=victoriametrics/operator
-  - https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.58.0/hack/crd/prometheus/crd.yaml
+  - https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.63.0/hack/crd/prometheus/crd.yaml
