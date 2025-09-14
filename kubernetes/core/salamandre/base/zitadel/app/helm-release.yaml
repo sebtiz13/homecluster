@@ -67,6 +67,8 @@ spec:
             BackgroundColorDark: "#2E3440"
             WarnColorDark: "#BF616A"
             FontColorDark: "#ECEFF4"
+        ServicePing:
+          Enabled: false
 
     annotations:
       reloader.stakater.com/auto: "true"
