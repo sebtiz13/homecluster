@@ -1,3 +1,22 @@
+# - name: Zitadel | Retrieve organization ID
+#   ansible.builtin.uri:
+#     url: "{{ zitadel_internal_url }}/v2/organizations/_search"
+#     method: POST
+#     headers:
+#       Host: "{{ apps_zitadel.domain_name }}"
+#       Authorization: "Bearer {{ zitadel_console_token }}"
+#     status_code: 200
+#     return_content: true
+#     body_format: json
+#     body:
+#       query:
+#         limit: 1
+#       queries:
+#         - nameQuery:
+#             name: ZITADEL
+#             method: TEXT_QUERY_METHOD_EQUALS
+#   register: zitadel_org
+
 ##
 # Create actions
 ##
@@ -98,9 +117,10 @@
 ##
 # Create users
 ##
+# FIX: Currently use deprecated endpoint since new is bugged (https://github.com/zitadel/zitadel/issues/10083)
 - name: Zitadel | Create admin user
   ansible.builtin.uri:
-    url: "{{ zitadel_internal_url }}/management/v1/users/human/_import"
+    url: "{{ zitadel_internal_url }}/v2/users/human"
     method: POST
     headers:
       Host: "{{ apps_zitadel.domain_name }}"
@@ -111,14 +131,15 @@
     return_content: true
     body_format: json
     body:
-      userName: admin
+      username: admin
       profile:
-        firstName: admin
-        lastName: ZITADEL
+        givenName: admin
+        familyName: ZITADEL
       email:
         email: "admin@{{ domain_name }}"
-        isEmailVerified: true
-      password: "{{ admin_passwords.salamandre.zitadel }}"
+        isVerified: true
+      password:
+        password: "{{ admin_passwords.salamandre.zitadel }}"
   register: zitadel_admin_user
   changed_when: zitadel_admin_user.status == 200
   notify:
@@ -129,7 +150,7 @@
 - name: Zitadel | Create test user
   when: env == 'dev'
   ansible.builtin.uri:
-    url: "{{ zitadel_internal_url }}/management/v1/users/human/_import"
+    url: "{{ zitadel_internal_url }}/v2/users/human"
     method: POST
     headers:
       Host: "{{ apps_zitadel.domain_name }}"
@@ -139,14 +160,15 @@
       - 409
     body_format: json
     body:
-      userName: test
+      username: test
       profile:
-        firstName: test
-        lastName: test
+        givenName: test
+        familyName: test
       email:
         email: "test@{{ domain_name }}"
-        isEmailVerified: true
-      password: "Test123!"
+        isVerified: true
+      password:
+        password: "Test123!"
   register: zitadel_test_user
   changed_when: zitadel_test_user.status == 200
   notify:
