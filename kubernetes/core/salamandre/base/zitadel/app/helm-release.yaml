@@ -70,6 +70,10 @@ spec:
         ServicePing:
           Enabled: false
 
+    login:
+      ingress:
+        enabled: true
+
     annotations:
       reloader.stakater.com/auto: "true"
 
