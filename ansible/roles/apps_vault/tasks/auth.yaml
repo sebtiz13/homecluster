@@ -18,7 +18,7 @@
 
 - name: Vault | Generate child token
   vars:
-    vault_file: "{{ lookup('ansible.builtin.file', credentials_folder + '/vault.json') }}"
+    vault_file: "{{ lookup('ansible.builtin.file', credentials_folder + '/vault.json') | from_json }}"
   ansible.builtin.uri:
     url: "{{ vault_api_url }}/auth/token/create"
     method: POST
