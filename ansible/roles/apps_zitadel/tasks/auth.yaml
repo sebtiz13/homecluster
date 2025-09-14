@@ -33,10 +33,11 @@
     namespace: "{{ apps_zitadel.namespace }}"
     wait: true
   register: zitadel_console_key
+  failed_when: (zitadel_console_key.resources | length) == 0
 - name: Zitadel | Generate console JWT token
   delegate_to: localhost
   vars:
-    key: "{{ zitadel_console_key.resources.0.data[apps_zitadel.release_name + '-console-sa.json'] | b64decode }}"
+    key: "{{ zitadel_console_key.resources.0.data[apps_zitadel.release_name + '-console-sa.json'] | b64decode | from_json }}"
     payload:
       iss: "{{ key.userId }}"
       sub: "{{ key.userId }}"
