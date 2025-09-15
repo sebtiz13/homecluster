@@ -5,3 +5,4 @@ namespace: database
 resources:
   - helm-repository.yaml
   - helm-release.yaml
+  - plugin-barman # FIX: manually deploy until https://github.com/cloudnative-pg/charts/pull/598

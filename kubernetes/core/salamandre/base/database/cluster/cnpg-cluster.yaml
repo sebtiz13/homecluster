@@ -37,24 +37,14 @@ spec:
       labels:
         backup/managed: "true"
 
-    barmanObjectStore: &barmanObjectStore
-      data:
-        compression: bzip2
-      wal:
-        compression: bzip2
-        maxParallel: 8
-      destinationPath: s3://backup-salamandre-pg/
-      endpointURL: https://baku.${DOMAIN_NAME}:3882
+  plugins:
+  - name: barman-cloud.cloudnative-pg.io
+    isWALArchiver: true
+    parameters:
+      barmanObjectName: &barmanObjectName baku-s3
       # Note: serverName version needs to be incremented
       # when recovering from an existing cnpg cluster
       serverName:  &currentCluster postgres16-v1
-      s3Credentials:
-        accessKeyId:
-          name: cnpg-s3-credentials
-          key: S3_ACCESS_KEY
-        secretAccessKey:
-          name: cnpg-s3-credentials
-          key: S3_SECRET_KEY
 
   # Note: previousCluster needs to be set to the name of the previous
   # cluster when recovering from an existing cnpg cluster
@@ -63,7 +53,9 @@ spec:
   #     source: &previousCluster postgres16-v0
   # # Note: externalClusters is needed when recovering from an existing cnpg cluster
   # externalClusters:
-  #   - name: *previousCluster
-  #     barmanObjectStore:
-  #       <<: *barmanObjectStore
+  # - name: *previousCluster
+  #   plugin:
+  #     name: barman-cloud.cloudnative-pg.io
+  #     parameters:
+  #       barmanObjectName: *barmanObjectName
   #       serverName: *previousCluster

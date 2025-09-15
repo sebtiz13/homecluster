@@ -1,0 +1,6 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: plugin-barman-cloud-selfsigned-issuer
+spec:
+  selfSigned: {}
