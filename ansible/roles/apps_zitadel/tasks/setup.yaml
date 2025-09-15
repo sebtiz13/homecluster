@@ -143,6 +143,7 @@
   register: zitadel_admin_user
   changed_when: zitadel_admin_user.status == 200
   notify:
+    - Add instance permission to admin user
     - Add organization permission to admin user
     - Add developer project permission to admin user
     - Add public project permission to admin user

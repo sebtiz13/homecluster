@@ -66,6 +66,23 @@
 ##
 # Handlers for users
 ##
+- name: Add instance permission to admin user
+  ansible.builtin.uri:
+    url: "{{ zitadel_internal_url }}/zitadel.internal_permission.v2beta.InternalPermissionService/CreateAdministrator"
+    method: POST
+    headers:
+      Host: "{{ apps_zitadel.domain_name }}"
+      Authorization: "Bearer {{ zitadel_console_token }}"
+      Connect-Protocol-Version: 1
+    status_code: 200
+    return_content: true
+    body_format: json
+    body:
+      userId: "{{ zitadel_admin_user.json.userId }}"
+      resource:
+        instance: true
+      roles:
+        - IAM_OWNER
 - name: Add organization permission to admin user
   ansible.builtin.uri:
     url: "{{ zitadel_internal_url }}/management/v1/orgs/me/members"
