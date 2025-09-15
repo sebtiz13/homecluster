@@ -5,7 +5,7 @@
     updatable: false
     path: salamandre/data/zitadel/masterkey
     data:
-      value: "{{ lookup('file', credentials_folder + '/zitadel_masterkey') }}"
+      value: "{{ lookup('ansible.builtin.file', credentials_folder + '/zitadel_masterkey') }}"
 - name: Create database access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
     name: database_access

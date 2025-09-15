@@ -4,5 +4,5 @@ metadata:
   name: vm-ca-tls
 type: kubernetes.io/tls
 data:
-  tls.crt: "{{ lookup('file', ca.cert) | b64encode }}"
-  tls.key: "{{ lookup('file', ca.key) | b64encode }}"
+  tls.crt: "{{ lookup('ansible.builtin.file', ca.cert) | b64encode }}"
+  tls.key: "{{ lookup('ansible.builtin.file', ca.key) | b64encode }}"

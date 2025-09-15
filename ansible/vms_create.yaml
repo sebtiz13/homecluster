@@ -12,7 +12,7 @@
       community.libvirt.virt_net:
         command: define
         name: "{{ vms.network.name }}"
-        xml: "{{ lookup('template', 'vms/net-template.xml.j2') }}"
+        xml: "{{ lookup('ansible.builtin.template', 'vms/net-template.xml.j2') }}"
     - name: Ensure network is started
       community.libvirt.virt_net:
         command: start
@@ -30,7 +30,7 @@
           community.libvirt.virt_pool:
             command: define
             name: "{{ vms.pool.name }}"
-            xml: "{{ lookup('template', 'vms/pool-template.xml.j2') }}"
+            xml: "{{ lookup('ansible.builtin.template', 'vms/pool-template.xml.j2') }}"
         - name: Build a the storage pool
           community.libvirt.virt_pool:
             command: build
@@ -62,7 +62,7 @@
         vcpus: "{{ item.vcpus }}"
         ram_mb: "{{ item.memory }}"
         ssh_user: "{{ ansible_user }}"
-        ssh_key: "{{ lookup('file', vms.ssh_pub_key) }}"
+        ssh_key: "{{ lookup('ansible.builtin.file', vms.ssh_pub_key) }}"
         nic_name: "{{ vms.network.name }}"
         nic_address: "{{ item.ip }}"
         nic_gateway: "{{ vms.network.gateway }}"

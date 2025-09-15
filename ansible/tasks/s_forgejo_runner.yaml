@@ -26,4 +26,4 @@
     command: >-
       forgejo forgejo-cli actions register
       --name 'default'
-      --secret '{{ lookup('file', credentials_folder + '/forgejo_runner_token') }}'
+      --secret '{{ lookup('ansible.builtin.file', credentials_folder + '/forgejo_runner_token') }}'

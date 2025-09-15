@@ -34,7 +34,7 @@
         ci_metadata: "{{ kvm_tmpdir.path }}/meta-data"
         ci_network_config: "{{ kvm_tmpdir.path }}/network-config"
         ci_user_data: "{{ kvm_tmpdir.path }}/user-data"
-      ansible.builtin.command: "{{ lookup('template', 'command.sh.j2') }}"
+      ansible.builtin.command: "{{ lookup('ansible.builtin.template', 'command.sh.j2') }}"
       register: kvm_define
       changed_when: kvm_define.rc == 0
 

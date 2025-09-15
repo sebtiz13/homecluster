@@ -62,7 +62,7 @@
       X-Vault-Token: "{{ vault_root_token }}"
     body:
       oidc_discovery_url: "{{ external_urls.zitadel }}"
-      oidc_discovery_ca_pem: "{{ lookup('file', ca.cert) }}"
+      oidc_discovery_ca_pem: "{{ lookup('ansible.builtin.file', ca.cert) }}"
       oidc_client_id: "{{ oidc.client_id }}"
       oidc_client_secret: "{{ oidc.client_secret }}"
       default_role: reader

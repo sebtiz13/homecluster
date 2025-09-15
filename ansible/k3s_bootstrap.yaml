@@ -21,7 +21,7 @@
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ local_kubeconfig }}"
-        resource_definition: "{{ lookup('file', flux.manifest) }}"
+        resource_definition: "{{ lookup('ansible.builtin.file', flux.manifest) }}"
         wait: true
 
     - name: Flux | Store variables

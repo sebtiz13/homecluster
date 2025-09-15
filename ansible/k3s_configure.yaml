@@ -56,7 +56,7 @@
       tags: vault
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       vars:
-        kubeconfig: "{{ lookup('file', hostvars.baku.local_kubeconfig) | from_yaml }}"
+        kubeconfig: "{{ lookup('ansible.builtin.file', hostvars.baku.local_kubeconfig) | from_yaml }}"
         vault_jwt: "{{ hostvars.baku.vault_jwt }}"
       ansible.builtin.uri:
         url: "{{ vault_api_url }}/auth/baku-cluster/config"
