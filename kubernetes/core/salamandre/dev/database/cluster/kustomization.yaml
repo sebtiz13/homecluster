@@ -8,15 +8,10 @@ resources:
 patches:
   - patch: |-
       - op: add
-        path: /spec/backup/barmanObjectStore/endpointCA
+        path: /spec/configuration/endpointCA
         value:
           name: vm-ca-tls
           key: tls.crt
-      # - op: add
-      #   path: /spec/externalClusters/0/barmanObjectStore/endpointCA
-      #   value:
-      #     name: vm-ca-tls
-      #     key: tls.crt
     target:
-      kind: Cluster
-      name: postgres16
+      kind: ObjectStore
+      name: baku-s3

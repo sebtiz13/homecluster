@@ -5,3 +5,6 @@ namespace: flux-system
 resources:
   - source.yaml
   - crds.yaml
+  # CRD for barman plugin
+  # renovate: datasource=docker depName=cloudnative-pg/plugin-barman-cloud
+  - https://raw.githubusercontent.com/cloudnative-pg/plugin-barman-cloud/refs/tags/v0.6.0/config/crd/bases/barmancloud.cnpg.io_objectstores.yaml
