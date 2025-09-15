@@ -28,12 +28,12 @@
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ local_kubeconfig }}"
-        template: flux_vars.yaml.j2
+        definition: "{{ lookup('ansible.builtin.template', 'flux_vars.yaml.j2') | from_yaml }}"
     - name: Flux | Store discord webhook for alerts
       delegate_to: localhost
       kubernetes.core.k8s:
         kubeconfig: "{{ local_kubeconfig }}"
-        template: flux_alert.yaml.j2
+        definition: "{{ lookup('ansible.builtin.template', 'flux_alert.yaml.j2') | from_yaml }}"
 
     - name: Flux | Deploy bootstrap manifests # noqa: jinja[invalid]
       delegate_to: localhost
@@ -50,7 +50,7 @@
     - kubernetes
     - cert-manager
   vars:
-    namespace: cert-manager
+    cm_namespace: cert-manager
   tasks:
     - name: Cert-manager | Create namespace
       when: env == 'dev'
@@ -58,7 +58,7 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ local_kubeconfig }}"
         kind: Namespace
-        name: "{{ namespace }}"
+        name: "{{ cm_namespace }}"
 
     - name: Cert-manager | Deploy VM CA
       when: env == 'dev'
@@ -66,7 +66,7 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ local_kubeconfig }}"
         template: ca_tls.yaml.j2
-        namespace: "{{ namespace }}"
+        namespace: "{{ cm_namespace }}"
 
 - name: Deploy VM CA (dev)
   hosts: baku

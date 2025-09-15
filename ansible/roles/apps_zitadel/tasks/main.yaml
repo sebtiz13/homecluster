@@ -46,12 +46,12 @@
   when: zitadel_resync is changed and (server.resources | length) > 0
   delegate_to: "{{ inventory_hostname }}"
   vars:
-    namespace: "{{ apps_zitadel.namespace }}"
+    ns_name: "{{ apps_zitadel.namespace }}"
     dep_name: "{{ apps_zitadel.release_name }}"
   ansible.builtin.shell: |
-    kubectl rollout restart deployment --namespace '{{ namespace }}' \
+    kubectl rollout restart deployment --namespace '{{ ns_name }}' \
     '{{ dep_name }}' && \
-    kubectl rollout status deployment --namespace '{{ namespace }}' \
+    kubectl rollout status deployment --namespace '{{ ns_name }}' \
     '{{ dep_name }}'
   changed_when: false
 
