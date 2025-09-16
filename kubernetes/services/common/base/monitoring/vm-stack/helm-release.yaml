@@ -36,9 +36,6 @@ spec:
 
     victoria-metrics-operator:
       fullnameOverride: victoria-metrics-operator
-      image:
-        repository: victoriametrics/operator
-        tag: v0.63.0
 
       operator:
         enable_converter_ownership: true
