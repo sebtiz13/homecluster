@@ -1,11 +1,11 @@
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMServiceScrape
 metadata:
-  name: grafana
+  name: &name grafana
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: grafana
-      app.kubernetes.io/instance: monitoring
+      app.kubernetes.io/name: *name
+      app.kubernetes.io/instance: *name
   endpoints:
-    - port: http
+    - port: service
