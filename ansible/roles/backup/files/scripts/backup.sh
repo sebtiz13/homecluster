@@ -92,7 +92,7 @@ function backup:pruneLogs() {
   mapfile -t oldFiles < <(find "${LOG_DIR}" -maxdepth 1 -type f -name "cron-*.log")
   for file in "${oldFiles[@]}"
   do
-    date=$(basename "$file" | sed -n 's/^cron-\(\S*\)_.*$/\1/p') # Extact week from "cron-%U_%Y-%m-%d"
+    date=$(basename "$file" | sed -n 's/^cron-\(\S*\)_.*$/\1/p') # Extract week from "cron-%U_%Y-%m-%d"
 
     if [ -f "$file" ] && [ "$_LOGS_KEEP_WEEKTIME" -ge "$date" ]; then
       rm "$file" > /dev/null
@@ -173,7 +173,7 @@ function backup:pruneSnapshots() {
       done
 
       if kubectl delete vs -n "$1" "$name" > /dev/null; then
-        log "backup:pruneSnapshots" "Expired cnapshot $name for pvc ${1}/$2 as been deleted"
+        log "backup:pruneSnapshots" "Expired snapshot $name for pvc ${1}/$2 as been deleted"
       else
         log "backup:pruneSnapshots" "ERROR: Failed to delete snapshot $name for pvc ${1}/$2"
       fi
@@ -266,7 +266,7 @@ function backup:zfsExport() {
   zfs send "${sendArgs[@]}" "$snapshotName" | gzip > "$filepath"
 
   elapsedTime=$(($(date +%s) - elapsedTime))
-  log "backup:zfsExport" "Snapshot $3 as been sended to \"$filepath\" in aprox $elapsedTime seconds"
+  log "backup:zfsExport" "Snapshot $3 as been sended to \"$filepath\" in approx $elapsedTime seconds"
 }
 
 # Dump database to an ".sql.gz" file
@@ -280,7 +280,7 @@ function backup:dbDump() {
   kubectl exec -n "${DATABASE_NAMESPACE}" "${DATABASE_POD_NAME}" -c postgres -- pg_dumpall | gzip > "$filepath"
 
   elapsedTime=$(($(date +%s) - elapsedTime))
-  log "backup:dbDump" "Database as been dumped to \"$filepath\" in aprox $elapsedTime seconds"
+  log "backup:dbDump" "Database as been dumped to \"$filepath\" in approx $elapsedTime seconds"
 }
 
 ###
