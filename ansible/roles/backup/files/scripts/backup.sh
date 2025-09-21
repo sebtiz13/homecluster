@@ -87,6 +87,7 @@ function wait_for_zfsSnapshot() {
 function backup:pruneLogs() {
   local count
   local file
+  local date
   count=0
 
   mapfile -t oldFiles < <(find "${LOG_DIR}" -maxdepth 1 -type f -name "cron-*.log")
@@ -108,6 +109,7 @@ function backup:pruneLogs() {
 function backup:pruneDBFiles() {
   local count
   local file
+  local date
   count=0
 
   mapfile -t files < <(find "${BACKUP_DIR}/db" -maxdepth 1 -type f -name "$DATABASE_CLUSTER_NAME-*.sql.gz")
@@ -130,6 +132,7 @@ function backup:pruneDBFiles() {
 function backup:pruneSnapshotFiles() {
   local count
   local file
+  local date
   count=0
 
   mapfile -t files < <(find "${BACKUP_DIR}/pvc" -maxdepth 2 -type f -name "*.zvol.gz")
@@ -151,8 +154,9 @@ function backup:pruneSnapshotFiles() {
 # Prune snapshot (VolumeSnapshot kubernetes resources and ".zvol.gz")
 # usage: backup:pruneSnapshots "namespace" "pvcName"
 function backup:pruneSnapshots() {
-  local file
   local name
+  local date
+  local file
 
   # List snapshots
   # shellcheck disable=SC2068
@@ -188,6 +192,7 @@ function backup:pruneSnapshots() {
 # - $vlSnapshotUid: snapshot uid
 function backup:snapshot() {
   local processType
+  local tmp
   vlSnapshotName="${2}-$CURRENT_DATETIME"
   vlSnapshotUid=$(kubectl get vs --ignore-not-found -o jsonpath='{.metadata.uid}' -n "$1" "$vlSnapshotName")
 
