@@ -34,6 +34,7 @@ CURRENT_DATETIME=$(date $DATETIME_FORMAT)
 YESTERDAY_DATETIME=$(date -d "yesterday" $DATETIME_FORMAT)
 _LOGS_KEEP_WEEKTIME=$(date -d "last-sunday - $LOGS_KEEP_WEEKS week" +%U)
 _FILES_KEEP_DATETIME=$(date -d "last-sunday - $FILES_KEEP_WEEKS week" $DATETIME_FORMAT)
+FILES_DATE_REGEX="s/.*\([0-9]\{14\}\).*/\1/p"
 
 ZFS_SNAPSHOTS=$(zfs list -t snapshot -o name -H)
 
@@ -109,10 +110,10 @@ function backup:pruneDBFiles() {
   local file
   count=0
 
-  mapfile -t files < <(find "${BACKUP_DIR}/db" -maxdepth 1 -type f -name "*.sql.gz")
+  mapfile -t files < <(find "${BACKUP_DIR}/db" -maxdepth 1 -type f -name "$DATABASE_CLUSTER_NAME-*.sql.gz")
   for file in "${files[@]}"
   do
-    date=$(basename "$file" | sed -n "s/^$DATABASE_CLUSTER_NAME-\([[:digit:]]\+\)\..*$/\1/p") # Extact week from "$DATABASE_CLUSTER_NAME-$DATETIME_FORMAT"
+    date=$(basename "$file" | sed -n "$FILES_DATE_REGEX") # Extract date from filename
 
     if [ -f "$file" ] && [ "$_FILES_KEEP_DATETIME" -ge "$date" ]; then
       rm "$file" > /dev/null
@@ -123,6 +124,28 @@ function backup:pruneDBFiles() {
 
   # Say if have no old files
   [[ "$count" -eq 0 ]] && log "backup:pruneDBFiles" "No files need to be deleted"
+}
+# Prune snapshot files (".zvol.gz")
+# WARNING: This is only for debug clean propose
+function backup:pruneSnapshotFiles() {
+  local count
+  local file
+  count=0
+
+  mapfile -t files < <(find "${BACKUP_DIR}/pvc" -maxdepth 2 -type f -name "*.zvol.gz")
+  for file in "${files[@]}"
+  do
+    date=$(basename "$file" | sed -n "$FILES_DATE_REGEX") # Extract date from filename
+
+    if [ -f "$file" ] && [ "$_FILES_KEEP_DATETIME" -ge "$date" ]; then
+      rm "$file" > /dev/null
+      log "backup:pruneSnapshotFiles" "File \"$file\" as been deleted"
+      count=$((count + 1))
+    fi
+  done
+
+  # Say if have no old files
+  [[ "$count" -eq 0 ]] && log "backup:pruneSnapshotFiles" "No files need to be deleted"
 }
 
 # Prune snapshot (VolumeSnapshot kubernetes resources and ".zvol.gz")
@@ -141,11 +164,13 @@ function backup:pruneSnapshots() {
 
     # Delete if they older then wanted date
     if [ "$_FILES_KEEP_DATETIME" -ge "$date" ]; then
-      file="${BACKUP_DIR}/pvc/$1/$name-*.zvol.gz"
-      if [ -f "$file" ]; then
-        rm "$file" > /dev/null
-        log "backup:pruneSnapshots" "File \"$file\" as been deleted"
-      fi
+      # Delete export file
+      for file in "${BACKUP_DIR}/pvc/$1/$name"-*.zvol.gz; do
+        if [ -e "$file" ]; then
+          rm "$file" > /dev/null
+          log "backup:pruneSnapshots" "File \"$file\" as been deleted"
+        fi
+      done
 
       if kubectl delete vs -n "$1" "$name" > /dev/null; then
         log "backup:pruneSnapshots" "Expired cnapshot $name for pvc ${1}/$2 as been deleted"
@@ -266,11 +291,12 @@ echo "-- Start backup --"
 mkdir -p "${BACKUP_DIR}/pvc"
 mkdir -p "${BACKUP_DIR}/db"
 
-# Clean old logs
+# Clean old files
 if [ -n "$IS_CRON_RUN" ]; then
-  echo "-- Clean old backup logs --"
+  echo "-- Clean old backup files --"
   backup:pruneLogs
   backup:pruneDBFiles
+  # backup:pruneSnapshotFiles # This is only for cleanup when script bug
 fi
 
 echo "-- Backup PVC --"
