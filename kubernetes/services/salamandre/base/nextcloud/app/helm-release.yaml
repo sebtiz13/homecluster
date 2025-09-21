@@ -277,10 +277,10 @@ spec:
       resources:
         requests:
           cpu: 5m
-          memory: 16Mi
+          memory: 32Mi
         limits:
-          cpu: 200m
-          memory: 384Mi
+          cpu: 1
+          memory: 1024Mi
 
     collabora:
       enabled: true
