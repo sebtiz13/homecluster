@@ -51,8 +51,13 @@ fi
 # Functions
 ###
 # usage: log "function" "message"
+# usage: log "message"
 function log() {
-  echo "[$1] $2"
+  if [ -z "$1" ]; then
+    echo "$2"
+  else
+    echo "[$1] $2"
+  fi
 }
 
 function checkSnapshot() {
@@ -292,21 +297,22 @@ function backup:dbDump() {
 # Backup script
 ###
 # Create backups directories
-echo "-- Start backup --"
+log "-- Start backup --"
+log "Create folders..."
 mkdir -p "${BACKUP_DIR}/pvc"
 mkdir -p "${BACKUP_DIR}/db"
 
 # Clean old files
 if [ -n "$IS_CRON_RUN" ]; then
-  echo "-- Clean old backup files --"
+  log "-- Clean old backup files --"
   backup:pruneLogs
   backup:pruneDBFiles
   # backup:pruneSnapshotFiles # This is only for cleanup when script bug
 fi
 
-echo "-- Backup PVC --"
+log "-- Backup PVC --"
 # List volumes claim want backup
-log "_" "List volumes"
+log "Listing volumes..."
 
 # Dump zfs volumes
 for line in $(kubectl get pvc -A -o jsonpath="{range .items[${PVC_CONDITION}]}${PVC_OUTPUT_NAME}{\"\n\"}{end}")
@@ -325,11 +331,11 @@ do
 done
 
 if [ -n "$DATABASE_NEED_DUMP" ]; then
-  echo "-- Dump database --"
+  log "-- Dump database --"
   backup:dbDump
 fi
 
-echo "-- Sync backup to minio --"
+log "-- Sync backup to minio --"
 "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/pvc" "${BACKUP_PVC_BUCKET}"
 if [ -n "$DATABASE_NEED_DUMP" ]; then
   "${EXEC_DIR}/mc" --config-dir "${EXEC_DIR}/.mc" mirror "${BACKUP_DIR}/db" "${BACKUP_DB_BUCKET}/dump"
@@ -337,4 +343,4 @@ fi
 
 END_TIME=$(date +%s)
 ELAPSED_TIME=$(date -d@$((END_TIME - START_TIME)) -u +%H:%M:%S)
-echo "-- End cluster backup. Elapsed Time: $ELAPSED_TIME --"
+log "-- End cluster backup. Elapsed Time: $ELAPSED_TIME --"
