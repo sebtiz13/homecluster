@@ -16,3 +16,4 @@
 - [Backup & Restore](./references/backup-restore.md)
 - [Storage](./references/storage.md)
 - [Updates](./references/updates.md)
+- [Troubleshooting](./references/troubleshooting.md)
