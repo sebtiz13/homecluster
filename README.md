@@ -54,7 +54,7 @@ services in our home cluster.
 
 ## Get started
 
-- [Try it out locally](./docs/development-sandbox.md) without any hardware
+- [Try it out locally](./docs/install/development-sandbox.md) without any hardware
 - [Deploy to real hardware](./docs/production/) for production workload
 
 ## Roadmap
