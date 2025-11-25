@@ -1,12 +1,14 @@
 #!/bin/bash
-if ! command -v pwgen  &> /dev/null; then
-  echo "You should install pwgen to generate credentials"
-  exit 1
-fi
-if ! command -v yq  &> /dev/null; then
-  echo "You should install yq to generate credentials"
-  exit 1
-fi
+check_command() {
+  if ! command -v "$1" &> /dev/null; then
+    echo "You should install $1 to generate credentials"
+    exit 1
+  fi
+}
+
+check_command pwgen
+check_command openssl
+check_command yq
 
 ENVIRONMENT=${ENVIRONMENT:-production}
 if [ "$ENVIRONMENT" != "dev" ] && [ "$ENVIRONMENT" != "production" ]; then
@@ -20,6 +22,8 @@ randpw () {
 }
 
 insert_value() {
+  # Create file if not exist because from v4 yq don't create it
+  [[ -f $1 ]] || touch $1
   if [[ "$(yq "$2" "$1")" = "null" ]]; then
     yq -i "$2 = \"$3\"" "$1"
   fi
@@ -31,8 +35,6 @@ mkdir -p "./out/credentials/${ENVIRONMENT}"
 # Admin passwords
 ##
 FILE="./out/credentials/${ENVIRONMENT}/admin_passwords.yaml"
-touch "$FILE"
-
 # Salamandre credentials
 insert_value "$FILE" .salamandre.zitadel "$(randpw 16)"
 insert_value "$FILE" .salamandre.nextcloud "$(randpw 16)"
