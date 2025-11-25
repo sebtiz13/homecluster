@@ -19,7 +19,11 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 ### Install the following packages
 
 - [Make](https://www.gnu.org/software/make/)
+- [openSSL](https://www.openssl.org/)
+- [mkcert](https://github.com/FiloSottile/mkcert)
 - [python](https://www.python.org/)
+- [Qemu](https://www.qemu.org/)
+- [Libvirt](https://libvirt.org/)
 - [jq](https://stedolan.github.io/jq/)
 - [yq](https://github.com/mikefarah/yq/)
 - [argon2](https://github.com/P-H-C/phc-winner-argon2)
