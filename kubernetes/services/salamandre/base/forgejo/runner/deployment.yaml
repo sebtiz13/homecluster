@@ -53,7 +53,7 @@ spec:
             - name: FORGEJO_INSTANCE_URL
               value: &host http://forgejo-http.forgejo.svc.cluster.local:3000
         - name: runner-config-generation
-          image: code.forgejo.org/forgejo/runner:11.0.0
+          image: code.forgejo.org/forgejo/runner:11.3.1
           imagePullPolicy: &imagePolicy IfNotPresent
           command:
             - forgejo-runner
@@ -81,7 +81,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: runner
-          image: code.forgejo.org/forgejo/runner:11.0.0
+          image: code.forgejo.org/forgejo/runner:11.3.1
           imagePullPolicy: *imagePolicy
           command:
             - sh
@@ -117,7 +117,7 @@ spec:
               subPath: "config.yaml"
         - name: daemon
           # renovate: datasource=docker image=docker
-          image: docker:28.4.0-dind
+          image: docker:28.5.2-dind
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs
