@@ -1,4 +1,4 @@
-ansible>=12,<12.3
+ansible>=13,<13.1
 ansible-lint>=25.11,<25.12
 lxml>=6,<6.1
 libvirt-python>=11,<11.10
