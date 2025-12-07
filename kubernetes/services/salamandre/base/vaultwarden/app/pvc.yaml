@@ -5,6 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: *name
     app.kubernetes.io/instance: *name
+    backup.local/enabled: true
 spec:
   storageClassName: openebs-zfspv
   accessModes:

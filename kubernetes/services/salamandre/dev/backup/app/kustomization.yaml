@@ -1,0 +1,15 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: backup
+resources:
+  - ../../../base/backup/app
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/suspend
+        value: true
+    target:
+      kind: CronJob
+      name: zfs-s3-backup
+      namespace: backup

@@ -96,6 +96,8 @@ spec:
       enabled: true
       storageClass: openebs-zfspv
       size: 10Gi
+      labels:
+        backup.local/enabled: true
 
     # Disable not necessary apps
     redis-cluster:
