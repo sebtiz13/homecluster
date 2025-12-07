@@ -27,6 +27,7 @@
         "kubernetes-validate",
         "k3s-io/k3s",
         "alpine/k8s",
+        "kubernetes/kubernetes",
       ],
       groupName: "kubernetes",
       group: {
