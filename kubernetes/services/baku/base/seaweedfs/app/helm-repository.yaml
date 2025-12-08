@@ -3,7 +3,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: minio
+  name: seaweedfs
 spec:
   interval: 24h
-  url: https://charts.min.io/
+  url: https://seaweedfs.github.io/seaweedfs/helm

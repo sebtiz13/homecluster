@@ -1,0 +1,18 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: seaweedfs
+spec:
+  values:
+    allInOne:
+      data:
+        size: 10Gi
+
+      # Reduce resources for dev
+      resources:
+        limits:
+          cpu: "1"
+          memory: "1Gi"
+        requests:
+          cpu: "250m"
+          memory: "512Mi"

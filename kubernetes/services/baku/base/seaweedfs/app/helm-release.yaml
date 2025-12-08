@@ -1,0 +1,68 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &name seaweedfs
+spec:
+  releaseName: *name
+  interval: 1h
+  chart:
+    spec:
+      chart: seaweedfs
+      version: "4.0.402"
+      sourceRef:
+        kind: HelmRepository
+        name: seaweedfs
+  install:
+    createNamespace: true
+  values:
+    global:
+      monitoring:
+        enabled: false # configured manually if needed, or check minio logic
+
+    allInOne:
+      enabled: true
+      replicas: 1  # Number of replicas (note: multiple replicas may require shared storage)
+
+      s3:
+        enabled: true
+        domainName: &host baku.${DOMAIN_NAME}
+        port: 3882
+
+      resources:
+        limits:
+          cpu: "1"
+          memory: "1Gi"
+        requests:
+          cpu: "250m"
+          memory: "512Mi"
+
+      data:
+        type: "persistentVolumeClaim"
+        storageClass: openebs-zfspv
+        # size: 500Gi
+        size: 10Gi
+
+    admin:
+      enabled: true
+      secret:
+        existingSecret: "seaweedfs-admin-secret"
+        userKey: "adminUser"
+        pwKey: "adminPassword"
+
+      masters: "seaweedfs.$(RUNTIME_NAMESPACE).svc.cluster.local.:9333"
+
+      ingress:
+        enabled: true
+        className: "traefik"
+        host: *host
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+
+    master:
+      enabled: false
+    volume:
+      enabled: false
+    filer:
+      enabled: false

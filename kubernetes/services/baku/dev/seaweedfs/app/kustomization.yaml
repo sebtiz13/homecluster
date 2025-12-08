@@ -1,12 +1,12 @@
 # vscode-kubernetes-tools: exclude
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: minio
+namespace: seaweedfs
 resources:
-  - ../../../base/minio/app
+  - ../../../base/seaweedfs/app
 patches:
   - path: helm-release-patch.yaml
     target:
       kind: HelmRelease
-      name: minio
-      namespace: minio
+      name: seaweedfs
+      namespace: seaweedfs
