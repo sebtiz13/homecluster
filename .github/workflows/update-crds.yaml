@@ -1,0 +1,49 @@
+name: Update CRDs
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'kubernetes/crds/**/*.crd.yaml'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  update-crds:
+    if: github.actor == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Execute CRD Update Script
+        id: update
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -- 'kubernetes/crds/**/*.crd.yaml')
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "::notice:: No file changed."
+            echo "updated=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          chmod +x ./scripts/update-crds.sh
+          ./scripts/update-crds.sh $CHANGED_FILES
+          echo "updated=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push Changes
+        if: success() && steps.update.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add 'kubernetes/crds/**/*.crd.yaml'
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(crds): Update local CRDs content"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          fi
