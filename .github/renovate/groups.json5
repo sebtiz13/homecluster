@@ -21,8 +21,13 @@
     },
     {
       description: ["Kubernetes Group"],
-      matchDatasources: ["pypi", "github-releases"],
-      matchDepNames: ["kubernetes", "kubernetes-validate", "k3s-io/k3s"],
+      matchDatasources: ["pypi", "github-releases", "docker"],
+      matchDepNames: [
+        "kubernetes",
+        "kubernetes-validate",
+        "k3s-io/k3s",
+        "alpine/k8s",
+      ],
       groupName: "kubernetes",
       group: {
         commitMessageTopic: "{{{groupName}}} group",
