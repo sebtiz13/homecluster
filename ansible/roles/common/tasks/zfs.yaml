@@ -1,12 +1,12 @@
 - name: Add contrib repository into sources list
   ansible.builtin.apt_repository:
-    repo: deb https://deb.debian.org/debian {{ ansible_distribution_release }} main contrib
+    repo: deb https://deb.debian.org/debian {{ ansible_facts['distribution_release'] }} main contrib
     state: present
     update_cache: true
 
 - name: Install linux-header needed to build ZFS module
   ansible.builtin.apt:
-    name: "linux-headers-{{ ansible_kernel }}"
+    name: "linux-headers-{{ ansible_facts['kernel'] }}"
     state: present
 
 - name: Install ZFS module
@@ -19,7 +19,7 @@
 
 - name: Enbable zfs module
   vars:
-    zfs_arc_max_bytes: "{{ (ansible_memtotal_mb * 1024 * 1024 * zfs_arc_percent / 100) | int }}"
+    zfs_arc_max_bytes: "{{ (ansible_facts['memtotal_mb'] * 1024 * 1024 * zfs_arc_percent / 100) | int }}"
   community.general.modprobe:
     name: zfs
     params: "zfs_arc_max={{ zfs_arc_max_bytes }}"

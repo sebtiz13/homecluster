@@ -5,7 +5,7 @@ vms:
   base_image:
     source: https://cdimage.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2
     name: "debian-12-generic-amd64.qcow2"
-  ssh_pub_key: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+  ssh_pub_key: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/id_rsa.pub"
   network:
     name: sebtiz13
     gateway: 192.168.12.1

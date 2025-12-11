@@ -9,8 +9,8 @@
 
 - name: Disable swap
   ansible.builtin.command: swapoff -a
-  when: ansible_swaptotal_mb > 0
-  changed_when: ansible_swaptotal_mb > 0
+  when: ansible_facts['swaptotal_mb'] > 0
+  changed_when: ansible_facts['swaptotal_mb'] > 0
 
 - name: Check if kubernetes is installed
   ansible.builtin.stat:

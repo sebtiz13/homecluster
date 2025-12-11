@@ -36,7 +36,7 @@
     definition:
       metadata:
         annotations:
-          force-sync: "{{ ansible_date_time.epoch }}"
+          force-sync: "{{ ansible_facts['date_time'].epoch }}"
   register: zitadel_resync
   loop:
     - zitadel-credentials
