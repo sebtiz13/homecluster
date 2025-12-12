@@ -23,7 +23,7 @@ spec:
         size: 2Gi
         storageClass: openebs-zfspv
         labels:
-          backup.local/enabled: true
+          backup.local/enabled: "true"
 
       ingress:
         enabled: true

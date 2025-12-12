@@ -7,7 +7,7 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:16.4
   inheritedMetadata:
     labels:
-      backup.local/enabled: true # Only used to flag PVC (it used to be saved on S3)
+      backup.local/enabled: "true" # Only used to flag PVC (it used to be saved on S3)
 
   storage:
     size: 5Gi
