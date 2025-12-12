@@ -1,5 +1,7 @@
 # Cluster backup/Restore
 
+> Currently, only **salamandre** can be backup on **baku**.
+
 ## Backup
 
 The salamandre cluster is automatically backup each day all PVCs marked with `backup.local/enabled: true` label.
@@ -11,7 +13,23 @@ The salamandre cluster is automatically backup each day all PVCs marked with `ba
 
 ### Manual backup
 
-The cron jobs is disabled on sandbox but it's can be run manually with following commands :
+The cron jobs / scheduled is disabled on sandbox but it's can be run manually with following commands :
+
+- Database PVC :
+
+  ```sh
+  cat <<EOF | kubectl apply -f -
+  apiVersion: postgresql.cnpg.io/v1
+  kind: Backup
+  metadata:
+    name: postgres16-1-$(date +%Y%m%d%H%M%S)
+    namespace: database
+  spec:
+    method: volumeSnapshot
+    cluster:
+      name: postgres16
+  EOF
+  ```
 
 - Kubernetes PVC: `kubectl create job backup-$(date +%Y%m%d%H%M%S) --from=cronjob/zfs-s3-backup -n backup`
 
