@@ -6,3 +6,4 @@ resources:
   - ../base/nextcloud
   - ../base/vaultwarden
   - ../base/forgejo
+  - ../base/backup

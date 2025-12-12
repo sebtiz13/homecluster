@@ -1,0 +1,13 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/backup
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/path
+        value: ./kubernetes/services/salamandre/dev/backup/app
+    target:
+      kind: Kustomization
+      name: backup
