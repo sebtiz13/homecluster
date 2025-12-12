@@ -41,7 +41,7 @@ send_notification() {
     "CRITICAL_FAILURE")
       title="❌ Backup failed"
       color=16711680 # Red
-      details="The script stopped unexpectedly. Reason : $details"
+      details="The script stopped unexpectedly.\nReason : $details"
       ;;
     *)
       return
@@ -49,7 +49,7 @@ send_notification() {
   esac
 
   local payload
-  payload=$(jq -n --arg TITLE "$title" --arg COLOR "$color" --arg DESCRIPTION "$details" \
+  payload=$(jq -nc --arg TITLE "$title" --arg COLOR "$color" --arg DESCRIPTION "$details" \
     '{
       "content": null,
       "embeds": [
@@ -61,12 +61,12 @@ send_notification() {
       ]
     }')
 
-  curl -s -X POST -H 'Content-type: application/json' --data "$payload" "$DISCORD_WEBHOOK_URL" > /dev/null
+  curl -s -X POST -H 'Content-type: application/json' --data "${payload//\\\\/\\}" "$DISCORD_WEBHOOK_URL" > /dev/null
 }
 # Handle critical error and send it to discord
 send_critical_notification() {
   local exit_code=$?
-  local details="The following command failed (Code $exit_code) :\n\`\`\`bash\n$BASH_COMMAND\n\`\`\`"
+  local details="The following command failed (Code $exit_code) :\n\n\`\`\`bash\n\n$BASH_COMMAND\n\n\`\`\`"
 
   # Clear trap to prevent infinite loop
   trap - ERR
@@ -118,20 +118,19 @@ wait_for_snapshot() {
   return 0
 }
 
-# Finds the name of the local ZFS snapshot created yesterday for this PVC.
-find_local_yesterday_ref() {
+# Fin snapshot by PVC and partial name
+# Usage: find_snapshot "namespace" "pvc_name" "name_prefix"
+find_snapshot() {
   local namespace=$1
   local pvc_name=$2
-  local yesterday_date_prefix
-  yesterday_date_prefix=$(date -d "yesterday" +%Y%m%d)
-  local target_prefix="${pvc_name}-${yesterday_date_prefix}"
+  local prefix=$3
 
-  # Find most recent Volumesnapshot with yesterday date
-  kubectl get volumesnapshots -n "$namespace" --field-selector spec.source.persistentVolumeClaimName="$pvc_name" -o json | \
-      jq -r --arg PREFIX "$target_prefix" '.items |
-          sort_by(.metadata.creationTimestamp) | .[] |
-          select(.metadata.name | startswith($PREFIX)) | .metadata.name' |
-      tail -n 1
+  kubectl get volumesnapshots -n "$namespace" -o json | \
+    jq -r --arg PVC "$pvc" --arg PREFIX "$prefix" '.items |
+      sort_by(.metadata.creationTimestamp) | .[] |
+      select(.spec.source.persistentVolumeClaimName == $PVC) |
+      select(.metadata.name | contains($PREFIX)) |.metadata.name' |
+    tail -n 1
 }
 
 # Checks if the snapshot reference (yesterday) exists on S3.
@@ -182,8 +181,10 @@ stream_to_s3() {
     s3_filename_suffix="-full"
     backup_message="full backup (Today is Full Backup Day)"
   else
+    local yesterday_date_prefix
+    yesterday_date_prefix=$(date -d "yesterday" +%Y%m%d)
     local local_yesterday_ref
-    local_yesterday_ref=$(find_local_yesterday_ref "$namespace" "$pvc_name")
+    local_yesterday_ref=$(find_snapshot "$namespace" "$pvc_name" "${pvc_name}-${yesterday_date_prefix}")
 
     if [ -n "$local_yesterday_ref" ]; then
       if check_s3_reference "$namespace" "$pvc_name" "$local_yesterday_ref"; then
@@ -263,47 +264,45 @@ TOTAL_PVC_COUNT=0
 
 # List all PVCs matching the storage class filter
 # The output format is: namespace pvc_name
-PVCS=$(kubectl get pvc -A -l ${BACKUP_ENABLED_LABEL} -o jsonpath="{range .items[?(@.spec.storageClassName=='${PVC_STORAGE_CLASS}')]}{.metadata.namespace} {.metadata.name}{\"\n\"}{end}")
-if [ -z "$PVCS" ]; then
+PVCS_LIST=$(kubectl get pvc -A -l ${BACKUP_ENABLED_LABEL} -o jsonpath="{range .items[?(@.spec.storageClassName=='${PVC_STORAGE_CLASS}')]}{.metadata.namespace} {.metadata.name}{\"\n\"}{end}")
+if [ -z "$PVCS_LIST" ]; then
   log "No PVCs found matching the filter. Exiting."
   exit 0
 fi
 
-TOTAL_PVC_COUNT=$(echo "$PVCS" | wc -l)
+readarray -t PVC_ARRAY <<< "$PVCS_LIST"
+TOTAL_PVC_COUNT=${#PVC_ARRAY[@]}
 log "Found $TOTAL_PVC_COUNT PVCs to process."
-echo "$PVCS" | while read -r namespace pvc; do
+for item in "${PVC_ARRAY[@]}"; do
+  read -r namespace pvc <<< "$item"
   log "--> Processing PVC: $namespace/$pvc"
 
-  # Find most recent snapshot if the hour
-  SNAP_NAME=$(kubectl get volumesnapshots -n "$namespace" --field-selector spec.source.persistentVolumeClaimName="$pvc" -o json | \
-    jq -r --arg PREFIX "$SNAPSHOT_HOUR_PREFIX" '.items |
-      sort_by(.metadata.creationTimestamp) | .[] |
-      select(.metadata.name | contains($PREFIX)) |.metadata.name' |
-    tail -n 1)
+  # Find most recent snapshot in the hour
+  SNAP_NAME=$(find_snapshot "$namespace" "$pvc_name" "$SNAPSHOT_HOUR_PREFIX")
   if [ -n "$SNAP_NAME" ]; then
     log "Found existing snapshot for hour: $SNAP_NAME. Skipping creation."
   else
     SNAP_NAME="${pvc}-${CURRENT_DATETIME}"
     if ! create_snapshot "$namespace" "$pvc" "$SNAP_NAME"; then
       GLOBAL_SUCCESS=0
-      FAILED_PVCs+="**$namespace/$pvc**: Failed on creating snapshot.\n"
+      FAILED_PVCs+="- **$namespace/$pvc**: Failed on creating snapshot.\n"
       continue
     fi
     if ! wait_for_snapshot "$namespace" "$SNAP_NAME"; then
       GLOBAL_SUCCESS=0
-      FAILED_PVCs+="**$namespace/$pvc**: Failed on waiting snapshot to be ready.\n"
+      FAILED_PVCs+="- **$namespace/$pvc**: Failed on waiting snapshot to be ready.\n"
       continue
     fi
   fi
 
   if ! stream_to_s3 "$namespace" "$SNAP_NAME" "$pvc"; then
     GLOBAL_SUCCESS=0
-    FAILED_PVCs+="**$namespace/$pvc**: Failed to send.\n"
+    FAILED_PVCs+="- **$namespace/$pvc**: Failed to send.\n"
   fi
   prune_snapshots "$namespace" "$pvc"
 done
 
-FAILED_PVC_COUNT=$(echo -n "$FAILED_PVCs" | grep -c 'Failed')
+FAILED_PVC_COUNT=$(echo -n "$FAILED_PVCs" | grep -c 'Failed' || true)
 log "--- Backup finished (Success: $((TOTAL_PVC_COUNT - FAILED_PVC_COUNT)), Failed: $FAILED_PVC_COUNT, Total: $TOTAL_PVC_COUNT) ---"
 
 # Clear trap to prevent infinite loop
@@ -313,7 +312,7 @@ if [ "$GLOBAL_SUCCESS" -eq 1 ]; then
   exit 0
 else
   # Send failed backup to discord
-  DETAILS="The job have encounter $FAILED_PVC_COUNT fail(s) on $TOTAL_PVC_COUNT PVCs.\n\nDetails:\n$FAILED_PVCs"
+  DETAILS="The job have encounter $FAILED_PVC_COUNT fail(s) on $TOTAL_PVC_COUNT PVCs.\n\nDetails:\n${FAILED_PVCs::-2}"
   send_notification "MANAGED_FAILURE" "$DETAILS"
 
   exit 1
