@@ -4,8 +4,11 @@ metadata:
   name: zfs-s3-backup
 spec:
   suspend: true
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      backoffLimit: 1
       template:
         spec:
           containers:
