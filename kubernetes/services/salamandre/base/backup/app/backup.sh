@@ -73,6 +73,7 @@ send_notification() {
 
   curl -s -X POST -H 'Content-type: application/json' --data "${payload//\\\\/\\}" "$DISCORD_WEBHOOK_URL" > /dev/null
 }
+# shellcheck disable=SC2329
 # Handle critical error and send it to discord
 send_critical_notification() {
   local exit_code=$?
@@ -87,7 +88,6 @@ send_critical_notification() {
 }
 # Activate error trap to send failure notification
 trap 'send_critical_notification' ERR
-
 
 # Check if date is valid with "YYYYMMDD" format.
 # Usage: validate_date_format "date"
