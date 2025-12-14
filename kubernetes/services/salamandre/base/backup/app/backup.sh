@@ -205,9 +205,9 @@ stream_to_s3() {
   fi
 
   # Define ZFS command and filename (choose between incremental and full backup)
-  local zfs_args=""
   local s3_filename_suffix=""
   local backup_message=""
+  local zfs_cmd=(zfs send)
 
   if [ "$(date -d "$TODAY_YMD" +%u)" -eq "$FULL_BACKUP_DAY" ]; then
     s3_filename_suffix="-full"
@@ -229,7 +229,7 @@ stream_to_s3() {
         full_zfs_ref=$(zfs list -t snapshot -H -o name 2>/dev/null | grep "$zfs_handle")
 
         if [ -n "$full_zfs_ref" ]; then
-          zfs_args="-i $full_zfs_ref"
+          zfs_cmd+=(-i "$full_zfs_ref")
           s3_filename_suffix="-incr"
           backup_message="incremental backup from $yesterday_ref_name"
         else
@@ -247,9 +247,10 @@ stream_to_s3() {
   fi
 
   # Send it to S3 in compressed format
+  zfs_cmd+=("$full_zfs_snap")
   local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol.gz"
   log "Starting ${backup_message}, then transfer it to S3 ($s3_full_path)."
-  if eval "zfs send $zfs_args $full_zfs_snap" | gzip -c | mc pipe "${S3_BUCKET_NAME}/${s3_full_path}"; then
+  if "${zfs_cmd[@]}" | gzip -c | mc pipe "${S3_BUCKET_NAME}/${s3_full_path}"; then
     log "Upload successful."
     return 0
   else
