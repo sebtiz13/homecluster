@@ -31,7 +31,7 @@ The cron jobs / scheduled is disabled on sandbox but it's can be run manually wi
   EOF
   ```
 
-- Kubernetes PVC: `kubectl create job backup-$(date +%Y%m%d%H%M%S) --from=cronjob/zfs-s3-backup -n backup`
+- Kubernetes PVC: `./scripts/manual-backup.sh` (for custom date : `./scripts/manual-backup.sh YYYYMMDD`)
 
 ## Restore
 

@@ -15,13 +15,23 @@ FULL_BACKUP_DAY=${FULL_BACKUP_DAY:-1} # 1 = Monday (ISO 8601)
 S3_BUCKET_NAME=${S3_BUCKET_NAME:-"backup"}
 KEEP_DAYS=${KEEP_DAYS:-3} # Keep snapshots during N days
 
-
-# --- Functions ---
+# --- End Variables ---
 
 # Logs a message with a timestamp
 log() {
   echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
+
+# Allow customizing the date (format YYYYMMDD)
+if [ -n "$MANUAL_DATE" ]; then
+  TODAY_YMD="$MANUAL_DATE"
+  log "INFO: Using MANUAL_DATE=$TODAY_YMD for all operations."
+else
+  TODAY_YMD=$(date +%Y%m%d)
+  log "INFO: Using CRON_DATE=$TODAY_YMD for all operations."
+fi
+
+# --- Functions ---
 
 # Send notification to discord
 send_notification() {
@@ -78,6 +88,29 @@ send_critical_notification() {
 # Activate error trap to send failure notification
 trap 'send_critical_notification' ERR
 
+
+# Check if date is valid with "YYYYMMDD" format.
+# Usage: validate_date_format "date"
+validate_date_format() {
+  local date_str="$1"
+
+  # Check if format is valid
+  local regex='^([0-9]{4})([0-9]{2})([0-9]{2})$'
+  if [[ ! "$date_str" =~ $regex ]]; then
+    return 1
+  fi
+
+  # Check if values is valid
+  local year="${BASH_REMATCH[1]}"
+  local month="${BASH_REMATCH[2]}"
+  local day="${BASH_REMATCH[3]}"
+  local canonical_date="${year}-${month}-${day}"
+  if ! date -d "$canonical_date" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  return 0
+}
 
 # Creates a VolumeSnapshot resource in Kubernetes.
 # Usage: create_snapshot "namespace" "pvc_name" "snapshot_name"
@@ -177,12 +210,12 @@ stream_to_s3() {
   local s3_filename_suffix=""
   local backup_message=""
 
-  if [ "$(date +%u)" -eq "$FULL_BACKUP_DAY" ]; then
+  if [ "$(date -d "$TODAY_YMD" +%u)" -eq "$FULL_BACKUP_DAY" ]; then
     s3_filename_suffix="-full"
     backup_message="full backup (Today is Full Backup Day)"
   else
     local yesterday_date_prefix
-    yesterday_date_prefix=$(date -d "yesterday" +%Y%m%d)
+    yesterday_date_prefix=$(date -d "$TODAY_YMD yesterday" +%Y%m%d)
     local local_yesterday_ref
     local_yesterday_ref=$(find_snapshot "$namespace" "$pvc_name" "${pvc_name}-${yesterday_date_prefix}")
 
@@ -230,7 +263,7 @@ prune_snapshots() {
   log "Applying retention policy for $namespace/$pvc_name: deleting snapshots older than $KEEP_DAYS days."
 
   local cutoff_timestamp
-  cutoff_timestamp=$(date -d "${KEEP_DAYS} days ago" +%s)
+  cutoff_timestamp=$(date -d "$TODAY_YMD -${KEEP_DAYS} days" +%s)
 
   # Find candidates for deletion (older than KEEP_DAYS)
   # shellcheck disable=SC2086
@@ -256,8 +289,14 @@ if [ -z "$DISCORD_WEBHOOK_URL" ]; then
   return
 fi
 
-CURRENT_DATETIME=$(date +%Y%m%d%H%M%S)
-SNAPSHOT_HOUR_PREFIX=$(date +%Y%m%d%H)
+if ! validate_date_format "$TODAY_YMD"; then
+  log "FATAL: Reference date ($TODAY_YMD) is invalid (expected YYYYMMDD)."
+  send_notification "CRITICAL_FAILURE" "Invalid date format (expected YYYYMMDD) used by the script. Date: $TODAY_YMD"
+  exit 1
+fi
+
+CURRENT_DATETIME="${TODAY_YMD}$(date +%H%M%S)"
+SNAPSHOT_HOUR_PREFIX="${TODAY_YMD}$(date +%H)"
 GLOBAL_SUCCESS=1
 FAILED_PVCs=""
 TOTAL_PVC_COUNT=0
