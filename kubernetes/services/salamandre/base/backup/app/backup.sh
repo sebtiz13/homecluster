@@ -286,7 +286,6 @@ log "--- Starting Backup ---"
 
 if [ -z "$DISCORD_WEBHOOK_URL" ]; then
   log "WARNING: Webhook URL is not configured. Notification will not be sended."
-  return
 fi
 
 if ! validate_date_format "$TODAY_YMD"; then
