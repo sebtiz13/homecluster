@@ -280,7 +280,7 @@ prune_snapshots() {
     .metadata.name' |
   while read -r name_to_delete; do
     log "  - Deleting snapshot $name_to_delete."
-    kubectl delete volumesnapshot "$name_to_delete" -n "$namespace"
+    kubectl delete volumesnapshot "$name_to_delete" -n "$namespace" || true
   done
 }
 
