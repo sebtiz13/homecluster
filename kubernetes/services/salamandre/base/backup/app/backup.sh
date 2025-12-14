@@ -151,7 +151,7 @@ wait_for_snapshot() {
   return 0
 }
 
-# Fin snapshot by PVC and partial name
+# Find snapshot by PVC and partial name
 # Usage: find_snapshot "namespace" "pvc_name" "name_prefix"
 find_snapshot() {
   local namespace=$1
@@ -159,11 +159,10 @@ find_snapshot() {
   local prefix=$3
 
   kubectl get volumesnapshots -n "$namespace" -o json | \
-    jq -r --arg PVC "$pvc" --arg PREFIX "$prefix" '.items |
-      sort_by(.metadata.creationTimestamp) | .[] |
-      select(.spec.source.persistentVolumeClaimName == $PVC) |
-      select(.metadata.name | contains($PREFIX)) |.metadata.name' |
-    tail -n 1
+    jq -rc --arg PVC "$pvc_name" --arg PREFIX "$prefix" '.items |
+      map(select((.spec.source.persistentVolumeClaimName == $PVC) and (.metadata.name | contains($PREFIX)))) |
+      sort_by(.metadata.creationTimestamp) |
+      last'
 }
 
 # Checks if the snapshot reference (yesterday) exists on S3.
@@ -216,18 +215,23 @@ stream_to_s3() {
   else
     local yesterday_date_prefix
     yesterday_date_prefix=$(date -d "$TODAY_YMD yesterday" +%Y%m%d)
-    local local_yesterday_ref
-    local_yesterday_ref=$(find_snapshot "$namespace" "$pvc_name" "${pvc_name}-${yesterday_date_prefix}")
+    local yesterday_ref
+    yesterday_ref=$(find_snapshot "$namespace" "$pvc_name" "${pvc_name}-${yesterday_date_prefix}" || echo "")
 
-    if [ -n "$local_yesterday_ref" ]; then
-      if check_s3_reference "$namespace" "$pvc_name" "$local_yesterday_ref"; then
+    if [ "$yesterday_ref" != "null" ] && [ -n "$yesterday_ref" ]; then
+      local yesterday_ref_name
+      yesterday_ref_name=$(echo "$yesterday_ref" | jq -r ".metadata.name")
+      if check_s3_reference "$namespace" "$pvc_name" "$yesterday_ref_name"; then
+        # Find the ZFS fullname on host
+        content_name=$(echo "$yesterday_ref" | jq -r ".status.boundVolumeSnapshotContentName")
+        zfs_handle=$(kubectl get volumesnapshotcontent "$content_name" -o jsonpath='{.status.snapshotHandle}' || echo "")
         local full_zfs_ref
-        full_zfs_ref=$(zfs list -t snapshot -H -o name 2>/dev/null | grep "$local_yesterday_ref")
+        full_zfs_ref=$(zfs list -t snapshot -H -o name 2>/dev/null | grep "$zfs_handle")
 
         if [ -n "$full_zfs_ref" ]; then
           zfs_args="-i $full_zfs_ref"
           s3_filename_suffix="-incr"
-          backup_message="incremental backup from $local_yesterday_ref"
+          backup_message="incremental backup from $yesterday_ref_name"
         else
           s3_filename_suffix="-full"
           backup_message="full backup (WAN: Yesterday's ZFS reference missing on host)"
@@ -316,8 +320,8 @@ for item in "${PVC_ARRAY[@]}"; do
   log "--> Processing PVC: $namespace/$pvc"
 
   # Find most recent snapshot in the hour
-  SNAP_NAME=$(find_snapshot "$namespace" "$pvc_name" "$SNAPSHOT_HOUR_PREFIX")
-  if [ -n "$SNAP_NAME" ]; then
+  SNAP_NAME=$(find_snapshot "$namespace" "$pvc" "$SNAPSHOT_HOUR_PREFIX" | jq -r ".metadata.name")
+  if [ "$SNAP_NAME" != "null" ] && [ -n "$SNAP_NAME" ]; then
     log "Found existing snapshot for hour: $SNAP_NAME. Skipping creation."
   else
     SNAP_NAME="${pvc}-${CURRENT_DATETIME}"
