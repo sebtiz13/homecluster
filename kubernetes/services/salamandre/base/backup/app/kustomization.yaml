@@ -6,5 +6,8 @@ resources:
   - secret.yaml
 configMapGenerator:
   - name: backup-script
+    options:
+      labels:
+        kustomize.toolkit.fluxcd.io/substitute: disabled
     files:
       - backup.sh
