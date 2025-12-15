@@ -15,6 +15,7 @@ CNPG_CLUSTER_NAME="postgres16"
 FULL_BACKUP_DAY=${FULL_BACKUP_DAY:-1} # 1 = Monday (ISO 8601)
 S3_BUCKET_NAME=${S3_BUCKET_NAME:-"backup"}
 KEEP_DAYS=${KEEP_DAYS:-3} # Keep snapshots during N days
+FORCE_FULL_BACKUP=${FORCE_FULL_BACKUP:"false"}
 
 # --- End Variables ---
 
@@ -250,7 +251,10 @@ stream_to_s3() {
   local backup_message=""
   local zfs_cmd=(zfs send)
 
-  if [ "$(date -d "$TODAY_YMD" +%u)" -eq "$FULL_BACKUP_DAY" ]; then
+  if [ "$FORCE_FULL_BACKUP" == "true" ] || [ "$FORCE_FULL_BACKUP" == "TRUE" ]; then
+    s3_filename_suffix="-full"
+    backup_message="full backup (FORCED by argument)"
+  elif [ "$(date -d "$TODAY_YMD" +%u)" -eq "$FULL_BACKUP_DAY" ]; then
     s3_filename_suffix="-full"
     backup_message="full backup (Today is Full Backup Day)"
   else
