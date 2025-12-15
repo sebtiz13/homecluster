@@ -1,19 +1,22 @@
 # Cluster backup/Restore
 
-> Currently, only **salamandre** can be backup on **baku**.
+> Currently, only **salamandre** can be backup.
 
 ## Backup
 
-The salamandre cluster is automatically backup each day all PVCs marked with `backup.local/enabled: true` label.
+The **salamandre** cluster automatically backup each day (around 3am) all PVCs marked with `backup.local/enabled: true` label and sended to **baku** in `.zvol.gz` format.
 
-- The database run they backup with barman at 3am.
-- The kubernetes PVC run they backup at 3:05 am.
+> **NOTE**: Automatic backup is suspended on sandbox.
 
-  > **NOTE**: This create one full backup each first day of week (even database), and next days is incremental.
+Deep dive :
+
+- The database run they backup at 3am.
+- The kubernetes PVC run they backup at 3:05 am (This delay is to ensure that the database is backed up).
+- An full backup is created each Monday or if yesterday backup could not be found on one server, otherwise an incremental backup is done.
 
 ### Manual backup
 
-The cron jobs / scheduled is disabled on sandbox but it's can be run manually with following commands :
+You can manually create an custom backup at anytime with following commands :
 
 - For today : `./scripts/manual-backup.sh`
 - For custom date : `./scripts/manual-backup.sh YYYYMMDD`
