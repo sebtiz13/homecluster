@@ -9,6 +9,7 @@ SNAPSHOT_CLASS=${SNAPSHOT_CLASS:-"zfspv-snapclass"}
 SNAPSHOT_MANGED_LABEL="backup.local/managed"
 SNAPSHOT_PVC_LABEL="backup.local/pvc"
 BACKUP_ENABLED_LABEL="backup.local/enabled"
+CNPG_CLUSTER_NAME="postgres16"
 
 # Backup logic
 FULL_BACKUP_DAY=${FULL_BACKUP_DAY:-1} # 1 = Monday (ISO 8601)
@@ -151,6 +152,46 @@ wait_for_snapshot() {
   return 0
 }
 
+# Creates a CNPG backup
+# Usage: create_cnpg_backup "namespace" "cluster_name" "backup_name"
+create_cnpg_backup() {
+  local namespace=$1
+  local cluster_name=$2
+  local backup_name=$3
+
+  log "CNPG: Creating Backup resource $namespace/$backup_name for Cluster $cluster_name."
+
+  # Manifeste minimal pour créer la ressource Backup CNPG
+  cat <<EOF | kubectl apply -f - > /dev/null
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: "${backup_name}"
+  namespace: "${namespace}"
+  labels:
+    ${SNAPSHOT_MANGED_LABEL}: "true"
+    ${SNAPSHOT_PVC_LABEL}: "${cluster_name}"
+spec:
+  method: volumeSnapshot
+  cluster:
+    name: ${cluster_name}
+EOF
+}
+
+# Wait for a CNPG backup to be ready.
+# Usage: wait_for_cnpg_backup "namespace" "name"
+wait_for_cnpg_backup() {
+  local namespace=$1
+  local name=$2
+  log "CNPG: Waiting for Backup $namespace/$name to complete..."
+
+  if ! kubectl wait --for=jsonpath='{.status.phase}=completed' backup/"$name" -n "$namespace" --timeout=300s > /dev/null; then
+    log "ERROR: CNPG Backup $namespace/$name failed or timed out."
+    return 1
+  fi
+  return 0
+}
+
 # Find snapshot by PVC and partial name
 # Usage: find_snapshot "namespace" "pvc_name" "name_prefix"
 find_snapshot() {
@@ -273,13 +314,23 @@ prune_snapshots() {
   # Find candidates for deletion (older than KEEP_DAYS)
   # shellcheck disable=SC2086
   kubectl get vs -n "$namespace" -l ${SNAPSHOT_MANGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}="$pvc_name" -o json | \
-  jq -r --arg CUTOFF "$cutoff_timestamp" '.items[] |
+  jq -rc --arg CUTOFF "$cutoff_timestamp" '.items[] |
     # Select snapshots older than the cutoff time
-    select((.metadata.creationTimestamp | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) < ($CUTOFF | tonumber)) |
-    .metadata.name' |
-  while read -r name_to_delete; do
-    log "  - Deleting snapshot $name_to_delete."
-    kubectl delete volumesnapshot "$name_to_delete" -n "$namespace" || true
+    select((.metadata.creationTimestamp | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) < ($CUTOFF | tonumber))' |
+  while read -r item_json; do
+    local cnpg_backup_name
+    cnpg_backup_name=$(echo "$item_json" | jq -r '.metadata.labels["cnpg.io/backupName"] // empty')
+    local snap_name
+    snap_name=$(echo "$item_json" | jq -r '.metadata.name')
+
+    if [ -n "$cnpg_backup_name" ]; then
+      log "  - Deleting backup $cnpg_backup_name (linked to snapshot $snap_name)."
+      kubectl delete backup "$cnpg_backup_name" -n "$namespace" || true
+    else
+      log "  - Deleting snapshot $snap_name."
+    fi
+
+    kubectl delete volumesnapshot "$snap_name" -n "$namespace" || true
   done
 }
 
@@ -323,16 +374,40 @@ for item in "${PVC_ARRAY[@]}"; do
   if [ "$SNAP_NAME" != "null" ] && [ -n "$SNAP_NAME" ]; then
     log "Found existing snapshot for hour: $SNAP_NAME. Skipping creation."
   else
-    SNAP_NAME="${pvc}-${CURRENT_DATETIME}"
-    if ! create_snapshot "$namespace" "$pvc" "$SNAP_NAME"; then
-      GLOBAL_SUCCESS=0
-      FAILED_PVCs+="- **$namespace/$pvc**: Failed on creating snapshot.\n"
-      continue
-    fi
-    if ! wait_for_snapshot "$namespace" "$SNAP_NAME"; then
-      GLOBAL_SUCCESS=0
-      FAILED_PVCs+="- **$namespace/$pvc**: Failed on waiting snapshot to be ready.\n"
-      continue
+    if [ "$namespace" == "database" ]; then
+      BACKUP_RESOURCE_NAME="${CNPG_CLUSTER_NAME}-${CURRENT_DATETIME}"
+
+      if ! create_cnpg_backup "$namespace" "$CNPG_CLUSTER_NAME" "$BACKUP_RESOURCE_NAME"; then
+        GLOBAL_SUCCESS=0
+        FAILED_PVCs+="- **$namespace/$CNPG_CLUSTER_NAME**: Failed on creating CNPG backup.\n"
+        continue
+      fi
+      if ! wait_for_cnpg_backup "$namespace" "$BACKUP_RESOURCE_NAME"; then
+        GLOBAL_SUCCESS=0
+        FAILED_PVCs+="- **$namespace/$CNPG_CLUSTER_NAME**: Failed on waiting CNPG backup to be ready.\n"
+        continue
+      fi
+
+      SNAP_NAME=$(kubectl get backup "$BACKUP_RESOURCE_NAME" -n "$namespace" -o jsonpath='{.status.snapshotBackupStatus.elements[0].name}' || echo "")
+      if [ -z "$SNAP_NAME" ]; then
+        log "ERROR: CNPG Backup $BACKUP_RESOURCE_NAME completed but did not expose the VolumeSnapshot name."
+        GLOBAL_SUCCESS=0
+        FAILED_PVCs+="- **$namespace/$pvc**: CNPG Backup failed to link the VolumeSnapshot.\n"
+        continue
+      fi
+    else
+      SNAP_NAME="${pvc}-${CURRENT_DATETIME}"
+
+      if ! create_snapshot "$namespace" "$pvc" "$SNAP_NAME"; then
+        GLOBAL_SUCCESS=0
+        FAILED_PVCs+="- **$namespace/$pvc**: Failed on creating snapshot.\n"
+        continue
+      fi
+      if ! wait_for_snapshot "$namespace" "$SNAP_NAME"; then
+        GLOBAL_SUCCESS=0
+        FAILED_PVCs+="- **$namespace/$pvc**: Failed on waiting snapshot to be ready.\n"
+        continue
+      fi
     fi
   fi
 
