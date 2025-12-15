@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: zfs-s3-backup
+spec:
+  schedule: "5 3 * * *" # Daily at 3:05
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 15
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: backup-operator
+          nodeName: salamandre
+          containers:
+          - name: backup-runner
+            image: ghcr.io/sebtiz13/homecluster/backup-tools:dev-2874222
+            command: ["/bin/bash", "/app/backup.sh"]
+            env:
+            - name: FULL_BACKUP_DAY
+              value: "1" # Monday
+            - name: KEEP_DAYS
+              value: "30"
+            - name: S3_BUCKET_NAME
+              value: baku/backup-salamandre-pvc/new
+            - name: DISCORD_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: discord-webhook
+                  key: url
+
+            securityContext:
+              privileged: true # Required for ZFS access via /dev/zfs
+            volumeMounts:
+            - mountPath: /dev/zfs # Mount the ZFS device for the 'zfs send' command
+              name: dev-zfs
+            - name: script-volume
+              mountPath: /app/backup.sh
+              subPath: backup.sh
+              readOnly: true
+            - mountPath: /root/.mc/config.json
+              subPath: config.json
+              name: minio-config
+              readOnly: true
+
+          restartPolicy: Never
+          volumes:
+          - name: dev-zfs
+            hostPath:
+              path: /dev/zfs
+          - name: script-volume
+            configMap:
+              name: backup-script
+              defaultMode: 0755
+          - name: minio-config
+            secret:
+              secretName: minio-credentials
+              defaultMode: 0755

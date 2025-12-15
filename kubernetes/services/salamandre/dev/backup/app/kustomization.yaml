@@ -1,0 +1,12 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: backup
+resources:
+  - ../../../base/backup/app
+  - ca-tls.yaml
+patches:
+  - path: cronjob-patch.yaml
+    target:
+      kind: CronJob
+      name: zfs-s3-backup
