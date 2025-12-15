@@ -122,7 +122,7 @@ create_snapshot() {
   log "Creating VolumeSnapshot $namespace/$snap_name for PVC $pvc_name."
 
   # Use Here-Doc to apply the VolumeSnapshot manifest dynamically
-  cat <<EOF | kubectl apply -f -
+  cat <<EOF | kubectl apply -f - >/dev/null
 apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshot
 metadata:
@@ -144,7 +144,7 @@ wait_for_snapshot() {
   local namespace=$1
   local name=$2
   log "Waiting for VolumeSnapshot $namespace/$name to be Ready..."
-  if ! kubectl wait --for=jsonpath='{.status.readyToUse}=true' volumesnapshot/"$name" -n "$namespace" --timeout=60s; then
+  if ! kubectl wait --for=jsonpath='{.status.readyToUse}=true' volumesnapshot/"$name" -n "$namespace" --timeout=60s >/dev/null; then
     log "ERROR: VolumeSnapshot $namespace/$name failed to become ready within the timeout."
     return 1
   fi
@@ -250,7 +250,7 @@ stream_to_s3() {
   zfs_cmd+=("$full_zfs_snap")
   local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol.gz"
   log "Starting ${backup_message}, then transfer it to S3 ($s3_full_path)."
-  if "${zfs_cmd[@]}" | gzip -c | mc pipe "${S3_BUCKET_NAME}/${s3_full_path}"; then
+  if "${zfs_cmd[@]}" | gzip -c | mc pipe "${S3_BUCKET_NAME}/${s3_full_path}" >/dev/null; then
     log "Upload successful."
     return 0
   else
