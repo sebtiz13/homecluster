@@ -50,17 +50,3 @@ Run the following commands for restore the cluster.
 After restore files run this command in nextcloud pod: `su -m www-data -s /bin/sh -c 'php occ files:scan --all'`
 
 ### Troubleshooting
-
-#### Barman: `error: unexpected termination of replication stream`
-
-Full error :
-
-```log
-error: unexpected termination of replication stream
-
-barman.command_wrappers INFO: main_backup: pg_receivewal: starting log streaming at 0/2D000000 (timeline 1)
-barman.command_wrappers INFO: main_backup: pg_receivewal: error: unexpected termination of replication stream: ERROR:  requested WAL segment 00000001000000000000002D has already been removed
-barman.command_wrappers INFO: main_backup: pg_receivewal: error: disconnected
-```
-
-If this error is thrown, you need to run the following command `barman receive-wal main_backup --reset`.
