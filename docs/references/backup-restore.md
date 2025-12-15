@@ -18,8 +18,17 @@ Deep dive :
 
 You can manually create an custom backup at anytime with following commands :
 
-- For today : `./scripts/manual-backup.sh`
-- For custom date : `./scripts/manual-backup.sh YYYYMMDD`
+```text
+Usage: ./scripts/manual-backup.sh [OPTIONS]
+
+Launch an save Kubernetes job based on existing CronJob.
+
+OPTIONS:
+  -d, --date YYYYMMDD Force run an specific date backup (mainly for testing).
+                      (Default: Today)
+  -f, --full          Force an full backup (ignore incremental logic).
+  -h, --help          Show this help message.
+```
 
 ## Restore
 
