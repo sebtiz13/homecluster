@@ -312,8 +312,8 @@ prune_snapshots() {
   cutoff_timestamp=$(date -d "$TODAY_YMD -${KEEP_DAYS} days" +%s)
 
   # Find candidates for deletion (older than KEEP_DAYS)
-  # shellcheck disable=SC2086
-  kubectl get vs -n "$namespace" -l ${SNAPSHOT_MANGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}="$pvc_name" -o json | \
+  local label_selector="${SNAPSHOT_MANGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}=${pvc_name}"
+  kubectl get vs -n "$namespace" -l "$label_selector" -o json | \
   jq -rc --arg CUTOFF "$cutoff_timestamp" '.items[] |
     # Select snapshots older than the cutoff time
     select((.metadata.creationTimestamp | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) < ($CUTOFF | tonumber))' |
