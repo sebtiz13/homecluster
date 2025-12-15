@@ -15,23 +15,8 @@ The salamandre cluster is automatically backup each day all PVCs marked with `ba
 
 The cron jobs / scheduled is disabled on sandbox but it's can be run manually with following commands :
 
-- Database PVC :
-
-  ```sh
-  cat <<EOF | kubectl apply -f -
-  apiVersion: postgresql.cnpg.io/v1
-  kind: Backup
-  metadata:
-    name: postgres16-1-$(date +%Y%m%d%H%M%S)
-    namespace: database
-  spec:
-    method: volumeSnapshot
-    cluster:
-      name: postgres16
-  EOF
-  ```
-
-- Kubernetes PVC: `./scripts/manual-backup.sh` (for custom date : `./scripts/manual-backup.sh YYYYMMDD`)
+- For today : `./scripts/manual-backup.sh`
+- For custom date : `./scripts/manual-backup.sh YYYYMMDD`
 
 ## Restore
 
