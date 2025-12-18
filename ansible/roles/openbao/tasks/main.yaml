@@ -1,0 +1,59 @@
+- name: Ensure seal key Secret exists (auto-unseal)
+  ansible.builtin.import_tasks: seal_key.yaml
+
+- name: Retrieve server service
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Service
+    name: "{{ openbao_service_name }}"
+    namespace: "{{ openbao_namespace }}"
+    wait: true
+    wait_timeout: 300
+  register: openbao_server
+  failed_when: (openbao_server.resources | length) == 0
+- name: Store server url
+  ansible.builtin.set_fact:
+    openbao_api_url: "http://{{ openbao_server.resources.0.spec.clusterIP }}:{{ openbao_server.resources.0.spec.ports.0.port }}/v1"
+
+- name: Wait until application is available
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/health"
+    method: GET
+    status_code:
+      - 501 # not initialized
+      - 503 # sealed
+      - 200 # initialized, unsealed, active
+    return_content: true
+  register: openbao_health
+  until: openbao_health.status in [501, 503, 200]
+  retries: 60 # This is for wait max 10min (this is for support slow connection)
+  delay: 10
+
+- name: Initialize application
+  when: not openbao_health.json.initialized
+  ansible.builtin.import_tasks: initialize.yaml
+
+- name: Authenticate console
+  ansible.builtin.import_tasks: auth.yaml
+
+- name: Setup engines
+  ansible.builtin.import_tasks: engines.yaml
+
+- name: Configure OpenBao kubernetes auth
+  ansible.builtin.import_tasks: auth_kubernetes.yaml
+
+- name: Configure external-secrets access
+  ansible.builtin.import_tasks: eso_access.yaml
+
+- name: External-secrets | Wait cluster store ready
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: ClusterSecretStore
+    name: "{{ openbao_eso_store_name }}"
+    namespace: "{{ openbao_eso_namespace }}"
+    wait: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

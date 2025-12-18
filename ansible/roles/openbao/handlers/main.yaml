@@ -1,0 +1,5 @@
+- name: Save keys
+  ansible.builtin.copy:
+    content: "{{ openbao_init_result.json | to_nice_json }}"
+    dest: "{{ credentials_folder }}/openbao.json"
+    mode: "0600"

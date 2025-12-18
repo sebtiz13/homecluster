@@ -1,0 +1,28 @@
+- name: Retrieve enabled engines
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/mounts"
+    method: GET
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    return_content: true
+  register: openbao_mounts
+
+- name: Configure static secrets engine for each cluster
+  when: openbao_mounts.json.data[item + "/"] is not defined
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/mounts/{{ item }}"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    body:
+      type: "kv"
+      options:
+        version: "2"
+  loop: "{{ hostvars.keys() | list }}"

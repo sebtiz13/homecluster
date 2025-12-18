@@ -1,26 +1,3 @@
-- name: Retrieve baku JWT access
-  hosts: baku
-  tags: kubernetes
-  tasks:
-    - name: External-secrets | Retrieve service account JWT
-      tags: vault
-      delegate_to: localhost
-      kubernetes.core.k8s_info:
-        kubeconfig: "{{ local_kubeconfig }}"
-        kind: Secret
-        name: vault-auth-secret
-        namespace: external-secrets
-        wait: true
-      register: vault_jwt
-      failed_when: (vault_jwt.resources | length) == 0
-    - name: External-secrets | Store JWT in facts
-      vars:
-        resource: "{{ vault_jwt.resources.0 }}"
-      ansible.builtin.set_fact:
-        vault_jwt:
-          token: "{{ resource.data.token }}"
-          ca_cert: "{{ resource.data['ca.crt'] }}"
-
 - name: Load informations and configure salamandre core applications
   hosts: salamandre
   tags: kubernetes
@@ -32,45 +9,20 @@
 
     - name: Store applications informations
       ansible.builtin.set_fact:
-        # vault_api_url: "" # Defined in roles/apps_vault/tasks/auth.yaml
-        # vault_root_token: "" # Defined in roles/apps_vault/tasks/auth.yaml
+        # openbao_api_url: "" # Defined in roles/penbao/tasks/auth.yaml
+        # openbao_root_token: "" # Defined in roles/openbao/tasks/auth.yaml
         # zitadel_internal_url: "" # Defined in roles/apps_zitadel/tasks/auth.yaml
         # zitadel_console_token: "" # Defined in roles/apps_zitadel/tasks/auth.yaml
-        apps_vault:
-          release_name: vault
-          namespace: vault
-          pod_name: vault-0
-          keys_secret_name: vault-keys
-          store_name: vault-eso
         apps_zitadel:
           release_name: zitadel
           namespace: zitadel
           domain_name: "{{ external_urls.zitadel | replace('https://', '') }}"
   roles:
-    - role: apps_vault
-      tags: vault
+    - role: openbao
+      tags: openbao
   post_tasks:
-    - name: Vault | Fill applications secrets
+    - name: OpenBao | Fill applications secrets
       ansible.builtin.import_tasks: tasks/s_core_apps_secrets.yaml
-    - name: Vault | Configure kubernetes auth for baku
-      tags: vault
-      when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
-      vars:
-        kubeconfig: "{{ lookup('ansible.builtin.file', hostvars.baku.local_kubeconfig) | from_yaml }}"
-        vault_jwt: "{{ hostvars.baku.vault_jwt }}"
-      ansible.builtin.uri:
-        url: "{{ vault_api_url }}/auth/baku-cluster/config"
-        method: POST
-        status_code:
-          - 204 # When successfull
-          - 200 # When warning
-        body_format: json
-        headers:
-          X-Vault-Token: "{{ vault_root_token }}"
-        body:
-          token_reviewer_jwt: "{{ vault_jwt.token | b64decode }}"
-          kubernetes_host: "{{ kubeconfig.clusters.0.cluster.server }}"
-          kubernetes_ca_cert: "{{ vault_jwt.ca_cert | b64decode }}\n"
 
     - name: Wait until database is ready
       delegate_to: localhost
@@ -91,21 +43,21 @@
   hosts: salamandre
   tags: kubernetes
   pre_tasks:
-    - name: Vault | Authenticate console
-      when: "'vault' in ansible_skip_tags"
-      ansible.builtin.import_tasks: roles/apps_vault/tasks/auth.yaml
+    - name: OpenBao | Authenticate console
+      when: "'openbao' in ansible_skip_tags"
+      ansible.builtin.import_tasks: roles/openbao/tasks/auth.yaml
     - name: Zitadel | Authenticate console
       when: "'zitadel' in ansible_skip_tags"
       ansible.builtin.import_tasks: roles/apps_zitadel/tasks/auth.yaml
   tasks:
-    - name: Configure vault oidc
+    - name: Configure openbao oidc
       tags:
-        - vault
+        - openbao
         - oidc
       ansible.builtin.import_role:
-        name: vault_oidc
+        name: openbao_oidc
 
-    - name: Vault | Fill salamandre applications secrets
+    - name: OpenBao | Fill salamandre applications secrets
       ansible.builtin.import_tasks: tasks/s_apps/secrets.yaml
     - name: Database | Create applications access
       ansible.builtin.import_tasks: tasks/s_apps/databases.yaml
@@ -114,7 +66,7 @@
     - name: External-secrets | Force sync applications secrets
       ansible.builtin.import_tasks: tasks/s_apps/secrets_sync.yaml
 
-    - name: Vault | Fill baku applications secrets
+    - name: OpenBao | Fill baku applications secrets
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
       ansible.builtin.import_tasks: tasks/b_apps/secrets.yaml
 

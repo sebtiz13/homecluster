@@ -17,13 +17,13 @@
 - name: MinIO | Retrieve baku credentials
   no_log: true
   ansible.builtin.uri:
-    url: "{{ vault_api_url }}/{{ secret_path }}"
+    url: "{{ openbao_api_url }}/{{ secret_path }}"
     method: GET
     status_code:
-      - 200 # When successfull
+      - 200 # When successful
       - 204 # When warning
     headers:
-      X-Vault-Token: "{{ vault_root_token }}"
+      X-Vault-Token: "{{ openbao_root_token }}"
     return_content: true
   register: minio_creds
 

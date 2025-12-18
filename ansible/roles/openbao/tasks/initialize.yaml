@@ -1,0 +1,27 @@
+- name: Initialize application
+  no_log: true
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/init"
+    method: POST
+    status_code: 200
+    return_content: true
+    body_format: json
+  register: openbao_init_result
+
+- name: Save init result
+  vars:
+    content: >-
+      {{
+        {
+          "root_token": openbao_init_result.json.root_token | default(''),
+          "seal_key_hex": openbao_seal_key_hex,
+          "seal_key_b64": openbao_seal_key_hex | b64encode,
+          "initialized_at": ansible_date_time.iso8601
+        } | combine(openbao_init_result.json | default({}))
+      }}
+  delegate_to: localhost
+  no_log: true
+  ansible.builtin.copy:
+    content: "{{ content | to_nice_json }}"
+    dest: "{{ openbao_credentials_file }}"
+    mode: "0600"

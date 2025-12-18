@@ -1,0 +1,31 @@
+- name: Create external-secrets policy
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/policy/{{ openbao_eso_role_name }}"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      policy: "{{ lookup('ansible.builtin.file', './eso-policy.hcl') }}"
+
+- name: Configure external-secrets kubernetes auth role
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/auth/{{ item }}/role/{{ openbao_eso_role_name }}"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      bound_service_account_names: "{{ openbao_eso_service_account_name }}"
+      bound_service_account_namespaces: "{{ openbao_eso_namespace }}"
+      token_policies: "{{ openbao_eso_role_name }}"
+      ttl: 1h
+  loop:
+    - kubernetes
+    - kubernetes-baku

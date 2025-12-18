@@ -1,4 +1,4 @@
-# ? Vault is managed in "vault_oidc" role
+# ? OpenBao is managed in "openbao_oidc" role
 
 - name: Zitadel | Create salamandre oidc access # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:

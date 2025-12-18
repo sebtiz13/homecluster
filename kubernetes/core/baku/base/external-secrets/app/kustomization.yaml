@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ../../../../common/base/external-secrets/app
   - rbac.yaml
-  - vault-store.yaml
+  - secret-store.yaml

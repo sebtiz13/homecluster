@@ -1,0 +1,13 @@
+openbao_namespace: openbao
+openbao_service_name: openbao
+
+openbao_seal_secret_name: openbao
+
+openbao_credentials_file: "{{ credentials_folder }}/openbao.json"
+
+# External-secrets
+openbao_eso_namespace: external-secrets
+openbao_eso_role_name: external-secrets
+openbao_eso_service_account_name: openbao-auth
+openbao_eso_store_name: openbao-eso
+openbao_eso_baku_sa_secret: openbao-auth-secret

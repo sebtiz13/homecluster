@@ -30,7 +30,7 @@ Good enough for tinkering, personal usage and reasonably secure.
 - [x] Single Sign-On (Zitadel, on Salamandre)
 - [x] Reasonably secure
   - [x] Automated certificate management (cert-manager, on Salamandre)
-  - [x] Declarative secret management (vault and external-secrets, on Salamandre)
+  - [x] Declarative secret management (OpenBao and external-secrets, on Salamandre)
   - [x] Replace all default passwords with randomly generated ones
 - [x] Backup solution (Barman/ZFS)
 - [ ] Observability (on Baku)
@@ -71,4 +71,3 @@ Nice to have
   - [ ] Serverless ([Knative](https://knative.dev/))
 - [ ] Encrypted backups
 - [x] Secrets rotation
-- [ ] Migrate [Hasicorp Vault](https://developer.hashicorp.com/vault) to [OpenBao](https://openbao.org/) (ref [#21](https://github.com/sebtiz13/homecluster/issues/21))

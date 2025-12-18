@@ -7,6 +7,6 @@ resources:
   - ../base/external-secrets
   - cert-manager
   - external-dns
-  - ../base/vault
+  - ../base/openbao
   - ../base/database
   - ../base/zitadel
