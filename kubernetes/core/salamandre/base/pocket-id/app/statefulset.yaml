@@ -40,12 +40,12 @@ spec:
                 name: *name
           livenessProbe:
             initialDelaySeconds: 10
-            htpGet:
+            httpGet:
               path: /healthz
               port: http
           readinessProbe:
             initialDelaySeconds: 10
-            htpGet:
+            httpGet:
               path: /healthz
               port: http
           # resources:
