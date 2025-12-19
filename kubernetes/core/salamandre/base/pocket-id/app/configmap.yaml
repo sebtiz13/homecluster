@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pocket-id-config
+  labels:
+    app.kubernetes.io/name: &name pocket-id
+    app.kubernetes.io/instance: *name
+data:
+  TZ: "${TIMEZONE}"
+  APP_URL: "https://${OIDC_ISSUER_HOST}"
+  TRUST_PROXY: "true" # Is behind proxy
+  DB_PROVIDER: postgres
+  FILE_BACKEND: database # Used for upload avatar or custom background # NOTE: migrate to filesystem or s3 if needed
+  LOG_LEVEL: info
+  KEYS_STORAGE: database
+  GEOLITE_DB_URL: "" # Ensure disable geolite things
+  # LOG_JSON: 'true'
+  UI_CONFIG_DISABLED: "true" # This allow configure email
+  EMAIL_LOGIN_NOTIFICATION_ENABLED: "true"

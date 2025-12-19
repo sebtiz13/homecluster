@@ -14,7 +14,7 @@ spec:
         # Clone from base + certificate import
         before-starting: |-
           php occ security:certificates:import /etc/ssl/certs/vm-ca.crt
-           php occ user_oidc:provider Zitadel --clientid="$(cat /var/run/secrets/auth_oidc/clientID)" \
+          php occ user_oidc:provider "Pocket ID" --clientid="$(cat /var/run/secrets/auth_oidc/clientID)" \
             --clientsecret="$(cat /var/run/secrets/auth_oidc/clientSecret)" \
             --discoveryuri="https://${OIDC_ISSUER_HOST}/.well-known/openid-configuration" \
             --scope="openid email profile groups quota" --group-provisioning 1

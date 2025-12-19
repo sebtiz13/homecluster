@@ -1,0 +1,12 @@
+# vscode-kubernetes-tools: exclude
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: pocket-id
+resources:
+  - configmap.yaml
+  - dnsendpoint.yaml
+  - ingress.yaml
+  - secret.yaml
+  - service.yaml
+  - serviceaccount.yaml
+  - statefulset.yaml

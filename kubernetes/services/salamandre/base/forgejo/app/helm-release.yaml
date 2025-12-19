@@ -22,7 +22,7 @@ spec:
         email: admin@${DOMAIN_NAME}
 
       oauth:
-        - name: zitadel
+        - name: Pocket ID
           existingSecret: forgejo-oidc-credentials
           provider: openidConnect
           autoDiscoverUrl: https://${OIDC_ISSUER_HOST}/.well-known/openid-configuration

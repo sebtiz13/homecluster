@@ -2,6 +2,9 @@ apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
   name: ${OIDC_ISSUER_HOST/./-}
+  labels:
+    app.kubernetes.io/name: &name pocket-id
+    app.kubernetes.io/instance: *name
 spec:
   endpoints:
     - dnsName: ${OIDC_ISSUER_HOST}

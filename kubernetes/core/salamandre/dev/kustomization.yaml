@@ -8,4 +8,4 @@ resources:
   - cert-manager
   - ../base/vault
   - database
-  - ../base/zitadel
+  - ../base/pocket-id

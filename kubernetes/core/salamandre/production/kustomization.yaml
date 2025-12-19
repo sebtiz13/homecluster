@@ -9,4 +9,4 @@ resources:
   - external-dns
   - ../base/vault
   - ../base/database
-  - ../base/zitadel
+  - ../base/pocket-id
