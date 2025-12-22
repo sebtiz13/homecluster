@@ -1,0 +1,36 @@
+- name: OpenBao | Retrieve server url
+  when: openbao_api_url is not defined
+  block:
+    - name: OpenBao | Retrieve server service
+      delegate_to: localhost
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ local_kubeconfig }}"
+        kind: Service
+        name: "{{ openbao_service_name }}"
+        namespace: "{{ openbao_namespace }}"
+        wait: true
+        wait_timeout: 300
+      register: openbao_server
+      failed_when: (openbao_server.resources | length) == 0
+    - name: OpenBao | Store server url
+      ansible.builtin.set_fact:
+        openbao_api_url: "http://{{ openbao_server.resources.0.spec.clusterIP }}:{{ openbao_server.resources.0.spec.ports.0.port }}/v1"
+
+- name: OpenBao | Generate child token
+  vars:
+    vault_file: "{{ lookup('ansible.builtin.file', openbao_credentials_file) | from_json }}"
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/auth/token/create"
+    method: POST
+    status_code: 200
+    return_content: true
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ vault_file.root_token }}"
+    body:
+      renewable: false
+      ttl: 20m
+  register: openbao_token
+- name: OpenBao | Store child token
+  ansible.builtin.set_fact:
+    openbao_root_token: "{{ openbao_token.json.auth.client_token }}"

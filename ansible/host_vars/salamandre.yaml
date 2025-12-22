@@ -4,7 +4,7 @@ postgres_version: 16
 
 # Applications urls
 external_urls:
-  vault: https://vault-secrets.{{ domain_name }}
+  openbao: https://secrets.{{ domain_name }}
   zitadel: https://sso.{{ domain_name }}
   forgejo: https://git.{{ domain_name }}
   nextcloud: https://cloud.{{ domain_name }}

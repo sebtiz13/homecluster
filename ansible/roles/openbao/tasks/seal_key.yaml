@@ -1,0 +1,33 @@
+- name: Check if OpenBao seal key Secret already exists
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    kind: Secret
+    namespace: "{{ openbao_namespace }}"
+    name: "{{ openbao_seal_secret_name }}"
+  register: openbao_seal_secret_check
+
+- name: Generate an new seal key
+  when: openbao_seal_secret_check.resources | length == 0
+  ansible.builtin.set_fact:
+    openbao_seal_key_hex: "{{ lookup('password', '/dev/null length=32 chars=hex') }}"
+- name: Ensure seal key Secret exists (auto-unseal)
+  when: openbao_seal_secret_check.resources | length == 0
+  delegate_to: localhost
+  kubernetes.core.k8s:
+    kubeconfig: "{{ local_kubeconfig }}"
+    state: present
+    namespace: "{{ openbao_namespace }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ openbao_seal_secret_name }}"
+      type: Opaque
+      data:
+        OPENBAO_STATIC_SEAL_KEY: "{{ openbao_seal_key_hex | b64encode }}"
+
+- name: Retrieve the seal key
+  when: openbao_seal_secret_check.resources | length > 0
+  ansible.builtin.set_fact:
+    openbao_seal_key_hex: "{{ openbao_seal_secret_check.resources[0].data.OPENBAO_STATIC_SEAL_KEY | b64decode }}"

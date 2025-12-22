@@ -5,21 +5,12 @@
     - backup
     - minio
   pre_tasks:
-    - name: Store applications informations
-      when: "vault_root_token is not defined"
-      ansible.builtin.set_fact:
-        # vault_api_url: "" # Defined in roles/apps_vault/tasks/auth.yaml
-        # vault_root_token: "" # Defined in roles/apps_vault/tasks/auth.yaml
-        apps_vault:
-          release_name: vault
-          namespace: vault
-          pod_name: vault-0
-          keys_secret_name: vault-keys
-          store_name: vault-eso
-    - name: Vault | Authenticate console
+    - name: OpenBao | Authenticate console
       become: false
-      when: "vault_root_token is not defined"
-      ansible.builtin.import_tasks: roles/apps_vault/tasks/auth.yaml
+      when: "openbao_root_token is not defined"
+      ansible.builtin.import_tasks: roles/openbao/tasks/auth.yaml
+      # openbao_api_url: "" # Defined in roles/openbao/tasks/auth.yaml
+      # openbao_root_token: "" # Defined in roles/openbao/tasks/auth.yaml
   roles:
     - role: backup
       when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"

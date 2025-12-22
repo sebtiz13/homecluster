@@ -6,6 +6,6 @@ resources:
   - ../base/traefik
   - ../base/external-secrets
   - cert-manager
-  - ../base/vault
+  - ../base/openbao
   - database
   - ../base/zitadel

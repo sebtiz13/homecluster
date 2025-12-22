@@ -1,0 +1,85 @@
+- name: Retrieve enabled auth
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/auth"
+    method: GET
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    return_content: true
+  register: openbao_auths
+
+- name: Configure salamandre kubernetes auth
+  vars:
+    auth_name: kubernetes
+  block:
+    - name: Enable Kubernetes auth for salamandre
+      when: openbao_auths.json.data[auth_name + "/"] is not defined
+      ansible.builtin.uri:
+        url: "{{ openbao_api_url }}/sys/auth/{{ auth_name }}"
+        method: POST
+        headers:
+          X-Vault-Token: "{{ openbao_root_token }}"
+        status_code:
+          - 200 # created
+          - 204 # already exists/updated
+        body_format: json
+        body:
+          type: kubernetes
+    - name: Configure salamandre Kubernetes auth
+      ansible.builtin.uri:
+        url: "{{ openbao_api_url }}/auth/{{ auth_name }}/config"
+        method: POST
+        headers:
+          X-Vault-Token: "{{ openbao_root_token }}"
+        status_code:
+          - 204 # When successful
+          - 200 # When warning
+        body_format: json
+        body:
+          kubernetes_host: "https://kubernetes.default.svc:443"
+          # "kubernetes_ca_cert" and "token_reviewer_jwt" is fallback to right value (see https://openbao.org/api-docs/auth/kubernetes/#caveats)
+
+- name: Configure baku kubernetes auth
+  when: "(ansible_limit is not defined) or ('baku' in ansible_limit)"
+  vars:
+    auth_name: kubernetes-baku
+  block:
+    - name: Read OpenBao auth SA Secret on Baku
+      delegate_to: localhost
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ hostvars.baku.local_kubeconfig }}"
+        api_version: v1
+        kind: Secret
+        namespace: "{{ openbao_eso_namespace }}"
+        name: "{{ openbao_eso_baku_sa_secret }}"
+      register: openbao_baku_sa_secret
+
+    - name: Enable Kubernetes auth for baku
+      when: openbao_auths.json.data[auth_name + "/"] is not defined
+      ansible.builtin.uri:
+        url: "{{ openbao_api_url }}/sys/auth/{{ auth_name }}"
+        method: POST
+        headers:
+          X-Vault-Token: "{{ openbao_root_token }}"
+        status_code:
+          - 200 # created
+          - 204 # already exists/updated
+        body_format: json
+        body:
+          type: kubernetes
+    - name: Configure baku Kubernetes auth
+      ansible.builtin.uri:
+        url: "{{ openbao_api_url }}/auth/{{ auth_name }}/config"
+        method: POST
+        headers:
+          X-Vault-Token: "{{ openbao_root_token }}"
+        status_code:
+          - 204 # When successful
+          - 200 # When warning
+        body_format: json
+        body:
+          kubernetes_host: "https://{{ hostvars.baku.k3s_domain | default(hostvars.baku.domain_name) }}:443"
+          kubernetes_ca_cert: "{{ openbao_baku_sa_secret.resources[0].data.token | b64decode }}"
+          token_reviewer_jwt: "{{ openbao_baku_sa_secret.resources[0].data['ca.crt'] | b64decode }}"

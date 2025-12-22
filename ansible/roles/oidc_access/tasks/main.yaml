@@ -60,17 +60,17 @@
     oidc:
       client_id: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n.json, zitadel_app.json.result.0.oidcConfig)).clientId }}"
       client_secret: "{{ ((zitadel_app_n is changed) | ternary(zitadel_app_n, zitadel_app_r)).json.clientSecret }}"
-- name: Store permanently in vault
+- name: Store permanently in OpenBao
   no_log: true
   ansible.builtin.uri:
-    url: "{{ vault_api_url }}/{{ secret_path }}"
+    url: "{{ openbao_api_url }}/{{ secret_path }}"
     method: POST
     status_code:
-      - 204 # When successfull
+      - 204 # When successful
       - 200 # When warning
     body_format: json
     headers:
-      X-Vault-Token: "{{ vault_root_token }}"
+      X-Vault-Token: "{{ openbao_root_token }}"
     body:
       data:
         clientID: "{{ oidc.client_id }}"

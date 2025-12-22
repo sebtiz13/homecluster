@@ -1,6 +1,6 @@
 - name: Store masterkey # noqa: var-naming[no-role-prefix]
   ansible.builtin.include_role:
-    name: vault_secret
+    name: openbao_secret
   vars:
     updatable: false
     path: salamandre/data/zitadel/masterkey

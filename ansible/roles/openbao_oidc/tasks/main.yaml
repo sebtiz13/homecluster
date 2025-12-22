@@ -1,0 +1,181 @@
+- name: OpenBao | Create oidc access # noqa: var-naming[no-role-prefix]
+  ansible.builtin.include_role:
+    name: oidc_access
+  vars:
+    secret_path: salamandre/data/openbao/oidc
+    project_id: "{{ zitadel_dev_project_id }}"
+    app_name: OpenBao
+    redirect_uris:
+      - "{{ external_urls.openbao }}/oidc/callback"
+      - "{{ external_urls.openbao }}/ui/openbao/auth/oidc/oidc/callback"
+    post_logout_redirect_uris:
+      - "{{ external_urls.openbao }}"
+    response_types:
+      - OIDC_RESPONSE_TYPE_CODE
+    grant_types:
+      - OIDC_GRANT_TYPE_AUTHORIZATION_CODE
+      - OIDC_GRANT_TYPE_REFRESH_TOKEN
+    auth_method_type: OIDC_AUTH_METHOD_TYPE_BASIC
+
+- name: OpenBao | Create policies for oidc
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/policy/{{ item }}"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      policy: "{{ lookup('ansible.builtin.file', './' + item + '.hcl') }}"
+  loop:
+    - reader
+    - admin
+    - operator
+
+- name: OpenBao | Enable oidc auth
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/auth/oidc"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    status_code:
+      - 200 # created
+      - 204 # already exists/updated
+    body_format: json
+    body:
+      type: "oidc"
+
+- name: OpenBao | Configure access for oidc auth (dev)
+  when: env == 'dev'
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/auth/oidc/config"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      oidc_discovery_url: "{{ external_urls.zitadel }}"
+      oidc_discovery_ca_pem: "{{ lookup('ansible.builtin.file', ca.cert) }}"
+      oidc_client_id: "{{ oidc.client_id }}"
+      oidc_client_secret: "{{ oidc.client_secret }}"
+      default_role: reader
+- name: OpenBao | Configure access for oidc auth (prod)
+  when: env == 'production'
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/auth/oidc/config"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      oidc_discovery_url: "{{ external_urls.zitadel }}"
+      oidc_client_id: "{{ oidc.client_id }}"
+      oidc_client_secret: "{{ oidc.client_secret }}"
+      default_role: reader
+
+- name: OpenBao | Create reader oidc role
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/auth/oidc/role/reader"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      bound_audiences: "{{ oidc.client_id }}"
+      allowed_redirect_uris:
+        - "{{ external_urls.openbao }}/ui/openbao/auth/oidc/oidc/callback"
+        - http://localhost:8200/oidc/callback
+      user_claim: sub
+      groups_claim: groups
+      token_policies:
+        - default
+        - reader
+
+- name: OpenBao | Create identity groups
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/identity/group"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      name: "{{ item.name }}"
+      policies: "{{ item.policies }}"
+      type: external
+  register: openbao_oidc_identity_n
+  changed_when:
+    - "'json' in openbao_oidc_identity_n"
+    - "'data' in openbao_oidc_identity_n.json"
+  loop_control:
+    label: "{{ item.name }}"
+  loop:
+    - name: operator
+      policies:
+        - operator
+    - name: admin
+      policies:
+        - operator
+        - admin
+
+- name: OpenBao | Retrieve identity groups
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/identity/group/name/{{ item }}"
+    method: GET
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+  register: openbao_oidc_identity
+  loop_control:
+    label: "{{ item }}"
+  loop:
+    - operator
+    - admin
+
+- name: OpenBao | Retrieve auth method
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/auth/oidc"
+    method: GET
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+  register: openbao_oidc_auth
+
+- name: OpenBao | Create identity group alias # noqa: no-handler
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/identity/group-alias"
+    method: POST
+    status_code:
+      - 204 # When successful
+      - 200 # When warning
+    body_format: json
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    body:
+      name: "{{ item.item }}"
+      mount_accessor: "{{ openbao_oidc_auth.json.data.accessor }}"
+      canonical_id: "{{ item.json.data.id }}"
+  register: openbao_oidc_identity_alias
+  failed_when:
+    - "openbao_oidc_identity_alias.status != 204 and openbao_oidc_identity_alias.status != 200"
+    - "('json' not in openbao_oidc_identity_alias) or (openbao_oidc_identity_alias.json.errors.0 != 'combination of mount and group alias name is already in use')"
+  loop_control:
+    label: "{{ item.item }}"
+  loop: "{{ openbao_oidc_identity.results }}"

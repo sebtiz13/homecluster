@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ apps_openbao.keys_secret_name }}"
+  namespace: "{{ apps_openbao.namespace  }}"
+type: Opaque
+data:
+  {% for key in keys_b64 -%}
+  key{{ loop.index }}: "{{ key | b64encode }}"
+  {% endfor -%}

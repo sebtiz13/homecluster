@@ -14,4 +14,4 @@ patches:
           key: tls.crt
     target:
       kind: ClusterSecretStore
-      name: vault-eso
+      name: openbao-eso

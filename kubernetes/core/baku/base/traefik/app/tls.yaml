@@ -4,7 +4,7 @@ metadata:
   name: ${DOMAIN_NAME/./-}-tls
 spec:
   secretStoreRef:
-    name: vault-eso
+    name: openbao-eso
     kind: ClusterSecretStore
   refreshInterval: 1h
   target:
