@@ -34,7 +34,20 @@
     - admin
     - operator
 
+- name: OpenBao | Retrieve enabled engines
+  ansible.builtin.uri:
+    url: "{{ openbao_api_url }}/sys/auth/oidc"
+    method: GET
+    headers:
+      X-Vault-Token: "{{ openbao_root_token }}"
+    status_code:
+      - 200 # When successful
+      - 400 # When not found
+    return_content: true
+  register: openbao_oidc_auth
+  failed_when: (openbao_oidc_auth.status == 400 and 'No auth engine at' not in openbao_oidc_auth.json.errors.0)
 - name: OpenBao | Enable oidc auth
+  when: openbao_oidc_auth.status == 400
   ansible.builtin.uri:
     url: "{{ openbao_api_url }}/sys/auth/oidc"
     method: POST
