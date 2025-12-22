@@ -7,7 +7,7 @@ step):
 
 - `./out/kubeconfig/salamandre.production.yaml`
 - `./out/kubeconfig/baku.production.yaml`
-- `./out/credentials/production/*` (for `vault.json` only `root_token` and `unseal_keys_b64` is important)
+- `./out/credentials/production/*` (for `openbao.json` only `root_token` and `unseal_keys_b64` is important)
 
 ## Admin credentials
 
@@ -15,8 +15,8 @@ step):
 
 ### Salamandre
 
-- Vault:
-  - Root token: run `jq -r .root_token ./out/credentials/<env>/vault.json`
+- Openbao:
+  - Root token: run `jq -r .root_token ./out/credentials/<env>/openbao.json`
 - Zitadel:
   - Username: `admin`
   - Password: run `yq .salamandre.zitadel ./out/credentials/<env>/admin_passwords.yaml`
