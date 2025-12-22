@@ -80,6 +80,6 @@
           - 200 # When warning
         body_format: json
         body:
-          kubernetes_host: "https://{{ hostvars.baku.k3s_domain | default(hostvars.baku.domain_name) }}:443"
-          kubernetes_ca_cert: "{{ openbao_baku_sa_secret.resources[0].data.token | b64decode }}"
-          token_reviewer_jwt: "{{ openbao_baku_sa_secret.resources[0].data['ca.crt'] | b64decode }}"
+          kubernetes_host: "https://{{ hostvars.baku.k3s_domain | default(hostvars.baku.domain_name) }}:6443"
+          kubernetes_ca_cert: "{{ openbao_baku_sa_secret.resources[0].data['ca.crt'] | b64decode }}"
+          token_reviewer_jwt: "{{ openbao_baku_sa_secret.resources[0].data.token | b64decode }}"
