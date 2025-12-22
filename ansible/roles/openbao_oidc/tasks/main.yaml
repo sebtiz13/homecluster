@@ -7,7 +7,7 @@
     app_name: OpenBao
     redirect_uris:
       - "{{ external_urls.openbao }}/oidc/callback"
-      - "{{ external_urls.openbao }}/ui/openbao/auth/oidc/oidc/callback"
+      - "{{ external_urls.openbao }}/ui/vault/auth/oidc/oidc/callback"
     post_logout_redirect_uris:
       - "{{ external_urls.openbao }}"
     response_types:
@@ -94,7 +94,7 @@
     body:
       bound_audiences: "{{ oidc.client_id }}"
       allowed_redirect_uris:
-        - "{{ external_urls.openbao }}/ui/openbao/auth/oidc/oidc/callback"
+        - "{{ external_urls.openbao }}/ui/vault/auth/oidc/oidc/callback"
         - http://localhost:8200/oidc/callback
       user_claim: sub
       groups_claim: groups
