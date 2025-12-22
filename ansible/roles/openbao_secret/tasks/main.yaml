@@ -15,7 +15,7 @@
 - name: Store secret
   when: >
     (openbao_secret_check.status == 404) or
-    (updatable and openbao_secret_check.json.data.data != data)
+    ((updatable | default(true)) and openbao_secret_check.json.data.data != data)
   no_log: true
   changed_when: true
   ansible.builtin.uri:
