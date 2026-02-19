@@ -16,7 +16,7 @@ spec:
           nodeName: salamandre
           containers:
           - name: backup-runner
-            image: ghcr.io/sebtiz13/homecluster/backup-tools:dev-2874222
+            image: ghcr.io/sebtiz13/homecluster/backup-tools:65c557f
             command: ["/bin/bash", "/app/backup.sh"]
             env:
             - name: FULL_BACKUP_DAY
