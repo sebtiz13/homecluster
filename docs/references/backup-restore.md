@@ -1,19 +1,34 @@
 # Cluster backup/Restore
 
+> Currently, only **salamandre** can be backup.
+
 ## Backup
 
-The salamandre cluster is automatically backup each day.
+The **salamandre** cluster automatically backup each day (around 3am) all PVCs marked with `backup.local/enabled: true` label and sended to **baku** in `.zvol.gz` format.
 
-- The database run they backup with barman at 2am.
-- The kubernetes PVC run they backup at 3am.
+> **NOTE**: Automatic backup is suspended on sandbox.
 
-  > **NOTE**: This create one full backup each first day of week (even database), and next days is incremental.
+Deep dive :
+
+- The database run they backup at 3am.
+- The kubernetes PVC run they backup at 3:05 am (This delay is to ensure that the database is backed up).
+- An full backup is created each Monday or if yesterday backup could not be found on one server, otherwise an incremental backup is done.
 
 ### Manual backup
 
-The cron jobs is disabled on sandbox but it's can be run manually with following commands :
+You can manually create an custom backup at anytime with following commands :
 
-- Kubernetes PVC: `sudo -u backup /opt/backup-cluster/backup.sh`
+```text
+Usage: ./scripts/manual-backup.sh [OPTIONS]
+
+Launch an save Kubernetes job based on existing CronJob.
+
+OPTIONS:
+  -d, --date YYYYMMDD Force run an specific date backup (mainly for testing).
+                      (Default: Today)
+  -f, --full          Force an full backup (ignore incremental logic).
+  -h, --help          Show this help message.
+```
 
 ## Restore
 
@@ -35,17 +50,3 @@ Run the following commands for restore the cluster.
 After restore files run this command in nextcloud pod: `su -m www-data -s /bin/sh -c 'php occ files:scan --all'`
 
 ### Troubleshooting
-
-#### Barman: `error: unexpected termination of replication stream`
-
-Full error :
-
-```log
-error: unexpected termination of replication stream
-
-barman.command_wrappers INFO: main_backup: pg_receivewal: starting log streaming at 0/2D000000 (timeline 1)
-barman.command_wrappers INFO: main_backup: pg_receivewal: error: unexpected termination of replication stream: ERROR:  requested WAL segment 00000001000000000000002D has already been removed
-barman.command_wrappers INFO: main_backup: pg_receivewal: error: disconnected
-```
-
-If this error is thrown, you need to run the following command `barman receive-wal main_backup --reset`.

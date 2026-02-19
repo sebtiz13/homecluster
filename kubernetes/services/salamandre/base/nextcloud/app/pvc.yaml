@@ -6,6 +6,7 @@ metadata:
     app.kubernetes.io/name: &name nextcloud
     app.kubernetes.io/instance: *name
     app.kubernetes.io/component: app
+    backup.local/enabled: "true"
 spec:
   storageClassName: openebs-zfspv
   accessModes:

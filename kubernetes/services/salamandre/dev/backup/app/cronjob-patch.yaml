@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: zfs-s3-backup
+spec:
+  suspend: true
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - name: backup-runner
+            volumeMounts:
+            - name: certificate
+              mountPath: /etc/ssl/certs/vm-ca.crt
+              subPath: tls.crt
+              readOnly: true
+
+          volumes:
+          - name: certificate
+            secret:
+              secretName: vm-ca-tls
+              defaultMode: 420
