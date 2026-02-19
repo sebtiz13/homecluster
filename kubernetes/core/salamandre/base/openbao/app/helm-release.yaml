@@ -44,6 +44,8 @@ spec:
       dataStorage:
         size: 2Gi
         storageClass: openebs-zfspv
+        labels:
+          backup.local/enabled: "true"
 
       extraSecretEnvironmentVars:
         - envName: OPENBAO_STATIC_SEAL_KEY
