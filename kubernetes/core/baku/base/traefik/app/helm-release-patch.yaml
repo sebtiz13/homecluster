@@ -11,8 +11,9 @@ spec:
           default: true
         exposedPort: 3882
         protocol: TCP
-        tls:
-          enabled: true
+        http:
+          tls:
+            enabled: true
         forwardedHeaders: &forwardedHeaders
           trustedIPs:
             - "127.0.0.1/32"
@@ -23,7 +24,8 @@ spec:
           default: true
         exposedPort: 53639
         protocol: TCP
-        tls:
-          enabled: true
+        http:
+          tls:
+            enabled: true
         forwardedHeaders:
           <<: *forwardedHeaders
