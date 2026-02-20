@@ -44,7 +44,11 @@ spec:
               subPath: config.json
               name: minio-config
               readOnly: true
-
+            resources:
+              requests:
+                cpu: "1"
+                memory: 2Gi
+              # TODO: define limit
           restartPolicy: Never
           volumes:
           - name: dev-zfs
