@@ -16,6 +16,10 @@ spec:
           - hosts:
               - *host
       spec:
+        extraArgs:
+          search.maxConcurrentRequests: "4"
+          search.maxQueueDuration: 30s
+          search.maxQueryDuration: 60s
         retentionPeriod: "14" # 14 months
         storage:
           storageClassName: openebs-zfspv
@@ -24,13 +28,37 @@ spec:
           resources:
             requests:
               storage: 70Gi
-
+        resources:
+          requests:
+            cpu: 400m
+            memory: 2Gi
+          limits:
+            cpu: "1"
+            memory: 3Gi
     vmagent:
       spec:
         externalLabels:
           cluster: baku
 
+    vmalert:
+      spec:
+        resources:
+          requests:
+            cpu: 30m
+            memory: 100Mi
+          limits:
+            cpu: 50m
+            memory: 180Mi
+
     alertmanager:
+      spec:
+        resources:
+          requests:
+            cpu: 7m
+            memory: 80Mi
+          limits:
+            cpu: 14m
+            memory: 120Mi
       useManagedConfig: true
       config:
         inhibit_rules:
