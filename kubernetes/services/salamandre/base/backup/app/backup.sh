@@ -250,6 +250,7 @@ stream_to_s3() {
   local s3_filename_suffix=""
   local backup_message=""
   local zfs_cmd=(zfs send)
+  local tmp_file
 
   if [ "$FORCE_FULL_BACKUP" == "true" ] || [ "$FORCE_FULL_BACKUP" == "TRUE" ]; then
     s3_filename_suffix="-full"
@@ -294,12 +295,21 @@ stream_to_s3() {
   # Send it to S3 in compressed format
   zfs_cmd+=("$full_zfs_snap")
   local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol.gz"
-  log "Starting ${backup_message}, then transfer it to S3 ($s3_full_path)."
-  if "${zfs_cmd[@]}" | gzip -c | mc pipe "${S3_BUCKET_NAME}/${s3_full_path}" >/dev/null; then
+  log "Starting ${backup_message}, extracting and compressing snapshot..."
+  tmp_file=$(mktemp)
+  if ! "${zfs_cmd[@]}" | gzip -c > "$tmp_file"; then
+    log "WARNING: ZFS send/gzip failed. Local snapshot is preserved."
+    rm -f "$tmp_file"
+    return 1
+  fi
+  log "Transfer it to S3 ($s3_full_path)..."
+  if mc cp "$tmp_file" "${S3_BUCKET_NAME}/${s3_full_path}" >/dev/null; then
     log "Upload successful."
+    rm -f "$tmp_file"
     return 0
   else
     log "WARNING: S3 upload failed. Local snapshot is preserved."
+    rm -f "$tmp_file"
     return 1
   fi
 }
