@@ -20,6 +20,15 @@ spec:
           basicAuth:
             <<: *auth
 
+    victoria-metrics-operator:
+      resources:
+        requests:
+          cpu: 8m
+          memory: 70Mi
+        limits:
+          cpu: 16m
+          memory: 140Mi
+
     vmagent:
       spec:
         externalLabels:

@@ -40,14 +40,6 @@ spec:
       operator:
         enable_converter_ownership: true
 
-      resources:
-        requests:
-          cpu: 80m
-          memory: 120Mi
-        limits:
-          cpu: 120m
-          memory: 320Mi
-
       # Disable CRDs
       crds:
         enabled: false
@@ -101,17 +93,17 @@ spec:
       fullnameOverride: node-exporter
       resources:
         requests:
-          cpu: 15m
-          memory: 30Mi
+          cpu: 20m
+          memory: 25Mi
         limits:
           cpu: 30m
-          memory: 60Mi
+          memory: 50Mi
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
       resources:
         requests:
-          cpu: 5m
-          memory: 70Mi
+          cpu: 4m
+          memory: 60Mi
         limits:
-          cpu: 15m
-          memory: 140Mi
+          cpu: 10m
+          memory: 120Mi
