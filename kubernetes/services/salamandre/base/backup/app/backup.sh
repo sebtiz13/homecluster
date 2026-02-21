@@ -3,6 +3,8 @@ set -eo pipefail # Exit immediately on error, or if any command in a pipeline fa
 
 # --- Variables ---
 
+LOG_DIR="/backup-logs"
+
 # K8s
 PVC_STORAGE_CLASS=${PVC_STORAGE_CLASS:-"openebs-zfspv"}
 SNAPSHOT_CLASS=${SNAPSHOT_CLASS:-"zfspv-snapclass"}
@@ -18,6 +20,13 @@ KEEP_DAYS=${KEEP_DAYS:-3} # Keep snapshots during N days
 FORCE_FULL_BACKUP=${FORCE_FULL_BACKUP:"false"}
 
 # --- End Variables ---
+
+mkdir -p "$LOG_DIR"
+if [ -n "$MANUAL_DATE" ]; then
+  LOG_SUFFIX="manual"
+fi
+# Tee: logs to PVC file AND stdout (for kubectl logs)
+exec &> >(tee -a "$LOG_DIR/$(date +%Y%m%d-%H%M%S)-${LOG_SUFFIX:-"cron"}.log")
 
 # Logs a message with a timestamp
 log() {

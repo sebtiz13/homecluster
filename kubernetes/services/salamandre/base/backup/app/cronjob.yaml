@@ -2,6 +2,10 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: zfs-s3-backup
+  labels:
+    app.kubernetes.io/name: &name backup
+    app.kubernetes.io/instance: *name
+    app.kubernetes.io/component: app
 spec:
   schedule: "5 3 * * *" # Daily at 3:05
   concurrencyPolicy: Forbid
@@ -45,6 +49,8 @@ spec:
               subPath: config.json
               name: minio-config
               readOnly: true
+            - mountPath: /backup-logs
+              name: backup-logs
             resources:
               requests:
                 cpu: "1"
@@ -63,3 +69,6 @@ spec:
             secret:
               secretName: minio-credentials
               defaultMode: 0755
+          - name: backup-logs
+            persistentVolumeClaim:
+              claimName: backup-log

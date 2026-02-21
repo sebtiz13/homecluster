@@ -8,10 +8,33 @@ spec:
   targetNamespace: backup
   interval: 10m0s
   prune: true
-  wait: true
   dependsOn:
     - name: cloudnative-pg-cluster
   path: ./kubernetes/services/salamandre/base/backup/app
   sourceRef:
     kind: GitRepository
     name: flux-system
+  # wait: true # Exclude PVC from health check
+  healthChecks:
+    - apiVersion: batch/v1
+      kind: CronJob
+      name: zfs-s3-backup
+      namespace: backup
+    - apiVersion: v1
+      kind: ServiceAccount
+      name: backup-operator
+      namespace: backup
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      name: backup-operator-role
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      name: backup-operator-binding
+    - apiVersion: external-secrets.io/v1
+      kind: ExternalSecret
+      name: minio-credentials
+      namespace: backup
+    - apiVersion: v1
+      kind: Secret
+      name: discord-webhook
+      namespace: backup

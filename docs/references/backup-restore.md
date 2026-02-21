@@ -39,7 +39,6 @@ Run the following commands for restore the cluster.
 - Restore Nextcloud data :
 
   If you doesn't restore the database, you need run the following commands :
-
   1. Retrieve pod name: run `kubectl get pods -n nextcloud -lapp.kubernetes.io/name=nextcloud,app.kubernetes.io/component=app`
   2. Run `kubectl exec <pod name> -n nextcloud -it -- su -m www-data -s /bin/sh -c 'php occ files:scan --all'` inside pod
 
@@ -48,5 +47,11 @@ Run the following commands for restore the cluster.
 #### Nextcloud
 
 After restore files run this command in nextcloud pod: `su -m www-data -s /bin/sh -c 'php occ files:scan --all'`
+
+### Logs
+
+Currently you can see the log directly from the pods during 15min after finished backup via : `kubectl logs pod/<pod name>` (you can specify `--previous` up to 3 to see failed runs)
+
+After that period the log file is still present in pvc `backup-log` in `backup` namespace.
 
 ### Troubleshooting
