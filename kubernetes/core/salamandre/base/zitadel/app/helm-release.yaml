@@ -73,6 +73,13 @@ spec:
     login:
       ingress:
         enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 196Mi
 
     annotations:
       reloader.stakater.com/auto: "true"
@@ -99,12 +106,22 @@ spec:
 
     resources:
       requests:
-        memory: 96Mi
-        cpu: 20m
+        cpu: 12m
+        memory: 128Mi
       limits:
-        memory: 512Mi
         cpu: 200m
+        memory: 196Mi
 
     service:
       annotations:
         traefik.ingress.kubernetes.io/service.serversscheme: h2c
+
+    tools:
+      wait4x:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 32Mi
+          limits:
+            cpu: 50m
+            memory: 32Mi

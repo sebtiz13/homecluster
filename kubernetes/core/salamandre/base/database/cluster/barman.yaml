@@ -18,3 +18,11 @@ spec:
       compression: bzip2
     wal:
       compression: bzip2
+  instanceSidecarConfiguration:
+    resources:
+      requests:
+        cpu: 5m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 2.5Gi

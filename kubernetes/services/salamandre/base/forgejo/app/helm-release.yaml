@@ -71,11 +71,11 @@ spec:
 
     resources:
       requests:
-        cpu: 200m
-        memory: 250Mi
+        cpu: 25m
+        memory: 168Mi
       limits:
-        cpu: 1
-        memory: 1Gi
+        cpu: 100m
+        memory: 256Mi
 
     service:
       ssh:

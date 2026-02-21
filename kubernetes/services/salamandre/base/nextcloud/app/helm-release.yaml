@@ -241,13 +241,15 @@ spec:
 
     cronjob:
       enabled: true
-      resources:
-        requests:
-          cpu: 10m
-          memory: 3Mi
-        limits:
-          cpu: 100m
-          memory: 128Mi
+      type: sidecar
+      sidecar:
+        resources:
+          requests:
+            cpu: 1m
+            memory: 10Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
 
     phpClientHttpsFix:
       enabled: true
@@ -265,11 +267,11 @@ spec:
 
     resources:
       requests:
-        cpu: 200m
+        cpu: 20m
         memory: 256Mi
       limits:
         cpu: 1500m
-        memory: 2.5Gi
+        memory: 1Gi
 
     imaginary:
       enabled: true
@@ -277,7 +279,7 @@ spec:
       resources:
         requests:
           cpu: 5m
-          memory: 32Mi
+          memory: 256Mi
         limits:
           cpu: 1
           memory: 1024Mi
@@ -327,10 +329,10 @@ spec:
 
       resources:
         requests:
-          cpu: 100m
+          cpu: 10m
           memory: 512Mi
         limits:
-          cpu: 500m
+          cpu: 300m
           memory: 1Gi
 
     # Disable not necessary apps

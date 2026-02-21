@@ -102,8 +102,8 @@ spec:
               value: "1"
           resources:
             requests:
-              cpu: 5m
-              memory: 16Mi
+              cpu: 1m
+              memory: 48Mi
             limits:
               cpu: 1500m
               memory: 2048Mi
@@ -125,11 +125,11 @@ spec:
             privileged: true
           resources:
             requests:
-              cpu: 200m
-              memory: 96Mi
+              cpu: 2m
+              memory: 192Mi
             limits:
-              cpu: 1500m
-              memory: 1024Mi
+              cpu: 200m
+              memory: 512Mi
           volumeMounts:
             - name: docker-certs
               mountPath: /certs
