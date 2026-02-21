@@ -2,16 +2,33 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: openebs-zfspv
+  annotations:
+    usage: "General purpose"
 provisioner: zfs.csi.openebs.io
 parameters:
-  recordsize: 4k
+  recordsize: 128k
   compression: "on"
   dedup: "off"
   fstype: "zfs"
   poolname: ${ZFS_POOL_NAME}
 allowVolumeExpansion: true
 volumeBindingMode: WaitForFirstConsumer
-
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: openebs-zfspv-db
+  annotations:
+    usage: "Database (e.g. Postgresql)"
+provisioner: zfs.csi.openebs.io
+parameters:
+  recordsize: 16k
+  compression: "on"
+  dedup: "off"
+  fstype: "zfs"
+  poolname: ${ZFS_POOL_NAME}
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
