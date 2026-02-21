@@ -10,6 +10,7 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 3
+      ttlSecondsAfterFinished: 900 # Clean pods after 15min
       template:
         spec:
           serviceAccountName: backup-operator
@@ -49,7 +50,7 @@ spec:
                 cpu: "1"
                 memory: 2Gi
               # TODO: define limit
-          restartPolicy: Never
+          restartPolicy: OnFailure
           volumes:
           - name: dev-zfs
             hostPath:
