@@ -11,7 +11,7 @@ spec:
 
   storage:
     size: 5Gi
-    storageClass: openebs-zfspv
+    storageClass: openebs-zfspv-db
 
   enableSuperuserAccess: true
   superuserSecret:
