@@ -30,6 +30,8 @@ spec:
               value: "30"
             - name: S3_BUCKET_NAME
               value: baku/backup-salamandre-pvc/new
+            - name: LOG_DIR
+              value: /app/logs/new
             - name: DISCORD_WEBHOOK_URL
               valueFrom:
                 secretKeyRef:
@@ -49,7 +51,7 @@ spec:
               subPath: config.json
               name: minio-config
               readOnly: true
-            - mountPath: /backup-logs
+            - mountPath: /app/logs
               name: backup-logs
             resources:
               requests:
@@ -70,5 +72,6 @@ spec:
               secretName: minio-credentials
               defaultMode: 0755
           - name: backup-logs
-            persistentVolumeClaim:
-              claimName: backup-log
+            hostPath: # TODO: temporary, until centralized log
+              path: /var/log/backup-cluster
+              type: Directory

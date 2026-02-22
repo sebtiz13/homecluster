@@ -3,7 +3,7 @@ set -eo pipefail # Exit immediately on error, or if any command in a pipeline fa
 
 # --- Variables ---
 
-LOG_DIR="/backup-logs"
+LOG_DIR="/app/logs"
 
 # K8s
 PVC_STORAGE_CLASS=${PVC_STORAGE_CLASS:-"openebs-zfspv"}

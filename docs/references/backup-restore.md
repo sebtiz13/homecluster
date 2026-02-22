@@ -52,6 +52,6 @@ After restore files run this command in nextcloud pod: `su -m www-data -s /bin/s
 
 Currently you can see the log directly from the pods during 15min after finished backup via : `kubectl logs pod/<pod name>` (you can specify `--previous` up to 3 to see failed runs)
 
-After that period the log file is still present in pvc `backup-log` in `backup` namespace.
+After that period the log file is still present at `/var/log/backup-cluster/new` on the machine.
 
 ### Troubleshooting
