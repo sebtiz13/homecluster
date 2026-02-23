@@ -82,7 +82,8 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: runner
-          image: code.forgejo.org/forgejo/runner:12.1.1
+          # renovate: datasource=forgejo-releases
+          image: code.forgejo.org/forgejo/runner:12.7.0
           imagePullPolicy: *imagePolicy
           command:
             - sh
