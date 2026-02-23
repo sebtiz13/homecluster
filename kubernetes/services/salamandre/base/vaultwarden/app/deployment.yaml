@@ -26,7 +26,7 @@ spec:
       containers:
         - name: *name
           # renovate: datasource=docker image=vaultwarden/server
-          image: vaultwarden/server:1.34.3-alpine
+          image: vaultwarden/server:1.35.3-alpine
           imagePullPolicy: &imagePolicy IfNotPresent
           envFrom: &envFrom
             - configMapRef:
@@ -73,7 +73,7 @@ spec:
               name: data-storage
       initContainers:
         - name: update-config
-          image: vaultwarden/server:1.34.3-alpine
+          image: vaultwarden/server:1.35.3-alpine
           imagePullPolicy: *imagePolicy
           command:
             - sh

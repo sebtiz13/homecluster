@@ -7,7 +7,7 @@ metadata:
 spec:
   url: https://github.com/cloudnative-pg/cloudnative-pg
   ref:
-    tag: v1.27.1
+    tag: v1.28.1
   interval: 15m
   ignore: |
     # exclude all
