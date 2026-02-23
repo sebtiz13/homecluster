@@ -30,7 +30,7 @@ spec:
         # both are being set up for the first time.
         - name: await-forgejo
           # renovate: datasource=docker image=alpine/curl
-          image: alpine/curl:8.14.1
+          image: alpine/curl:8.17.0
           command:
             - sh
           args:
@@ -53,7 +53,8 @@ spec:
             - name: FORGEJO_INSTANCE_URL
               value: &host http://forgejo-http.forgejo.svc.cluster.local:3000
         - name: runner-config-generation
-          image: code.forgejo.org/forgejo/runner:12.1.1
+          # renovate: datasource=forgejo-releases
+          image: code.forgejo.org/forgejo/runner:12.7.0
           imagePullPolicy: &imagePolicy IfNotPresent
           command:
             - forgejo-runner
@@ -117,7 +118,7 @@ spec:
               subPath: "config.yaml"
         - name: daemon
           # renovate: datasource=docker image=docker
-          image: docker:29.1.2-dind
+          image: docker:29.2.1-dind
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /certs
