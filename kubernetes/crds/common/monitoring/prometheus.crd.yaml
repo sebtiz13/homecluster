@@ -1,5 +1,5 @@
 # ! NOTE: need to keep version synced with operator in "victoria-metrics-k8s-stack" deployment (file: kubernetes/services/common/base/monitoring/helm-release.yaml)
-# renovate: datasource=github-release depName=victoriametrics/operator
+# renovate: datasource=github-releases depName=victoriametrics/operator
 # sourceUrl=https://raw.githubusercontent.com/VictoriaMetrics/operator/v0.65.0/hack/crd/prometheus/crd.yaml
 ---
 # https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.74.0/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
