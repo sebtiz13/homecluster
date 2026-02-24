@@ -334,10 +334,21 @@ stream_to_s3() {
   local tmp_file
   local file_size
   tmp_file=$(mktemp)
-  if ! "${zfs_cmd[@]}" 2>/dev/null > "$tmp_file"; then
-    log "WARNING: ZFS send failed. Local snapshot is preserved."
-    rm -f "$tmp_file"
-    return 1
+  if ! "${zfs_cmd[@]}" > "$tmp_file"; then
+    if [ "${s3_filename_suffix}" == "-incr" ]; then
+      log "WARNING: Incremental failed. Falling back to full backup."
+
+      s3_filename_suffix="-full"
+      if ! zfs send -c "$full_zfs_snap" > "$tmp_file"; then
+        log "WARNING: ZFS send failed. Local snapshot is preserved."
+        rm -f "$tmp_file"
+        return 1
+      fi
+    else
+      log "WARNING: ZFS send failed. Local snapshot is preserved."
+      rm -f "$tmp_file"
+      return 1
+    fi
   fi
   file_size=$(stat -c%s "$tmp_file" | numfmt --to=iec --suffix=B)
 
