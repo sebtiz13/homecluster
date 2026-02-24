@@ -259,7 +259,6 @@ stream_to_s3() {
   local s3_filename_suffix=""
   local backup_message=""
   local zfs_cmd=(zfs send -c)
-  local tmp_file
 
   if [ "$FORCE_FULL_BACKUP" == "true" ] || [ "$FORCE_FULL_BACKUP" == "TRUE" ]; then
     s3_filename_suffix="-full"
@@ -305,18 +304,23 @@ stream_to_s3() {
       backup_message="full backup (WARN: No local snapshot found for yesterday)"
     fi
   fi
-
-  # Send it to S3 in compressed format
   zfs_cmd+=("$full_zfs_snap")
-  local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol"
+
+  # Extract and compress to tmp file
   log "Starting ${backup_message}, extracting and compressing snapshot..."
+  local tmp_file
+  local file_size
   tmp_file=$(mktemp)
   if ! "${zfs_cmd[@]}" 2>/dev/null > "$tmp_file"; then
     log "WARNING: ZFS send failed. Local snapshot is preserved."
     rm -f "$tmp_file"
     return 1
   fi
-  log "Transfer it to S3 ($s3_full_path)..."
+  file_size=$(stat -c%s "$tmp_file" | numfmt --to=iec --suffix=B)
+
+  # Transfert it to S3
+  local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol"
+  log "Transfer it to S3 ($s3_full_path) [$file_size]..."
   if mc cp "$tmp_file" "${S3_BUCKET_NAME}/${s3_full_path}" >/dev/null; then
     log "Upload successful."
     rm -f "$tmp_file"
