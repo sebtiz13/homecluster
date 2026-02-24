@@ -8,8 +8,6 @@ spec:
   targetNamespace: backup
   interval: 10m0s
   prune: true
-  dependsOn:
-    - name: cloudnative-pg-cluster
   path: ./kubernetes/services/salamandre/base/backup/app
   sourceRef:
     kind: GitRepository

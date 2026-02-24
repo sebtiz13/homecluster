@@ -4,7 +4,7 @@
 
 ## Backup
 
-The **salamandre** cluster automatically backup each day (around 3am) all PVCs marked with `backup.local/enabled: true` label and sended to **baku** in `.zvol.gz` format.
+The **salamandre** cluster automatically backup each day (around 3am) all PVCs marked with `backup.local/enabled: true` label and sended to **baku** in `.zvol` format.
 
 > **NOTE**: Automatic backup is suspended on sandbox.
 
