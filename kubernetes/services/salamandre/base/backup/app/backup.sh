@@ -224,7 +224,7 @@ check_s3_reference() {
   local snap_ref=$3
   local s3_path="${S3_BUCKET_NAME}/${namespace}/${pvc_name}/${snap_ref}"
 
-  # Check if file exist in s3 (filename is partial to ignore type, eg. namespace/pvc_name/date instead of namespace/pvc_name/date-full.zvol.gz)
+  # Check if file exist in s3 (filename is partial to ignore type, eg. namespace/pvc_name/date instead of namespace/pvc_name/date-full.zvol)
   if mc ls -r "${s3_path}" --json 2>/dev/null | jq -e '.[]' > /dev/null; then
     return 0
   else
@@ -258,7 +258,7 @@ stream_to_s3() {
   # Define ZFS command and filename (choose between incremental and full backup)
   local s3_filename_suffix=""
   local backup_message=""
-  local zfs_cmd=(zfs send)
+  local zfs_cmd=(zfs send -c)
   local tmp_file
 
   if [ "$FORCE_FULL_BACKUP" == "true" ] || [ "$FORCE_FULL_BACKUP" == "TRUE" ]; then
@@ -303,11 +303,11 @@ stream_to_s3() {
 
   # Send it to S3 in compressed format
   zfs_cmd+=("$full_zfs_snap")
-  local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol.gz"
+  local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol"
   log "Starting ${backup_message}, extracting and compressing snapshot..."
   tmp_file=$(mktemp)
-  if ! "${zfs_cmd[@]}" | gzip -c > "$tmp_file"; then
-    log "WARNING: ZFS send/gzip failed. Local snapshot is preserved."
+  if ! "${zfs_cmd[@]}" 2>/dev/null > "$tmp_file"; then
+    log "WARNING: ZFS send failed. Local snapshot is preserved."
     rm -f "$tmp_file"
     return 1
   fi

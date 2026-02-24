@@ -12,7 +12,6 @@ RUN apt-get update && \
     jq \
     curl \
     ca-certificates \
-    gzip \
     zfsutils-linux && \
     rm -rf /var/lib/apt/lists/*
 
