@@ -6,7 +6,7 @@ resources:
   - ../../../../common/base/monitoring/vm-stack
   - secret.yaml
   - middleware.yaml
-  - rules
+  # - rules
 patches:
   - path: helm-release-patch.yaml
     target:

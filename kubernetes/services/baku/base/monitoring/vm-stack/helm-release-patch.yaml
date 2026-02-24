@@ -149,25 +149,25 @@ spec:
 
     # Disable tweaked alert rules
     defaultRules:
-      rules:
-        # Kubernetes system (change "apiserver" to "kubelet" for k3s)
-        KubeClientErrors:
-          create: true
-          spec:
-            expr: |-
-              (sum(rate(rest_client_requests_total{job="kubelet",code=~"5.."}[5m])) by (instance,job,namespace,cluster)
-                /
-              sum(rate(rest_client_requests_total{job="kubelet"}[5m])) by (instance,job,namespace,cluster))
-              > 0.01
+      # rules:
+      #   # Kubernetes system (change "apiserver" to "kubelet" for k3s)
+      #   KubeClientErrors:
+      #     create: true
+      #     spec:
+      #       expr: |-
+      #         (sum(rate(rest_client_requests_total{job="kubelet",code=~"5.."}[5m])) by (instance,job,namespace,cluster)
+      #           /
+      #         sum(rate(rest_client_requests_total{job="kubelet"}[5m])) by (instance,job,namespace,cluster))
+      #         > 0.01
       groups:
-        kubeApiserverAvailability: # For k3s change
-          create: false
-        kubeApiserverBurnrate: # For k3s change
-          create: false
-        kubeApiserverHistogram: # For k3s change
-          create: false
-        kubernetesSystemApiserver: # For k3s change
-          create: false
+        # kubeApiserverAvailability: # For k3s change
+        #   create: false
+        # kubeApiserverBurnrate: # For k3s change
+        #   create: false
+        # kubeApiserverHistogram: # For k3s change
+        #   create: false
+        # kubernetesSystemApiserver: # For k3s change
+        #   create: false
         vmagent: # remove dashboard annotation
           rules:
             spec:
