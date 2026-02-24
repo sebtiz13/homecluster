@@ -271,7 +271,12 @@ stream_to_s3() {
     local yesterday_date_prefix
     yesterday_date_prefix=$(date -d "$TODAY_YMD yesterday" +%Y%m%d)
     local yesterday_ref
-    yesterday_ref=$(find_snapshot "$namespace" "$pvc_name" "${pvc_name}-${yesterday_date_prefix}" || echo "")
+    if [ "$namespace" == "database" ]; then
+      # Special use case for database
+      yesterday_ref=$(find_snapshot "$namespace" "$pvc_name" "${CNPG_CLUSTER_NAME}-${yesterday_date_prefix}" || echo "")
+    else
+      yesterday_ref=$(find_snapshot "$namespace" "$pvc_name" "${pvc_name}-${yesterday_date_prefix}" || echo "")
+    fi
 
     if [ "$yesterday_ref" != "null" ] && [ -n "$yesterday_ref" ]; then
       local yesterday_ref_name
@@ -415,7 +420,7 @@ for item in "${PVC_ARRAY[@]}"; do
       if [ -z "$SNAP_NAME" ]; then
         log "ERROR: CNPG Backup $BACKUP_RESOURCE_NAME completed but did not expose the VolumeSnapshot name."
         GLOBAL_SUCCESS=0
-        FAILED_PVCs+="- **$namespace/$pvc**: CNPG Backup failed to link the VolumeSnapshot.\n"
+        FAILED_PVCs+="- **$namespace/$CNPG_CLUSTER_NAME**: CNPG Backup failed to link the VolumeSnapshot.\n"
         continue
       fi
     else
