@@ -439,6 +439,12 @@ for item in "${PVC_ARRAY[@]}"; do
   SNAP_NAME=$(find_snapshot "$namespace" "$pvc" "$SNAPSHOT_HOUR_PREFIX" | jq -r ".metadata.name")
   if [ "$SNAP_NAME" != "null" ] && [ -n "$SNAP_NAME" ]; then
     log "Found existing snapshot for hour: $SNAP_NAME. Skipping creation."
+
+    if ! wait_for_snapshot "$namespace" "$SNAP_NAME"; then
+      FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
+      FAILED_PVCs+="- **$namespace/$pvc**: Failed on waiting snapshot to be ready.\n"
+      continue
+    fi
   else
     if [ "$namespace" == "database" ]; then
       BACKUP_RESOURCE_NAME="${CNPG_CLUSTER_NAME}-${CURRENT_DATETIME}"
