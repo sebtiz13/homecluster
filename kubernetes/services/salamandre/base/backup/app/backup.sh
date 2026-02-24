@@ -416,9 +416,9 @@ fi
 
 CURRENT_DATETIME="${TODAY_YMD}$(date +%H%M%S)"
 SNAPSHOT_HOUR_PREFIX="${TODAY_YMD}$(date +%H)"
-GLOBAL_SUCCESS=1
 FAILED_PVCs=""
 TOTAL_PVC_COUNT=0
+FAILED_PVC_COUNT=0
 
 # List all PVCs matching the storage class filter
 # The output format is: namespace pvc_name
@@ -444,12 +444,12 @@ for item in "${PVC_ARRAY[@]}"; do
       BACKUP_RESOURCE_NAME="${CNPG_CLUSTER_NAME}-${CURRENT_DATETIME}"
 
       if ! create_cnpg_backup "$namespace" "$CNPG_CLUSTER_NAME" "$BACKUP_RESOURCE_NAME"; then
-        GLOBAL_SUCCESS=0
+        FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
         FAILED_PVCs+="- **$namespace/$CNPG_CLUSTER_NAME**: Failed on creating CNPG backup.\n"
         continue
       fi
       if ! wait_for_cnpg_backup "$namespace" "$BACKUP_RESOURCE_NAME"; then
-        GLOBAL_SUCCESS=0
+        FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
         FAILED_PVCs+="- **$namespace/$CNPG_CLUSTER_NAME**: Failed on waiting CNPG backup to be ready.\n"
         continue
       fi
@@ -457,7 +457,7 @@ for item in "${PVC_ARRAY[@]}"; do
       SNAP_NAME=$(kubectl get backup "$BACKUP_RESOURCE_NAME" -n "$namespace" -o jsonpath='{.status.snapshotBackupStatus.elements[0].name}' || echo "")
       if [ -z "$SNAP_NAME" ]; then
         log "ERROR: CNPG Backup $BACKUP_RESOURCE_NAME completed but did not expose the VolumeSnapshot name."
-        GLOBAL_SUCCESS=0
+        FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
         FAILED_PVCs+="- **$namespace/$CNPG_CLUSTER_NAME**: CNPG Backup failed to link the VolumeSnapshot.\n"
         continue
       fi
@@ -465,12 +465,12 @@ for item in "${PVC_ARRAY[@]}"; do
       SNAP_NAME="${pvc}-${CURRENT_DATETIME}"
 
       if ! create_snapshot "$namespace" "$pvc" "$SNAP_NAME"; then
-        GLOBAL_SUCCESS=0
+        FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
         FAILED_PVCs+="- **$namespace/$pvc**: Failed on creating snapshot.\n"
         continue
       fi
       if ! wait_for_snapshot "$namespace" "$SNAP_NAME"; then
-        GLOBAL_SUCCESS=0
+        FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
         FAILED_PVCs+="- **$namespace/$pvc**: Failed on waiting snapshot to be ready.\n"
         continue
       fi
@@ -478,19 +478,18 @@ for item in "${PVC_ARRAY[@]}"; do
   fi
 
   if ! stream_to_s3 "$namespace" "$SNAP_NAME" "$pvc"; then
-    GLOBAL_SUCCESS=0
+    FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
     FAILED_PVCs+="- **$namespace/$pvc**: Failed to send.\n"
   fi
   prune_snapshots "$namespace" "$pvc"
 done
 
-FAILED_PVC_COUNT=$(echo -n "$FAILED_PVCs" | grep -c 'Failed' || true)
 log "--- Backup finished (Success: $((TOTAL_PVC_COUNT - FAILED_PVC_COUNT)), Failed: $FAILED_PVC_COUNT, Total: $TOTAL_PVC_COUNT) ---"
 
 # Clear trap to prevent infinite loop
 trap - ERR
 
-if [ "$GLOBAL_SUCCESS" -eq 1 ]; then
+if [ "$FAILED_PVC_COUNT" -eq 0 ]; then
   exit 0
 else
   # Send failed backup to discord
