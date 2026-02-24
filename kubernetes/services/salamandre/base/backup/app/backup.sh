@@ -19,6 +19,10 @@ S3_BUCKET_NAME=${S3_BUCKET_NAME:-"backup"}
 KEEP_DAYS=${KEEP_DAYS:-3} # Keep snapshots during N days
 FORCE_FULL_BACKUP=${FORCE_FULL_BACKUP:"false"}
 
+# Retries
+UPLOAD_RETRIES=${UPLOAD_RETRIES:-3}
+UPLOAD_RETRY_DELAY=${UPLOAD_RETRY_DELAY:-10}
+
 # --- End Variables ---
 
 mkdir -p "$LOG_DIR"
@@ -232,6 +236,25 @@ check_s3_reference() {
   fi
 }
 
+# Retry upload vers S3
+# Usage: upload_with_retry "src_file" "s3_dest"
+upload_with_retry() {
+  local src=$1
+  local dest=$2
+  local attempt=0
+
+  while [ "$attempt" -lt "$UPLOAD_RETRIES" ]; do
+    attempt=$((attempt + 1))
+    if mc cp --quiet "$src" "$dest" >/dev/null; then
+      return 0
+    elif [ "$attempt" -lt "$UPLOAD_RETRIES" ]; then
+      log "WARNING: Attempt $attempt failed. Retrying in ${UPLOAD_RETRY_DELAY}s..."
+      sleep "$UPLOAD_RETRY_DELAY"
+    fi
+  done
+  return 1
+}
+
 # Finds the underlying ZFS snapshot handle and streams the data to S3.
 # Usage: stream_to_s3 "namespace" "snapshot_name" "pvc_name"
 stream_to_s3() {
@@ -321,7 +344,7 @@ stream_to_s3() {
   # Transfert it to S3
   local s3_full_path="${namespace}/${pvc_name}/${snap_name}${s3_filename_suffix}.zvol"
   log "Transfer it to S3 ($s3_full_path) [$file_size]..."
-  if mc cp "$tmp_file" "${S3_BUCKET_NAME}/${s3_full_path}" >/dev/null; then
+  if upload_with_retry "$tmp_file" "${S3_BUCKET_NAME}/${s3_full_path}"; then
     log "Upload successful."
     rm -f "$tmp_file"
     return 0
