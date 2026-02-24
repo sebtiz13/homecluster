@@ -63,6 +63,10 @@ send_notification() {
       title="⚠️ Backup partially failed"
       color=16766720 # Orange
       ;;
+    "NO_SPACE")
+      title="⚠️ Not enough space"
+      color=16711680 # Red
+      ;;
     "CRITICAL_FAILURE")
       title="❌ Backup failed"
       color=16711680 # Red
@@ -329,10 +333,24 @@ stream_to_s3() {
   fi
   zfs_cmd+=("$full_zfs_snap")
 
-  # Extract and compress to tmp file
   log "Starting ${backup_message}, extracting and compressing snapshot..."
   local tmp_file
   local file_size
+
+  # Check available size
+  tmp_file=$(dirname "$(mktemp -u)")
+  file_size=$(zfs list -t snapshot -H -p -o refer "$full_zfs_snap")
+  local available_space
+  available_space=$(df -P "$tmp_file" | awk 'NR==2 {print $4*1024}')
+  if [ "$available_space" -lt "$file_size" ]; then
+    local sizes
+    sizes="available: $(numfmt --to=iec --suffix=B <<< "$available_space"), needed: ~$(numfmt --to=iec --suffix=B <<< "$file_size")"
+    log "ERROR: Not enough space in $tmp_file ($sizes)."
+    send_notification "NO_SPACE" "Not enough space in $tmp_file ($sizes) !"
+    return 1
+  fi
+
+  # Extract and compress to tmp file
   tmp_file=$(mktemp)
   if ! "${zfs_cmd[@]}" > "$tmp_file"; then
     if [ "${s3_filename_suffix}" == "-incr" ]; then
