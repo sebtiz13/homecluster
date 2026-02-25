@@ -24,6 +24,8 @@ spec:
             image: ghcr.io/sebtiz13/homecluster/backup-tools:65c557f
             command: ["/bin/bash", "/app/backup.sh"]
             env:
+            - name: TZ
+              value: "${TIMEZONE}"
             - name: FULL_BACKUP_DAY
               value: "1" # Monday
             - name: KEEP_DAYS
