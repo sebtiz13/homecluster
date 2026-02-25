@@ -29,6 +29,7 @@ spec:
           search.maxConcurrentRequests: "4"
           search.maxQueueDuration: 30s
           search.maxQueryDuration: 60s
+          search.logSlowQueryDuration: 10s
         retentionPeriod: "14" # 14 months
         storage:
           storageClassName: openebs-zfspv
