@@ -7,7 +7,7 @@ metadata:
 spec:
   url: https://github.com/traefik/traefik-helm-chart
   ref:
-    tag: v39.0.1
+    tag: v39.0.2
   interval: 15m
   ignore: |
     # exclude all
