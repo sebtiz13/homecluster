@@ -54,7 +54,7 @@ spec:
               value: &host http://forgejo-http.forgejo.svc.cluster.local:3000
         - name: runner-config-generation
           # renovate: datasource=forgejo-releases
-          image: code.forgejo.org/forgejo/runner:12.7.0
+          image: code.forgejo.org/forgejo/runner:12.7.1
           imagePullPolicy: &imagePolicy IfNotPresent
           command:
             - forgejo-runner
@@ -83,7 +83,7 @@ spec:
       containers:
         - name: runner
           # renovate: datasource=forgejo-releases
-          image: code.forgejo.org/forgejo/runner:12.7.0
+          image: code.forgejo.org/forgejo/runner:12.7.1
           imagePullPolicy: *imagePolicy
           command:
             - sh
