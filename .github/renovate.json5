@@ -20,9 +20,7 @@
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   separateMajorMinor: true,
   assigneesFromCodeOwners: true,
-  ignorePaths: [
-    "**/wallabag/**"
-  ],
+  ignorePaths: [],
   flux: {
     managerFilePatterns: [
       "/(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$/",

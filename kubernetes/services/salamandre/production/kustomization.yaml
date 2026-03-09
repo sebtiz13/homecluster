@@ -7,3 +7,4 @@ resources:
   - ../base/vaultwarden
   - ../base/forgejo
   - ../base/backup
+  - ../base/wallabag
