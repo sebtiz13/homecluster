@@ -47,7 +47,7 @@
     expire: 1hr
   ansible.builtin.shell: |-
     echo "{{ key.key }}" > /tmp/zitadel.pem
-    {{ bin_dir }}/jwt encode --no-typ --alg=RS256 --kid={{ key.keyId }} \
+    jwt encode --no-typ --alg=RS256 --kid={{ key.keyId }} \
       --exp="{{ expire }}" --secret=@/tmp/zitadel.pem -- '{{ payload | to_json }}'
     rm /tmp/zitadel.pem &> /dev/null
   register: zitadel_console_jwt

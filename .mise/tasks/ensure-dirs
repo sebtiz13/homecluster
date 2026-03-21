@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Create required directories"
+#MISE hide=true
+
+set -euo pipefail
+
+echo "Creating required folders..."
+mkdir -p "${OUT_DIR}/kubeconfig"
+mkdir -p "${OUT_DIR}/credentials/"{dev,production}
+mkdir -p "${OUT_DIR}/vms"

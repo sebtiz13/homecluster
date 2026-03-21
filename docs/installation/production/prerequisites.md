@@ -9,10 +9,8 @@
 
 - OS: Linux
 - Install the following packages:
-  - [Make](https://www.gnu.org/software/make/)
-  - [python](https://www.python.org/)
-  - [jq](https://stedolan.github.io/jq/)
-  - [yq](https://github.com/mikefarah/yq/)
+  - [Mise](https://mise.jdx.dev/)
+  - [openSSL](https://www.openssl.org/)
   - [argon2](https://github.com/P-H-C/phc-winner-argon2)
   - [pwgen](https://sourceforge.net/projects/pwgen/)
 

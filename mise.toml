@@ -1,0 +1,23 @@
+[tools]
+python = "3.14.6"
+uv = "0.11.28"
+mkcert = "1.4.4"
+jq = "1.8.2"
+yq = "4.53.3"
+jwt = "6.2.0"
+kubectl = "1.35.3"
+flux2 = "2.7.5"
+# MISSING openSSL, argon2, pwgen, so currently simply check if they are present in "mise run init"
+
+[settings]
+python.uv_venv_auto = "create|source"
+
+[env]
+_.python.venv = { path = "ansible/.venv", create = true }
+VM_DOMAIN_NAME = "local.vm"
+ANSIBLE_DIR = "./ansible"
+OUT_DIR = "./out"
+
+[tasks.init]
+description = "Full initialization (first setup)"
+depends = ["setup", "ensure-dirs"]

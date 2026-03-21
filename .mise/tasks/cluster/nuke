@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#MISE description="Nuke the cluster"
+#MISE depends=["init"]
+#USAGE flag "--host <host>" help="Limit to only specified machine" {
+#USAGE   choices "salamandre" "baku"
+#USAGE   default ""
+#USAGE }
+#USAGE arg "<environment>" env="ENVIRONMENT" help="Targeted environment" {
+#USAGE   choices "dev" "production"
+#USAGE }
+
+set -euo pipefail
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../_lib.sh"
+
+# Validate and parse arguments
+ENVIRONMENT="${usage_environment?}"
+
+run_ansible k3s_nuke "$ENVIRONMENT" "$(limit_flag "${usage_host?}")"

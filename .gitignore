@@ -1,6 +1,4 @@
 .ansible/
 ansible/.venv/
-ansible/.bin/
 out/
 todo
-virtual-machine/*.iso
