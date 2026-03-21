@@ -5,6 +5,8 @@ production environment.
 
 The local cluster have `local.vm` as base domain but this can be changed by passing `DOMAIN_NAME` environment variable.
 
+For the full list of available commands, see the [commands reference](../references/commands.md).
+
 ## Prerequisites
 
 ### Host machine
@@ -17,22 +19,14 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 
 ### Install the following packages
 
-- [Make](https://www.gnu.org/software/make/)
+- [Mise](https://mise.jdx.dev/)
 - [openSSL](https://www.openssl.org/)
-- [mkcert](https://github.com/FiloSottile/mkcert)
-- [python](https://www.python.org/)
-- [Qemu](https://www.qemu.org/)
-- [Libvirt](https://libvirt.org/)
-- [jq](https://stedolan.github.io/jq/)
-- [yq](https://github.com/mikefarah/yq/)
 - [argon2](https://github.com/P-H-C/phc-winner-argon2)
 - [pwgen](https://sourceforge.net/projects/pwgen/)
 
 #### Development exclusive
 
 - [libvirt](https://libvirt.org/)
-- [virt-install](https://virt-manager.org/)
-- [mkcert](https://github.com/FiloSottile/mkcert)
 
 ### Configuring DNS
 
@@ -59,48 +53,24 @@ Add the following line in `/etc/hosts` file:
 192.168.12.11 baku.local.vm metrics.local.vm monitor.local.vm
 ```
 
-## Commands
+## Quick start
 
-### Variables
-
-- `VM_NAME` (valid values: `salamandre`, `baku`): The vm name for only create on
-
-### All-in-one (recommended)
-
-The following command create virtual machines, and deploy full stack :
+Create VMs and deploy the full stack:
 
 ```sh
-make test-cluster
+mise run cluster:deploy dev
 ```
 
-If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
+### Virtual machines
 
-### Provisioning virtual machines
+Each command accepts an optional `--host <hostname>` flag to target a single node.
 
-Provisioning virtual machines :
-
-```sh
-make test-provision
-```
-
-If you want create only one virtual machine you can specify `VM_NAME` argument (**but** `salamandre` is required for deploy `baku`).
-
-You can precise step with `STEP` argument. This following steps is available :
-
-- `setup`: upgrading operating system and kubernetes
-- `k3s_bootstrap`: Deploying applications with flux
-- `k3s_configure`: (Re)Configure applications
-- `k3s_nuke`: Delete Kubernetes, so it clean all applications
-
-### (Re)Create virtual machines
-
-Create or recreate virtual machines :
-
-```sh
-make vm-recreate
-```
-
-If you want (re)create only one VM you can specify `VM_NAME` argument.
+| Commands              | Description            |
+| --------------------- | ---------------------- |
+| `mise run vm:create`  | Create one or all VMs  |
+| `mise run vm:destroy` | Destroy one or all VMs |
+| `mise run vm:start`   | Start one or all VMs   |
+| `mise run vm:stop`    | Stop one or all VMs    |
 
 ### Connect to virtual machine
 
@@ -149,7 +119,7 @@ export KUBECONFIG=./out/kubeconfig/dev.yaml
 Delete development environment (credentials, virtual machines, etc) :
 
 ```sh
-make cleanup
+mise run cleanup
 ```
 
 ## Caveats compare to production environment

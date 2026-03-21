@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+#MISE description="Stop virtual machines"
+#USAGE flag "--host <host>" help="Limit to only specified machine" {
+#USAGE   choices "salamandre" "baku"
+#USAGE   default ""
+#USAGE }
+
+set -euo pipefail
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../_lib.sh"
+
+NETWORK="sebtiz13"
+ALL_HOSTS=(salamandre baku)
+
+HOST_ARG=${usage_host:-}
+HOSTS=("${ALL_HOSTS[@]}")
+if [[ -n "$HOST_ARG" ]]; then
+  HOSTS=("$HOST_ARG")
+fi
+
+stop_network() {
+  local net="$1"
+  local state
+
+  state="$(virsh net-info --network "$net" 2>/dev/null | awk -F': *' '/^Active:/ {print $2}')"
+  if [[ "$state" == "yes" ]]; then
+    echo "Stopping network $net..."
+    virsh net-destroy --network "$net"
+  else
+    echo "Network $net already inactive"
+  fi
+}
+
+get_vm_state() {
+  local vm="$1"
+  virsh domstate "$vm" 2>/dev/null | tr -d '\r' | xargs
+}
+
+shutdown_vm() {
+  local vm="$1"
+  local state
+
+  state="$(get_vm_state "$vm")"
+  case "$state" in
+    running)
+      echo "Shutting down VM $vm..."
+      virsh shutdown "$vm"
+    ;;
+    paused|pmsuspended)
+      echo "VM $vm is $state, resuming before shutdown..."
+      virsh resume "$vm"
+      virsh shutdown "$vm"
+    ;;
+    "in shutdown")
+      echo "VM $vm is already shutting down..."
+    ;;
+    "shut off")
+      echo "VM $vm already stopped"
+    ;;
+    *)
+      echo "VM $vm in unexpected state: $state" >&2
+    ;;
+  esac
+}
+
+wait_for_vm_shutdown() {
+  local vm="$1"
+  local timeout="${2:-60}"
+  local elapsed=0
+  local state
+
+  while (( elapsed < timeout )); do
+    state="$(get_vm_state "$vm")"
+    [[ "$state" == "shut off" ]] && return 0
+    sleep 2
+    ((elapsed+=2))
+  done
+
+  return 1
+}
+
+all_vms_stopped() {
+  local vm
+  local state
+
+  for vm in "${ALL_HOSTS[@]}"; do
+    state="$(get_vm_state "$vm")"
+    if [[ "$state" != "shut off" ]]; then
+      echo "VM $vm still active ($state), keeping network $NETWORK up"
+      return 1
+    fi
+  done
+
+  return 0
+}
+
+# Stop machine
+for host in "${HOSTS[@]}"; do
+  shutdown_vm "$host"
+
+  if ! wait_for_vm_shutdown "$host" 60; then
+    echo "VM $host did not shut down in time" >&2
+  fi
+done
+
+# Stop network only if all VMs are stopped
+if all_vms_stopped; then
+  stop_network "$NETWORK"
+fi

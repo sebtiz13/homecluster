@@ -23,3 +23,7 @@ This folder contains all documentation.
 ## [Provisioning](/ansible/)
 
 Files for provisioning clusters.
+
+## [Tasks](/.mise/)
+
+Files for manage project commands.

@@ -7,7 +7,8 @@
     "*.json.j2": "json",
     "*.xml.j2": "xml",
     "**/ansible/{site,salamandre,baku}.yaml": "ansible",
-    "**/ansible/**/{handlers,tasks}/**/*.yaml": "ansible"
+    "**/ansible/**/{handlers,tasks}/**/*.yaml": "ansible",
+    ".mise/tasks/**/*": "shellscript"
   },
   "[yaml]": {
     "editor.formatOnSave": false

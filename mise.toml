@@ -1,0 +1,26 @@
+[tools]
+python = "3.12" # TODO: wait mise update (on manjaro) to allow 3.13/14 (https://github.com/jdx/mise/pull/8672)
+uv = "latest"
+mkcert = "1.4.4"
+jq = "1.8.1"
+yq = "4.52.5"
+jwt = "6.2.0"
+kubectl = "1.35.3"
+flux2 = "2.7.5"
+# MISSING openSSL, argon2, pwgen, so currently simply check if they are present in "mise run init"
+
+[settings]
+python.uv_venv_auto = "create|source"
+
+[prepare.uv]
+auto = true
+
+[env]
+_.python.venv = { path = "ansible/.venv", create = true }
+VM_DOMAIN_NAME = "local.vm"
+ANSIBLE_DIR = "./ansible"
+OUT_DIR = "./out"
+
+[tasks.init]
+description = "Full initialization (first setup)"
+depends = ["setup", "ensure-dirs"]

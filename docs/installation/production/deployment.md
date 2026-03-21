@@ -2,23 +2,16 @@
 
 > ⚠️ Please read the [prerequisites](./prerequisites.md) before !
 
-## Commands
+For the full list of available commands, see the [commands reference](../../references/commands.md).
 
-### All-in-one
+## Quick start
 
-```sh
-DOMAIN_NAME=<domain> make cluster
-```
-
-### Only provisioning
+Deploy cluster:
 
 ```sh
-DOMAIN_NAME=<domain> make provision
+mise run cluster:deploy production <domain>
 ```
 
-You can precise step with `STEP` argument. This following steps is available :
+## Step by step
 
-- `setup`: upgrading operating system and kubernetes
-- `k3s_bootstrap`: Deploying applications with flux
-- `k3s_configure`: (Re)Configure applications
-- `k3s_nuke`: Delete Kubernetes, so it clean all applications
+If you prefer to run each step independently, refer to the [commands reference](../../references/commands.md).
