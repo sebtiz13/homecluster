@@ -270,8 +270,8 @@ spec:
         cpu: 20m
         memory: 256Mi
       limits:
-        cpu: 1500m
-        memory: 1Gi
+        cpu: 2000m
+        memory: 1536Mi # (1024Mi + 512Mi) allow gap for 1024mi php limit to prevent OOMKill
 
     imaginary:
       enabled: true
