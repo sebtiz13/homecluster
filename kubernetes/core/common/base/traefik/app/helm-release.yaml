@@ -59,10 +59,10 @@ spec:
 
     resources:
       requests:
-        cpu: 10m
-        memory: 128Mi
+        cpu: 5m
+        memory: 80Mi
       limits:
-        cpu: 100m
+        # cpu: 100m # Removed according to: https://home.robusta.dev/blog/stop-using-cpu-limits
         memory: 256Mi
 
     metrics:

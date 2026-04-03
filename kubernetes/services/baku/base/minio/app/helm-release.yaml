@@ -79,10 +79,10 @@ spec:
     resources:
       requests:
         cpu: 10m
-        memory: 192Mi
+        memory: 1Gi
       limits:
         cpu: 1000m
-        memory: 1Gi
+        memory: 1.5Gi
 
     environment:
       MINIO_BROWSER_REDIRECT_URL: https://baku.${DOMAIN_NAME}
