@@ -71,6 +71,10 @@ spec:
           Enabled: false
 
     login:
+      # ? Force IPv4 to prevent crash when IPv6 is disabled
+      env:
+        - name: HOSTNAME
+          value: 0.0.0.0
       ingress:
         enabled: true
       resources:
