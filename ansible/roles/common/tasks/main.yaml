@@ -30,3 +30,12 @@
     dest: /usr/local/share/ca-certificates/{{ ca.cert | basename }}.crt
     mode: "0444"
   notify: Update trusted ca
+
+- name: Create backup log directory # TODO: temporary, until centralized log
+  ansible.builtin.file:
+    path: /var/log/backup-cluster
+    state: directory
+    owner: root
+    group: root
+    mode: "u=rwx,g=rx,o=rx"
+    recurse: true
