@@ -5,7 +5,8 @@ kind: GitRepository
 metadata:
   name: flux-system
 spec:
-  interval: 1m0s
+  interval: 1h
+  timeout: 5m
   ref:
     branch: ${GIT_BRANCH:=main}
   url: ${GIT_REPO_URL}
