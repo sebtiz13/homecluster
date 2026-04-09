@@ -18,7 +18,7 @@ vms:
     - name: salamandre
       ip: 192.168.12.10/24
       vcpus: 6
-      memory: 10240 # 10 Gib
+      memory: 8192 # 8 Gib
       boot_disk_size: 20 # 20 Gib
       disks:
         - size: 20 # 20 Gib
@@ -26,7 +26,7 @@ vms:
     - name: baku
       ip: 192.168.12.11/24
       vcpus: 3
-      memory: 4096 # 4 Gib
+      memory: 6144 # 6 Gib
       boot_disk_size: 20 # 20 Gib
       disks:
         - size: 20 # 20 Gib

@@ -8,6 +8,9 @@ spec:
       size: 10Gi
 
     resources:
+      requests:
+        cpu: 10m
+        memory: 256Mi
       limits:
         cpu: 500m
         memory: 512Mi
