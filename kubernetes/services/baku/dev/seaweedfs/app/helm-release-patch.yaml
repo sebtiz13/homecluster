@@ -1,0 +1,9 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: seaweedfs
+spec:
+  values:
+    allInOne:
+      data:
+        size: 10Gi

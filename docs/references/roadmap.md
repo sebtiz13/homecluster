@@ -44,7 +44,7 @@ Good enough for tinkering, personal usage and reasonably secure.
   - **Salamandre**
     - [x] Postgres
   - **Baku**
-    - [x] Minio
+    - [x] SeaweedFS
 
 ## Stable requirement
 

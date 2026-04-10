@@ -20,7 +20,6 @@
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n#\\s*sourceUrl=.+/(?<currentValue>(v|\\d)[^/]+)",
       ],
       datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
-      ignorePaths: ["(^|/)kubernetes/services/baku/base/minio"]
     },
     {
       customType: "regex",
