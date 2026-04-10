@@ -4,6 +4,7 @@ set -eo pipefail # Exit immediately on error, or if any command in a pipeline fa
 # --- Variables ---
 
 LOG_DIR="/app/logs"
+RUN_MAX_ATTEMPT="4" # Backoff limit is set to 3, so the script can be run N + 1
 
 # K8s
 PVC_STORAGE_CLASS=${PVC_STORAGE_CLASS:-"openebs-zfspv"}
@@ -35,6 +36,11 @@ if [ -n "$MANUAL_DATE" ]; then
 fi
 # Tee: logs to PVC file AND stdout (for kubectl logs)
 exec &> >(tee -a "$LOG_DIR/$(date +%Y%m%d-%H%M%S)-${LOG_SUFFIX:-"cron"}.log")
+
+# Retrieve run attempt
+RUN_ATTEMPT=$(kubectl get pod "$POD_NAME" -n "$POD_NAMESPACE" \
+  -o jsonpath='{.status.containerStatuses[0].restartCount}' 2>/dev/null || echo "0")
+RUN_ATTEMPT=$((RUN_ATTEMPT + 1)) # restart count start from 0
 
 # Logs a message with a timestamp
 log() {
@@ -82,14 +88,20 @@ send_notification() {
   esac
 
   local payload
-  payload=$(jq -nc --arg TITLE "$title" --arg COLOR "$color" --arg DESCRIPTION "$details" \
+  payload=$(jq -nc --arg TITLE "$title" --arg COLOR "$color" --arg DESCRIPTION "$details" --arg ATTEMPT "${RUN_ATTEMPT}/${RUN_MAX_ATTEMPT}" \
     '{
       "content": null,
       "embeds": [
         {
           "title": "\($TITLE)",
           "description": "\($DESCRIPTION)",
-          "color": ($COLOR | tonumber)
+          "color": ($COLOR | tonumber),
+          "fields": [
+            {
+              "name": "Attempt",
+              "value": "\($ATTEMPT)"
+            }
+          ]
         }
       ]
     }')
@@ -424,7 +436,7 @@ prune_snapshots() {
 
 # --- Main Logic ---
 
-log "--- Starting Backup ---"
+log "--- Starting Backup [${RUN_ATTEMPT}/${RUN_MAX_ATTEMPT}] ---"
 
 if [ -z "$DISCORD_WEBHOOK_URL" ]; then
   log "WARNING: Webhook URL is not configured. Notification will not be sended."

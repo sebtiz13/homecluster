@@ -24,6 +24,14 @@ spec:
             image: ghcr.io/sebtiz13/homecluster/backup-tools:eee977d
             command: ["/bin/bash", "/app/backup.sh"]
             env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             - name: TZ
               value: "${TIMEZONE}"
             - name: FULL_BACKUP_DAY
