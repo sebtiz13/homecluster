@@ -18,6 +18,7 @@
   delegate_to: localhost
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
     kind: Deployment
     name: "{{ apps_zitadel.release_name }}"
     namespace: "{{ apps_zitadel.namespace }}"
@@ -30,6 +31,7 @@
   kubernetes.core.k8s:
     state: patched
     kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
     kind: ExternalSecret
     name: "{{ item }}"
     namespace: "{{ apps_zitadel.namespace }}"

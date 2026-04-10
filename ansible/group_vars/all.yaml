@@ -5,7 +5,7 @@ timezone: Europe/Paris
 bin_dir: "{{ playbook_dir }}/.bin"
 out_dir: "{{ playbook_dir }}/../out"
 credentials_folder: "{{ out_dir }}/credentials/{{ env }}"
-local_kubeconfig: "{{ out_dir }}/kubeconfig/{{ inventory_hostname }}.{{ env }}.yaml"
+local_kubeconfig: "{{ out_dir }}/kubeconfig/{{ env }}.yaml"
 
 git_repo_url: https://github.com/sebtiz13/homecluster
 

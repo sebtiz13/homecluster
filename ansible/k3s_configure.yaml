@@ -28,6 +28,7 @@
       delegate_to: localhost
       kubernetes.core.k8s_info:
         kubeconfig: "{{ local_kubeconfig }}"
+        context: salamandre
         kind: Pod
         namespace: database
         name: "postgres{{ postgres_version }}-1"

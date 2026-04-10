@@ -68,19 +68,26 @@
   register: k3s_install
 
 - name: Save kubeconfig locally # noqa: no-handler
-  when: k3s_install is changed
   block:
-    - name: Download kubeconfig
+    - name: Create tmp file for kubeconfig
+      delegate_to: localhost
+      become: false
+      ansible.builtin.tempfile:
+        state: file
+        prefix: kubeconfig-
+      register: k3s_kubeconfig
+
+    - name: Fetch raw kubeconfig from node
       ansible.builtin.fetch:
         src: /etc/rancher/k3s/k3s.yaml
-        dest: "{{ local_kubeconfig }}"
+        dest: "{{ k3s_kubeconfig.path }}"
         flat: true
 
     - name: Configure host on local kubeconfig
       delegate_to: localhost
       become: false
       ansible.builtin.lineinfile:
-        path: "{{ local_kubeconfig }}"
+        path: "{{ k3s_kubeconfig.path }}"
         regexp: '^(.*server: https:\/\/)127\.0\.0\.1(:6443)$'
         line: '\1{{ k3s_domain | default(domain_name) }}\2'
         backrefs: true
@@ -89,16 +96,13 @@
       delegate_to: localhost
       become: false
       ansible.builtin.replace:
-        path: "{{ local_kubeconfig }}"
+        path: "{{ k3s_kubeconfig.path }}"
         regexp: "default$"
         replace: "{{ inventory_hostname }}"
 
-    - name: Fix kubeconfig mode
-      delegate_to: localhost
-      become: false
-      ansible.builtin.file:
-        path: "{{ local_kubeconfig }}"
-        mode: "0600"
+    - name: Register tempfile path as global fact
+      ansible.builtin.set_fact:
+        kubeconfig_tmp_path: "{{ k3s_kubeconfig.path }}"
 
 - name: Restart k3s # noqa: no-handler
   when: k3s_install is changed
@@ -110,7 +114,7 @@
   delegate_to: localhost
   become: false
   kubernetes.core.k8s_info:
-    kubeconfig: "{{ local_kubeconfig }}"
+    kubeconfig: "{{ kubeconfig_tmp_path }}"
     kind: Node
     name: "{{ inventory_hostname }}"
     wait: true

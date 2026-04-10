@@ -18,6 +18,7 @@
     err_msg: 'database "{{ database }}" already exists'
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
     namespace: database
     pod: "postgres{{ postgres_version }}-1"
     command: >-

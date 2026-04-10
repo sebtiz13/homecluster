@@ -10,7 +10,6 @@ The local cluster have `local.vm` as base domain but this can be changed by pass
 ### Host machine
 
 - recommended hardware specifications:
-
   - CPU: 8 cores
   - RAM: 24 GiB
 
@@ -142,7 +141,7 @@ For SSO (OpenID) apps the user is :
 You can export kubeconfig with following command :
 
 ```sh
-export KUBECONFIG=./out/kubeconfig/salamandre.dev.yaml;./out/kubeconfig/baku.dev.yaml
+export KUBECONFIG=./out/kubeconfig/dev.yaml
 ```
 
 ## Clean up

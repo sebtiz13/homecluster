@@ -7,6 +7,7 @@
 - name: Forgejo | Retrieve pod informations
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
     kind: pod
     namespace: "{{ apps_forgejo.namespace }}"
     label_selectors:
@@ -21,6 +22,7 @@
 - name: Forgejo | Register runner
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
     namespace: "{{ apps_forgejo.namespace }}"
     pod: "{{ forgejo_pod.resources.0.metadata.name }}"
     command: >-

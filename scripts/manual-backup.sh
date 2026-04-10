@@ -7,6 +7,7 @@ NAMESPACE="backup"
 CRONJOB_NAME="zfs-s3-backup"
 CONTAINER_INDEX=0
 JOB_NAME_PREFIX="manual-backup"
+DEFAULT_ENV="production"
 
 # --- Functions ---
 
@@ -19,6 +20,7 @@ usage() {
   echo "OPTIONS:"
   echo "  -d, --date YYYYMMDD Force run an specific date backup (mainly for testing)."
   echo "                      (Default: Today)"
+  echo "  -e, --env ENV       Select kubeconfig environment."
   echo "  -f, --full          Force an full backup (ignore incremental logic)."
   echo "  -h, --help          Show this help message."
   echo ""
@@ -52,6 +54,7 @@ validate_date_format() {
 # --- Main logic ---
 
 FORCE_FULL_BACKUP=false
+SELECTED_ENV="$DEFAULT_ENV"
 
 # Parse argument
 while [[ $# -gt 0 ]]; do
@@ -62,6 +65,16 @@ while [[ $# -gt 0 ]]; do
         shift 2 # Consume flag and value
       else
         echo "ERROR: --date require an value in YYYYMMDD format."
+        usage
+        exit 1
+      fi
+      ;;
+    --env|-e)
+      if [ -n "$2" ]; then
+        SELECTED_ENV="$2"
+        shift 2 # Consume flag and value
+      else
+        echo "ERROR: --env require an value."
         usage
         exit 1
       fi
@@ -82,6 +95,9 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+export KUBECONFIG=./out/kubeconfig/$SELECTED_ENV.yaml
+echo "INFO: Using kubeconfig: ${KUBECONFIG}"
 
 # Fallback date to today
 if [ -z "$CUSTOM_DATE" ]; then

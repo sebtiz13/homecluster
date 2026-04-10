@@ -5,6 +5,7 @@
       delegate_to: localhost
       kubernetes.core.k8s_info:
         kubeconfig: "{{ local_kubeconfig }}"
+        context: salamandre
         kind: Service
         name: "{{ openbao_service_name }}"
         namespace: "{{ openbao_namespace }}"

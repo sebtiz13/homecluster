@@ -2,6 +2,7 @@
   delegate_to: localhost
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
     kind: Service
     name: "{{ apps_zitadel.release_name }}"
     namespace: "{{ apps_zitadel.namespace }}"
@@ -28,6 +29,7 @@
   delegate_to: localhost
   kubernetes.core.k8s_info:
     kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
     kind: Secret
     name: "zitadel-console-sa"
     namespace: "{{ apps_zitadel.namespace }}"
