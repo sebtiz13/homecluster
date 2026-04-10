@@ -13,6 +13,10 @@ SNAPSHOT_PVC_LABEL="backup.local/pvc"
 BACKUP_ENABLED_LABEL="backup.local/enabled"
 CNPG_CLUSTER_NAME="postgres16"
 
+# Rclone
+RCLONE_CONFIG=${RCLONE_CONFIG:-"/app/rclone.conf"}
+RCLONE_REMOTE=${RCLONE_REMOTE:-"s3"}
+
 # Backup logic
 FULL_BACKUP_DAY=${FULL_BACKUP_DAY:-1} # 1 = Monday (ISO 8601)
 S3_BUCKET_NAME=${S3_BUCKET_NAME:-"backup"}
@@ -230,10 +234,10 @@ check_s3_reference() {
   local namespace=$1
   local pvc_name=$2
   local snap_ref=$3
-  local s3_path="${S3_BUCKET_NAME}/${namespace}/${pvc_name}/${snap_ref}"
+  local s3_path="${RCLONE_REMOTE}:${S3_BUCKET_NAME}/${namespace}/${pvc_name}"
 
   # Check if file exist in s3 (filename is partial to ignore type, eg. namespace/pvc_name/date instead of namespace/pvc_name/date-full.zvol)
-  if mc ls -r "${s3_path}" --json 2>/dev/null | jq -e '.[]' > /dev/null; then
+  if rclone --config "$RCLONE_CONFIG" lsjson --include "${snap_ref}*" "$s3_path" 2>/dev/null | jq -e '.[]' > /dev/null; then
     return 0
   else
     return 1
@@ -249,7 +253,7 @@ upload_with_retry() {
 
   while [ "$attempt" -lt "$UPLOAD_RETRIES" ]; do
     attempt=$((attempt + 1))
-    if mc cp --quiet "$src" "$dest" >/dev/null; then
+    if rclone --config "$RCLONE_CONFIG" copyto --quiet "$src" "${RCLONE_REMOTE}:${dest}"; then
       return 0
     elif [ "$attempt" -lt "$UPLOAD_RETRIES" ]; then
       log "WARNING: Attempt $attempt failed. Retrying in ${UPLOAD_RETRY_DELAY}s..."

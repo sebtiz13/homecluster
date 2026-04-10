@@ -31,7 +31,7 @@ spec:
             - name: KEEP_DAYS
               value: "30"
             - name: S3_BUCKET_NAME
-              value: baku/backup-salamandre-pvc/new
+              value: backup-salamandre-pvc/new
             - name: LOG_DIR
               value: /app/logs/new
             - name: DISCORD_WEBHOOK_URL
@@ -49,9 +49,9 @@ spec:
               mountPath: /app/backup.sh
               subPath: backup.sh
               readOnly: true
-            - mountPath: /root/.mc/config.json
-              subPath: config.json
-              name: minio-config
+            - mountPath: /app/rclone.conf
+              subPath: rclone.conf
+              name: rclone-config
               readOnly: true
             - mountPath: /app/logs
               name: backup-logs
@@ -69,9 +69,9 @@ spec:
             configMap:
               name: backup-script
               defaultMode: 0755
-          - name: minio-config
+          - name: rclone-config
             secret:
-              secretName: minio-credentials
+              secretName: rclone-config
               defaultMode: 0755
           - name: backup-logs
             hostPath: # TODO: temporary, until centralized log
