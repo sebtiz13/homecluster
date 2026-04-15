@@ -7,3 +7,9 @@ resources:
   - secret.yaml
   - helm-repository.yaml
   - helm-release.yaml
+configMapGenerator:
+  - name: wallabag-nginx
+    files:
+      - configs/nginx.conf
+generatorOptions:
+  disableNameSuffixHash: true

@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: wallabag
-      version: "0.5.0"
+      version: "0.6.0"
       sourceRef:
         kind: HelmRepository
         name: wallabag
@@ -38,9 +38,18 @@ spec:
       size: 1Gi
       labels:
         backup.local/enabled: "true"
-      extraVolumeMounts:
+      extraVolumes:
         - name: wallabag-cache
           mountPath: /var/www/wallabag/var
+          size: 1Gi
+    extraVolumes:
+      - name: extras
+        mountPath: /etc/nginx/nginx.conf
+        readOnly: true
+        subPath: nginx.conf
+        volume:
+          configMap:
+            name: wallabag-nginx
     livenessProbe:
       enabled: true
     readinessProbe:
