@@ -8,6 +8,9 @@ The **salamandre** cluster automatically backup each day (around 3am) all PVCs m
 
 > **NOTE**: Automatic backup is suspended on sandbox.
 
+> [!WARNING]
+> `local-path` and `zfspv-block` storage classes are not supported for backup.
+
 Deep dive :
 
 - The database run they backup at 3am.

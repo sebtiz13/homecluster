@@ -7,7 +7,6 @@ LOG_DIR="/app/logs"
 RUN_MAX_ATTEMPT="4" # Backoff limit is set to 3, so the script can be run N + 1
 
 # K8s
-PVC_STORAGE_CLASS=${PVC_STORAGE_CLASS:-"openebs-zfspv"}
 SNAPSHOT_CLASS=${SNAPSHOT_CLASS:-"zfspv-snapclass"}
 SNAPSHOT_MANGED_LABEL="backup.local/managed"
 SNAPSHOT_PVC_LABEL="backup.local/pvc"
@@ -456,7 +455,7 @@ FAILED_PVC_COUNT=0
 
 # List all PVCs matching the storage class filter
 # The output format is: namespace pvc_name
-PVCS_LIST=$(kubectl get pvc -A -l ${BACKUP_ENABLED_LABEL} -o jsonpath="{range .items[?(@.spec.storageClassName=='${PVC_STORAGE_CLASS}')]}{.metadata.namespace} {.metadata.name}{\"\n\"}{end}")
+PVCS_LIST=$(kubectl get pvc -A -l ${BACKUP_ENABLED_LABEL} -o jsonpath="{range .items[*]}{.metadata.namespace} {.metadata.name}{\"\n\"}{end}")
 if [ -z "$PVCS_LIST" ]; then
   log "No PVCs found matching the filter. Exiting."
   exit 0
