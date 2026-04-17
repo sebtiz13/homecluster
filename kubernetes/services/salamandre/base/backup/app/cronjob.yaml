@@ -39,7 +39,7 @@ spec:
             - name: KEEP_DAYS
               value: "30"
             - name: S3_BUCKET_NAME
-              value: backup-salamandre-pvc/new
+              value: backup-salamandre-pvc
             - name: LOG_DIR
               value: /app/logs/new
             - name: DISCORD_WEBHOOK_URL
