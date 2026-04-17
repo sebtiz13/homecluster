@@ -115,6 +115,7 @@
   become: false
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_tmp_path }}"
+    context: "{{ inventory_hostname }}"
     kind: Node
     name: "{{ inventory_hostname }}"
     wait: true
