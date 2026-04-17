@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 MAX_RETRIES=5
 DELAY_SECONDS=3
 SOURCE_URL_PREFIX="# sourceUrl="
@@ -25,35 +27,25 @@ update_file() {
   local download_url=${url_line#"$SOURCE_URL_PREFIX"}
   local retries=0
   local tmp_content=""
-  local curl_exit_code
+  local curl_exit_code=0
   echo "Downloading $download_url..."
-  while [ $retries -lt $MAX_RETRIES ]; do
-    tmp_content=$(curl -sL --fail "$download_url")
+  until tmp_content=$(curl -sL --fail "$download_url") && [ -n "$tmp_content" ]; do
     curl_exit_code=$?
-
-    if [ $curl_exit_code -eq 0 ] && [ ! -z "$tmp_content" ]; then
-      break # Success
-    fi
-
     retries=$((retries + 1))
-    if [ $retries -lt $MAX_RETRIES ]; then
-      echo "WARN: Fail to download (Code: $curl_exit_code). Wait $DELAY_SECONDS seconds before retry..."
-      sleep $DELAY_SECONDS
-    fi
-  done
 
-  if [ $retries -eq $MAX_RETRIES ]; then
-    if [ $curl_exit_code -ne 0 ] || [ -z "$tmp_content" ]; then
+    if [ "$retries" -ge "$MAX_RETRIES" ]; then
       echo "ERROR: Could not download file after $MAX_RETRIES attempts (Last Code: $curl_exit_code)."
       return 1
     fi
-  fi
+
+    echo "WARN: Retry $retries/$MAX_RETRIES in ${DELAY_SECONDS}s..."
+    sleep "$DELAY_SECONDS"
+  done
 
   # Update file
-  echo "$header_lines" > "$file"
-  echo "$tmp_content" >> "$file"
+  printf '%s\n%s\n' "$header_lines" "$tmp_content" > "$file"
 
-  echo "The file $file as been updated."
+  echo "The file $file has been updated."
   return 0
 }
 
@@ -66,16 +58,12 @@ fi
 
 GLOBAL_ERROR=0
 for FILE in "$@"; do
-  if ! update_file "$FILE"; then
-    GLOBAL_ERROR=1
-  fi
+  update_file "$FILE" || GLOBAL_ERROR=1
 done
 
-# shellcheck disable=SC2086
 if [ $GLOBAL_ERROR -ne 0 ]; then
-    echo "--- The process threw an error on at least one file. Exiting with status 1. ---"
-    exit 1
+  echo "--- The process threw an error on at least one file. Exiting with status 1. ---"
+  exit 1
 else
-    echo "--- All files have been updated or ignored. Exiting with status 0. ---"
-    exit 0
+  echo "--- All files have been updated or ignored. Exiting with status 0. ---"
 fi
