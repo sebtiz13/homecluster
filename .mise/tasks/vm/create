@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#MISE description="Create virtual machines"
+#MISE depends=["init"]
+#USAGE flag "--host <host>" help="Limit to only specified machine" {
+#USAGE   choices "salamandre" "baku"
+#USAGE   default ""
+#USAGE }
+
+set -euo pipefail
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../_lib.sh"
+
+# Start libvirt
+echo "Ensure libvirt is running"
+systemctl is-active --quiet libvirtd || sudo systemctl start libvirtd
+systemctl is-active --quiet virtlogd || sudo systemctl start virtlogd
+
+# Create root CA if not exist
+if [ ! -f "${OUT_DIR?}/vms/rootCA.pem" ]; then
+  CAROOT="${OUT_DIR?}/vms" mkcert -install
+fi
+
+run_ansible vms_create dev "--ask-become-pass $(limit_flag "${usage_host:-}")"

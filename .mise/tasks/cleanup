@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Cleanup development environment"
+
+set -euo pipefail
+
+echo "Clean development environment..."
+CAROOT="${OUT_DIR}/vms" mkcert -uninstall
+rm -rf "${OUT_DIR}"/kubeconfig/*.dev.yaml
+rm -rf "${OUT_DIR}/credentials/dev"
+rm -rf "${OUT_DIR}/vms"

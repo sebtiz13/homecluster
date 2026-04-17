@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# TODO: depends on "credentials:generate" when manjaro update mise (https://github.com/jdx/mise/pull/8881)
+#MISE description="Bootstrap the cluster (setup flux and CA)"
+#MISE depends=["init"]
+#USAGE flag "--host <host>" help="Limit to only specified machine" {
+#USAGE   choices "salamandre" "baku"
+#USAGE   default ""
+#USAGE }
+#USAGE arg "<environment>" env="ENVIRONMENT" help="Targeted environment" {
+#USAGE   choices "dev" "production"
+#USAGE }
+#USAGE arg "[domain]" env="DOMAIN_NAME" help="Domain name"
+
+set -euo pipefail
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../_lib.sh"
+
+# Validate and parse arguments
+ENVIRONMENT="${usage_environment?}"
+DOMAIN_NAME="${usage_domain:-}"
+
+validate_args "$ENVIRONMENT" "$DOMAIN_NAME"
+DOMAIN_NAME=$(resolve_domain "$ENVIRONMENT" "$DOMAIN_NAME")
+
+yq -i "._domain = \"$DOMAIN_NAME\"" "${OUT_DIR?}/credentials/${ENVIRONMENT}/admin_passwords.yaml"
+run_ansible k3s_bootstrap "$ENVIRONMENT" "$DOMAIN_NAME" "$(limit_flag "${usage_host?}")"

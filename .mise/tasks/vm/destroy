@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#MISE description="Destroy virtual machines"
+#MISE depends=["init"]
+#USAGE flag "--host <host>" help="Limit to only specified machine" {
+#USAGE   choices "salamandre" "baku"
+#USAGE   default ""
+#USAGE }
+
+set -euo pipefail
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../_lib.sh"
+
+run_ansible vms_destroy dev "--ask-become-pass $(limit_flag "${usage_host:-}")"

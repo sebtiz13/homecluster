@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#MISE description="Test if all kustomize is valid"
+
+set -euo pipefail
+
 shopt -s globstar nullglob
 for pathname in kubernetes/**/kustomization.yaml; do
   if [[ $pathname =~ "wallabag" ]]; then

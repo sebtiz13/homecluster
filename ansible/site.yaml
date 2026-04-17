@@ -1,3 +1,0 @@
-- ansible.builtin.import_playbook: setup.yaml
-- ansible.builtin.import_playbook: k3s_bootstrap.yaml
-- ansible.builtin.import_playbook: k3s_configure.yaml
