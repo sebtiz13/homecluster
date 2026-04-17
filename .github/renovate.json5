@@ -3,7 +3,9 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
     "config:recommended",
-    "config:semverAllMonthly",
+    ":preserveSemverRanges",
+    "group:all",
+    "schedule:quarterly", // Every 3 month
     "docker:enableMajor",
     ":automergeBranch",
     ":disableRateLimiting",
@@ -31,13 +33,9 @@
     ],
   },
   "helm-values": {
-    managerFilePatterns: [
-      "/(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$/"
-    ],
+    managerFilePatterns: ["/(^|/)kubernetes/.+/helm-?release.*\\.ya?ml$/"],
   },
   kubernetes: {
-    managerFilePatterns: [
-      "/(^|/)kubernetes/.+\\.ya?ml$/"
-    ],
+    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
   },
 }
