@@ -9,7 +9,6 @@
 
 - OS: Linux
 - Install the following packages:
-
   - [Make](https://www.gnu.org/software/make/)
   - [python](https://www.python.org/)
   - [jq](https://stedolan.github.io/jq/)
@@ -51,7 +50,7 @@ Common settings:
 ## Gather information
 
 - Choose a static IP address for each machine (just the desired address, we don't set anything up yet)
-- OS disk name want used for ZFS pool (for example `/dev/sda`)
+- OS disk name want used for ZFS pool (can be gathered with `ls -la /dev/disk/by-id/ata-*` to use more robust then simple `/dev/sda`)
 - SSH root password
 
 ## Fill data
