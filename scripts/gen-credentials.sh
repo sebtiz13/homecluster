@@ -48,7 +48,7 @@ if [[ "$(yq .salamandre.vaultwarden "$FILE")" = "null" ]]; then
 fi
 
 # Baku credentials
-insert_value "$FILE" .baku.minio "$(randpw 16)"
+insert_value "$FILE" .baku.seaweedfs "$(randpw 16)"
 insert_value "$FILE" .baku.grafana "$(randpw 16)"
 
 ##

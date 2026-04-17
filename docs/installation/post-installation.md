@@ -32,6 +32,6 @@ step):
 
 ### Baku
 
-- Minio:
+- Seaweedfs:
   - Username: `root`
-  - Password: `yq .baku.minio ./out/credentials/<env>/admin_passwords.yaml`
+  - Password: `yq .baku.seaweedfs ./out/credentials/<env>/admin_passwords.yaml`

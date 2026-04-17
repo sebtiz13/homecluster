@@ -5,7 +5,7 @@ metadata:
 spec:
   values:
     ports:
-      minio:
+      s3:
         port: 3882
         expose:
           default: true

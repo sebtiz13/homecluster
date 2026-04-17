@@ -16,7 +16,6 @@ configMapGenerator:
         reloader/watch: enabled
         grafana_dashboard: "1"
     files:
-      - dashboards/minio.json
       - dashboards/nodeexporter.json
       - dashboards/traefik.json
   - name: grafana-dashboards-kubernetes
