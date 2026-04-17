@@ -6,5 +6,11 @@
       matchPackageNames: ["victoriametrics/operator"],
       sourceUrl: "https://github.com/VictoriaMetrics/operator",
     },
+    {
+      description: "SeaweedFS source url",
+      matchPackageNames: ["seaweedfs"],
+      sourceUrl: "https://github.com/seaweedfs/seaweedfs",
+      changelogUrl: "https://github.com/seaweedfs/seaweedfs/releases",
+    },
   ],
 }
