@@ -7,7 +7,7 @@ metadata:
 spec:
   url: https://github.com/kubernetes-sigs/external-dns
   ref:
-    tag: v0.20.0
+    tag: v0.21.0
   interval: 1h
   timeout: 5m
   ignore: |
