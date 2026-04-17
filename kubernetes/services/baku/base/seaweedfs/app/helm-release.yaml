@@ -79,11 +79,10 @@ spec:
 
       resources:
         requests:
-          cpu: 100m
-          memory: 256Mi
-        limits:
-          cpu: "1"
+          cpu: 256m
           memory: 1Gi
+        limits:
+          memory: 2Gi
 
       data:
         type: persistentVolumeClaim

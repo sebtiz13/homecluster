@@ -5,5 +5,12 @@ metadata:
 spec:
   values:
     allInOne:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          memory: 1Gi
+
       data:
         size: 10Gi
