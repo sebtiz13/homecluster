@@ -33,7 +33,7 @@ jobs:
           fi
 
           chmod +x ./scripts/update-crds.sh
-          ./scripts/update-crds.sh $CHANGED_FILES
+          echo "$CHANGED_FILES" | xargs ./scripts/update-crds.sh
           echo "updated=true" >> $GITHUB_OUTPUT
 
       - name: Commit and Push Changes
