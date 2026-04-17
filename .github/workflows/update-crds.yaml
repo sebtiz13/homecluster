@@ -25,7 +25,7 @@ jobs:
       - name: Execute CRD Update Script
         id: update
         run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -- 'kubernetes/crds/**/*.crd.yaml')
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- 'kubernetes/crds/**/*.crd.yaml')
           if [ -z "$CHANGED_FILES" ]; then
             echo "::notice:: No file changed."
             echo "updated=false" >> $GITHUB_OUTPUT
