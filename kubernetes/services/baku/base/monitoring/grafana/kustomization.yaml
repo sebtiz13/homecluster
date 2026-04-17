@@ -17,6 +17,7 @@ configMapGenerator:
         grafana_dashboard: "1"
     files:
       - dashboards/nodeexporter.json
+      - dashboards/seaweedfs.json
       - dashboards/traefik.json
   - name: grafana-dashboards-kubernetes
     options:
