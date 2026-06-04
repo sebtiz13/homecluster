@@ -53,9 +53,9 @@ spec:
         resources:
           requests:
             cpu: 90m
-            memory: 200Mi
+            memory: 275Mi
           limits:
-            memory: 300Mi
+            memory: 320Mi
 
     # Disable unneeded alert rules
     defaultRules:
