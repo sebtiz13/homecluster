@@ -55,7 +55,6 @@ spec:
             cpu: 90m
             memory: 200Mi
           limits:
-            cpu: 200m
             memory: 300Mi
 
     # Disable unneeded alert rules
