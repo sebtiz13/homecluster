@@ -118,7 +118,6 @@ spec:
         cpu: 12m
         memory: 128Mi
       limits:
-        cpu: 200m
         memory: 196Mi
 
     service:
