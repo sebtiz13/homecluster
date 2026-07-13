@@ -69,6 +69,11 @@ spec:
             FontColorDark: "#ECEFF4"
         ServicePing:
           Enabled: false
+        SystemDefaults:
+          PasswordHasher:
+            Hasher:
+              Algorithm: bcrypt
+              Cost: 11 # This reduce a lot the time spent on login, 12 is recommended for production (default: 14)
 
     login:
       # ? Force IPv4 to prevent crash when IPv6 is disabled
