@@ -4,7 +4,6 @@
     {
       description: ["Separate PRs for github"],
       matchFileNames: ["**/.github/**"],
-      // "additionalBranchPrefix": "github-",
       groupName: "github",
       group: {
         commitMessageTopic: "{{{groupName}}} group",
@@ -12,8 +11,7 @@
     },
     {
       description: ["Separate PRs for ansible"],
-      matchFileNames: ["**/ansible/**", "Makefile"],
-      // "additionalBranchPrefix": "ansible-",
+      matchFileNames: ["**/ansible/**"],
       groupName: "ansible",
       group: {
         commitMessageTopic: "{{{groupName}}} group",
@@ -21,13 +19,14 @@
     },
     {
       description: ["Kubernetes Group"],
-      matchDatasources: ["pypi", "github-releases", "docker"],
+      matchDatasources: ["pypi", "github-releases", "docker", "github-tags"],
       matchDepNames: [
         "kubernetes",
         "kubernetes-validate",
         "k3s-io/k3s",
         "alpine/k8s",
         "kubernetes/kubernetes",
+        "kubectl",
       ],
       groupName: "kubernetes",
       group: {
@@ -38,7 +37,7 @@
     },
     {
       description: ["Flux Group"],
-      matchDepNames: ["fluxcd/flux2", "ghcr.io/fluxcd/*-controller"],
+      matchDepNames: ["fluxcd/flux2", "ghcr.io/fluxcd/*-controller", "flux2"],
       groupName: "flux",
       group: {
         commitMessageTopic: "{{{groupName}}} group",

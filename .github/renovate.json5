@@ -38,4 +38,7 @@
   kubernetes: {
     managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
   },
+  mise: {
+    managerFilePatterns: ["**/{,.}mise{,.*}.toml"],
+  },
 }
