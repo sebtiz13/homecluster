@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#MISE description="Install required tools and dependencies"
+#MISE sources=["ansible/requirements.txt", "ansible/requirements.yaml"]
+
+set -euo pipefail
+# shellcheck disable=SC1091
+source "$(dirname "$0")/_lib.sh"
+
+check_command pwgen
+check_command openssl
+check_command argon2
+
+cd "$ANSIBLE_DIR" || exit 1
+echo "Install required python packages in venv..."
+uv pip install -r requirements.txt
+
+echo "Installing ansible modules..."
+ansible-galaxy install -r requirements.yaml

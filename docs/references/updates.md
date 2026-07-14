@@ -2,13 +2,11 @@
 
 ## Operating System
 
-The underlying cluster nodes can be fully updated by using the following Ansible playbook:
+The underlying cluster nodes can be fully updated by using the following command:
 
 ```sh
-> make provision STEP=setup
+mise run node:setup <environment>
 ```
-
-> Info: for update vm replace `provision` by `test-provision`.
 
 ## Kubernetes
 
