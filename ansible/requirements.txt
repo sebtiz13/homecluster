@@ -1,6 +1,6 @@
-ansible>=13,<13.6
-ansible-lint>=26.4,<26.5
-lxml>=6,<6.1
-libvirt-python>=12,<12.3
+ansible>=13,<13.9
+ansible-lint>=26.6,<26.7
+lxml>=6,<6.2
+libvirt-python>=12,<12.6
 kubernetes>=35,<35.1
 kubernetes-validate>=1.35,<1.36
