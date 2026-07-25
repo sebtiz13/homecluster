@@ -24,15 +24,22 @@ spec:
     kubelet:
       vmScrape:
         spec:
-          # drop high cardinality label and useless metrics for cadvisor and kubelet
           metricRelabelConfigs:
+            # Drop of highest cardinality and useless labels (churn)
             - action: labeldrop
-              regex: (uid)
-            # - action: labeldrop # Keep this
-            #   regex: (id|name)
+              regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*|metrics_path|replicaset|endpoint_slice)
+            # Drop of control plane buckets (apiserver, etcd, etc)
             - action: drop
               source_labels: [__name__]
-              regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+              regex: (apiserver_request_duration_seconds_bucket|etcd_request_duration_seconds_bucket|apiserver_request_body_size_bytes_bucket|apiserver_watch_list_duration_seconds_bucket|apiserver_watch_cache_read_wait_seconds_bucket|apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket|workqueue_queue_duration_seconds_bucket|workqueue_work_duration_seconds_bucket|scheduler_plugin_execution_duration_seconds_bucket|grafana_http_response_size_bytes_bucket)
+            # Drop of cAdvisor noise (kubelet)
+            - action: drop
+              source_labels: [__name__]
+              regex: (container_tasks_state|container_memory_failures_total|container_memory_mapped_file|container_network_tcp_usage_total|container_network_udp_usage_total|container_blkio_.*)
+            # Drop of kube-state-metrics noise
+            - action: drop
+              source_labels: [__name__]
+              regex: (kube_secret_.*|kube_configmap_.*|kube_endpoint.*|kube_lease_.*|kube_.+_created|kube_.+_metadata_resource_version|kube_pod_init_container_.*)
 
     victoria-metrics-operator:
       fullnameOverride: victoria-metrics-operator
