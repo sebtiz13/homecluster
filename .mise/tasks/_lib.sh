@@ -63,7 +63,7 @@ run_ansible() {
   fi
 
   cd "$ANSIBLE_DIR" && ansible-playbook --inventory "inventories/$2" "${rest[@]}" "$1.yaml"
-  cd - || return
+  cd ~- || return
 }
 
 # Check if an command is installed
