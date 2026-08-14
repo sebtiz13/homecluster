@@ -1,3 +1,13 @@
+- name: Wait until namespace is created
+  delegate_to: localhost
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ local_kubeconfig }}"
+    context: salamandre
+    kind: Namespace
+    name: "{{ openbao_namespace }}"
+    wait: true
+    wait_timeout: 300
+
 - name: Ensure seal key Secret exists (auto-unseal)
   ansible.builtin.import_tasks: seal_key.yaml
 
