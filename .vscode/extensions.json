@@ -2,12 +2,11 @@
   "recommendations": [
     "EditorConfig.EditorConfig",
     "codezombiech.gitignore",
-    "ms-vscode.makefile-tools",
     "EdwinHuiSH.better-comments-next",
     "redhat.vscode-yaml",
-    // Needed for files associations "appValues" to Helm type
+    // Needed for kubernetes files associations
     "ms-kubernetes-tools.vscode-kubernetes-tools",
-    // Needed for files associations "handlers", "tasks" and "Ansible vars file" to Ansible type
+    // Needed for ansible files associations
     "redhat.ansible",
   ]
 }
