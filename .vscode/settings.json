@@ -1,6 +1,7 @@
 {
   "ansible.python.interpreterPath": "${workspaceFolder}/ansible/.venv/bin/python",
   "ansible.python.activationScript": "./ansible/.venv/bin/activate",
+  "python.useEnvironmentsExtension": false,
   "files.associations": {
     "*.yaml.j2": "yaml",
     "*.conf.j2": "properties",
@@ -19,5 +20,11 @@
   "yaml.schemaStore.enable": true,
   "yaml.schemas": {
     "kubernetes": "./kubernetes/**/*.yaml"
-  }
+  },
+  "vs-kubernetes": {
+    "vs-kubernetes.crd-code-completion": "enabled",
+    "vs-kubernetes.suppress-kubectl-not-found-alerts": true,
+    "vs-kubernetes.suppress-helm-not-found-alerts": true,
+    "checkForMinikubeUpgrade": false
+  },
 }
