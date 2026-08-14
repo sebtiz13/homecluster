@@ -2,6 +2,7 @@
 # shellcheck disable=SC2086
 #MISE description="Deploy the cluster (all-in-one command)"
 #MISE depends=["init"]
+#MISE interactive=true
 #USAGE flag "--host <host>" help="Limit to only specified machine" {
 #USAGE   choices "salamandre" "baku" "all"
 #USAGE   default "all"

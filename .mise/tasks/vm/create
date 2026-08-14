@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #MISE description="Create virtual machines"
 #MISE depends=["init"]
+#MISE interactive=true
 #USAGE flag "--host <host>" help="Limit to only specified machine" {
 #USAGE   choices "salamandre" "baku" "all"
 #USAGE   default "all"
@@ -17,7 +18,9 @@ systemctl is-active --quiet virtlogd || sudo systemctl start virtlogd
 
 # Create root CA if not exist
 if [ ! -f "${OUT_DIR?}/vms/rootCA.pem" ]; then
+  echo "Creating CA certificates"
   CAROOT="${OUT_DIR?}/vms" mkcert -install
 fi
 
+echo "Running ansible"
 run_ansible vms_create dev "--ask-become-pass $(limit_flag "${usage_host:-}")"

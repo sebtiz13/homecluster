@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #MISE description="Start virtual machines"
+#MISE interactive=true
 #USAGE flag "--host <host>" help="Limit to only specified machine" {
 #USAGE   choices "salamandre" "baku" "all"
 #USAGE   default "all"
