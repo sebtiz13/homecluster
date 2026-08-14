@@ -38,7 +38,7 @@ start_vm() {
   local vm="$1"
   local state
 
-  state="$(virsh domstate "$vm" 2>/dev/null | tr -d '\r' | xargs)"
+  state="$(virsh domstate "$vm" 2>/dev/null || echo "not-found" | tr -d '\r' | xargs)"
   case "$state" in
     running)
       echo "VM $vm already running"

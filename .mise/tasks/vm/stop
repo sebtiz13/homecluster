@@ -33,7 +33,14 @@ stop_network() {
 
 get_vm_state() {
   local vm="$1"
-  virsh domstate "$vm" 2>/dev/null | tr -d '\r' | xargs
+  local state
+
+  state=$(virsh domstate "$vm" 2>/dev/null)
+  if [[ $? -eq 0 ]]; then
+    echo "$state" | tr -d '\r' | xargs
+  else
+    echo "not-found"
+  fi
 }
 
 shutdown_vm() {
@@ -71,7 +78,7 @@ wait_for_vm_shutdown() {
 
   while (( elapsed < timeout )); do
     state="$(get_vm_state "$vm")"
-    [[ "$state" == "shut off" ]] && return 0
+    [[ "$state" == "shut off" || "$state" == "not-found" ]] && return 0
     sleep 2
     ((elapsed+=2))
   done
