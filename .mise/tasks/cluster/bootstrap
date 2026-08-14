@@ -3,8 +3,8 @@
 #MISE description="Bootstrap the cluster (setup flux and CA)"
 #MISE depends=["init"]
 #USAGE flag "--host <host>" help="Limit to only specified machine" {
-#USAGE   choices "salamandre" "baku"
-#USAGE   default ""
+#USAGE   choices "salamandre" "baku" "all"
+#USAGE   default "all"
 #USAGE }
 #USAGE arg "<environment>" env="ENVIRONMENT" help="Targeted environment" {
 #USAGE   choices "dev" "production"

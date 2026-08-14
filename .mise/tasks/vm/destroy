@@ -2,8 +2,8 @@
 #MISE description="Destroy virtual machines"
 #MISE depends=["init"]
 #USAGE flag "--host <host>" help="Limit to only specified machine" {
-#USAGE   choices "salamandre" "baku"
-#USAGE   default ""
+#USAGE   choices "salamandre" "baku" "all"
+#USAGE   default "all"
 #USAGE }
 
 set -euo pipefail

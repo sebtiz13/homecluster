@@ -41,7 +41,7 @@ resolve_domain() {
 # Usage: limit_flag [hostname]
 limit_flag() {
   local host="$1"
-  if [[ -n "$host" ]]; then
+  if [[ "$host" != "all" ]]; then
     echo "--limit localhost,$host"
   fi
 }

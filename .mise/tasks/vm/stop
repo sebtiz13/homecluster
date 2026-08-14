@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #MISE description="Stop virtual machines"
 #USAGE flag "--host <host>" help="Limit to only specified machine" {
-#USAGE   choices "salamandre" "baku"
-#USAGE   default ""
+#USAGE   choices "salamandre" "baku" "all"
+#USAGE   default "all"
 #USAGE }
 
 set -euo pipefail
@@ -14,7 +14,7 @@ ALL_HOSTS=(salamandre baku)
 
 HOST_ARG=${usage_host:-}
 HOSTS=("${ALL_HOSTS[@]}")
-if [[ -n "$HOST_ARG" ]]; then
+if [[ "$HOST_ARG" != "all" ]]; then
   HOSTS=("$HOST_ARG")
 fi
 
