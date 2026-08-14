@@ -22,5 +22,20 @@ if [ ! -f "${OUT_DIR?}/vms/rootCA.pem" ]; then
   CAROOT="${OUT_DIR?}/vms" mkcert -install
 fi
 
+# Reference SSH key
+if [ ! -f "${OUT_DIR?}/vms/ssh_key_path" ]; then
+  echo "Enter the public ssh key file you want use [~/.ssh/id_ed25519.pub]:"
+  IFS= read -r key_path
+  key_path=${key_path:-~/.ssh/id_ed25519.pub}
+  key_path=$(realpath -s "${key_path/#\~/$HOME}") # Resolve relative path
+
+  if [ ! -f "$key_path" ]; then
+    echo "File \"$key_path\" doesn't exist"
+    exit 1
+  else
+    echo "$key_path" > "${OUT_DIR?}/vms/ssh_key_path"
+  fi
+fi
+
 echo "Running ansible"
 run_ansible vms_create dev "--ask-become-pass $(limit_flag "${usage_host:-}")"
