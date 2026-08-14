@@ -1,0 +1,6 @@
+.git/
+.vscode/
+.ansible/
+ansible/.venv/
+out/
+todo
