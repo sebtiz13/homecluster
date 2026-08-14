@@ -33,7 +33,7 @@
         namespace: database
         name: "postgres{{ postgres_version }}-1"
         wait: true
-        wait_timeout: 300
+        wait_timeout: 600
 
     - name: Zitadel | Setup zitadel
       tags: zitadel
