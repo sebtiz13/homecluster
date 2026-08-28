@@ -5,5 +5,4 @@ resources:
   - kube-apiserver-availability.rules.yaml
   - kube-apiserver-burnrate.rules.yaml
   - kube-apiserver-histogram.rules.yaml
-  - kube-scheduler.rules.yaml
   - kubernetes-system-apiserver.yaml
