@@ -28,7 +28,7 @@ spec:
           metricRelabelConfigs:
             # Drop of highest cardinality and useless labels (churn)
             - action: labeldrop
-              regex: (uid|id|metrics_path|replicaset|endpoint_slice)
+              regex: (uid|id|replicaset|endpoint_slice)
             # Drop of control plane buckets (apiserver, etcd, etc)
             - action: drop
               source_labels: [__name__]
@@ -53,7 +53,7 @@ spec:
           interval: "30s"
           metricRelabelConfigs:
             - action: labeldrop
-              regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*|metrics_path)
+              regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
 
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
