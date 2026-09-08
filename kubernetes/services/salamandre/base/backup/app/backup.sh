@@ -417,20 +417,49 @@ prune_snapshots() {
     # Select snapshots older than the cutoff time
     select((.metadata.creationTimestamp | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) < ($CUTOFF | tonumber))' |
   while read -r item_json; do
-    local cnpg_backup_name
-    cnpg_backup_name=$(echo "$item_json" | jq -r '.metadata.labels["cnpg.io/backupName"] // empty')
     local snap_name
     snap_name=$(echo "$item_json" | jq -r '.metadata.name')
 
-    if [ -n "$cnpg_backup_name" ]; then
-      log "  - Deleting backup $cnpg_backup_name (linked to snapshot $snap_name)."
-      kubectl delete backup "$cnpg_backup_name" -n "$namespace" || true
-    else
-      log "  - Deleting snapshot $snap_name."
-    fi
-
-    kubectl delete volumesnapshot "$snap_name" -n "$namespace" || true
+    log "  - Deleting snapshot $snap_name."
+    kubectl delete volumesnapshot "$snap_name" -n "$namespace" > /dev/null || true
   done
+}
+# Applies the time-based retention policy for CNPG-managed backups.
+# Deletes the Backup resource AND its underlying VolumeSnapshot(s),
+# since CNPG's default snapshotOwnerReference does not cascade-delete them.
+# Usage: prune_cnpg_backups "namespace" "cluster_name"
+prune_cnpg_backups() {
+    local namespace=$1
+    local cluster_name=$2
+
+    log "Applying retention policy for CNPG backups $namespace/$cluster_name: deleting backups older than $KEEP_DAYS days."
+
+    local cutoff_timestamp
+    cutoff_timestamp=$(date -d "$TODAY_YMD -${KEEP_DAYS} days" +%s)
+
+    local label_selector="${SNAPSHOT_MANGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}=${cluster_name}"
+    kubectl get backup -n "$namespace" -l "$label_selector" -o json | \
+    jq -rc --arg CUTOFF "$cutoff_timestamp" '.items[] |
+        select((.metadata.creationTimestamp | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) < ($CUTOFF | tonumber))' |
+    while read -r item_json; do
+        local backup_name
+        backup_name=$(echo "$item_json" | jq -r '.metadata.name')
+        local snap_names
+        snap_names=$(echo "$item_json" | jq -r '.status.snapshotBackupStatus.elements[]?.name // empty')
+
+        if [ -n "$snap_names" ]; then
+            while read -r vs_name; do
+                [ -z "$vs_name" ] && continue
+                log " - Deleting VolumeSnapshot $vs_name (linked to backup $backup_name)."
+                kubectl delete volumesnapshot "$vs_name" -n "$namespace" --ignore-not-found=true > /dev/null || true
+            done <<< "$snap_names"
+        else
+            log " - WARNING: No VolumeSnapshot reference found in Backup $backup_name status."
+        fi
+
+        log " - Deleting Backup $backup_name."
+        kubectl delete backup "$backup_name" -n "$namespace" > /dev/null || true
+    done
 }
 
 # --- Main Logic ---
@@ -520,7 +549,11 @@ for item in "${PVC_ARRAY[@]}"; do
     FAILED_PVC_COUNT=$((FAILED_PVC_COUNT + 1))
     FAILED_PVCs+="- **$namespace/$pvc**: Failed to send.\n"
   fi
-  prune_snapshots "$namespace" "$pvc"
+  if [ "$namespace" == "database" ]; then
+    prune_cnpg_backups "$namespace" "$CNPG_CLUSTER_NAME"
+  else
+    prune_snapshots "$namespace" "$pvc"
+  fi
 done
 
 log "--- Backup finished (Success: $((TOTAL_PVC_COUNT - FAILED_PVC_COUNT)), Failed: $FAILED_PVC_COUNT, Total: $TOTAL_PVC_COUNT) ---"
