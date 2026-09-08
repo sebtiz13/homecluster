@@ -291,7 +291,7 @@ stream_to_s3() {
   fi
 
   # Find the ZFS fullname on host
-  full_zfs_snap=$(zfs list -t snapshot -H -o name 2>/dev/null | grep "$zfs_handle")
+  full_zfs_snap=$(zfs list -t snapshot -H -o name 2>/dev/null | grep -F -- "$zfs_handle" | head -n1)
   if [ -z "$full_zfs_snap" ]; then
     log "ERROR: Cannot find matching ZFS snapshot on disk for handle $zfs_handle."
     return 1
@@ -327,7 +327,7 @@ stream_to_s3() {
         content_name=$(echo "$yesterday_ref" | jq -r ".status.boundVolumeSnapshotContentName")
         zfs_handle=$(kubectl get volumesnapshotcontent "$content_name" -o jsonpath='{.status.snapshotHandle}' || echo "")
         local full_zfs_ref
-        full_zfs_ref=$(zfs list -t snapshot -H -o name 2>/dev/null | grep "$zfs_handle")
+        full_zfs_ref=$(zfs list -t snapshot -H -o name 2>/dev/null | grep -F -- "$zfs_handle" | head -n1)
 
         if [ -n "$full_zfs_ref" ]; then
           zfs_cmd+=(-i "$full_zfs_ref")
