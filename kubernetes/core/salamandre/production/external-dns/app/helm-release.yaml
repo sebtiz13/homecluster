@@ -19,6 +19,10 @@ spec:
   upgrade:
     crds: Skip
   values:
+    # Prevent API spam
+    interval: 4h
+    triggerLoopOnEvent: true
+
     txtOwnerId: k8s-salamandre
 
     domainFilters:
