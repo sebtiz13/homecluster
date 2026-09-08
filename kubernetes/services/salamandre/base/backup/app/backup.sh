@@ -8,7 +8,7 @@ RUN_MAX_ATTEMPT="4" # Backoff limit is set to 3, so the script can be run N + 1
 
 # K8s
 SNAPSHOT_CLASS=${SNAPSHOT_CLASS:-"zfspv-snapclass"}
-SNAPSHOT_MANGED_LABEL="backup.local/managed"
+SNAPSHOT_MANAGED_LABEL="backup.local/managed"
 SNAPSHOT_PVC_LABEL="backup.local/pvc"
 BACKUP_ENABLED_LABEL="backup.local/enabled"
 CNPG_CLUSTER_NAME="postgres16"
@@ -163,7 +163,7 @@ metadata:
   name: "${snap_name}"
   namespace: "${namespace}"
   labels:
-    ${SNAPSHOT_MANGED_LABEL}: "true"
+    ${SNAPSHOT_MANAGED_LABEL}: "true"
     ${SNAPSHOT_PVC_LABEL}: "${pvc_name}"
 spec:
   volumeSnapshotClassName: ${SNAPSHOT_CLASS}
@@ -202,7 +202,7 @@ metadata:
   name: "${backup_name}"
   namespace: "${namespace}"
   labels:
-    ${SNAPSHOT_MANGED_LABEL}: "true"
+    ${SNAPSHOT_MANAGED_LABEL}: "true"
     ${SNAPSHOT_PVC_LABEL}: "${cluster_name}"
 spec:
   method: volumeSnapshot
@@ -411,7 +411,7 @@ prune_snapshots() {
   cutoff_timestamp=$(date -d "$TODAY_YMD -${KEEP_DAYS} days" +%s)
 
   # Find candidates for deletion (older than KEEP_DAYS)
-  local label_selector="${SNAPSHOT_MANGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}=${pvc_name}"
+  local label_selector="${SNAPSHOT_MANAGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}=${pvc_name}"
   kubectl get vs -n "$namespace" -l "$label_selector" -o json | \
   jq -rc --arg CUTOFF "$cutoff_timestamp" '.items[] |
     # Select snapshots older than the cutoff time
@@ -437,7 +437,7 @@ prune_cnpg_backups() {
     local cutoff_timestamp
     cutoff_timestamp=$(date -d "$TODAY_YMD -${KEEP_DAYS} days" +%s)
 
-    local label_selector="${SNAPSHOT_MANGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}=${cluster_name}"
+    local label_selector="${SNAPSHOT_MANAGED_LABEL}=true,${SNAPSHOT_PVC_LABEL}=${cluster_name}"
     kubectl get backup -n "$namespace" -l "$label_selector" -o json | \
     jq -rc --arg CUTOFF "$cutoff_timestamp" '.items[] |
         select((.metadata.creationTimestamp | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) < ($CUTOFF | tonumber))' |
