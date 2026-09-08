@@ -1,7 +1,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: postgres
+  name: postgres16
 spec:
   method: volumeSnapshot
   schedule: "0 0 3 * * *" # @daily at 3am
