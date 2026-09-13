@@ -1,3 +1,25 @@
+- name: Wait cluster ready
+  hosts: all
+  tags: kubernetes
+  tasks:
+    - name: Wait for Kubernetes API and node to be Ready
+      delegate_to: localhost
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ local_kubeconfig }}"
+        context: "{{ inventory_hostname }}"
+        kind: Node
+        name: "{{ inventory_hostname }}"
+        wait: true
+        wait_condition:
+          type: Ready
+          status: "True"
+        wait_timeout: 180
+        wait_sleep: 5
+      register: node_status
+      until: node_status is not failed
+      retries: 5
+      delay: 10
+
 - name: Load informations
   hosts: all
   tags: kubernetes
