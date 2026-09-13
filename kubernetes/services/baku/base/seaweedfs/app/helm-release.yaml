@@ -39,6 +39,9 @@ spec:
 
     admin:
       enabled: true
+      extraArgs: # Workaround until V4.46.1 (https://github.com/seaweedfs/seaweedfs/issues/11234)
+        - "-ip=0.0.0.0"
+
       secret:
         existingSecret: seaweedfs-admin-credentials
         userKey: adminUser
