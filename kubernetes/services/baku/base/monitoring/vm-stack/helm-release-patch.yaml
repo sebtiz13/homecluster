@@ -153,7 +153,7 @@ spec:
       rules:
         # Kubernetes system (change "apiserver" to "kubelet" for k3s)
         KubeClientErrors:
-          create: true
+          enabled: true
           spec:
             expr: |-
               (sum(rate(rest_client_requests_total{job="kubelet",code=~"5.."}[5m])) by (instance,job,namespace,cluster)
@@ -161,14 +161,12 @@ spec:
               sum(rate(rest_client_requests_total{job="kubelet"}[5m])) by (instance,job,namespace,cluster))
               > 0.01
       groups:
-        kubeApiserverAvailability: # For k3s change
-          create: false
-        kubeApiserverBurnrate: # For k3s change
-          create: false
-        kubeApiserverHistogram: # For k3s change
-          create: false
-        kubernetesSystemApiserver: # For k3s change
-          create: false
+        kube-apiserver-burnrate.rules: # For k3s change
+          enabled: false
+        kube-apiserver-histogram.rules: # For k3s change
+          enabled: false
+        kubernetes-system-apiserver: # For k3s change
+          enabled: false
         vmagent: # remove dashboard annotation
           rules:
             spec:

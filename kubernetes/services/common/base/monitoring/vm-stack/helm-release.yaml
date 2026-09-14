@@ -101,10 +101,14 @@ spec:
     # Disable unneeded alert rules
     defaultRules:
       groups:
-        etcd:
-          create: false
+        etcd: # k3s useless
+          enabled: false
         vmcluster:
-          create: false
+          enabled: false
+        kubernetes-system-controller-manager: # k3s useless
+          enabled: false
+        kubernetes-system-scheduler:  # k3s useless
+          enabled: false
 
     ## In k3s alls bellow components is combined in "kubelet"
     kubeControllerManager:
