@@ -29,14 +29,34 @@ spec:
             # Drop of highest cardinality and useless labels (churn)
             - action: labeldrop
               regex: (uid|id|replicaset|endpoint_slice)
-            # Drop of control plane buckets (apiserver, etcd, etc)
+            # Fully drop control-plane family "apiserver" cause is handle by "kubeApiServer".
             - action: drop
               source_labels: [__name__]
-              regex: (apiserver_request_duration_seconds_bucket|etcd_request_duration_seconds_bucket|apiserver_request_body_size_bytes_bucket|apiserver_watch_list_duration_seconds_bucket|apiserver_watch_cache_read_wait_seconds_bucket|apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket|workqueue_queue_duration_seconds_bucket|workqueue_work_duration_seconds_bucket|scheduler_plugin_execution_duration_seconds_bucket|grafana_http_response_size_bytes_bucket)
+              regex: (apiserver_.*)
+            # Drop of control plane buckets (etcd, etc)
+            - action: drop
+              source_labels: [__name__]
+              regex: (etcd_request_duration_seconds_bucket|workqueue_queue_duration_seconds_bucket|workqueue_work_duration_seconds_bucket|scheduler_plugin_execution_duration_seconds_bucket)
             # Drop of cAdvisor noise (kubelet)
             - action: drop
               source_labels: [__name__]
               regex: (container_tasks_state|container_memory_failures_total|container_memory_mapped_file|container_network_tcp_usage_total|container_network_udp_usage_total|container_blkio_.*)
+    kubeApiServer:
+      vmScrape:
+        spec:
+          endpoints:
+            - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+              port: https
+              scheme: https
+              tlsConfig:
+                caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                serverName: kubernetes
+
+              metricRelabelConfigs:
+                # Drop of control plane buckets (apiserver)
+                - action: drop
+                  source_labels: [__name__]
+                  regex: (apiserver_request_duration_seconds_bucket|apiserver_request_body_size_bytes_bucket|apiserver_watch_list_duration_seconds_bucket|apiserver_watch_cache_read_wait_seconds_bucket|apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket)
 
     prometheus-node-exporter:
       fullnameOverride: node-exporter
@@ -101,13 +121,17 @@ spec:
     # Disable unneeded alert rules
     defaultRules:
       groups:
-        etcd: # k3s useless
+        etcd: # k3s useless cause it use sqlite
           enabled: false
         vmcluster:
           enabled: false
-        kubernetes-system-controller-manager: # k3s useless
+
+        ## In k3s alls bellow components is combined in "kubelet"
+        kube-scheduler.rules:
           enabled: false
-        kubernetes-system-scheduler:  # k3s useless
+        kubernetes-system-controller-manager:
+          enabled: false
+        kubernetes-system-scheduler:
           enabled: false
 
     ## In k3s alls bellow components is combined in "kubelet"
@@ -116,8 +140,6 @@ spec:
     kubeScheduler:
       enabled: false
     kubeProxy:
-      enabled: false
-    kubeApiServer:
       enabled: false
     kubeEtcd:
       enabled: false
