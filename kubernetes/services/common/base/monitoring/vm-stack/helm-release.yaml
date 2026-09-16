@@ -70,10 +70,14 @@ spec:
 
       vmScrape:
         spec:
-          interval: "30s"
-          metricRelabelConfigs:
-            - action: labeldrop
-              regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
+          endpoints:
+          - port: metrics
+            metricRelabelConfigs:
+              - action: drop
+                source_labels: [mountpoint]
+                regex: "/var/lib/kubelet/pods.+"
+              - action: labeldrop
+                regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
 
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
@@ -87,13 +91,15 @@ spec:
 
       vmScrape:
         spec:
-          interval: "30s"
-          metricRelabelConfigs:
-            - action: labeldrop
-              regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
-            - action: drop
-              source_labels: [__name__]
-              regex: (kube_secret_.*|kube_configmap_.*|kube_endpoint.*|kube_lease_.*|kube_.+_created|kube_.+_metadata_resource_version|kube_pod_init_container_.*)
+          endpoints:
+            - port: http
+              honorLabels: true
+              metricRelabelConfigs:
+                - action: labeldrop
+                  regex: (uid|id|container_id|image_id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
+                - action: drop
+                  source_labels: [__name__]
+                  regex: (kube_secret_.*|kube_configmap_.*|kube_endpoint.*|kube_lease_.*|kube_.+_created|kube_.+_metadata_resource_version|kube_pod_init_container_.*)
 
     victoria-metrics-operator:
       fullnameOverride: victoria-metrics-operator
