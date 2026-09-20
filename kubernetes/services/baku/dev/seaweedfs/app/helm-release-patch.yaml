@@ -5,12 +5,12 @@ metadata:
 spec:
   values:
     allInOne:
-      resources:
+      resources: # Don't follow KRR recommendation to handle increasing files number
         requests:
-          cpu: 100m
-          memory: 512Mi
+          cpu: 10m
+          memory: 256Mi
         limits:
-          memory: 1Gi
+          memory: 512Mi
 
       data:
         size: 10Gi

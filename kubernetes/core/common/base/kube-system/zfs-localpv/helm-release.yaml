@@ -19,18 +19,16 @@ spec:
       resources:
         requests:
           cpu: 10m
-          memory: 128Mi
+          memory: 129Mi
         limits:
-          cpu: 100m
-          memory: 256Mi
+          memory: 256Mi # Don't follow KRR recommendation due to an issue with constantly increase of memory (report to openebs?)
     zfsController:
       resources:
         requests:
           cpu: 10m
-          memory: 64Mi
+          memory: 49Mi
         limits:
-          cpu: 100m
-          memory: 128Mi
+          memory: 49Mi
     crds:
       zfsLocalPv:
         enabled: true

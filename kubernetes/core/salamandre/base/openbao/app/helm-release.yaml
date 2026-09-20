@@ -70,11 +70,10 @@ spec:
 
       resources:
         requests:
-          memory: 192Mi
-          cpu: 10m
+          cpu: 16m
+          memory: 102Mi
         limits:
-          memory: 256Mi
-          cpu: 250m
+          memory: 102Mi
 
     injector:
       enabled: false

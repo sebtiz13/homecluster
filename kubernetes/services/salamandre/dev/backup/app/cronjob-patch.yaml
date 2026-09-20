@@ -18,9 +18,6 @@ spec:
               mountPath: /etc/ssl/certs/vm-ca.crt
               subPath: tls.crt
               readOnly: true
-            resources:
-              requests:
-                memory: 1Gi
 
           volumes:
           - name: certificate

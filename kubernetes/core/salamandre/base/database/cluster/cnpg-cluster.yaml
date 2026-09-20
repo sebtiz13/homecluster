@@ -28,11 +28,10 @@ spec:
 
   resources:
     requests:
-      cpu: 200m
-      memory: 256Mi
+      cpu: 54m
+      memory: 402Mi
     limits:
-      cpu: 500m
-      memory: 640Mi
+      memory: 402Mi
 
   backup:
     retentionPolicy: 30d

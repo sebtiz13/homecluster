@@ -47,6 +47,13 @@ spec:
         userKey: adminUser
         pwKey: adminPassword
 
+      resources:
+        requests:
+          cpu: 5m
+          memory: 69Mi
+        limits:
+          memory: 69Mi
+
       data:
         type: "persistentVolumeClaim"
         storageClass: openebs-zfspv
@@ -64,7 +71,7 @@ spec:
 
     allInOne:
       enabled: true
-      replicas: 1  # Number of replicas (note: multiple replicas may require shared storage)
+      replicas: 1 # Number of replicas (note: multiple replicas may require shared storage)
 
       s3:
         enabled: true
@@ -80,12 +87,13 @@ spec:
             anonymousRead: false
             # ttl: 1y
 
-      resources:
+      resources: # Don't follow KRR recommendation to handle increasing files number
         requests:
-          cpu: 256m
-          memory: 1Gi
+          cpu: 10m
+          memory: 1024Mi
         limits:
-          memory: 2Gi
+          # cpu: 2 # This is default value from chart
+          memory: 2048Mi
 
       data:
         type: persistentVolumeClaim

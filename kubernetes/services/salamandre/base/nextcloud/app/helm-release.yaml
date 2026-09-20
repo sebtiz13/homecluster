@@ -242,18 +242,6 @@ spec:
       enabled: true
       existingClaim: nextcloud
 
-    cronjob:
-      enabled: true
-      type: sidecar
-      sidecar:
-        resources:
-          requests:
-            cpu: 1m
-            memory: 10Mi
-          limits:
-            cpu: 200m
-            memory: 128Mi
-
     phpClientHttpsFix:
       enabled: true
 
@@ -270,22 +258,31 @@ spec:
 
     resources:
       requests:
-        cpu: 20m
-        memory: 256Mi
+        cpu: 19m
+        memory: 384Mi
       limits:
-        cpu: 2000m
         memory: 1536Mi # (1024Mi + 512Mi) allow gap for 1024mi php limit to prevent OOMKill
+
+    cronjob:
+      enabled: true
+      type: sidecar
+      sidecar:
+        resources:
+          requests:
+            cpu: 20m
+            memory: 10Mi
+          limits:
+            memory: 128Mi # Don't follow KRR recommendation to handle heavy jobs
 
     imaginary:
       enabled: true
 
       resources:
         requests:
-          cpu: 5m
+          cpu: 1m
           memory: 256Mi
         limits:
-          cpu: 1
-          memory: 1024Mi
+          memory: 1024Mi # Don't follow KRR recommendation to handle heavy image
 
     collabora:
       enabled: true
@@ -332,11 +329,10 @@ spec:
 
       resources:
         requests:
-          cpu: 10m
+          cpu: 2m
           memory: 512Mi
         limits:
-          cpu: 300m
-          memory: 1Gi
+          memory: 1536Mi # Don't follow KRR recommendation to handle heavy documents
 
     # Disable not necessary apps
     internalDatabase:

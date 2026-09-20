@@ -63,11 +63,10 @@ spec:
             runAsUser: 1000
           resources:
             requests:
-              cpu: 10m
-              memory: 64Mi
+              cpu: 3m
+              memory: 170Mi
             limits:
-              cpu: 100m
-              memory: 168Mi
+              memory: 170Mi
           volumeMounts:
             - mountPath: /data
               name: data-storage
