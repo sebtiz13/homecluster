@@ -29,14 +29,15 @@ spec:
             # Drop of highest cardinality and useless labels (churn)
             - action: labeldrop
               regex: (uid|id|replicaset|endpoint_slice)
-            # Fully drop control-plane family "apiserver" cause is handle by "kubeApiServer".
+            # K3S: Drop apiserver and control-plane metrics, apiserver is handle by "kubeApiServer"
             - action: drop
               source_labels: [__name__]
-              regex: (apiserver_.*)
-            # Drop of control plane buckets (etcd, etc)
+              regex: (apiserver_.*|apiextensions_apiserver_.*|etcd_.*|authentication_.*|authorization_.*|authenticated_user_requests)
+
+            # Drop of useless buckets
             - action: drop
               source_labels: [__name__]
-              regex: (etcd_request_duration_seconds_bucket|workqueue_queue_duration_seconds_bucket|workqueue_work_duration_seconds_bucket|scheduler_plugin_execution_duration_seconds_bucket)
+              regex: (workqueue_queue_duration_seconds_bucket|workqueue_work_duration_seconds_bucket|scheduler_plugin_execution_duration_seconds_bucket)
             # Drop of cAdvisor noise (kubelet)
             - action: drop
               source_labels: [__name__]
@@ -53,7 +54,16 @@ spec:
                 serverName: kubernetes
 
               metricRelabelConfigs:
-                # Drop of control plane buckets (apiserver)
+                # K3S: Drop kubelet and containers metrics (managed by "kubelet" scrapper)
+                - action: drop
+                  source_labels: [__name__]
+                  regex: (kubelet_.*|volume_.*|storage_operation_.*|container_.*)
+                # K3S: Drop go/process metrics (managed by "kubelet" scrapper)
+                - action: drop
+                  source_labels: [__name__]
+                  regex: (go_.*|process_.*)
+
+                # Drop of noisy buckets
                 - action: drop
                   source_labels: [__name__]
                   regex: (apiserver_request_duration_seconds_bucket|apiserver_request_body_size_bytes_bucket|apiserver_watch_list_duration_seconds_bucket|apiserver_watch_cache_read_wait_seconds_bucket|apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket)
