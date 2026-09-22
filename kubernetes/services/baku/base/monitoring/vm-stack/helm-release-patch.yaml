@@ -21,6 +21,7 @@ spec:
           search.maxQueueDuration: 30s
           search.maxQueryDuration: 60s
           search.logSlowQueryDuration: 10s
+          fs.disableMincore: "true"
         retentionPeriod: "6" # 6 months
         storage:
           storageClassName: openebs-zfspv
