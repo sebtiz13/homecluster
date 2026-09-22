@@ -40,6 +40,9 @@ spec:
         externalLabels:
           cluster: baku
 
+    external:
+      grafana:
+        host: https://monitor.${DOMAIN_NAME}/
     vmalert:
       spec:
         resources:
