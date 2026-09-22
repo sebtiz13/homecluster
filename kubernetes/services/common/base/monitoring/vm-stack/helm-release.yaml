@@ -72,11 +72,10 @@ spec:
       fullnameOverride: node-exporter
       resources:
         requests:
-          cpu: 20m
-          memory: 25Mi
+          cpu: 15m
+          memory: 34Mi
         limits:
-          cpu: 30m
-          memory: 50Mi
+          memory: 34Mi
 
       vmScrape:
         spec:
@@ -94,10 +93,9 @@ spec:
       resources:
         requests:
           cpu: 4m
-          memory: 60Mi
+          memory: 129Mi
         limits:
-          cpu: 100m
-          memory: 120Mi
+          memory: 129Mi
 
       vmScrape:
         spec:
@@ -114,6 +112,13 @@ spec:
     victoria-metrics-operator:
       fullnameOverride: victoria-metrics-operator
 
+      resources:
+        requests:
+          cpu: 13m
+          memory: 116Mi
+        limits:
+          memory: 116Mi
+
       operator:
         enable_converter_ownership: true
 
@@ -129,10 +134,10 @@ spec:
       spec:
         resources:
           requests:
-            cpu: 90m
-            memory: 275Mi
+            cpu: 67m
+            memory: 368Mi
           limits:
-            memory: 320Mi
+            memory: 368Mi
 
     # Disable unneeded alert rules
     defaultRules:

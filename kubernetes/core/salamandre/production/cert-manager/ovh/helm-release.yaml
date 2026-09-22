@@ -21,11 +21,10 @@ spec:
 
     resources:
       requests:
-        cpu: 30m
-        memory: 32Mi
+        cpu: 6m
+        memory: 33Mi
       limits:
-        cpu: 200m
-        memory: 256Mi
+        memory: 33Mi
 
     issuers:
       - name: ${DOMAIN_NAME/./-}-issuer

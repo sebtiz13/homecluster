@@ -63,10 +63,10 @@ spec:
               readOnly: true
             - mountPath: /app/logs
               name: backup-logs
-            resources:
+            resources: # Don't follow KRR recommendation to handle heavy jobs
               requests:
-                cpu: "100m"
-                memory: 2Gi
+                cpu: 100m
+                memory: 128Mi
               # TODO: define limit
           restartPolicy: OnFailure
           volumes:

@@ -84,11 +84,10 @@ spec:
         enabled: true
       resources:
         requests:
-          cpu: 10m
-          memory: 128Mi
+          cpu: 17m
+          memory: 181Mi
         limits:
-          cpu: 500m
-          memory: 196Mi
+          memory: 181Mi
 
     annotations:
       reloader.stakater.com/auto: "true"
@@ -115,10 +114,10 @@ spec:
 
     resources:
       requests:
-        cpu: 12m
-        memory: 128Mi
+        cpu: 18m
+        memory: 215Mi
       limits:
-        memory: 196Mi
+        memory: 215Mi
 
     service:
       annotations:
@@ -131,5 +130,4 @@ spec:
             cpu: 5m
             memory: 32Mi
           limits:
-            cpu: 50m
             memory: 32Mi

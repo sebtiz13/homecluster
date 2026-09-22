@@ -4,15 +4,6 @@ metadata:
   name: victoria-metrics-k8s-stack
 spec:
   values:
-    victoria-metrics-operator:
-      resources:
-        requests:
-          cpu: 12m
-          memory: 70Mi
-        limits:
-          cpu: 24m
-          memory: 140Mi
-
     vmsingle:
       ingress:
         enabled: true
@@ -40,11 +31,10 @@ spec:
               storage: 70Gi
         resources:
           requests:
-            cpu: 300m
-            memory: 2Gi
+            cpu: 146m
+            memory: 2048Mi
           limits:
-            cpu: "1"
-            memory: 3Gi
+            memory: 2048Mi
     vmagent:
       spec:
         externalLabels:
@@ -54,21 +44,19 @@ spec:
       spec:
         resources:
           requests:
-            cpu: 30m
+            cpu: 18m
             memory: 100Mi
           limits:
-            cpu: 100m
-            memory: 180Mi
+            memory: 100Mi
 
     alertmanager:
       spec:
         resources:
           requests:
-            cpu: 6m
-            memory: 80Mi
+            cpu: 10m
+            memory: 100Mi
           limits:
-            cpu: 12m
-            memory: 120Mi
+            memory: 100Mi
       useManagedConfig: true
       config:
         inhibit_rules:

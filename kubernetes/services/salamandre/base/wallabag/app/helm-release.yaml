@@ -24,11 +24,10 @@ spec:
         enabled: true
     resources:
       requests:
-        cpu: 10m
+        cpu: 7m
         memory: 128Mi
       limits:
-        cpu: 600m
-        memory: 384Mi
+        memory: 512Mi # Don't follow KRR recommendation to handle heavy pages
     externalDatabase:
       driver: "pdo_pgsql"
       existingSecret: "wallabag-db-credentials"

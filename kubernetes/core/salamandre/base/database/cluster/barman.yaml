@@ -21,8 +21,7 @@ spec:
   instanceSidecarConfiguration:
     resources:
       requests:
-        cpu: 5m
-        memory: 128Mi
+        cpu: 15m
+        memory: 192Mi
       limits:
-        cpu: 500m
-        memory: 2.5Gi
+        memory: 192Mi

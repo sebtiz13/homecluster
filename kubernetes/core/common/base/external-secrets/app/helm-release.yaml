@@ -24,26 +24,23 @@ spec:
 
     resources:
       requests:
-        cpu: 10m
-        memory: 48Mi
+        cpu: 3m
+        memory: 91Mi
       limits:
-        cpu: 100m
-        memory: 128Mi
+        memory: 91Mi
 
     webhook:
       resources:
         requests:
-          cpu: 5m
-          memory: 32Mi
+          cpu: 2m
+          memory: 46Mi
         limits:
-          cpu: 15m
-          memory: 96Mi
+          memory: 46Mi
 
     certController:
       resources:
         requests:
-          cpu: 5m
-          memory: 64Mi
+          cpu: 4m
+          memory: 171Mi
         limits:
-          cpu: 15m
-          memory: 160Mi
+          memory: 171Mi
