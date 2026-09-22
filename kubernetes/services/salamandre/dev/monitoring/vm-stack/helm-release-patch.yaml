@@ -4,12 +4,13 @@ metadata:
   name: victoria-metrics-k8s-stack
 spec:
   values:
-    externalVM:
-      read: &tlsConfig
-        tlsConfig:
-          ca:
-            secret:
-              key: tls.crt
-              name: vm-ca-tls
-      write:
-        <<: *tlsConfig
+    external:
+      vm:
+        read: &tlsConfig
+          tlsConfig:
+            ca:
+              secret:
+                key: tls.crt
+                name: vm-ca-tls
+        write:
+          <<: *tlsConfig
