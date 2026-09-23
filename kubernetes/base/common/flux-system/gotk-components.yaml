@@ -6061,10 +6061,10 @@ spec:
             port: healthz
         resources:
           limits:
-            memory: 38Mi
+            memory: 64Mi
           requests:
             cpu: 2m
-            memory: 38Mi
+            memory: 64Mi
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:

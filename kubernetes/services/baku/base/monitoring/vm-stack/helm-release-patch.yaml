@@ -32,7 +32,7 @@ spec:
               storage: 70Gi
         resources:
           requests:
-            cpu: 146m
+            cpu: 200m
             memory: 2048Mi
           limits:
             memory: 2048Mi
@@ -49,18 +49,18 @@ spec:
         resources:
           requests:
             cpu: 18m
-            memory: 100Mi
+            memory: 128Mi
           limits:
-            memory: 100Mi
+            memory: 128Mi
 
     alertmanager:
       spec:
         resources:
           requests:
-            cpu: 10m
-            memory: 100Mi
+            cpu: 3m
+            memory: 52Mi
           limits:
-            memory: 100Mi
+            memory: 52Mi
       useManagedConfig: true
       config:
         inhibit_rules:

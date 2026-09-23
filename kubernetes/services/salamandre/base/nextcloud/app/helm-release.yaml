@@ -259,7 +259,7 @@ spec:
     resources:
       requests:
         cpu: 19m
-        memory: 384Mi
+        memory: 475Mi
       limits:
         memory: 1536Mi # (1024Mi + 512Mi) allow gap for 1024mi php limit to prevent OOMKill
 
@@ -330,7 +330,7 @@ spec:
       resources:
         requests:
           cpu: 2m
-          memory: 512Mi
+          memory: 528Mi
         limits:
           memory: 1536Mi # Don't follow KRR recommendation to handle heavy documents
 

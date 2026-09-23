@@ -51,10 +51,10 @@ spec:
 
     resources:
       requests:
-        cpu: 2m
-        memory: 28Mi
+        cpu: 1m
+        memory: 32Mi
       limits:
-        memory: 28Mi
+        memory: 32Mi
 
 
     deploymentAnnotations:

@@ -33,9 +33,9 @@ spec:
       resources:
         requests:
           cpu: 2m
-          memory: 46Mi
+          memory: 56Mi
         limits:
-          memory: 46Mi
+          memory: 56Mi
 
     certController:
       resources:
