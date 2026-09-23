@@ -28,7 +28,7 @@ spec:
           metricRelabelConfigs:
             # Drop of highest cardinality and useless labels (churn)
             - action: labeldrop
-              regex: (uid|id|replicaset|endpoint_slice)
+              regex: (uid|id|replicaset|endpoint_slice|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
             # K3S: Drop apiserver and control-plane metrics, apiserver is handle by "kubeApiServer"
             - action: drop
               source_labels: [__name__]
@@ -54,10 +54,12 @@ spec:
                 serverName: kubernetes
 
               metricRelabelConfigs:
+                - action: labeldrop
+                  regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
                 # K3S: Drop kubelet and containers metrics (managed by "kubelet" scrapper)
                 - action: drop
                   source_labels: [__name__]
-                  regex: (kubelet_.*|volume_.*|storage_operation_.*|container_.*)
+                  regex: (kubelet_.*|volume_.*|storage_operation_.*|container_.*|etcd_.*|workqueue_.*)
                 # K3S: Drop go/process metrics (managed by "kubelet" scrapper)
                 - action: drop
                   source_labels: [__name__]
