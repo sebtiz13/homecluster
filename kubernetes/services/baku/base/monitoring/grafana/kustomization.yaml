@@ -7,7 +7,6 @@ resources:
   - helm-release.yaml
   - datasource.yaml
   - secrets.yaml
-  - service-scrape.yaml
 configMapGenerator:
   - name: grafana-dashboards-default
     options:
