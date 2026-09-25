@@ -26,49 +26,60 @@ spec:
         spec:
           interval: "30s"
           metricRelabelConfigs:
-            # Drop of highest cardinality and useless labels (churn)
+            # --- Chart defaults (kept as-is) ---
+            # Drop the volatile pod/container UID label to avoid a new series on every pod restart.
             - action: labeldrop
-              regex: (uid|id|replicaset|endpoint_slice|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
-            # K3S: Drop apiserver and control-plane metrics, apiserver is handle by "kubeApiServer"
+              regex: (uid)
+            # Drop generic 'id'/'name' labels inherited from cAdvisor container metadata.
+            - action: labeldrop
+              regex: (id|name)
+            # Drop rest_client histogram + its sum/count; not needed for basic alerting/overview.
             - action: drop
               source_labels: [__name__]
-              regex: (apiserver_.*|apiextensions_apiserver_.*|etcd_.*|authentication_.*|authorization_.*|authenticated_user_requests)
+              regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
 
-            # Drop of useless buckets
+            # --- node labels: drop redundant/uninformative labels copied via labelmap ---
+            - action: labeldrop
+              regex: (beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*|openebs_io_.*)
+
+            # --- apiserver: drop noisy/low-signal metric families ---
             - action: drop
               source_labels: [__name__]
-              regex: (workqueue_queue_duration_seconds_bucket|workqueue_work_duration_seconds_bucket|scheduler_plugin_execution_duration_seconds_bucket)
-            # Drop of cAdvisor noise (kubelet)
+              regex: (apiextensions_apiserver_.*|authenticated_user_requests|authentication_duration_seconds_bucket|authorization_duration_seconds_bucket)
+
+            # --- apiserver: drop excessively noisy request/response histograms ---
+            - action: drop
+              source_labels: [__name__]
+              regex: (apiserver_request_duration_seconds_bucket|apiserver_request_slo_duration_seconds_bucket|apiserver_request_sli_duration_seconds_bucket|apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket|apiserver_request_body_size_bytes_bucket|apiserver_watch_list_duration_seconds_bucket|apiserver_watch_cache_read_wait_seconds_bucket)
+
+            # --- apiserver: drop feature areas not relevant to a single-node ---
+            - action: drop
+              source_labels: [__name__]
+              regex: (apiserver_flowcontrol_.*|apiserver_admission_webhook_admission_duration_seconds_bucket|apiserver_admission_step_admission_duration_seconds_bucket|apiserver_admission_controller_admission_duration_seconds_bucket|etcd_request_duration_seconds_bucket)
+
+            # --- kubelet/workqueue: drop internal operation histograms ---
+            - action: drop
+              source_labels: [__name__]
+              regex: (kubelet_runtime_operations_duration_seconds_bucket|kubelet_pod_worker_duration_seconds_bucket|kubelet_cgroup_manager_duration_seconds_bucket|storage_operation_duration_seconds_bucket|workqueue_queue_duration_seconds_bucket|workqueue_work_duration_seconds_bucket)
+
+            # --- cAdvisor: drop low-value container-level metrics ---
             - action: drop
               source_labels: [__name__]
               regex: (container_tasks_state|container_memory_failures_total|container_memory_mapped_file|container_network_tcp_usage_total|container_network_udp_usage_total|container_blkio_.*)
+
+            # --- K3S: job rename: reclassify apiserver_* and aggregator_unavailable_apiservice metrics scraped through the kubelet endpoint ---
+            - action: replace
+              source_labels: [__name__]
+              regex: 'apiserver_.*'
+              target_label: job
+              replacement: apiserver
+            - action: replace
+              source_labels: [__name__]
+              if: 'aggregator_unavailable_apiservice'
+              target_label: job
+              replacement: apiserver
     kubeApiServer:
-      vmScrape:
-        spec:
-          endpoints:
-            - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-              port: https
-              scheme: https
-              tlsConfig:
-                caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-                serverName: kubernetes
-
-              metricRelabelConfigs:
-                - action: labeldrop
-                  regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
-                # K3S: Drop kubelet and containers metrics (managed by "kubelet" scrapper)
-                - action: drop
-                  source_labels: [__name__]
-                  regex: (kubelet_.*|volume_.*|storage_operation_.*|container_.*|etcd_.*|workqueue_.*)
-                # K3S: Drop go/process metrics (managed by "kubelet" scrapper)
-                - action: drop
-                  source_labels: [__name__]
-                  regex: (go_.*|process_.*)
-
-                # Drop of noisy buckets
-                - action: drop
-                  source_labels: [__name__]
-                  regex: (apiserver_request_duration_seconds_bucket|apiserver_request_body_size_bytes_bucket|apiserver_watch_list_duration_seconds_bucket|apiserver_watch_cache_read_wait_seconds_bucket|apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket)
+      enabled: false
 
     prometheus-node-exporter:
       fullnameOverride: node-exporter
@@ -82,13 +93,13 @@ spec:
       vmScrape:
         spec:
           endpoints:
-          - port: metrics
-            metricRelabelConfigs:
-              - action: drop
-                source_labels: [mountpoint]
-                regex: "/var/lib/kubelet/pods.+"
-              - action: labeldrop
-                regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
+            - port: metrics
+              metricRelabelConfigs:
+                - action: drop
+                  source_labels: [mountpoint]
+                  regex: "/var/lib/kubelet/pods.+"
+                - action: labeldrop
+                  regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
 
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
@@ -106,7 +117,7 @@ spec:
               honorLabels: true
               metricRelabelConfigs:
                 - action: labeldrop
-                  regex: (uid|id|container_id|image_id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
+                  regex: (uid|id|replicaset|endpoint_slice|container_id|image_id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*|openebs_io_.*)
                 - action: drop
                   source_labels: [__name__]
                   regex: (kube_secret_.*|kube_configmap_.*|kube_endpoint.*|kube_lease_.*|kube_.+_created|kube_.+_metadata_resource_version|kube_pod_init_container_.*)
@@ -123,6 +134,14 @@ spec:
 
       operator:
         enable_converter_ownership: true
+
+      serviceMonitor:
+        enabled: true
+        relabelings:
+          # Drop of highest cardinality and useless labels (churn)
+          - action: drop
+            source_labels: [__name__]
+            regex: (flag|config_parameter)
 
       # Disable CRDs
       crds:
