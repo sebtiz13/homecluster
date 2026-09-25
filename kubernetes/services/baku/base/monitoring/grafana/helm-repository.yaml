@@ -6,4 +6,4 @@ metadata:
   name: grafana
 spec:
   interval: 24h
-  url: https://grafana.github.io/helm-charts
+  url: https://grafana-community.github.io/helm-charts
