@@ -140,11 +140,33 @@ spec:
           {{- end }}
           {{- end }}
 
-    # Disable tweaked alert rules
     defaultRules:
+      enabled: true
       groups:
+        etcd: # k3s useless cause it use sqlite
+          enabled: false
+        vmcluster:
+          enabled: false
         vmagent: # remove dashboard annotation
           rules:
             spec:
               annotations:
                 dashboard: ""
+
+        ## In k3s alls bellow components is combined in "kubelet"
+        kube-scheduler.rules:
+          enabled: false
+        kubernetes-system-controller-manager:
+          enabled: false
+        kubernetes-system-scheduler:
+          enabled: false
+
+        # Disable useless records
+        kube-apiserver-availability.rules:
+          enabled: false
+        kube-apiserver-burnrate.rules:
+          enabled: false
+        kube-apiserver-histogram.rules:
+          enabled: false
+        kube-apiserver-slos:
+          enabled: false

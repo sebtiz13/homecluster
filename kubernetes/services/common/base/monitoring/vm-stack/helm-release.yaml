@@ -160,22 +160,6 @@ spec:
           limits:
             memory: 368Mi
 
-    # Disable unneeded alert rules
-    defaultRules:
-      groups:
-        etcd: # k3s useless cause it use sqlite
-          enabled: false
-        vmcluster:
-          enabled: false
-
-        ## In k3s alls bellow components is combined in "kubelet"
-        kube-scheduler.rules:
-          enabled: false
-        kubernetes-system-controller-manager:
-          enabled: false
-        kubernetes-system-scheduler:
-          enabled: false
-
     ## In k3s alls bellow components is combined in "kubelet"
     kubeControllerManager:
       enabled: false
@@ -186,6 +170,10 @@ spec:
     kubeEtcd:
       enabled: false
 
+
+    # Disable global alert rules (re enabled only on baku)
+    defaultRules:
+      enabled: false
     # Disable default grafana dashboards
     defaultDashboards:
       enabled: false
