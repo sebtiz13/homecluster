@@ -7,7 +7,7 @@ metadata:
 spec:
   url: https://github.com/traefik/traefik-helm-chart
   ref:
-    tag: v41.5.0
+    tag: v41.6.1
   interval: 1h
   timeout: 5m
   ignore: |
