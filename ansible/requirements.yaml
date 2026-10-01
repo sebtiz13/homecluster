@@ -4,4 +4,4 @@ collections:
   - name: ansible.posix
     version: 2.2.2
   - name: kubernetes.core
-    version: 6.5.0
+    version: 6.6.0

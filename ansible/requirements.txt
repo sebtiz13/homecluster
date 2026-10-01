@@ -1,5 +1,5 @@
 ansible>=14,<14.5
-ansible-lint>=26.8,<26.9
+ansible-lint>=26.9,<26.10
 lxml>=6,<6.2
 libvirt-python>=12,<12.8
 kubernetes>=36,<36.1
