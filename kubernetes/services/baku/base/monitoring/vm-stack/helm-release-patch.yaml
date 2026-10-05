@@ -147,6 +147,8 @@ spec:
           enabled: false
         KubeAPIInstanceUnreachable:
           enabled: false
+        KubeMemoryOvercommit:
+          enabled: false
 
       groups:
         etcd: # k3s useless cause it use sqlite
