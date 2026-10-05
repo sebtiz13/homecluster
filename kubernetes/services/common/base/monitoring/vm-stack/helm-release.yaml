@@ -78,8 +78,6 @@ spec:
               if: 'aggregator_unavailable_apiservice'
               target_label: job
               replacement: apiserver
-    kubeApiServer:
-      enabled: false
 
     prometheus-node-exporter:
       fullnameOverride: node-exporter
@@ -100,6 +98,10 @@ spec:
                   regex: "/var/lib/kubelet/pods.+"
                 - action: labeldrop
                   regex: (uid|id|beta_kubernetes_io_.*|kubernetes_io_arch|kubernetes_io_os|node_kubernetes_io_instance_type|node_role_kubernetes_io_.*)
+              relabelConfigs:
+                # Add "node" label
+                - sourceLabels: [__meta_kubernetes_endpoint_node_name]
+                  targetLabel: node
 
     kube-state-metrics:
       fullnameOverride: kube-state-metrics
@@ -161,6 +163,8 @@ spec:
             memory: 368Mi
 
     ## In k3s alls bellow components is combined in "kubelet"
+    kubeApiServer:
+      enabled: false
     kubeControllerManager:
       enabled: false
     kubeScheduler:
