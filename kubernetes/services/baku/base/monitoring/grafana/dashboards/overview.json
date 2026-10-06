@@ -144,6 +144,115 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "Running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 1
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(gotk_resource_info{cluster=\"$cluster\", customresource_kind=~\"Kustomization|HelmRelease\", ready=\"True\"})  or 0",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Running",
+          "range": true,
+          "refId": "Running"
+        },
+        {
+          "editorMode": "code",
+          "expr": "count(gotk_resource_info{cluster=\"$cluster\", customresource_kind=~\"Kustomization|HelmRelease\", ready=\"False\"}) or 0",
+          "legendFormat": "Failed",
+          "range": true,
+          "refId": "Unhealthy"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "count(gotk_resource_info{cluster=\"$cluster\", customresource_kind=~\"Kustomization|HelmRelease\", suspended=\"true\"}) or 0",
+          "hide": false,
+          "legendFormat": "Suspended",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Cluster Reconcilers",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -151,7 +260,7 @@
       "gridPos": {
         "h": 8,
         "w": 7,
-        "x": 5,
+        "x": 10,
         "y": 1
       },
       "id": 21,
@@ -238,6 +347,103 @@
         }
       ],
       "title": "Volumes Full in Week Based on Daily Use Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "Running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 5
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(gotk_resource_info{cluster=\"$cluster\", customresource_kind=~\"GitRepository|HelmRepository|Bucket|OCIRepository\", ready=\"True\"})  or 0",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Running",
+          "range": true,
+          "refId": "Running"
+        },
+        {
+          "editorMode": "code",
+          "expr": "count(gotk_resource_info{cluster=\"$cluster\", customresource_kind=~\"GitRepository|HelmRepository|Bucket|OCIRepository\", ready=\"False\"}) or 0",
+          "legendFormat": "Failed",
+          "range": true,
+          "refId": "Unhealthy"
+        }
+      ],
+      "title": "Kubernetes Manifests Sources",
       "type": "stat"
     },
     {
@@ -1312,6 +1518,7 @@
             }
           },
           "mappings": [],
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1389,7 +1596,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 67
       },
       "id": 17,
       "panels": [],
@@ -1531,7 +1738,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 80
+                "value": 95
               }
             ]
           },
@@ -1651,6 +1858,18 @@
                 "value": 100
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Node"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 90
+              }
+            ]
           }
         ]
       },
@@ -1658,7 +1877,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 68
       },
       "id": 18,
       "links": [
@@ -1671,7 +1890,13 @@
       ],
       "options": {
         "cellHeight": "sm",
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "% Used"
+          }
+        ]
       },
       "pluginVersion": "12.3.1",
       "targets": [
@@ -1764,6 +1989,7 @@
               "endpoint": true,
               "instance": true,
               "job": true,
+              "node": true,
               "pod": true,
               "prometheus": true,
               "service": true,
@@ -1772,26 +1998,27 @@
             "includeByName": {},
             "indexByName": {
               "Time": 0,
-              "Value #A": 17,
-              "Value #B": 19,
-              "Value #C": 18,
-              "Value #D": 20,
-              "Value #E": 15,
-              "Value #F": 16,
+              "Value #% Used": 21,
+              "Value #Capacity": 19,
+              "Value #Free": 20,
+              "Value #Info": 16,
+              "Value #Stats check": 17,
+              "Value #Used": 18,
               "__name__": 1,
               "cluster": 2,
               "container": 3,
               "endpoint": 4,
               "instance": 5,
               "job": 6,
-              "namespace": 7,
-              "persistentvolumeclaim": 8,
-              "pod": 9,
-              "prometheus": 10,
-              "service": 11,
-              "storageclass": 12,
-              "volumemode": 13,
-              "volumename": 14
+              "namespace": 8,
+              "node": 7,
+              "persistentvolumeclaim": 9,
+              "pod": 10,
+              "prometheus": 11,
+              "service": 12,
+              "storageclass": 13,
+              "volumemode": 14,
+              "volumename": 15
             },
             "renameByName": {
               "Value #% Used": "% Used",
@@ -1806,6 +2033,7 @@
               "Value #Stats check": "Stats check",
               "Value #Used": "Used",
               "namespace": "Namespace",
+              "node": "",
               "persistentvolumeclaim": "PVC",
               "storageclass": "StorageClass",
               "volumename": "PV"
@@ -1882,7 +2110,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 76
       },
       "id": 20,
       "options": {
@@ -1905,7 +2133,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(kubelet_volume_stats_used_bytes{cluster=\"$cluster\"} [1d])",
+          "expr": "rate(kubelet_volume_stats_used_bytes{cluster=\"$cluster\",node=~\"$node\"} [1d])",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -1922,7 +2150,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 83
       },
       "id": 22,
       "panels": [
@@ -1953,7 +2181,7 @@
             "h": 8,
             "w": 6,
             "x": 0,
-            "y": 91
+            "y": 112
           },
           "id": 23,
           "options": {
@@ -2060,7 +2288,7 @@
             "h": 8,
             "w": 18,
             "x": 6,
-            "y": 91
+            "y": 112
           },
           "id": 24,
           "options": {
@@ -2121,10 +2349,7 @@
         "type": "datasource"
       },
       {
-        "current": {
-          "text": "baku",
-          "value": "baku"
-        },
+        "current": {},
         "definition": "label_values(node_uname_info,cluster)",
         "label": "Cluster",
         "name": "cluster",
@@ -2140,10 +2365,11 @@
       },
       {
         "current": {
-          "text": ["thor"],
-          "value": ["thor"]
+          "text": ["All"],
+          "value": ["$__all"]
         },
         "definition": "label_values(node_uname_info{cluster=~\"$cluster\"},node)",
+        "includeAll": true,
         "label": "Node",
         "multi": true,
         "name": "node",
@@ -2167,5 +2393,5 @@
   "timezone": "browser",
   "title": "Cluster overview",
   "uid": "homecluster_overview",
-  "version": 4
+  "version": 5
 }

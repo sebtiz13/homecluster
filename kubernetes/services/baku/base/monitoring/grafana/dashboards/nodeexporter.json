@@ -1,42 +1,4 @@
 {
-  "__requires": [
-    {
-      "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "gauge",
-      "name": "Gauge",
-      "version": ""
-    },
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "11.6.1"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -59,10 +21,9 @@
       }
     ]
   },
-  "editable": true,
+  "editable": false,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
   "links": [
     {
       "icon": "external link",
@@ -115,7 +76,8 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "dark-yellow",
@@ -161,12 +123,12 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "irate(node_pressure_cpu_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+          "expr": "irate(node_pressure_cpu_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
           "format": "time_series",
           "instant": true,
           "legendFormat": "CPU",
@@ -177,7 +139,7 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "irate(node_pressure_memory_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+          "expr": "irate(node_pressure_memory_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
           "format": "time_series",
           "instant": true,
           "legendFormat": "Mem",
@@ -188,7 +150,7 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "irate(node_pressure_io_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+          "expr": "irate(node_pressure_io_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
           "format": "time_series",
           "instant": true,
           "legendFormat": "I/O",
@@ -199,7 +161,7 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "irate(node_pressure_irq_stalled_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+          "expr": "irate(node_pressure_irq_stalled_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
           "format": "time_series",
           "instant": true,
           "legendFormat": "Irq",
@@ -240,7 +202,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "rgba(50, 172, 45, 0.97)"
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 0
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
@@ -276,12 +239,12 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\", cluster=\"$node\"}[$__rate_interval])))",
+          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\", cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])))",
           "instant": true,
           "legendFormat": "",
           "range": false,
@@ -321,7 +284,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "rgba(50, 172, 45, 0.97)"
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 0
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
@@ -357,12 +321,12 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "scalar(node_load1{cluster=\"$node\",job=\"$job\"}) * 100 / count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu))",
+          "expr": "scalar(node_load1{cluster=\"$cluster\",node=\"$node\"}) * 100 / count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu))",
           "format": "time_series",
           "instant": true,
           "range": false,
@@ -392,7 +356,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "rgba(50, 172, 45, 0.97)"
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 0
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
@@ -428,12 +393,12 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "clamp_min((1 - (node_memory_MemAvailable_bytes{cluster=\"$node\", job=\"$job\"} / node_memory_MemTotal_bytes{cluster=\"$node\", job=\"$job\"})) * 100, 0)",
+          "expr": "clamp_min((1 - (node_memory_MemAvailable_bytes{cluster=\"$cluster\",node=\"$node\"} / node_memory_MemTotal_bytes{cluster=\"$cluster\",node=\"$node\"})) * 100, 0)",
           "format": "time_series",
           "instant": true,
           "range": false,
@@ -473,7 +438,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "rgba(50, 172, 45, 0.97)"
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 0
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
@@ -509,12 +475,12 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "((node_memory_SwapTotal_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_SwapFree_bytes{cluster=\"$node\",job=\"$job\"}) / (node_memory_SwapTotal_bytes{cluster=\"$node\",job=\"$job\"})) * 100",
+          "expr": "((node_memory_SwapTotal_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_SwapFree_bytes{cluster=\"$cluster\",node=\"$node\"}) / (node_memory_SwapTotal_bytes{cluster=\"$cluster\",node=\"$node\"})) * 100",
           "instant": true,
           "range": false,
           "refId": "A",
@@ -553,7 +519,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "rgba(50, 172, 45, 0.97)"
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 0
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
@@ -589,12 +556,12 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(\n  (node_filesystem_size_bytes{cluster=\"$node\", job=\"$job\", mountpoint=\"/\", fstype!=\"rootfs\"}\n   - node_filesystem_avail_bytes{cluster=\"$node\", job=\"$job\", mountpoint=\"/\", fstype!=\"rootfs\"})\n  / node_filesystem_size_bytes{cluster=\"$node\", job=\"$job\", mountpoint=\"/\", fstype!=\"rootfs\"}\n) * 100\n",
+          "expr": "(\n  (node_filesystem_size_bytes{cluster=\"$cluster\",node=\"$node\", mountpoint=\"/\", fstype!=\"rootfs\"}\n   - node_filesystem_avail_bytes{cluster=\"$cluster\",node=\"$node\", mountpoint=\"/\", fstype!=\"rootfs\"})\n  / node_filesystem_size_bytes{cluster=\"$cluster\",node=\"$node\", mountpoint=\"/\", fstype!=\"rootfs\"}\n) * 100\n",
           "format": "time_series",
           "instant": true,
           "range": false,
@@ -631,7 +598,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           },
@@ -662,12 +630,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu))",
+          "expr": "count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu))",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -704,7 +672,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -739,12 +708,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "node_memory_MemTotal_bytes{cluster=\"$node\",job=\"$job\"}",
+          "expr": "node_memory_MemTotal_bytes{cluster=\"$cluster\",node=\"$node\"}",
           "instant": true,
           "range": false,
           "refId": "A",
@@ -781,7 +750,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -816,12 +786,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "node_memory_SwapTotal_bytes{cluster=\"$node\",job=\"$job\"}",
+          "expr": "node_memory_SwapTotal_bytes{cluster=\"$cluster\",node=\"$node\"}",
           "instant": true,
           "range": false,
           "refId": "A",
@@ -858,7 +828,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "rgba(50, 172, 45, 0.97)"
+                "color": "rgba(50, 172, 45, 0.97)",
+                "value": 0
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
@@ -897,12 +868,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "node_filesystem_size_bytes{cluster=\"$node\",job=\"$job\",mountpoint=\"/\",fstype!=\"rootfs\"}",
+          "expr": "node_filesystem_size_bytes{cluster=\"$cluster\",node=\"$node\",mountpoint=\"/\",fstype!=\"rootfs\"}",
           "format": "time_series",
           "instant": true,
           "range": false,
@@ -940,7 +911,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -975,12 +947,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "node_time_seconds{cluster=\"$node\",job=\"$job\"} - node_boot_time_seconds{cluster=\"$node\",job=\"$job\"}",
+          "expr": "node_time_seconds{cluster=\"$cluster\",node=\"$node\"} - node_boot_time_seconds{cluster=\"$cluster\",node=\"$node\"}",
           "instant": true,
           "range": false,
           "refId": "A",
@@ -1038,6 +1010,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1054,7 +1027,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           },
@@ -1159,12 +1133,12 @@
           "sort": "desc"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\", mode=\"system\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\", mode=\"system\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
           "format": "time_series",
           "instant": false,
           "legendFormat": "Busy System",
@@ -1174,7 +1148,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\", mode=\"user\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\", mode=\"user\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
           "format": "time_series",
           "legendFormat": "Busy User",
           "range": true,
@@ -1183,7 +1157,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\", mode=\"iowait\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\", mode=\"iowait\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
           "format": "time_series",
           "legendFormat": "Busy Iowait",
           "range": true,
@@ -1192,7 +1166,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\", mode=~\".*irq\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\", mode=~\".*irq\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
           "format": "time_series",
           "legendFormat": "Busy IRQs",
           "range": true,
@@ -1201,7 +1175,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\",  mode!='idle',mode!='user',mode!='system',mode!='iowait',mode!='irq',mode!='softirq'}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\",  mode!='idle',mode!='user',mode!='system',mode!='iowait',mode!='irq',mode!='softirq'}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
           "format": "time_series",
           "legendFormat": "Busy Other",
           "range": true,
@@ -1210,7 +1184,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\", mode=\"idle\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+          "expr": "sum(irate(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\", mode=\"idle\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
           "format": "time_series",
           "legendFormat": "Idle",
           "range": true,
@@ -1256,6 +1230,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1272,7 +1247,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           },
@@ -1373,11 +1349,11 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes{cluster=\"$node\",job=\"$job\"}",
+          "expr": "node_memory_MemTotal_bytes{cluster=\"$cluster\",node=\"$node\"}",
           "format": "time_series",
           "legendFormat": "Total",
           "range": true,
@@ -1386,7 +1362,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_MemFree_bytes{cluster=\"$node\",job=\"$job\"} - (node_memory_Cached_bytes{cluster=\"$node\",job=\"$job\"} + node_memory_Buffers_bytes{cluster=\"$node\",job=\"$job\"} + node_memory_SReclaimable_bytes{cluster=\"$node\",job=\"$job\"})",
+          "expr": "node_memory_MemTotal_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_MemFree_bytes{cluster=\"$cluster\",node=\"$node\"} - (node_memory_Cached_bytes{cluster=\"$cluster\",node=\"$node\"} + node_memory_Buffers_bytes{cluster=\"$cluster\",node=\"$node\"} + node_memory_SReclaimable_bytes{cluster=\"$cluster\",node=\"$node\"})",
           "format": "time_series",
           "legendFormat": "Used",
           "range": true,
@@ -1395,7 +1371,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "node_memory_Cached_bytes{cluster=\"$node\",job=\"$job\"} + node_memory_Buffers_bytes{cluster=\"$node\",job=\"$job\"} + node_memory_SReclaimable_bytes{cluster=\"$node\",job=\"$job\"}",
+          "expr": "node_memory_Cached_bytes{cluster=\"$cluster\",node=\"$node\"} + node_memory_Buffers_bytes{cluster=\"$cluster\",node=\"$node\"} + node_memory_SReclaimable_bytes{cluster=\"$cluster\",node=\"$node\"}",
           "format": "time_series",
           "legendFormat": "Cache + Buffer",
           "range": true,
@@ -1404,7 +1380,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "node_memory_MemFree_bytes{cluster=\"$node\",job=\"$job\"}",
+          "expr": "node_memory_MemFree_bytes{cluster=\"$cluster\",node=\"$node\"}",
           "format": "time_series",
           "legendFormat": "Free",
           "range": true,
@@ -1413,7 +1389,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "(node_memory_SwapTotal_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_SwapFree_bytes{cluster=\"$node\",job=\"$job\"})",
+          "expr": "(node_memory_SwapTotal_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_SwapFree_bytes{cluster=\"$cluster\",node=\"$node\"})",
           "format": "time_series",
           "legendFormat": "Swap used",
           "range": true,
@@ -1459,6 +1435,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1474,7 +1451,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           },
@@ -1515,11 +1493,11 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rate(node_network_receive_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])*8",
+          "expr": "rate(node_network_receive_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])*8",
           "format": "time_series",
           "legendFormat": "Rx {{device}}",
           "range": true,
@@ -1528,7 +1506,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "rate(node_network_transmit_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])*8",
+          "expr": "rate(node_network_transmit_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])*8",
           "format": "time_series",
           "legendFormat": "Tx {{device}} ",
           "range": true,
@@ -1574,6 +1552,7 @@
               "type": "linear"
             },
             "showPoints": "never",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1591,7 +1570,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           },
@@ -1619,11 +1599,11 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "((node_filesystem_size_bytes{cluster=\"$node\", job=\"$job\", device!~\"rootfs\"} - node_filesystem_avail_bytes{cluster=\"$node\", job=\"$job\", device!~\"rootfs\"}) / node_filesystem_size_bytes{cluster=\"$node\", job=\"$job\", device!~\"rootfs\"}) * 100",
+          "expr": "((node_filesystem_size_bytes{cluster=\"$cluster\",node=\"$node\", device!~\"rootfs\"} - node_filesystem_avail_bytes{cluster=\"$cluster\",node=\"$node\", device!~\"rootfs\"}) / node_filesystem_size_bytes{cluster=\"$cluster\",node=\"$node\", device!~\"rootfs\"}) * 100",
           "format": "time_series",
           "legendFormat": "{{mountpoint}}",
           "range": true,
@@ -1679,6 +1659,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -1695,7 +1676,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -1871,11 +1853,11 @@
               "sort": "desc"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"system\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"system\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "interval": "",
               "legendFormat": "System - Processes executing in kernel mode",
@@ -1885,7 +1867,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"user\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"user\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "legendFormat": "User - Normal processes executing in user mode",
               "range": true,
@@ -1894,7 +1876,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"nice\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"nice\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "legendFormat": "Nice - Niced processes executing in user mode",
               "range": true,
@@ -1903,7 +1885,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"iowait\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"iowait\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "legendFormat": "Iowait - Waiting for I/O to complete",
               "range": true,
@@ -1912,7 +1894,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"irq\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"irq\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "legendFormat": "Irq - Servicing interrupts",
               "range": true,
@@ -1921,7 +1903,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"softirq\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"softirq\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "legendFormat": "Softirq - Servicing softirqs",
               "range": true,
@@ -1930,7 +1912,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"steal\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"steal\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "legendFormat": "Steal - Time spent in other operating systems when running in a virtualized environment",
               "range": true,
@@ -1939,7 +1921,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum(irate(node_cpu_seconds_total{mode=\"idle\",cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu)))",
+              "expr": "sum(irate(node_cpu_seconds_total{mode=\"idle\",cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / scalar(count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu)))",
               "format": "time_series",
               "legendFormat": "Idle - Waiting for something to happen",
               "range": true,
@@ -1948,7 +1930,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "sum by(cluster) (irate(node_cpu_guest_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])) / on(cluster) group_left sum by (cluster)((irate(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval]))) > 0",
+              "expr": "sum by(cluster) (irate(node_cpu_guest_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])) / on(cluster) group_left sum by (cluster)((irate(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval]))) > 0",
               "format": "time_series",
               "legendFormat": "Guest CPU usage",
               "range": true,
@@ -1994,6 +1976,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2010,7 +1993,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -2340,11 +2324,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_MemTotal_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_MemFree_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_Buffers_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_Cached_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_Slab_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_PageTables_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_SwapCached_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_MemTotal_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_MemFree_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_Buffers_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_Cached_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_Slab_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_PageTables_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_SwapCached_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Apps - Memory used by user-space applications",
               "range": true,
@@ -2353,7 +2337,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_PageTables_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_PageTables_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "PageTables - Memory used to map between virtual and physical memory addresses",
               "range": true,
@@ -2362,7 +2346,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_SwapCached_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_SwapCached_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "SwapCache - Memory that keeps track of pages that have been fetched from swap but not yet been modified",
               "range": true,
@@ -2371,7 +2355,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Slab_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Slab_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Slab - Memory used by the kernel to cache data structures for its own use (caches like inode, dentry, etc)",
               "range": true,
@@ -2380,7 +2364,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Cached_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Cached_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Cache - Parked file data (file content) cache",
               "range": true,
@@ -2389,7 +2373,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Buffers_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Buffers_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Buffers - Block device (e.g. harddisk) cache",
               "range": true,
@@ -2398,7 +2382,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_MemFree_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_MemFree_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Unused - Free memory unassigned",
               "range": true,
@@ -2407,7 +2391,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "(node_memory_SwapTotal_bytes{cluster=\"$node\",job=\"$job\"} - node_memory_SwapFree_bytes{cluster=\"$node\",job=\"$job\"})",
+              "expr": "(node_memory_SwapTotal_bytes{cluster=\"$cluster\",node=\"$node\"} - node_memory_SwapFree_bytes{cluster=\"$cluster\",node=\"$node\"})",
               "format": "time_series",
               "legendFormat": "Swap - Swap space used",
               "range": true,
@@ -2416,7 +2400,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_HardwareCorrupted_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_HardwareCorrupted_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Hardware Corrupted - Amount of RAM that the kernel identified as corrupted / not working",
               "range": true,
@@ -2462,6 +2446,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2477,7 +2462,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -2518,11 +2504,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])*8",
+              "expr": "rate(node_network_receive_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])*8",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -2531,7 +2517,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])*8",
+              "expr": "rate(node_network_transmit_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])*8",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -2577,6 +2563,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2592,7 +2579,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -2633,11 +2621,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])\n / ignoring(speed) node_network_speed_bytes{cluster=\"$node\",job=\"$job\", speed!=\"-1\"}",
+              "expr": "rate(node_network_receive_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])\n / ignoring(speed) node_network_speed_bytes{cluster=\"$cluster\",node=\"$node\", speed!=\"-1\"}",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -2646,7 +2634,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "(rate(node_network_transmit_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])\n / ignoring(speed) node_network_speed_bytes{cluster=\"$node\",job=\"$job\", speed!=\"-1\"})",
+              "expr": "(rate(node_network_transmit_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])\n / ignoring(speed) node_network_speed_bytes{cluster=\"$cluster\",node=\"$node\", speed!=\"-1\"})",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -2692,6 +2680,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2707,7 +2696,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -2748,11 +2738,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_reads_completed_total{cluster=\"$node\",job=\"$job\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
+              "expr": "irate(node_disk_reads_completed_total{cluster=\"$cluster\",node=\"$node\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
               "legendFormat": "{{device}} - Read",
               "range": true,
               "refId": "A",
@@ -2760,7 +2750,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_writes_completed_total{cluster=\"$node\",job=\"$job\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
+              "expr": "irate(node_disk_writes_completed_total{cluster=\"$cluster\",node=\"$node\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
               "legendFormat": "{{device}} - Write",
               "range": true,
               "refId": "B",
@@ -2805,6 +2795,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2820,7 +2811,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -2861,11 +2853,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_read_bytes_total{cluster=\"$node\",job=\"$job\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
+              "expr": "irate(node_disk_read_bytes_total{cluster=\"$cluster\",node=\"$node\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Read",
               "range": true,
@@ -2874,7 +2866,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_written_bytes_total{cluster=\"$node\",job=\"$job\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
+              "expr": "irate(node_disk_written_bytes_total{cluster=\"$cluster\",node=\"$node\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Write",
               "range": true,
@@ -2920,6 +2912,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2936,7 +2929,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -2964,11 +2958,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_filesystem_avail_bytes{cluster=\"$node\",job=\"$job\",device!~'rootfs'}",
+              "expr": "node_filesystem_avail_bytes{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'}",
               "format": "time_series",
               "legendFormat": "{{mountpoint}}",
               "metric": "",
@@ -2978,7 +2972,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_filesystem_free_bytes{cluster=\"$node\",job=\"$job\",device!~'rootfs'}",
+              "expr": "node_filesystem_free_bytes{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'}",
               "format": "time_series",
               "hide": true,
               "legendFormat": "{{mountpoint}} - Free",
@@ -2988,7 +2982,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_filesystem_size_bytes{cluster=\"$node\",job=\"$job\",device!~'rootfs'}",
+              "expr": "node_filesystem_size_bytes{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'}",
               "format": "time_series",
               "hide": true,
               "legendFormat": "{{mountpoint}} - Size",
@@ -3035,6 +3029,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -3051,7 +3046,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -3079,11 +3075,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_filesystem_size_bytes{cluster=\"$node\",job=\"$job\",device!~'rootfs'} - node_filesystem_avail_bytes{cluster=\"$node\",job=\"$job\",device!~'rootfs'}",
+              "expr": "node_filesystem_size_bytes{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'} - node_filesystem_avail_bytes{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'}",
               "format": "time_series",
               "legendFormat": "{{mountpoint}}",
               "range": true,
@@ -3129,6 +3125,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -3145,7 +3142,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -3173,11 +3171,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_io_time_seconds_total{cluster=\"$node\",job=\"$job\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"} [$__rate_interval])",
+              "expr": "irate(node_disk_io_time_seconds_total{cluster=\"$cluster\",node=\"$node\",device=~\"[a-z]+|nvme[0-9]+n[0-9]+|mmcblk[0-9]+\"} [$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{device}}",
@@ -3224,6 +3222,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -3239,7 +3238,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -3292,11 +3292,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_pressure_cpu_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_pressure_cpu_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "CPU - Some",
               "range": true,
@@ -3305,7 +3305,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_pressure_memory_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_pressure_memory_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Memory - Some",
               "range": true,
@@ -3314,7 +3314,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_pressure_memory_stalled_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_pressure_memory_stalled_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Memory - Full",
               "range": true,
@@ -3323,7 +3323,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_pressure_io_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_pressure_io_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "I/O - Some",
               "range": true,
@@ -3332,7 +3332,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_pressure_io_stalled_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_pressure_io_stalled_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "I/O - Full",
               "range": true,
@@ -3341,7 +3341,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_pressure_irq_stalled_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_pressure_irq_stalled_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "IRQ - Full",
               "range": true,
@@ -3449,7 +3449,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 732
+            "y": 1592
           },
           "id": 135,
           "options": {
@@ -3470,7 +3470,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_Committed_AS_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Committed_AS_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Committed_AS – Memory promised to processes (not necessarily used)",
               "range": true,
@@ -3479,7 +3479,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_CommitLimit_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_CommitLimit_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "CommitLimit - Max allowable committed memory",
               "range": true,
@@ -3553,7 +3553,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 732
+            "y": 1592
           },
           "id": 130,
           "options": {
@@ -3573,7 +3573,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_Writeback_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Writeback_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Writeback – Memory currently being flushed to disk",
               "range": true,
@@ -3582,7 +3582,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_WritebackTmp_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_WritebackTmp_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "WritebackTmp – FUSE temporary writeback buffers",
               "range": true,
@@ -3591,7 +3591,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Dirty_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Dirty_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Dirty – Memory marked dirty (pending write to disk)",
               "range": true,
@@ -3600,7 +3600,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_NFS_Unstable_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_NFS_Unstable_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "NFS Unstable – Pages sent to NFS server, awaiting storage commit",
               "range": true,
@@ -3674,7 +3674,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 932
+            "y": 1792
           },
           "id": 131,
           "options": {
@@ -3694,7 +3694,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_SUnreclaim_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_SUnreclaim_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "SUnreclaim – Non-reclaimable slab memory (kernel objects)",
               "range": true,
@@ -3703,7 +3703,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_SReclaimable_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_SReclaimable_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "SReclaimable – Potentially reclaimable slab memory (e.g., inode cache)",
               "range": true,
@@ -3777,7 +3777,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 932
+            "y": 1792
           },
           "id": 138,
           "options": {
@@ -3798,7 +3798,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_Mapped_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Mapped_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Mapped – Memory mapped from files (e.g., libraries, mmap)",
               "range": true,
@@ -3807,7 +3807,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Shmem_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Shmem_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Shmem – Shared memory used by processes and tmpfs",
               "range": true,
@@ -3816,7 +3816,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_ShmemHugePages_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_ShmemHugePages_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "ShmemHugePages – Shared memory (shmem/tmpfs) allocated with HugePages",
@@ -3826,7 +3826,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_ShmemPmdMapped_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_ShmemPmdMapped_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PMD Mapped – Shmem/tmpfs backed by Transparent HugePages (PMD)",
@@ -3932,7 +3932,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 942
+            "y": 1802
           },
           "id": 136,
           "options": {
@@ -3953,7 +3953,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "(node_memory_Inactive_bytes{cluster=\"$node\",job=\"$job\"}) \n/ \n(node_memory_MemTotal_bytes{cluster=\"$node\",job=\"$job\"})",
+              "expr": "(node_memory_Inactive_bytes{cluster=\"$cluster\",node=\"$node\"}) \n/ \n(node_memory_MemTotal_bytes{cluster=\"$cluster\",node=\"$node\"})",
               "format": "time_series",
               "legendFormat": "Inactive – Less recently used memory, more likely to be reclaimed",
               "range": true,
@@ -3962,7 +3962,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "(node_memory_Active_bytes{cluster=\"$node\",job=\"$job\"}) \n/ \n(node_memory_MemTotal_bytes{cluster=\"$node\",job=\"$job\"})\n",
+              "expr": "(node_memory_Active_bytes{cluster=\"$cluster\",node=\"$node\"}) \n/ \n(node_memory_MemTotal_bytes{cluster=\"$cluster\",node=\"$node\"})\n",
               "format": "time_series",
               "legendFormat": "Active – Recently used memory, retained unless under pressure",
               "range": true,
@@ -4036,7 +4036,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 942
+            "y": 1802
           },
           "id": 191,
           "options": {
@@ -4057,7 +4057,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_Inactive_file_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Inactive_file_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Inactive_file - File-backed memory on inactive LRU list",
               "range": true,
@@ -4066,7 +4066,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Inactive_anon_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Inactive_anon_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Inactive_anon – Anonymous memory on inactive LRU (incl. tmpfs & swap cache)",
               "range": true,
@@ -4075,7 +4075,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Active_file_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Active_file_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Active_file - File-backed memory on active LRU list",
               "range": true,
@@ -4084,7 +4084,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Active_anon_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Active_anon_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Active_anon – Anonymous memory on active LRU (incl. tmpfs & swap cache)",
               "range": true,
@@ -4158,7 +4158,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 952
+            "y": 1812
           },
           "id": 160,
           "options": {
@@ -4179,7 +4179,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_KernelStack_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_KernelStack_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "KernelStack – Kernel stack memory (per-thread, non-reclaimable)",
               "range": true,
@@ -4188,7 +4188,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Percpu_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Percpu_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PerCPU – Dynamically allocated per-CPU memory (used by kernel modules)",
@@ -4198,7 +4198,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Bounce_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Bounce_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Bounce Memory – I/O buffer for DMA-limited devices",
@@ -4300,7 +4300,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 952
+            "y": 1812
           },
           "id": 70,
           "options": {
@@ -4320,7 +4320,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_VmallocChunk_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_VmallocChunk_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Vmalloc Free Chunk – Largest available block in vmalloc area",
               "range": true,
@@ -4329,7 +4329,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_VmallocTotal_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_VmallocTotal_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Vmalloc Total – Total size of the vmalloc memory area",
               "range": true,
@@ -4338,7 +4338,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_VmallocUsed_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_VmallocUsed_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Vmalloc Used – Portion of vmalloc area currently in use",
               "range": true,
@@ -4412,7 +4412,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 962
+            "y": 1822
           },
           "id": 129,
           "options": {
@@ -4432,7 +4432,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_AnonHugePages_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_AnonHugePages_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "AnonHugePages – Anonymous memory using HugePages",
               "range": true,
@@ -4441,7 +4441,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_AnonPages_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_AnonPages_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "AnonPages – Anonymous memory (non-file-backed)",
               "range": true,
@@ -4531,7 +4531,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 962
+            "y": 1822
           },
           "id": 137,
           "options": {
@@ -4552,7 +4552,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_Unevictable_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Unevictable_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Unevictable – Kernel-pinned memory (not swappable)",
               "range": true,
@@ -4561,7 +4561,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_Mlocked_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_Mlocked_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Mlocked – Application-locked memory via mlock()",
               "range": true,
@@ -4910,7 +4910,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 972
+            "y": 1832
           },
           "id": 128,
           "options": {
@@ -4930,7 +4930,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_DirectMap1G_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_DirectMap1G_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "DirectMap 1G – Memory mapped with 1GB pages",
               "range": true,
@@ -4939,7 +4939,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_DirectMap2M_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_DirectMap2M_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "DirectMap 2M – Memory mapped with 2MB pages",
@@ -4949,7 +4949,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_DirectMap4k_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_DirectMap4k_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "DirectMap 4K – Memory mapped with 4KB pages",
@@ -5024,7 +5024,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 972
+            "y": 1832
           },
           "id": 140,
           "options": {
@@ -5044,7 +5044,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_HugePages_Free{cluster=\"$node\",job=\"$job\"} * node_memory_Hugepagesize_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_HugePages_Free{cluster=\"$cluster\",node=\"$node\"} * node_memory_Hugepagesize_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "HugePages Used – Currently allocated",
               "range": true,
@@ -5053,7 +5053,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_HugePages_Rsvd{cluster=\"$node\",job=\"$job\"} * node_memory_Hugepagesize_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_HugePages_Rsvd{cluster=\"$cluster\",node=\"$node\"} * node_memory_Hugepagesize_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "HugePages Reserved – Promised but unused",
               "range": true,
@@ -5062,7 +5062,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_HugePages_Surp{cluster=\"$node\",job=\"$job\"} * node_memory_Hugepagesize_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_HugePages_Surp{cluster=\"$cluster\",node=\"$node\"} * node_memory_Hugepagesize_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "HugePages Surplus – Dynamic pool extension",
               "range": true,
@@ -5071,7 +5071,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_memory_HugePages_Total{cluster=\"$node\",job=\"$job\"} * node_memory_Hugepagesize_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_memory_HugePages_Total{cluster=\"$cluster\",node=\"$node\"} * node_memory_Hugepagesize_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "HugePages Total – Reserved memory",
               "range": true,
@@ -5171,7 +5171,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 733
+            "y": 1593
           },
           "id": 176,
           "options": {
@@ -5191,7 +5191,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_pgpgin{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_pgpgin{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Pagesin - Page in ops",
               "range": true,
@@ -5200,7 +5200,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_pgpgout{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_pgpgout{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Pagesout - Page out ops",
               "range": true,
@@ -5286,7 +5286,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 733
+            "y": 1593
           },
           "id": 22,
           "options": {
@@ -5306,7 +5306,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_pswpin{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_pswpin{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Pswpin - Pages swapped in",
               "range": true,
@@ -5315,7 +5315,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_pswpout{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_pswpout{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Pswpout - Pages swapped out",
               "range": true,
@@ -5423,7 +5423,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 913
+            "y": 1773
           },
           "id": 175,
           "options": {
@@ -5444,7 +5444,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_pgfault{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_pgfault{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Pgfault - Page major and minor fault ops",
               "range": true,
@@ -5453,7 +5453,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_pgmajfault{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_pgmajfault{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Pgmajfault - Major page fault ops",
               "range": true,
@@ -5462,7 +5462,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_pgfault{cluster=\"$node\",job=\"$job\"}[$__rate_interval])  - irate(node_vmstat_pgmajfault{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_pgfault{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])  - irate(node_vmstat_pgmajfault{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Pgminfault - Minor page fault ops",
               "range": true,
@@ -5552,7 +5552,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 913
+            "y": 1773
           },
           "id": 307,
           "options": {
@@ -5572,7 +5572,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_vmstat_oom_kill{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_vmstat_oom_kill{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "OOM Kills",
@@ -5660,7 +5660,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 734
+            "y": 1594
           },
           "id": 260,
           "options": {
@@ -5680,7 +5680,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_timex_estimated_error_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_estimated_error_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Estimated error",
@@ -5690,7 +5690,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_timex_offset_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_offset_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Offset local vs reference",
@@ -5700,7 +5700,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_timex_maxerror_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_maxerror_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Maximum error",
@@ -5774,7 +5774,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 734
+            "y": 1594
           },
           "id": 291,
           "options": {
@@ -5794,7 +5794,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_timex_loop_time_constant{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_loop_time_constant{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PLL Time Constant",
@@ -5868,7 +5868,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 884
+            "y": 1744
           },
           "id": 168,
           "options": {
@@ -5888,7 +5888,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_timex_sync_status{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_sync_status{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Sync status (1 = ok)",
@@ -5898,7 +5898,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_timex_frequency_adjustment_ratio{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_frequency_adjustment_ratio{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Frequency Adjustment",
@@ -5908,7 +5908,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_timex_tick_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_tick_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -5919,7 +5919,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_timex_tai_offset_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_tai_offset_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -5994,7 +5994,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 884
+            "y": 1744
           },
           "id": 333,
           "options": {
@@ -6014,7 +6014,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_timex_pps_frequency_hertz{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_pps_frequency_hertz{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Frequency Offset",
@@ -6024,7 +6024,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_timex_pps_stability_hertz{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_pps_stability_hertz{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Frequency Stability",
@@ -6098,7 +6098,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 894
+            "y": 1754
           },
           "id": 334,
           "options": {
@@ -6118,7 +6118,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_timex_pps_jitter_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_pps_jitter_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Jitter",
@@ -6128,7 +6128,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_timex_pps_shift_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_timex_pps_shift_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Shift",
@@ -6206,7 +6206,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 894
+            "y": 1754
           },
           "id": 335,
           "options": {
@@ -6226,7 +6226,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_timex_pps_calibration_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_timex_pps_calibration_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Calibrations/sec",
@@ -6236,7 +6236,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_timex_pps_error_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_timex_pps_error_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Errors/sec",
@@ -6246,7 +6246,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_timex_pps_stability_exceeded_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_timex_pps_stability_exceeded_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Stability Exceeded/sec",
@@ -6256,7 +6256,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_timex_pps_jitter_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_timex_pps_jitter_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PPS Jitter Events/sec",
@@ -6349,7 +6349,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 735
+            "y": 1595
           },
           "id": 62,
           "options": {
@@ -6369,7 +6369,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_procs_blocked{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_procs_blocked{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Blocked (I/O Wait)",
               "range": true,
@@ -6378,7 +6378,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_procs_running{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_procs_running{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Runnable (Ready for CPU)",
               "range": true,
@@ -6537,7 +6537,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 735
+            "y": 1595
           },
           "id": 315,
           "options": {
@@ -6557,7 +6557,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_processes_state{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_processes_state{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ state }}",
@@ -6632,7 +6632,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 765
+            "y": 1625
           },
           "id": 148,
           "options": {
@@ -6652,7 +6652,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_forks_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_forks_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Process Forks per second",
               "range": true,
@@ -6742,7 +6742,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 765
+            "y": 1625
           },
           "id": 305,
           "options": {
@@ -6762,7 +6762,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_schedstat_running_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_schedstat_running_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -6773,7 +6773,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_schedstat_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_schedstat_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -6784,7 +6784,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_schedstat_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])\n/\n(irate(node_schedstat_running_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval]) + irate(node_schedstat_waiting_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval]))\n",
+              "expr": "irate(node_schedstat_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])\n/\n(irate(node_schedstat_running_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval]) + irate(node_schedstat_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval]))\n",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{cpu}}",
@@ -6886,7 +6886,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 775
+            "y": 1635
           },
           "id": 313,
           "options": {
@@ -6906,7 +6906,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_processes_pids{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_processes_pids{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Number of PIDs",
@@ -6916,7 +6916,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_processes_max_processes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_processes_max_processes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "PIDs limit",
@@ -7018,7 +7018,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 775
+            "y": 1635
           },
           "id": 314,
           "options": {
@@ -7038,7 +7038,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_processes_threads{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_processes_threads{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Allocated threads",
@@ -7048,7 +7048,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_processes_max_threads{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_processes_max_threads{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Threads limit",
@@ -7137,7 +7137,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 816
+            "y": 1676
           },
           "id": 8,
           "options": {
@@ -7157,7 +7157,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_context_switches_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_context_switches_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Context switches",
               "range": true,
@@ -7166,7 +7166,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_intr_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_intr_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "Interrupts",
               "range": true,
@@ -7267,7 +7267,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 816
+            "y": 1676
           },
           "id": 7,
           "options": {
@@ -7287,7 +7287,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_load1{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_load1{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Load 1m",
               "range": true,
@@ -7296,7 +7296,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_load5{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_load5{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Load 5m",
               "range": true,
@@ -7305,7 +7305,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_load15{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_load15{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Load 15m",
               "range": true,
@@ -7314,7 +7314,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "count(count(node_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}) by (cpu))",
+              "expr": "count(count(node_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}) by (cpu))",
               "format": "time_series",
               "legendFormat": "CPU Core Count",
               "range": true,
@@ -7448,7 +7448,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 826
+            "y": 1686
           },
           "id": 321,
           "options": {
@@ -7468,7 +7468,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_cpu_scaling_frequency_hertz{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_cpu_scaling_frequency_hertz{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{ cpu }}",
@@ -7478,7 +7478,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "avg(node_cpu_scaling_frequency_max_hertz{cluster=\"$node\",job=\"$job\"})",
+              "expr": "avg(node_cpu_scaling_frequency_max_hertz{cluster=\"$cluster\",node=\"$node\"})",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Max",
@@ -7488,7 +7488,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "avg(node_cpu_scaling_frequency_min_hertz{cluster=\"$node\",job=\"$job\"})",
+              "expr": "avg(node_cpu_scaling_frequency_min_hertz{cluster=\"$cluster\",node=\"$node\"})",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Min",
@@ -7562,7 +7562,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 826
+            "y": 1686
           },
           "id": 306,
           "options": {
@@ -7582,7 +7582,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_schedstat_timeslices_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_schedstat_timeslices_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{ cpu }}",
@@ -7657,7 +7657,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 836
+            "y": 1696
           },
           "id": 259,
           "options": {
@@ -7677,7 +7677,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_interrupts_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_interrupts_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ type }} - {{ info }}",
@@ -7779,7 +7779,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 836
+            "y": 1696
           },
           "id": 151,
           "options": {
@@ -7799,7 +7799,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_entropy_available_bits{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_entropy_available_bits{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Entropy available",
               "range": true,
@@ -7808,7 +7808,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_entropy_pool_size_bits{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_entropy_pool_size_bits{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Entropy pool max",
               "range": true,
@@ -7916,7 +7916,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 737
+            "y": 1597
           },
           "id": 158,
           "options": {
@@ -7936,7 +7936,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_hwmon_temp_celsius{cluster=\"$node\",job=\"$job\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_hwmon_temp_celsius{cluster=\"$cluster\",node=\"$node\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ chip_name }} {{ sensor }}",
@@ -7945,7 +7945,7 @@
               "step": 240
             },
             {
-              "expr": "node_hwmon_temp_crit_alarm_celsius{cluster=\"$node\",job=\"$job\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_hwmon_temp_crit_alarm_celsius{cluster=\"$cluster\",node=\"$node\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -7955,7 +7955,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_hwmon_temp_crit_celsius{cluster=\"$node\",job=\"$job\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_hwmon_temp_crit_celsius{cluster=\"$cluster\",node=\"$node\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ chip_name }} {{ sensor }} Critical",
@@ -7964,7 +7964,7 @@
               "step": 240
             },
             {
-              "expr": "node_hwmon_temp_crit_hyst_celsius{cluster=\"$node\",job=\"$job\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_hwmon_temp_crit_hyst_celsius{cluster=\"$cluster\",node=\"$node\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -7973,7 +7973,7 @@
               "step": 240
             },
             {
-              "expr": "node_hwmon_temp_max_celsius{cluster=\"$node\",job=\"$job\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_hwmon_temp_max_celsius{cluster=\"$cluster\",node=\"$node\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -8067,7 +8067,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 737
+            "y": 1597
           },
           "id": 300,
           "options": {
@@ -8087,7 +8087,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "100 * node_cooling_device_cur_state{cluster=\"$node\",job=\"$job\"} / node_cooling_device_max_state{cluster=\"$node\",job=\"$job\"}",
+              "expr": "100 * node_cooling_device_cur_state{cluster=\"$cluster\",node=\"$node\"} / node_cooling_device_max_state{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ name }} - {{ type }} ",
@@ -8165,7 +8165,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 747
+            "y": 1607
           },
           "id": 302,
           "options": {
@@ -8185,7 +8185,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_power_supply_online{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_power_supply_online{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ power_supply }} online",
@@ -8260,7 +8260,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 747
+            "y": 1607
           },
           "id": 325,
           "options": {
@@ -8280,7 +8280,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_hwmon_fan_rpm{cluster=\"$node\",job=\"$job\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_hwmon_fan_rpm{cluster=\"$cluster\",node=\"$node\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ chip_name }} {{ sensor }}",
@@ -8290,7 +8290,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_hwmon_fan_min_rpm{cluster=\"$node\",job=\"$job\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_hwmon_fan_min_rpm{cluster=\"$cluster\",node=\"$node\"} * on(chip) group_left(chip_name) node_hwmon_chip_names{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -8455,7 +8455,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 4228
+            "y": 5088
           },
           "id": 298,
           "options": {
@@ -8475,7 +8475,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_systemd_units{cluster=\"$node\",job=\"$job\",state=\"activating\"}",
+              "expr": "node_systemd_units{cluster=\"$cluster\",node=\"$node\",state=\"activating\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Activating",
@@ -8485,7 +8485,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_systemd_units{cluster=\"$node\",job=\"$job\",state=\"active\"}",
+              "expr": "node_systemd_units{cluster=\"$cluster\",node=\"$node\",state=\"active\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Active",
@@ -8495,7 +8495,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_systemd_units{cluster=\"$node\",job=\"$job\",state=\"deactivating\"}",
+              "expr": "node_systemd_units{cluster=\"$cluster\",node=\"$node\",state=\"deactivating\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Deactivating",
@@ -8505,7 +8505,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_systemd_units{cluster=\"$node\",job=\"$job\",state=\"failed\"}",
+              "expr": "node_systemd_units{cluster=\"$cluster\",node=\"$node\",state=\"failed\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Failed",
@@ -8515,7 +8515,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_systemd_units{cluster=\"$node\",job=\"$job\",state=\"inactive\"}",
+              "expr": "node_systemd_units{cluster=\"$cluster\",node=\"$node\",state=\"inactive\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Inactive",
@@ -8590,7 +8590,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 4228
+            "y": 5088
           },
           "id": 331,
           "options": {
@@ -8610,7 +8610,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_systemd_socket_current_connections{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_systemd_socket_current_connections{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ name }}",
@@ -8685,7 +8685,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 4238
+            "y": 5098
           },
           "id": 297,
           "options": {
@@ -8705,7 +8705,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_systemd_socket_accepted_connections_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_systemd_socket_accepted_connections_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ name }}",
@@ -8780,7 +8780,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 4238
+            "y": 5098
           },
           "id": 332,
           "options": {
@@ -8800,7 +8800,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_systemd_socket_refused_connections_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_systemd_socket_refused_connections_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{ name }}",
@@ -8861,6 +8861,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -8876,7 +8877,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -8932,11 +8934,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_reads_completed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_reads_completed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "legendFormat": "{{device}} - Read",
               "range": true,
               "refId": "A",
@@ -8944,7 +8946,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_writes_completed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_writes_completed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "legendFormat": "{{device}} - Write",
               "range": true,
               "refId": "B",
@@ -8989,6 +8991,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -9004,7 +9007,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -9060,11 +9064,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_read_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_read_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Read",
               "range": true,
@@ -9074,7 +9078,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "irate(node_disk_written_bytes_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_written_bytes_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "instant": false,
               "legendFormat": "{{device}} - Write",
@@ -9121,6 +9125,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -9136,7 +9141,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -9176,7 +9182,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 389
+            "y": 39
           },
           "id": 37,
           "options": {
@@ -9192,11 +9198,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_read_time_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval]) / irate(node_disk_reads_completed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_read_time_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval]) / irate(node_disk_reads_completed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - Read",
               "range": true,
@@ -9205,7 +9211,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_write_time_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval]) / irate(node_disk_writes_completed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_write_time_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval]) / irate(node_disk_writes_completed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - Write",
               "range": true,
@@ -9251,6 +9257,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -9267,7 +9274,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   }
                 ]
               },
@@ -9295,7 +9303,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 389
+            "y": 39
           },
           "id": 35,
           "options": {
@@ -9311,11 +9319,11 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "11.6.1",
+          "pluginVersion": "12.3.1",
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_io_time_weighted_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_io_time_weighted_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}}",
               "range": true,
@@ -9416,7 +9424,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 399
+            "y": 49
           },
           "id": 133,
           "options": {
@@ -9436,7 +9444,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_reads_merged_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_reads_merged_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "legendFormat": "{{device}} - Read",
               "range": true,
               "refId": "A",
@@ -9444,7 +9452,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_writes_merged_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_writes_merged_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "legendFormat": "{{device}} - Write",
               "range": true,
               "refId": "B",
@@ -9533,7 +9541,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 399
+            "y": 49
           },
           "id": 36,
           "options": {
@@ -9553,7 +9561,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_io_time_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_io_time_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - General IO",
               "range": true,
@@ -9562,7 +9570,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_discard_time_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_discard_time_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - Discard/TRIM",
               "range": true,
@@ -9571,7 +9579,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_flush_requests_time_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_flush_requests_time_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - Flush (write cache)",
               "range": true,
@@ -9660,7 +9668,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 409
+            "y": 59
           },
           "id": 301,
           "options": {
@@ -9680,7 +9688,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_discards_completed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_discards_completed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - Discards completed",
               "range": true,
@@ -9689,7 +9697,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_discards_merged_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_discards_merged_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - Discards merged",
               "range": true,
@@ -9698,7 +9706,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_flush_requests_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_flush_requests_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}} - Flush",
               "range": true,
@@ -9787,7 +9795,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 409
+            "y": 59
           },
           "id": 326,
           "options": {
@@ -9807,7 +9815,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_disk_discarded_sectors_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_disk_discarded_sectors_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "{{device}}",
               "range": true,
@@ -9897,7 +9905,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 419
+            "y": 69
           },
           "id": 34,
           "options": {
@@ -9917,7 +9925,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_disk_io_now{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_disk_io_now{cluster=\"$cluster\",node=\"$node\"}",
               "interval": "",
               "legendFormat": "{{device}}",
               "range": true,
@@ -10032,7 +10040,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 30
+            "y": 890
           },
           "id": 28,
           "options": {
@@ -10052,7 +10060,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_filefd_maximum{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_filefd_maximum{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Max open files",
               "range": true,
@@ -10061,7 +10069,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_filefd_allocated{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_filefd_allocated{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "Open files",
               "range": true,
@@ -10135,7 +10143,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 30
+            "y": 890
           },
           "id": 41,
           "options": {
@@ -10155,7 +10163,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_filesystem_files_free{cluster=\"$node\",job=\"$job\",device!~'rootfs'}",
+              "expr": "node_filesystem_files_free{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'}",
               "format": "time_series",
               "legendFormat": "{{mountpoint}}",
               "range": true,
@@ -10230,7 +10238,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 370
+            "y": 1230
           },
           "id": 44,
           "options": {
@@ -10250,7 +10258,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_filesystem_readonly{cluster=\"$node\",job=\"$job\",device!~'rootfs'}",
+              "expr": "node_filesystem_readonly{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'}",
               "format": "time_series",
               "legendFormat": "{{mountpoint}} - ReadOnly",
               "range": true,
@@ -10259,7 +10267,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_filesystem_device_error{cluster=\"$node\",job=\"$job\",device!~'rootfs',fstype!~'tmpfs'}",
+              "expr": "node_filesystem_device_error{cluster=\"$cluster\",node=\"$node\",device!~'rootfs',fstype!~'tmpfs'}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{mountpoint}} - Device error",
@@ -10334,7 +10342,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 370
+            "y": 1230
           },
           "id": 219,
           "options": {
@@ -10354,7 +10362,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_filesystem_files{cluster=\"$node\",job=\"$job\",device!~'rootfs'}",
+              "expr": "node_filesystem_files{cluster=\"$cluster\",node=\"$node\",device!~'rootfs'}",
               "format": "time_series",
               "legendFormat": "{{mountpoint}}",
               "range": true,
@@ -10454,7 +10462,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 31
+            "y": 891
           },
           "id": 60,
           "options": {
@@ -10475,7 +10483,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_packets_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_packets_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{device}} - Rx in",
@@ -10485,7 +10493,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_packets_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_transmit_packets_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{device}} - Tx out",
@@ -10572,7 +10580,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 31
+            "y": 891
           },
           "id": 142,
           "options": {
@@ -10593,7 +10601,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_errs_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_errs_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -10602,7 +10610,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_errs_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_transmit_errs_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -10688,7 +10696,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 251
+            "y": 1111
           },
           "id": 143,
           "options": {
@@ -10709,7 +10717,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_drop_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_drop_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -10718,7 +10726,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_drop_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_transmit_drop_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -10804,7 +10812,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 251
+            "y": 1111
           },
           "id": 141,
           "options": {
@@ -10825,7 +10833,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_compressed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_compressed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -10834,7 +10842,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_compressed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_transmit_compressed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -10920,7 +10928,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 261
+            "y": 1121
           },
           "id": 146,
           "options": {
@@ -10941,7 +10949,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_multicast_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_multicast_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -11027,7 +11035,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 261
+            "y": 1121
           },
           "id": 327,
           "options": {
@@ -11048,7 +11056,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_nohandler_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_nohandler_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -11134,7 +11142,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 271
+            "y": 1131
           },
           "id": 145,
           "options": {
@@ -11155,7 +11163,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_frame_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_frame_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -11241,7 +11249,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 271
+            "y": 1131
           },
           "id": 144,
           "options": {
@@ -11262,7 +11270,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_receive_fifo_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_receive_fifo_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Rx in",
               "range": true,
@@ -11271,7 +11279,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_fifo_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_transmit_fifo_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -11357,7 +11365,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 281
+            "y": 1141
           },
           "id": 232,
           "options": {
@@ -11378,7 +11386,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_colls_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_transmit_colls_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -11451,7 +11459,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 281
+            "y": 1141
           },
           "id": 231,
           "options": {
@@ -11472,7 +11480,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "rate(node_network_transmit_carrier_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "rate(node_network_transmit_carrier_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "{{device}} - Tx out",
               "range": true,
@@ -11546,7 +11554,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 291
+            "y": 1151
           },
           "id": 230,
           "options": {
@@ -11566,7 +11574,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_arp_entries{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_arp_entries{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "{{ device }} ARP Table",
               "range": true,
@@ -11667,7 +11675,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 291
+            "y": 1151
           },
           "id": 61,
           "options": {
@@ -11687,7 +11695,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_nf_conntrack_entries{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_nf_conntrack_entries{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "NF conntrack entries",
               "range": true,
@@ -11696,7 +11704,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_nf_conntrack_entries_limit{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_nf_conntrack_entries_limit{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "NF conntrack limit",
               "range": true,
@@ -11769,7 +11777,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 301
+            "y": 1161
           },
           "id": 309,
           "options": {
@@ -11790,7 +11798,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_network_up{operstate=\"up\",cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_network_up{operstate=\"up\",cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "hide": true,
               "legendFormat": "{{interface}} - Operational state UP",
@@ -11800,7 +11808,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_network_carrier{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_network_carrier{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "instant": false,
               "legendFormat": "{{device}} - Physical link",
@@ -11842,7 +11850,7 @@
             "h": 10,
             "w": 6,
             "x": 12,
-            "y": 301
+            "y": 1161
           },
           "id": 280,
           "options": {
@@ -11871,7 +11879,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_network_speed_bytes{cluster=\"$node\",job=\"$job\"} * 8",
+              "expr": "node_network_speed_bytes{cluster=\"$cluster\",node=\"$node\"} * 8",
               "format": "time_series",
               "legendFormat": "{{ device }}",
               "range": true,
@@ -11913,7 +11921,7 @@
             "h": 10,
             "w": 6,
             "x": 18,
-            "y": 301
+            "y": 1161
           },
           "id": 288,
           "options": {
@@ -11942,7 +11950,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_network_mtu_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_network_mtu_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "legendFormat": "{{ device }}",
               "range": true,
@@ -12030,7 +12038,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 32
+            "y": 892
           },
           "id": 63,
           "options": {
@@ -12051,7 +12059,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_sockstat_TCP_alloc{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_TCP_alloc{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Allocated Sockets",
@@ -12061,7 +12069,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_TCP_inuse{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_TCP_inuse{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "In-Use Sockets",
@@ -12071,7 +12079,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_TCP_orphan{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_TCP_orphan{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Orphaned Sockets",
@@ -12081,7 +12089,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_TCP_tw{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_TCP_tw{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "TIME_WAIT Sockets",
@@ -12156,7 +12164,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 32
+            "y": 892
           },
           "id": 124,
           "options": {
@@ -12177,7 +12185,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_sockstat_UDPLITE_inuse{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_UDPLITE_inuse{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDPLite - In-Use Sockets",
@@ -12187,7 +12195,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_UDP_inuse{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_UDP_inuse{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP - In-Use Sockets",
@@ -12262,7 +12270,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 42
+            "y": 902
           },
           "id": 126,
           "options": {
@@ -12283,7 +12291,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_sockstat_sockets_used{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_sockets_used{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Total sockets",
@@ -12358,7 +12366,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 42
+            "y": 902
           },
           "id": 125,
           "options": {
@@ -12379,7 +12387,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_sockstat_FRAG_inuse{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_FRAG_inuse{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "FRAG - In-Use Sockets",
@@ -12389,7 +12397,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_RAW_inuse{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_RAW_inuse{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "RAW - In-Use Sockets",
@@ -12464,7 +12472,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 52
+            "y": 912
           },
           "id": 220,
           "options": {
@@ -12485,7 +12493,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_sockstat_TCP_mem_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_TCP_mem_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "TCP",
@@ -12495,7 +12503,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_UDP_mem_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_UDP_mem_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP",
@@ -12505,7 +12513,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_FRAG_memory{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_FRAG_memory{cluster=\"$cluster\",node=\"$node\"}",
               "interval": "",
               "legendFormat": "Fragmentation",
               "range": true,
@@ -12578,7 +12586,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 52
+            "y": 912
           },
           "id": 339,
           "options": {
@@ -12599,7 +12607,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_sockstat_TCP_mem_bytes{cluster=\"$node\",job=\"$job\"} / node_sockstat_TCP_inuse{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_TCP_mem_bytes{cluster=\"$cluster\",node=\"$node\"} / node_sockstat_TCP_inuse{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "TCP",
@@ -12609,7 +12617,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_UDP_mem_bytes{cluster=\"$node\",job=\"$job\"} / node_sockstat_UDP_inuse{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_UDP_mem_bytes{cluster=\"$cluster\",node=\"$node\"} / node_sockstat_UDP_inuse{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP",
@@ -12684,7 +12692,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 62
+            "y": 922
           },
           "id": 336,
           "options": {
@@ -12705,7 +12713,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_sockstat_TCP_mem{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_TCP_mem{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "TCP",
@@ -12715,7 +12723,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_sockstat_UDP_mem{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_sockstat_UDP_mem{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP",
@@ -12802,7 +12810,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 62
+            "y": 922
           },
           "id": 290,
           "options": {
@@ -12823,7 +12831,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_softnet_processed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_softnet_processed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{cpu}} - Processed",
@@ -12833,7 +12841,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_softnet_dropped_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_softnet_dropped_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{cpu}} - Dropped",
@@ -12911,7 +12919,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 72
+            "y": 932
           },
           "id": 310,
           "options": {
@@ -12932,7 +12940,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_softnet_times_squeezed_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_softnet_times_squeezed_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{cpu}} - Times Squeezed",
@@ -13026,7 +13034,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 72
+            "y": 932
           },
           "id": 330,
           "options": {
@@ -13047,7 +13055,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_softnet_received_rps_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_softnet_received_rps_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{cpu}} - Processed",
@@ -13057,7 +13065,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_softnet_flow_limit_count_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_softnet_flow_limit_count_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CPU {{cpu}} - Dropped",
@@ -13158,7 +13166,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 163
+            "y": 1023
           },
           "id": 221,
           "options": {
@@ -13179,7 +13187,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_IpExt_InOctets{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_IpExt_InOctets{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "IP Rx in",
@@ -13189,7 +13197,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_IpExt_OutOctets{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_IpExt_OutOctets{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "legendFormat": "IP Tx out",
               "range": true,
@@ -13286,7 +13294,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 163
+            "y": 1023
           },
           "id": 299,
           "options": {
@@ -13306,7 +13314,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Tcp_InSegs{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Tcp_InSegs{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "instant": false,
               "interval": "",
@@ -13316,7 +13324,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Tcp_OutSegs{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Tcp_OutSegs{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "TCP Tx out",
@@ -13403,7 +13411,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 193
+            "y": 1053
           },
           "id": 55,
           "options": {
@@ -13423,7 +13431,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Udp_InDatagrams{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Udp_InDatagrams{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP Rx in",
@@ -13433,7 +13441,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Udp_OutDatagrams{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Udp_OutDatagrams{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP Tx out",
@@ -13524,7 +13532,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 193
+            "y": 1053
           },
           "id": 115,
           "options": {
@@ -13544,7 +13552,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Icmp_InMsgs{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Icmp_InMsgs{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "ICMP Rx in",
@@ -13554,7 +13562,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Icmp_OutMsgs{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Icmp_OutMsgs{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "ICMP Tx out",
@@ -13629,7 +13637,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 203
+            "y": 1063
           },
           "id": 104,
           "options": {
@@ -13649,7 +13657,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_ListenOverflows{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_ListenOverflows{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Listen Overflows",
@@ -13659,7 +13667,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_ListenDrops{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_ListenDrops{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Listen Drops",
@@ -13669,7 +13677,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_TCPSynRetrans{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_TCPSynRetrans{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "SYN Retransmits",
@@ -13679,7 +13687,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Tcp_RetransSegs{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Tcp_RetransSegs{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "Segment Retransmits",
               "range": true,
@@ -13687,7 +13695,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Tcp_InErrs{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Tcp_InErrs{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "Receive Errors",
               "range": true,
@@ -13695,7 +13703,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Tcp_OutRsts{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Tcp_OutRsts{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "RST Sent",
               "range": true,
@@ -13703,7 +13711,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_TCPRcvQDrop{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_TCPRcvQDrop{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "Receive Queue Drops",
               "range": true,
@@ -13711,7 +13719,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_TCPOFOQueue{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_TCPOFOQueue{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "Out-of-order Queued",
               "range": true,
@@ -13719,7 +13727,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_TCPTimeouts{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_TCPTimeouts{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "TCP Timeouts",
               "range": true,
@@ -13795,7 +13803,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 203
+            "y": 1063
           },
           "id": 109,
           "options": {
@@ -13815,7 +13823,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Udp_InErrors{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Udp_InErrors{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP Rx in Errors",
@@ -13825,7 +13833,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Udp_NoPorts{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Udp_NoPorts{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP No Listener",
@@ -13835,7 +13843,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_UdpLite_InErrors{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_UdpLite_InErrors{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "interval": "",
               "legendFormat": "UDPLite Rx in Errors",
               "range": true,
@@ -13843,7 +13851,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Udp_RcvbufErrors{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Udp_RcvbufErrors{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP Rx in Buffer Errors",
@@ -13853,7 +13861,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Udp_SndbufErrors{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Udp_SndbufErrors{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP Tx out Buffer Errors",
@@ -13940,7 +13948,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 213
+            "y": 1073
           },
           "id": 50,
           "options": {
@@ -13960,7 +13968,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Icmp_InErrors{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Icmp_InErrors{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "ICMP Rx In",
@@ -14050,7 +14058,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 213
+            "y": 1073
           },
           "id": 91,
           "options": {
@@ -14070,7 +14078,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_SyncookiesFailed{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_SyncookiesFailed{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "SYN Cookies Failed",
@@ -14080,7 +14088,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_SyncookiesRecv{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_SyncookiesRecv{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "SYN Cookies Validated",
@@ -14090,7 +14098,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_TcpExt_SyncookiesSent{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_TcpExt_SyncookiesSent{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "SYN Cookies Sent",
@@ -14192,7 +14200,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 223
+            "y": 1083
           },
           "id": 85,
           "options": {
@@ -14212,7 +14220,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_netstat_Tcp_CurrEstab{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_netstat_Tcp_CurrEstab{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Current Connections",
@@ -14222,7 +14230,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_netstat_Tcp_MaxConn{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_netstat_Tcp_MaxConn{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Max Connections",
@@ -14296,7 +14304,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 223
+            "y": 1083
           },
           "id": 337,
           "options": {
@@ -14316,7 +14324,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_udp_queues{cluster=\"$node\",job=\"$job\",ip=\"v4\",queue=\"rx\"}",
+              "expr": "node_udp_queues{cluster=\"$cluster\",node=\"$node\",ip=\"v4\",queue=\"rx\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP Rx in Queue",
@@ -14326,7 +14334,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_udp_queues{cluster=\"$node\",job=\"$job\",ip=\"v4\",queue=\"tx\"}",
+              "expr": "node_udp_queues{cluster=\"$cluster\",node=\"$node\",ip=\"v4\",queue=\"tx\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "UDP Tx out Queue",
@@ -14401,7 +14409,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 233
+            "y": 1093
           },
           "id": 82,
           "options": {
@@ -14421,7 +14429,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Tcp_ActiveOpens{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Tcp_ActiveOpens{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Active Opens",
@@ -14431,7 +14439,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "irate(node_netstat_Tcp_PassiveOpens{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(node_netstat_Tcp_PassiveOpens{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Passive Opens",
@@ -14507,7 +14515,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 233
+            "y": 1093
           },
           "id": 320,
           "options": {
@@ -14527,7 +14535,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_tcp_connection_states{state=\"established\",cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_tcp_connection_states{state=\"established\",cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Established",
@@ -14537,7 +14545,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_tcp_connection_states{state=\"fin_wait2\",cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_tcp_connection_states{state=\"fin_wait2\",cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "FIN_WAIT2",
@@ -14547,7 +14555,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_tcp_connection_states{state=\"listen\",cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_tcp_connection_states{state=\"listen\",cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Listen",
@@ -14557,7 +14565,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_tcp_connection_states{state=\"time_wait\",cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_tcp_connection_states{state=\"time_wait\",cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "TIME_WAIT",
@@ -14567,7 +14575,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "node_tcp_connection_states{state=\"close_wait\", cluster=\"$node\", job=\"$job\"}",
+              "expr": "node_tcp_connection_states{state=\"close_wait\", cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "CLOSE_WAIT",
@@ -14659,7 +14667,7 @@
             "h": 10,
             "w": 12,
             "x": 0,
-            "y": 164
+            "y": 1024
           },
           "id": 40,
           "options": {
@@ -14679,7 +14687,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_scrape_collector_duration_seconds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_scrape_collector_duration_seconds{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{collector}}",
@@ -14753,7 +14761,7 @@
             "h": 10,
             "w": 12,
             "x": 12,
-            "y": 164
+            "y": 1024
           },
           "id": 308,
           "options": {
@@ -14773,7 +14781,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(process_cpu_seconds_total{cluster=\"$node\",job=\"$job\"}[$__rate_interval])",
+              "expr": "irate(process_cpu_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
               "format": "time_series",
               "interval": "",
               "legendFormat": "Process CPU Usage",
@@ -14885,7 +14893,7 @@
                     "id": "custom.hideFrom",
                     "value": {
                       "legend": false,
-                      "tooltip": false,
+                      "tooltip": true,
                       "viz": true
                     }
                   }
@@ -14897,7 +14905,7 @@
             "h": 10,
             "w": 10,
             "x": 0,
-            "y": 174
+            "y": 1034
           },
           "id": 149,
           "options": {
@@ -14917,7 +14925,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "process_virtual_memory_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "process_virtual_memory_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "interval": "",
               "legendFormat": "Virtual Memory",
               "range": true,
@@ -14926,7 +14934,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "process_virtual_memory_max_bytes{cluster=\"$node\",job=\"$job\"}",
+              "expr": "process_virtual_memory_max_bytes{cluster=\"$cluster\",node=\"$node\"}",
               "interval": "",
               "legendFormat": "Virtual Memory Limit",
               "range": true,
@@ -15037,7 +15045,7 @@
                     "id": "custom.hideFrom",
                     "value": {
                       "legend": false,
-                      "tooltip": false,
+                      "tooltip": true,
                       "viz": true
                     }
                   }
@@ -15049,7 +15057,7 @@
             "h": 10,
             "w": 10,
             "x": 10,
-            "y": 174
+            "y": 1034
           },
           "id": 64,
           "options": {
@@ -15069,7 +15077,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "process_max_fds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "process_max_fds{cluster=\"$cluster\",node=\"$node\"}",
               "interval": "",
               "legendFormat": "Maximum open file descriptors",
               "range": true,
@@ -15078,7 +15086,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "process_open_fds{cluster=\"$node\",job=\"$job\"}",
+              "expr": "process_open_fds{cluster=\"$cluster\",node=\"$node\"}",
               "interval": "",
               "legendFormat": "Open file descriptors",
               "range": true,
@@ -15126,7 +15134,7 @@
             "h": 10,
             "w": 4,
             "x": 20,
-            "y": 174
+            "y": 1034
           },
           "id": 157,
           "options": {
@@ -15155,7 +15163,7 @@
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_scrape_collector_success{cluster=\"$node\",job=\"$job\"}",
+              "expr": "node_scrape_collector_success{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{collector}}",
@@ -15165,7 +15173,7 @@
             },
             {
               "editorMode": "code",
-              "expr": "1 - node_textfile_scrape_error{cluster=\"$node\",job=\"$job\"}",
+              "expr": "1 - node_textfile_scrape_error{cluster=\"$cluster\",node=\"$node\"}",
               "format": "time_series",
               "interval": "",
               "legendFormat": "textfile",
@@ -15182,13 +15190,18 @@
       "type": "row"
     }
   ],
+  "preload": false,
   "refresh": "1m",
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": ["linux"],
   "templating": {
     "list": [
       {
-        "current": {},
+        "current": {
+          "text": "VictoriaMetrics",
+          "value": "VictoriaMetrics"
+        },
+        "hide": 2,
         "includeAll": false,
         "label": "Datasource",
         "name": "ds_prometheus",
@@ -15204,14 +15217,15 @@
           "type": "prometheus",
           "uid": "${ds_prometheus}"
         },
-        "definition": "",
+        "definition": "label_values(node_uname_info,cluster)",
         "includeAll": false,
-        "label": "Job",
-        "name": "job",
+        "label": "Cluster",
+        "name": "cluster",
         "options": [],
         "query": {
-          "query": "label_values(node_uname_info, job)",
-          "refId": "Prometheus-job-Variable-Query"
+          "qryType": 1,
+          "query": "label_values(node_uname_info,cluster)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -15224,14 +15238,15 @@
           "type": "prometheus",
           "uid": "${ds_prometheus}"
         },
-        "definition": "label_values(node_uname_info{job=\"$job\"}, cluster)",
+        "definition": "label_values(node_uname_info{cluster=\"$cluster\"},node)",
         "includeAll": false,
-        "label": "Cluster",
+        "label": "Node",
         "name": "node",
         "options": [],
         "query": {
-          "query": "label_values(node_uname_info{job=\"$job\"}, cluster)",
-          "refId": "Prometheus-cluster-Variable-Query"
+          "qryType": 1,
+          "query": "label_values(node_uname_info{cluster=\"$cluster\"},node)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -15248,7 +15263,5 @@
   "timezone": "browser",
   "title": "Node Exporter Full",
   "uid": "homecluster_node_exporter",
-  "version": 42,
-  "weekStart": "",
-  "gnetId": 1860
+  "version": 43
 }
