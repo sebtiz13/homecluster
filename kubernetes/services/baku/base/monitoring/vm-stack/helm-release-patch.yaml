@@ -97,15 +97,31 @@ spec:
       templateFiles:
         discord.tmpl: |-
           {{- define "homecluster.discord.title" }}
+          {{- $firing := len .Alerts.Firing -}}
+          {{- $resolved := len .Alerts.Resolved -}}
+
           {{- if .CommonLabels.cluster }}[{{ .CommonLabels.cluster }}] {{ end -}}
-          {{- if gt (len .Alerts.Firing) 0 -}}
-          Fire {{ .Alerts.Firing | len }} alerts
-          {{- if gt (len .Alerts.Resolved) 0 }} and {{ end -}}
+          {{- if and (gt $firing 0) (gt $resolved 0) -}}
+          {{ $firing }} firing, {{ $resolved }} resolved
+          {{- else if gt $firing 0 -}}
+          {{ $firing }} alert{{ if gt $firing 1 }}s{{ end }} firing
+          {{- else if gt $resolved 0 -}}
+          {{ $resolved }} alert{{ if gt $resolved 1 }}s{{ end }} resolved
+          {{- else -}}
+          Alert notification
           {{- end -}}
-          {{- if gt (len .Alerts.Resolved) 0 -}}
-          {{- .Alerts.Resolved | len }} alerts resolved
+
+          {{- if .CommonLabels.alertname }} - {{ .CommonLabels.alertname }}{{ end -}}
+          {{- if .CommonLabels.job }} ({{ .CommonLabels.job }}){{ end -}}
+          {{- end }}
+
+          {{- define "homecluster.discord.severityEmoji" -}}
+          {{- $severity := . | default "unknown" | lower -}}
+          {{- if eq $severity "critical" -}}
+          :red_circle:
+          {{- else if eq $severity "warning" -}}
+          :orange_circle:
           {{- end -}}
-          {{- if .CommonLabels.job }} for {{ .CommonLabels.job }}{{ end }} !
           {{- end }}
 
           {{- define "homecluster.discord.message" }}
@@ -116,27 +132,29 @@ spec:
           {{- $alerts = .Alerts.Resolved -}}
           {{- end -}}
           {{- range $alerts }}
-          - Alert: {{ if .Labels.cluster }}[{{ .Labels.cluster }}] {{ end -}}
-              **{{ if gt (len .Annotations.summary) 150 -}}
+          - {{- template "homecluster.discord.severityIcon" .Labels.severity }} [{{ .Labels.alertname }}] **{{ if gt (len .Annotations.summary) 150 -}}
               {{- printf "%.150s..." .Annotations.summary -}}
               {{- else -}}
               {{- .Annotations.summary -}}
               {{- end }}**
-              {{- if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
             Description:
             > {{ if gt (len .Annotations.description) 150 -}}
               {{- printf "%.150s..." .Annotations.description | reReplaceAll "\\n" "\\n  > " }}
               {{- else -}}
               {{- .Annotations.description | reReplaceAll "\\n" "\\n  > " }}
               {{- end }}
+            {{- if or .Labels.cluster .Labels.node .Labels.namespace .Labels.pod .Labels.container }}
             Labels:
-            > {{ range .Labels.SortedPairs }}
-              {{- printf "`%s=%s`  " .Name .Value }}
-              {{- end }}
+            > {{- if .Labels.cluster }} cluster=`{{ .Labels.cluster }}`{{ end -}}
+              {{- if .Labels.node }} node=`{{ .Labels.node }}`{{ end -}}
+              {{- if .Labels.namespace }} namespace=`{{ .Labels.namespace }}`{{ end -}}
+              {{- if .Labels.pod }} pod=`{{ .Labels.pod }}`{{ end -}}
+              {{- if .Labels.container }} container=`{{ .Labels.container }}`{{ end -}}
+            {{- end }}
           {{- end }}
 
           {{ if and (gt (len .Alerts.Firing) 0) (gt (len .Alerts.Resolved) 0) }}
-          > Also {{ .Alerts.Resolved | len }} resolved alerts.
+          Also {{ .Alerts.Resolved | len }} resolved alerts.
           {{- end }}
           {{- end }}
 
