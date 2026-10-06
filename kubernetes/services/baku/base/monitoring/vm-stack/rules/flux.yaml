@@ -1,0 +1,44 @@
+# Alerts over the gotk_resource_info metrics exported by kube-state-metrics
+# customResourceState.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: ent-example
+spec:
+  groups:
+    - name: flux-sources
+      rules:
+        # THE alarm this setup exists for: when the GitHub token in the
+        # flux-system Secret expires, every fetch fails and the cluster
+        # freezes at its last applied revision while everything still looks
+        # "Ready" (happened silently in 2026-07).
+        - alert: FluxGitSourceNotReady
+          expr: max by (name, exported_namespace, url) (gotk_resource_info{customresource_kind="GitRepository", ready="False"}) == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Flux GitRepository {{ $labels.exported_namespace }}/{{ $labels.name }} cannot sync"
+            description: "Fetching {{ $labels.url }} has been failing for 5m — the cluster is frozen at its last applied revision. If the status mentions authentication, the GitHub token in the flux-system Secret has expired. Check: flux get sources git"
+
+    - name: flux-reconciliation
+      rules:
+        - alert: FluxReconciliationFailure
+          expr: max by (name, exported_namespace, customresource_kind) (gotk_resource_info{ready="False", customresource_kind!="GitRepository"}) == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Flux {{ $labels.customresource_kind }} {{ $labels.exported_namespace }}/{{ $labels.name }} not ready"
+            description: "Reconciliation has been failing for 15m. Check: flux get {{ $labels.customresource_kind | toLower }}s -n {{ $labels.exported_namespace }}"
+
+        # Guard the guard: if the Flux CR metrics vanish (KSM config broken,
+        # scrape lost), the alerts above are blind — say so.
+        - alert: FluxMetricsAbsent
+          expr: absent(gotk_resource_info{customresource_kind="GitRepository"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Flux resource metrics are missing"
+            description: "gotk_resource_info has no GitRepository series — Flux alerting is blind. Check kube-state-metrics customResourceState config and its scrape target."
