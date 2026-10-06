@@ -13,7 +13,6 @@ metadata:
   name: flux-system
   namespace: flux-system
 spec:
-  summary: "cluster addons"
   eventMetadata:
     env: "unknown"
     cluster: "cluster"
