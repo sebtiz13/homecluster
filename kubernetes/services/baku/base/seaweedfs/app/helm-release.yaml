@@ -100,6 +100,18 @@ spec:
         storageClass: openebs-zfspv
         size: 500Gi
 
+    worker:
+      enabled: true
+      affinity: "" # Deploy to only one node
+
+      resources: # NOTE: This is default chart value
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
+        limits:
+          cpu: "2"
+          memory: "2Gi"
+
     # Disable unused parts
     master:
       enabled: false
