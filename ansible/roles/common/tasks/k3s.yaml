@@ -84,6 +84,26 @@
   ansible.builtin.command: sh {{ k3s_install_file.dest }} server {{ (k3s.flags | default([])) | join(" ") }}
   register: k3s_install
 
+- name: Create kubelet drop-in config directory
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/kubelet.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "u=rwx,g=rx,o=rx"
+    recurse: true
+
+- name: Configure kubelet image garbage collection
+  ansible.builtin.copy:
+    dest: /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/10-image-gc.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      apiVersion: kubelet.config.k8s.io/v1beta1
+      kind: KubeletConfiguration
+      imageMaximumGCAge: 168h
+
 - name: Save kubeconfig locally # noqa: no-handler
   block:
     - name: Create tmp file for kubeconfig
