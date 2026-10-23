@@ -1,0 +1,30 @@
+- name: Find PCI devices with NVIDIA vendor id
+  ansible.builtin.find:
+    paths: /sys/bus/pci/devices
+    patterns: vendor
+    contains: '^0x10de'
+    recurse: true
+    follow: true
+    depth: 2
+  register: nvidia_pci_vendor
+
+- name: Find PCI devices with display controller class
+  ansible.builtin.find:
+    paths: /sys/bus/pci/devices
+    patterns: class
+    contains: '^0x03'
+    recurse: true
+    follow: true
+    depth: 2
+  register: nvidia_pci_class
+
+- name: Set list of NVIDIA GPUs present on PCI bus
+  ansible.builtin.set_fact:
+    nvidia_pci_gpus: >-
+      {{ nvidia_pci_vendor.files | map(attribute='path') | map('dirname')
+         | intersect(nvidia_pci_class.files | map(attribute='path') | map('dirname') | list)
+         | unique | list }}
+
+- name: Display NVIDIA GPUs detected on PCI bus
+  ansible.builtin.debug:
+    var: nvidia_pci_gpus

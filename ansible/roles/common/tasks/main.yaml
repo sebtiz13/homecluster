@@ -1,3 +1,8 @@
+- name: Detect NVIDIA GPUs
+  ansible.builtin.include_tasks: detect_nvidia.yaml
+  when: nvidia_pci_gpus is not defined
+  tags: [always]
+
 - name: Define timezone
   community.general.timezone:
     name: "{{ timezone }}"
@@ -17,6 +22,11 @@
 - name: Install ZFS and create pool(s)
   tags: zfs
   ansible.builtin.import_tasks: zfs.yaml
+
+- name: Install NVIDIA drivers and container toolkit
+  tags: nvidia
+  ansible.builtin.import_tasks: nvidia.yaml
+  when: nvidia_pci_gpus | length > 0
 
 - name: Install k3s
   tags: kubernetes

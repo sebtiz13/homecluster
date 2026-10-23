@@ -1,3 +1,7 @@
+- name: Detect NVIDIA GPUs # Ensure `nvidia_pci_gpus` was defined
+  ansible.builtin.include_tasks: detect_nvidia.yaml
+  when: nvidia_pci_gpus is not defined
+
 - name: Remove swapfile from /etc/fstab
   ansible.posix.mount:
     name: "{{ item }}"
@@ -34,12 +38,13 @@
 - name: Create k3s config directory
   when: k3s_versions.installed == ""
   ansible.builtin.file:
-    path: /etc/rancher/k3s
+    path: /etc/rancher/k3s/config.yaml.d
     state: directory
     owner: root
     group: root
     mode: "u=rwx,g=rx,o=rx"
     recurse: true
+
 - name: Configure k3s
   vars:
     default: "{{ lookup('ansible.builtin.template', './k3s_config.j2.yaml') | from_yaml }}"
@@ -51,6 +56,17 @@
     group: root
     mode: "{{ config['write-kubeconfig-mode'] }}"
 
+- name: Label node for NVIDIA device plugin scheduling
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/config.yaml.d/10-nvidia.yaml
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      node-label:
+        - "nvidia.com/gpu.present=true"
+  when: nvidia_pci_gpus | length > 0
+
 - name: Download k3s installer
   when: k3s_versions.wanted != k3s_versions.installed
   ansible.builtin.get_url:
@@ -59,6 +75,7 @@
     mode: "0500"
     force: true
   register: k3s_install_file
+
 - name: Install k3s # noqa: no-handler
   when: (k3s_install_file is changed) or (k3s_versions.installed == "")
   changed_when: true
