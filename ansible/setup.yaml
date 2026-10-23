@@ -14,13 +14,6 @@
       become: true
       tags: sensors
 
-- name: Install NVIDIA drivers and container toolkit
-  hosts: salamandre
-  tags: nvidia
-  roles:
-    - role: nvidia_gpus
-      become: true
-
 - name: Merge kubeconfigs locally
   hosts: localhost
   gather_facts: false

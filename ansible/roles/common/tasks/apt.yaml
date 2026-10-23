@@ -1,3 +1,28 @@
+- name: Configure Debian main repository
+  ansible.builtin.deb822_repository:
+    name: debian
+    types: [deb]
+    uris: https://deb.debian.org/debian
+    suites:
+      - "{{ ansible_facts['distribution_release'] }}"
+      - "{{ ansible_facts['distribution_release'] }}-updates"
+    components: [main, contrib, non-free, non-free-firmware]
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+    state: present
+  register: apt_debian_repo
+
+- name: Configure Debian security repository
+  ansible.builtin.deb822_repository:
+    name: debian-security
+    types: [deb]
+    uris: https://deb.debian.org/debian-security
+    suites:
+      - "{{ ansible_facts['distribution_release'] }}-security"
+    components: [main, contrib, non-free, non-free-firmware]
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+    state: present
+  register: apt_security_repo
+
 - name: Update and upgrade apt packages
   ansible.builtin.apt:
     upgrade: "yes"
@@ -25,3 +50,8 @@
       - curl
       - htop
       - btop
+
+- name: Install linux-header needed to build ZFS module and Nvidia driver
+  ansible.builtin.apt:
+    name: "linux-headers-{{ ansible_facts['kernel'] }}"
+    state: present

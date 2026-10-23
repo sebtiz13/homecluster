@@ -1,14 +1,3 @@
-- name: Add contrib repository into sources list
-  ansible.builtin.apt_repository:
-    repo: deb https://deb.debian.org/debian {{ ansible_facts['distribution_release'] }} main contrib non-free
-    state: present
-    update_cache: true
-
-- name: Install linux-header needed to build ZFS module and Nvidia driver
-  ansible.builtin.apt:
-    name: "linux-headers-{{ ansible_facts['kernel'] }}"
-    state: present
-
 - name: Install ZFS module
   ansible.builtin.apt:
     pkg:

@@ -1,4 +1,3 @@
----
 - name: Add NVIDIA Container Toolkit repository
   ansible.builtin.deb822_repository:
     name: nvidia-container-toolkit
