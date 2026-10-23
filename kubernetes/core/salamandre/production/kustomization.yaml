@@ -10,3 +10,4 @@ resources:
   - ../base/openbao
   - ../base/database
   - ../base/zitadel
+  - nvidia-device-plugin
