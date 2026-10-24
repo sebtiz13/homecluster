@@ -1,3 +1,14 @@
+- name: Add NVIDIA CUDA repository
+  ansible.builtin.deb822_repository:
+    name: nvidia-cuda
+    types: deb
+    uris: https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64
+    suites: /
+    signed_by: https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/3bf863cc.pub
+    architectures: amd64
+    state: present
+  register: nvidia_repo
+
 - name: Add NVIDIA Container Toolkit repository
   ansible.builtin.deb822_repository:
     name: nvidia-container-toolkit
@@ -7,19 +18,22 @@
     architectures: amd64
     signed_by: https://nvidia.github.io/libnvidia-container/gpgkey
     state: present
-  register: nvidia_repo
+  register: nvidia_container_repo
 
 - name: Update apt cache after adding NVIDIA repository
   ansible.builtin.apt:
     update_cache: true
-  when: nvidia_repo is changed
+  when: (nvidia_repo is changed) or (nvidia_container_repo is changed)
 
-- name: Install NVIDIA packages
+- name: Install headless NVIDIA 580 compute driver and container toolkit
   ansible.builtin.apt:
     name:
-      - nvidia-driver
+      - nvidia-driver-pinning-580
+      - nvidia-driver-cuda
+      - nvidia-kernel-open-dkms
       - nvidia-container-toolkit
     state: present
+    install_recommends: false
   register: nvidia_packages
 
 - name: Reboot to load NVIDIA kernel module
