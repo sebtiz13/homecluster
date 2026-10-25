@@ -8,3 +8,4 @@ resources:
   - vaultwarden
   - forgejo
   - backup
+  - ../base/wallabag
