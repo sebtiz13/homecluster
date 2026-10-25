@@ -1,6 +1,6 @@
 INTERVAL=10
 DEVPATH=hwmon2=devices/platform/it87.2624 hwmon3=devices/platform/coretemp.0 hwmon4=devices/pci0000:00/0000:00:17.0/ata1/host0/target0:0:0/0:0:0:0
-DEVNAME=hwmon4=drivetemp hwmon2=it8686 hwmon3=coretemp
+DEVNAME=hwmon4=drivetemp hwmon2=it8686_30040607 hwmon3=coretemp
 FCTEMPS=hwmon2/pwm1=hwmon3/temp1_input hwmon2/pwm4=hwmon4/temp1_input hwmon2/pwm2=hwmon4/temp1_input hwmon2/pwm3=hwmon4/temp1_input hwmon2/pwm5=hwmon4/temp1_input
 FCFANS=hwmon2/pwm1= hwmon2/pwm4=hwmon2/fan3_input hwmon2/pwm2=hwmon2/fan1_input hwmon2/pwm3=hwmon2/fan2_input hwmon2/pwm5=hwmon2/fan4_input
 MINTEMP=hwmon2/pwm1=20 hwmon2/pwm4=20 hwmon2/pwm2=20 hwmon2/pwm3=20 hwmon2/pwm5=20
