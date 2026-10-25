@@ -3,7 +3,7 @@
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMRule
 metadata:
-  name: ent-example
+  name: flux
 spec:
   groups:
     - name: flux-sources
