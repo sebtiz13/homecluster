@@ -1,0 +1,21 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: zfs
+spec:
+  groups:
+    - name: zfs-health
+      rules:
+        - alert: ZfsPoolUnhealthy
+          expr: |
+            node_zfs_zpool_state{state!="online"} == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: 'ZFS pool {{ $labels.zpool }} is unhealthy on {{ $labels.node }}'
+            description: >-
+              ZFS pool {{ $labels.zpool }} on node {{ $labels.node }}
+              has been in state "{{ $labels.state }}" for at least 2 minutes.
+              Run "zpool status {{ $labels.zpool }}" on the affected node
+              to investigate the pool and device status.
