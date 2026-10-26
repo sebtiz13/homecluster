@@ -22,6 +22,11 @@ spec:
       timezone: "${TIMEZONE}"
       max_connections: "400"
       shared_buffers: 256MB
+      # Force locale to "C" due to minimal image
+      lc_messages: "C"
+      lc_monetary: "C"
+      lc_numeric: "C"
+      lc_time: "C"
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true
