@@ -115,8 +115,8 @@ spec:
           {{- if .CommonLabels.job }} ({{ .CommonLabels.job }}){{ end -}}
           {{- end }}
 
-          {{- define "homecluster.discord.severityEmoji" -}}
-          {{- $severity := . | default "unknown" | lower -}}
+          {{- define "homecluster.discord.severityIcon" -}}
+          {{- $severity := printf "%s" . | toLower -}}
           {{- if eq $severity "critical" -}}
           :red_circle:
           {{- else if eq $severity "warning" -}}
@@ -132,7 +132,8 @@ spec:
           {{- $alerts = .Alerts.Resolved -}}
           {{- end -}}
           {{- range $alerts }}
-          - {{- template "homecluster.discord.severityIcon" .Labels.severity }} [{{ .Labels.alertname }}] **{{ if gt (len .Annotations.summary) 150 -}}
+          {{- $icon := template "homecluster.discord.severityIcon" .Labels.severity }}
+          - {{ $icon }} [{{ .Labels.alertname }}] **{{ if gt (len .Annotations.summary) 150 -}}
               {{- printf "%.150s..." .Annotations.summary -}}
               {{- else -}}
               {{- .Annotations.summary -}}
