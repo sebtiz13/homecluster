@@ -6,7 +6,7 @@ jq = "1.8.2"
 yq = "4.54.1"
 jwt = "6.2.0"
 kubectl = "1.37.1"
-flux2 = "2.9.5"
+flux2 = "2.10.0"
 # MISSING openSSL, argon2, pwgen, so currently simply check if they are present in "mise run init"
 
 [settings]
