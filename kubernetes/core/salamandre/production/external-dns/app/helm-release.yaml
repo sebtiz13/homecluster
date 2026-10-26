@@ -30,6 +30,7 @@ spec:
     sources:
       - crd
 
+    policy: upsert-only
     provider:
       name: ovh
     env:
