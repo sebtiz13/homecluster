@@ -1,5 +1,5 @@
 [tools]
-python = "3.15.1"
+python = "3.14.9"  # Python 3.15 is not supported by ansible
 uv = "0.13.5"
 mkcert = "1.4.4"
 jq = "1.8.2"
