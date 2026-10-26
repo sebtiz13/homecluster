@@ -8,18 +8,74 @@
     dest: /etc/sensors.d/it{{ motherboard_chip }}
     src: sensors/it{{ motherboard_chip }}
     mode: "u=rw,g=r,o=r"
-  notify:
-    - Create folder for build motherboard driver
-    - Download module
-    - Extract module
-    - Build and install module
-    - Enbable module
+
+- name: Configure modprobe parameters for it87
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/it87.conf
+    content: "options it87 force_id=0x{{ motherboard_chip }} ignore_resource_conflict=1\n"
+    mode: "u=rw,g=r,o=r"
+
+- name: Ensure it87 is loaded at boot
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/it87.conf
+    content: "it87\n"
+    mode: "u=rw,g=r,o=r"
 
 - name: Load system modules temp
   ansible.builtin.copy:
     dest: /etc/modules-load.d/system.conf
     src: modules/system.conf
     mode: "u=rw,g=r,o=r"
+
+- name: Check if it87 module is installed in DKMS
+  ansible.builtin.command:
+    cmd: dkms status -m it87 -v {{ it87_version | default('2.0') }}
+  register: dkms_check
+  changed_when: false
+  failed_when: false
+
+- name: Setup it87 driver with DKMS
+  when: "'installed' not in dkms_check.stdout"
+  block:
+    - name: Create driver source directory
+      ansible.builtin.file:
+        path: "/usr/src/it87-{{ it87_version | default('2.0') }}"
+        state: directory
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: Download and extract it87 archive
+      ansible.builtin.unarchive:
+        src: "https://github.com/frankcrawford/it87/archive/refs/tags/v{{ it87_version | default('2.0') }}.tar.gz"
+        dest: "/usr/src/it87-{{ it87_version | default('2.0') }}"
+        remote_src: true
+        extra_opts:
+          - "--strip-components=1"
+
+    - name: Set module version in dkms.conf
+      ansible.builtin.replace:
+        path: "/usr/src/it87-{{ it87_version | default('2.0') }}/dkms.conf"
+        regexp: '#MODULE_VERSION#'
+        replace: "{{ it87_version | default('2.0') }}"
+
+    - name: Patch class_create for Linux 6.1 compatibility
+      ansible.builtin.replace:
+        path: "/usr/src/it87-{{ it87_version | default('2.0') }}/it87.c"
+        regexp: 'gigabyte_class = class_create\("gigabyte"\);'
+        replace: 'gigabyte_class = class_create(THIS_MODULE, "gigabyte");'
+
+    - name: Build and install module with DKMS
+      ansible.builtin.command:
+        cmd: "{{ item }}"
+      loop:
+        - "dkms add -m it87 -v {{ it87_version | default('2.0') }}"
+        - "dkms build -m it87 -v {{ it87_version | default('2.0') }}"
+        - "dkms install -m it87 -v {{ it87_version | default('2.0') }}"
+
+- name: Ensure it87 module is loaded in running kernel
+  community.general.modprobe:
+    name: it87
+    params: "force_id=0x{{ motherboard_chip }} ignore_resource_conflict=1"
+    state: present
 
 - name: Install and configure fancontrol
   ansible.builtin.import_tasks: fancontrol.yaml
