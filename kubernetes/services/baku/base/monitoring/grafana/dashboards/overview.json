@@ -513,8 +513,9 @@
           "editorMode": "code",
           "expr": "node_time_seconds{cluster=\"$cluster\",node=\"$node\"} - node_boot_time_seconds{cluster=\"$cluster\",node=\"$node\"}",
           "interval": "",
+          "instant": true,
           "legendFormat": "{{node}}",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
