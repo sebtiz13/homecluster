@@ -115,15 +115,6 @@ spec:
           {{- if .CommonLabels.job }} ({{ .CommonLabels.job }}){{ end -}}
           {{- end }}
 
-          {{- define "homecluster.discord.severityIcon" -}}
-          {{- $severity := printf "%s" . | toLower -}}
-          {{- if eq $severity "critical" -}}
-          :red_circle:
-          {{- else if eq $severity "warning" -}}
-          :orange_circle:
-          {{- end -}}
-          {{- end }}
-
           {{- define "homecluster.discord.message" }}
           {{- $alerts := 0 -}}
           {{- if gt (len .Alerts.Firing) 0 -}}
@@ -131,8 +122,14 @@ spec:
           {{- else -}}
           {{- $alerts = .Alerts.Resolved -}}
           {{- end -}}
-          {{- range $alerts }}
-          {{- $icon := template "homecluster.discord.severityIcon" .Labels.severity }}
+          {{- range $alerts -}}
+            {{- $severity := printf "%s" .Labels.severity | toLower -}}
+            {{- $icon := ":white_circle:" -}}
+            {{- if eq $severity "critical" -}}
+            {{- $icon = ":red_circle:" -}}
+            {{- else if eq $severity "warning" -}}
+            {{- $icon = ":orange_circle:" -}}
+            {{- end }}
           - {{ $icon }} [{{ .Labels.alertname }}] **{{ if gt (len .Annotations.summary) 150 -}}
               {{- printf "%.150s..." .Annotations.summary -}}
               {{- else -}}
