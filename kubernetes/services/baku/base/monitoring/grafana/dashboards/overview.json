@@ -259,7 +259,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 7,
+        "w": 14,
         "x": 10,
         "y": 1
       },
@@ -577,8 +577,9 @@
         {
           "editorMode": "code",
           "expr": "node_hwmon_temp_celsius{cluster=\"$cluster\",node=\"$node\",chip=~\"platform_coretemp_0|r8169_1_1100_r8169_1_1100:00\",sensor=\"temp1\"}",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -794,8 +795,9 @@
         {
           "editorMode": "code",
           "expr": "irate(node_pressure_cpu_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
+          "instant": true,
           "legendFormat": "CPU",
-          "range": true,
+          "range": false,
           "refId": "CPU"
         },
         {
@@ -806,9 +808,9 @@
           "editorMode": "code",
           "expr": "irate(node_pressure_memory_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
           "hide": false,
-          "instant": false,
+          "instant": true,
           "legendFormat": "Mem",
-          "range": true,
+          "range": false,
           "refId": "Memory"
         },
         {
@@ -819,9 +821,9 @@
           "editorMode": "code",
           "expr": "irate(node_pressure_io_waiting_seconds_total{cluster=\"$cluster\",node=\"$node\"}[$__rate_interval])",
           "hide": false,
-          "instant": false,
+          "instant": true,
           "legendFormat": "IO",
-          "range": true,
+          "range": false,
           "refId": "IO"
         }
       ],
