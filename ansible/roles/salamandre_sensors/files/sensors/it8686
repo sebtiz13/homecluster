@@ -1,5 +1,5 @@
 # Gigabyte_B360M
-chip "it8686-isa-0a40"
+chip "it8686_30040607-isa-0a40"
   label in0 "Vcore"
   label in1 "+3.3V"
     compute in1 @ * 1.65, @ / 1.65
