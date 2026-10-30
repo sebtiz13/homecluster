@@ -36,6 +36,45 @@
     install_recommends: false
   register: nvidia_packages
 
+- name: Ensure nvidia-persistenced is active
+  ansible.builtin.systemd:
+    name: nvidia-persistenced
+    state: started
+    enabled: true
+
+- name: Deploy GPU thermal optimization service
+  when: nvidia_packages is changed
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/nvidia-power-cap.service
+    content: |
+      [Unit]
+      Description=NVIDIA GPU Thermal Optimization
+      After=nvidia-persistenced.service
+      Wants=nvidia-persistenced.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/nvidia-smi -pl 125
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: "0644"
+
+- name: Reload systemd and apply GPU cap
+  when: nvidia_packages is changed
+  ansible.builtin.systemd:
+    name: nvidia-power-cap.service
+    daemon_reload: true
+    state: restarted
+
+- name: Enable nvidia-power-cap service
+  when: nvidia_packages is changed
+  ansible.builtin.systemd:
+    name: nvidia-power-cap.service
+    state: started
+    enabled: true
+
 - name: Reboot to load NVIDIA kernel module
   ansible.builtin.reboot:
     reboot_timeout: 600

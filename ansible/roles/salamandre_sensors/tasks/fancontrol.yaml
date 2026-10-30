@@ -1,10 +1,51 @@
-- name: fancontrol | Install package
+- name: Coolercontrold | Install package
   ansible.builtin.apt:
     pkg:
-      - fancontrol
+      - coolercontrold
 
-- name: fancontrol | Configure it
+- name: Ensure CoolerControl configuration directory exists
+  ansible.builtin.file:
+    path: /etc/coolercontrol
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Check if CoolerControl configuration files differ
   ansible.builtin.copy:
-    dest: /etc/fancontrol
-    src: fancontrol/it{{ motherboard_chip }}
-    mode: "u=rw,g=r,o=r"
+    src: coolercontrol/
+    dest: /etc/coolercontrol/
+    owner: root
+    group: root
+    mode: "0644"
+  check_mode: true
+  diff: true
+  register: config_diff
+
+- name: Apply updated configuration files
+  when: config_diff.changed
+  block:
+    - name: Stop coolercontrold prior to file synchronization
+      ansible.builtin.systemd:
+        name: coolercontrold
+        state: stopped
+
+    - name: Copy all configuration files in one task
+      ansible.builtin.copy:
+        src: coolercontrol/
+        dest: /etc/coolercontrol/
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Start coolercontrold with updated settings
+      ansible.builtin.systemd:
+        name: coolercontrold
+        state: started
+        enabled: true
+
+- name: Ensure coolercontrold service is running
+  ansible.builtin.systemd:
+    name: coolercontrold
+    state: started
+    enabled: true

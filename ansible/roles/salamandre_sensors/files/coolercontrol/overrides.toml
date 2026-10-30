@@ -1,0 +1,35 @@
+# CoolerControl display-name overrides.
+# Managed by coolercontrold: comments are not preserved on rewrite.
+# Hand edits are applied at the next daemon startup.
+
+[devices.0e20ad21cedced69d1a128c9eb2f54ba2b153e435986831647db435a88f6549a]
+device_name = "ST1000DM010-2EP1"
+
+[devices.0e20ad21cedced69d1a128c9eb2f54ba2b153e435986831647db435a88f6549a.channels]
+temp1 = { channel_label = "Temp1", label = "HDD - ST1000DM010-2EP1 (2)" }
+
+[devices.3666162a33484ca09b5e0799f1a305121769e82020eaaa62e88083b6e598c040]
+device_name = "WDC WD10EZEX-08W"
+
+[devices.3666162a33484ca09b5e0799f1a305121769e82020eaaa62e88083b6e598c040.channels]
+temp1 = { channel_label = "Temp1", label = "HDD - WDC WD10EZEX-08W (1)" }
+
+[devices.6c5daaaf04f1d17ba58d865329c1b2122354616b55bb57cf7b3380ce8b374fa5]
+device_name = "WDC WD10EZEX-08W"
+
+[devices.6c5daaaf04f1d17ba58d865329c1b2122354616b55bb57cf7b3380ce8b374fa5.channels]
+temp1 = { channel_label = "Temp1", label = "HDD - WDC WD10EZEX-08W (2)" }
+
+[devices.cbf8a8b8c672fcd3cb8a144f40dce3e23b4789f5739fd22e4c9faa114cf88b3e]
+device_name = "ST1000DM010-2EP1"
+name = "ST1000DM010-2EP1"
+
+[devices.cbf8a8b8c672fcd3cb8a144f40dce3e23b4789f5739fd22e4c9faa114cf88b3e.channels]
+temp1 = { channel_label = "Temp1", label = "HDD - ST1000DM010-2EP1 (1)" }
+
+[devices.ebee0a4dc582c17e413868c7d22453f71ca2bbfc9cce8a2b751fee921828532f]
+device_name = "CT250P2SSD8"
+name = "CT250P2SSD8"
+
+[devices.ebee0a4dc582c17e413868c7d22453f71ca2bbfc9cce8a2b751fee921828532f.channels]
+temp2 = { channel_label = "Sensor 1", label = "SSD - CT250P2SSD8" }
