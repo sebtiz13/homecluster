@@ -4,7 +4,7 @@ metadata:
   name: postgres16
 spec:
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.15-minimal-trixie
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.6-minimal-trixie
   inheritedMetadata:
     labels:
       backup.local/enabled: "true" # Only used to flag PVC (it used to be saved on S3)
